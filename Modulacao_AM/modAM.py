@@ -12,9 +12,38 @@ def butter_lowpass_filter(data, cutoff, fs, order=6):
     y = lfilter(b, a, data)
     return y
 
+def retificador(u_t):
+    nSamples = len(u_t)
+    r_t = []
+    for ii in range(nSamples):
+        if u_t[ii]>=0:
+            r_t.append(u_t[ii])
+        else:
+            r_t.append(0)
 
-def mod_dsbsc_am(m_t,t,A_c,fc):
-    c_t = A_c*np.cos(2*np.pi*fc*t)
+    return np.array(r_t)
+
+
+
+def mod_AM_convencional(m_t,t,A_c,fc,a):
+
+    c_t = np.cos(2*np.pi*fc*t)
+    m_n  = m_t/np.max(m_t)
+    return A_c*(1+a*m_n)*c_t
+
+def demod_AM_convecional(u_t,cutoff,fs):
+
+    r_t = retificador(u_t)
+    g_t = butter_lowpass_filter(r_t,cutoff,fs)
+    return g_t, r_t
+
+
+   
+    
+
+
+def mod_dsbsc_am(m_t,t,A_c,fc,phi):
+    c_t = A_c*np.cos(2*np.pi*fc*t + phi)
     return m_t*c_t
 
 
