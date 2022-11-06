@@ -2,7 +2,9 @@
 
 
   
-![Logo](Figs/fga.png)
+<p align="center">
+    <img src="https://github.com/araujoUnb/PricomAulas/blob/main/Figs/fga.png?raw=true" width="500"/>
+</p>
 # Principios de Comunicação para Engenharia
 
 ## Descrição Geral
