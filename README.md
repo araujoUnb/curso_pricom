@@ -3,8 +3,9 @@
 
   
 <p align="center">
-    <img src="https://github.com/araujoUnb/PricomAulas/blob/main/Figs/fga.png?raw=true" width="500"/>
-</p>
+    <img src="https://github.com/araujoUnb/PricomAulas/blob/main/Figs/fga.png?raw=true" width="1000"/>
+</p> 
+
 # Principios de Comunicação para Engenharia
 
 ## Descrição Geral
@@ -32,7 +33,7 @@
     +  Definição e propriedades básicas de ruído branco gaussiano
     +  Definição de relação sinal-ruído (SNR)
     +  Expressões para SNR à entrada e saída de demoduladores básicos 
--  4. Comunicação digital em banda base 
+4. Comunicação digital em banda base 
     +  Amostragem e Quantização
     +  PCM linear e não-linear
     +  Pulso formatador
