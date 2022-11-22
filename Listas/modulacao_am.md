@@ -131,11 +131,11 @@ $$
     $$
     \begin{align*}
         u(t) &= 5\cos(1800\pi t) + 20\cos(2000\pi t) + 5\cos(2200 \pi t) \\
-            &= \left( 1 + \frac{1}{2}\cos(200\pi t) \right) 
+            &= 20\left( 1 + \frac{1}{4}\cos(200\pi t) \right) 
     \end{align*}
     $$
 
-    A mensagem $m(t) = \frac{1}{2}\cos(200\pi t)$ e a portadora  $c(t) = 20\cos(2000\pi t)$
+    A mensagem $m(t) = \frac{1}{4}\cos(200\pi t)$ e a portadora  $c(t) = 20\cos(2000\pi t)$
 
 --- 
 ## Resolução
@@ -147,7 +147,7 @@ $$
     * Potência da portadora : $P_c = \frac{ 400}{2}$
     * Potência das bandas laterais: $P_l = \frac{400 \alpha ^2}{2}$
     * $$
-        \frac{P_l}{P_c} = \alpha ^2 = \frac{1}{4}
+        \frac{P_l}{P_c} = \alpha ^2 = \frac{1}{16}
       $$
 
 
