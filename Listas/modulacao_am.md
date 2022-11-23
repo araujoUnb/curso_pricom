@@ -106,9 +106,6 @@ Portanto as componentes de frequência serão
 
 ![bg right:55% w:100%](Figs/plot_questao_2.png )
 
-
-
-
 ---
 
 ## Questão 3
@@ -131,7 +128,7 @@ $$
     $$
     \begin{align*}
         u(t) &= 5\cos(1800\pi t) + 20\cos(2000\pi t) + 5\cos(2200 \pi t) \\
-            &= 20\left( 1 + \frac{1}{4}\cos(200\pi t) \right) 
+            &= 20\left( 1 + \frac{1}{4}\cos(200\pi t) \right)\cos(2000\pi t) 
     \end{align*}
     $$
 
@@ -241,3 +238,67 @@ Demonstre que o envelope de banda-passante de modulação AM-DSB-SC é proporcio
          & = \sqrt{m^2(t)} = |m(t)| 
   \end{align*}
   $$
+
+--- 
+<!-- _class: lead -->
+# Arquiteturas de moduladores AM
+
+---
+## Questão 6
+
+O sistema mostrado na figura é utilizado para gerar um sinal AM. O sinal modulado $m(t)$ possui média zero e valor absoluto máximo de $A_m = \max |m(t)|$. O dispositivo não-linear possui características de entrada e saída dada por
+
+$$
+y(t) = ax(t) + b x^2(t)
+$$
+
+1. Mostre a expressão de $y(t)$ em termos da mensagem e da portadora
+2.  Especificar as características do filtro que resultariam em sinal AM na sua saída.
+3. Qual índice de modulação?
+
+
+
+
+
+---
+## Arquitetura de transmissão
+
+
+![bg auto vertical ](Figs/questa_3.19_proakis.png)
+
+---
+
+## Resolução
+* Item 1
+    $$
+    \begin{align*}
+        y(t) &= ax(t) + b x^2(t) \\
+            & =  a(m(t) + \cos(2\pi f_ct)) + b(m(t) + \cos(2\pi f_ct))^2 \\
+            & = am(t) + bm^2(t) + a\cos(2\pi f_ct)) + 2bm(t)\cos(2\pi f_ct) + b\cos^2(2\pi f_ct)\\
+            & = a(1 + \frac{2b}{a}m(t))\cos(2\pi f_ct) + \left(am(t) + bm^2(t) + b\cos^2(2\pi f_ct)\right)
+    \end{align*}
+    $$
+
+* Item 2
+    O filtro deve selecionar o sinal $a(1 + \frac{2b}{a}m(t))\cos(2\pi f_ct)$ e filtrar todas as outras componentes. Portanto o filtro deve ser um seletor de faixa centrado em $f_c$ e largura de banda 2B, em que seria a largura de banda do sinal. 
+
+---
+
+* Item 3 
+     $$
+    \begin{align*}
+        y(t) &= a(1 + \frac{2b}{a}m(t))\cos(2\pi f_ct) \\
+             &= a(1 + \frac{2bA_m}{a}m_n(t))\cos(2\pi f_ct) \\
+             &= a(1 + \alpha m_n(t))\cos(2\pi f_ct)
+    \end{align*}
+    $$
+    em que $m_n(t)$ é a mensagem normalizada. O índice de modulação é igual a
+
+
+    $$
+    \alpha = \frac{2bA_m}{a}
+    $$
+
+---
+## Questão 7
+
