@@ -302,3 +302,79 @@ $$
 ---
 ## Questão 7
 
+O sinal DSB-SC pode ser gerado multiplicando $m(t)$ com uma forma de onda retangular e periódica de frequência $f_c$ seguido de um filtro de banda passante sintonizado na frequência fundamental do sinal periódico. Mostre que saída do filtro resulta em um sinal
+$$
+u(t) = m(t)\sin (2\pi f_c t)
+$$
+
+
+--- 
+
+## Resolução
+
+Considere o sinal 
+$$
+x(t) = -\Pi \left( \frac{t + \frac{T_c}{4}}{ \frac{T_c}{2}}\right) + \Pi \left( \frac{t - \frac{T_c}{4}}{ \frac{T_c}{2}}\right)
+$$
+
+O sinal $v(t)$ pode ser escritor como
+
+--- 
+$$
+\begin{align*}
+    v(t) &= m(t) \sum _{n=-\infty}^{\infty}x(t - T_c) \\
+        &= m(t) \sum _{n=-\infty}^{\infty}X_n e^{\jmath \pi \frac{n}{T_c}t}\\
+        &= \frac{m(t)}{T_c}\sum _{n=-\infty}^{\infty}X\left(f = \frac{n}{T_c}\right) e^{\jmath \pi \frac{n}{T_c}t}\\
+\end{align*}
+$$
+em que 
+
+---
+
+$$
+\begin{align*}
+    X\left(f = \frac{n}{T_c}\right) &=\mathcal{F}\left(x(t)\right)_{f = \frac{n}{T_c}} \\
+        &= \mathcal{F}\left(  -\Pi \left( \frac{t + \frac{T_c}{4}}{ \frac{T_c}{2}}\right) + \Pi \left( \frac{t - \frac{T_c}{4}}{ \frac{T_c}{2}}\right) )\right)_{f = \frac{n}{T_c}} \\
+        &= \left(-\frac{T_c}{2} sinc \left(f\frac{T_c}{2}\right)e^{\jmath 2\pi f \frac{T_c}{4}} + \frac{T_c}{2} sinc \left(f\frac{T_c}{2}\right)e^{-\jmath 2\pi f \frac{T_c}{4}}\right)_{f = \frac{n}{T_c}} \\
+        &= \left( \frac{T_c}{2} sinc \left(f\frac{T_c}{2} \right) \left( e^{-\jmath 2\pi f \frac{T_c}{4}} - e^{\jmath 2\pi f \frac{T_c}{4}} \right) \right)_{f = \frac{n}{T_c}}  \\
+        & = -\left( \jmath T_c sinc \left(f\frac{T_c}{2} \right) \sin (\pi f \frac{T_c}{2}) \right)_{f = \frac{n}{T_c}}  \\
+        & = -\jmath T_c sinc \left(\frac{n}{2} \right) \sin (  \frac{\pi}{2})  
+\end{align*}
+$$
+
+---
+
+Calculando a transformada de Fourier de $v(t)$
+$$
+\begin{align*}
+    V(f) &= \mathcal{F}\left(\frac{m(t)}{T_c}\sum _{n=-\infty}^{\infty}X\left(f = \frac{n}{T_c}\right) e^{\jmath \pi \frac{n}{T_c}t}\right) \\
+         &= \frac{1}{T_c}\sum _{n=-\infty}^{\infty}X\left(f = \frac{n}{T_c}\right) M(f - \frac{n}{T_c}) \\
+         &=\frac{1}{T_c}\sum _{n=-\infty}^{\infty}\left( -\jmath T_c sinc \left(\frac{n}{2} \right) \sin (  \frac{\pi}{2}) \right) M(f - \frac{n}{T_c}) \\
+         &=\sum _{n=-\infty}^{\infty}\left( -\jmath  sinc \left(\frac{n}{2} \right) \sin (  \frac{\pi}{2}) \right) M(f - \frac{n}{T_c})
+\end{align*}
+$$
+---
+Aplicando o filtro de banda-passante centrado em $1/T_c$, ou seja apenas as harmônicas $n \pm 1$ devem ser consideradas.
+$$
+\begin{align*}
+    U(f) &=  -\jmath  sinc \left( \frac{1}{2} \right) \sin ( \frac{\pi}{2}) M(f - \frac{1}{T_c}) -\jmath  sinc \left( \frac{-1}{2} \right) \sin ( -\frac{\pi}{2}) M(f + \frac{1}{T_c}) \\
+         &= -\jmath  sinc \left( \frac{1}{2} \right)  M(f - \frac{1}{T_c}) + \jmath  sinc \left( \frac{1}{2} \right)  M(f + \frac{1}{T_c}) \\
+         &= sinc \left( \frac{1}{2} \right) \left( -\jmath M(f - \frac{1}{T_c}) + \jmath  M(f + \frac{1}{T_c}) \right) \\
+         & = sinc \left( \frac{1}{2} \right) M(f) \star \left( -\jmath \delta(f - \frac{1}{T_c}) + \jmath  \delta (f + \frac{1}{T_c}) \right) \\
+         & = 2sinc \left( \frac{1}{2} \right) M(f) \star  \frac{1}{2\jmath}\left(  \delta(f - \frac{1}{T_c}) -  \delta (f + \frac{1}{T_c}) \right) \\
+
+\end{align*}
+$$
+
+---
+
+Convertendo para o tempo 
+
+$$
+ \begin{align*}
+    u(t) &= 2sinc \left( \frac{1}{2} \right) m(t) \sin \left( 2 \pi f_c t\right) \\
+         &= m(t) A_c \sin \left( 2 \pi f_c t\right) \\
+         &= m(t)c(t),
+ \end{align*} 
+$$
+em que $c(t) = 2sinc \left( \frac{1}{2} \right)\sin \left( 2 \pi f_c t\right)$ é a portadora.
