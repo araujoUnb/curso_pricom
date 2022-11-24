@@ -264,7 +264,7 @@ $$
 ## Arquitetura de transmissão
 
 
-![bg auto vertical ](Figs/questa_3.19_proakis.png)
+![bg auto vertical w:60pc](Figs/questa_3.19_proakis.png)
 
 ---
 
@@ -302,10 +302,16 @@ $$
 ---
 ## Questão 7
 
-O sinal DSB-SC pode ser gerado multiplicando $m(t)$ com uma forma de onda retangular e periódica de frequência $f_c$ seguido de um filtro de banda passante sintonizado na frequência fundamental do sinal periódico. Mostre que saída do filtro resulta em um sinal
+O sinal DSB-SC pode ser gerado multiplicando $m(t)$ com uma forma de onda retangular e periódica de frequência $f_c$ seguido de um filtro de banda passante sintonizado na frequência fundamental do sinal periódico. Mostre que a saída do filtro resulta em um sinal
 $$
 u(t) = m(t)\sin (2\pi f_c t)
 $$
+
+Para essa questão considere a forma de onda do slide a seguir.
+
+---
+
+![bg auto w:50pc](Figs/Onda_quadrada.png)
 
 
 --- 
@@ -338,7 +344,7 @@ $$
         &= \left(-\frac{T_c}{2} sinc \left(f\frac{T_c}{2}\right)e^{\jmath 2\pi f \frac{T_c}{4}} + \frac{T_c}{2} sinc \left(f\frac{T_c}{2}\right)e^{-\jmath 2\pi f \frac{T_c}{4}}\right)_{f = \frac{n}{T_c}} \\
         &= \left( \frac{T_c}{2} sinc \left(f\frac{T_c}{2} \right) \left( e^{-\jmath 2\pi f \frac{T_c}{4}} - e^{\jmath 2\pi f \frac{T_c}{4}} \right) \right)_{f = \frac{n}{T_c}}  \\
         & = -\left( \jmath T_c sinc \left(f\frac{T_c}{2} \right) \sin (\pi f \frac{T_c}{2}) \right)_{f = \frac{n}{T_c}}  \\
-        & = -\jmath T_c sinc \left(\frac{n}{2} \right) \sin (  \frac{\pi}{2})  
+        & = -\jmath T_c sinc \left(\frac{n}{2} \right) \sin (  \frac{n\pi}{2})  
 \end{align*}
 $$
 
@@ -350,7 +356,7 @@ $$
     V(f) &= \mathcal{F}\left(\frac{m(t)}{T_c}\sum _{n=-\infty}^{\infty}X\left(f = \frac{n}{T_c}\right) e^{\jmath \pi \frac{n}{T_c}t}\right) \\
          &= \frac{1}{T_c}\sum _{n=-\infty}^{\infty}X\left(f = \frac{n}{T_c}\right) M(f - \frac{n}{T_c}) \\
          &=\frac{1}{T_c}\sum _{n=-\infty}^{\infty}\left( -\jmath T_c sinc \left(\frac{n}{2} \right) \sin (  \frac{\pi}{2}) \right) M(f - \frac{n}{T_c}) \\
-         &=\sum _{n=-\infty}^{\infty}\left( -\jmath  sinc \left(\frac{n}{2} \right) \sin (  \frac{\pi}{2}) \right) M(f - \frac{n}{T_c})
+         &=\sum _{n=-\infty}^{\infty}\left( -\jmath  sinc \left(\frac{n}{2} \right) \sin (  \frac{n\pi}{2}) \right) M(f - \frac{n}{T_c})
 \end{align*}
 $$
 ---
