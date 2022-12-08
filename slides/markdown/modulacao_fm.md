@@ -3,7 +3,7 @@ marp: true
 theme: gaia
 color: #000
 paginate: true
-footer: 'Lab.Princípios de Comunicação para Engenharia '
+footer: 'Princípios de Comunicação para Engenharia '
 header: '![h:60px](../../Figs/UNBS-300x150.png)'
 ---
 
@@ -46,24 +46,25 @@ header: '![h:60px](../../Figs/UNBS-300x150.png)'
     </style>
 <!-- _class: lead -->
 
-
 # Modulação FM
+
 Prof. Daniel Costa Araújo
 
 ---
 <!-- _class: lead -->
 # Modelo de Sinal
 
+---
 
---- 
-## Conceito 
+## Conceito
 
 ![bg auto w:80%](Fig/retangular.png)
 
---- 
+---
 ![bg auto w:80%](Fig/triangular.png)
 
 ---
+
 ## O que é frequência ?
 
 Em uma definição geral, a frequência é taxa de variação com que a fase do sinal varia ao longo do tempo
@@ -72,9 +73,9 @@ $$
 f_i(t) = f_c + \frac{1}{2\pi}\frac{d}{dt} \phi (t)
 $$
 
---- 
+---
 
-## Conceito 
+## Conceito
 
 Considere o sinal de banda-passante
 
@@ -82,17 +83,19 @@ $$
 u(t) = A_c \cos (2\pi f_c t + \phi (t))
 $$
 
-Há duas maneiras de alteramos a fase do sinal 
+Há duas maneiras de alteramos a fase do sinal
 
-1. Modulação PM  $\rightarrow$ $\phi(t) = k_p m(t)$ 
+1. Modulação PM  $\rightarrow$ $\phi(t) = k_p m(t)$
+
 ---
-2. Modulação FM 
+
+2. Modulação FM
     $$
     \begin{align*}
     f_i(t) - f_c & = k_f m(t) \\
     f_i(t) - f_c & = \frac{1}{2\pi}\frac{d}{dt} \phi (t) \\
-    \frac{d}{dt} \phi (t) & = 2\pi k_f m(t) \\ 
-    \phi (t) & = 2\pi k_f \int_{-\infty}^{t} m(\tau) d\tau \\ 
+    \frac{d}{dt} \phi (t) & = 2\pi k_f m(t) \\
+    \phi (t) & = 2\pi k_f \int_{-\infty}^{t} m(\tau) d\tau \\
     \end{align*}
     $$
 
@@ -104,7 +107,7 @@ Há duas maneiras de alteramos a fase do sinal
    $$
    \phi (t) = \begin{cases}
     k_p m(t), & PM \\
-    2\pi k_f \int_{-\infty}^{t} m(\tau) d\tau , & FM \\ 
+    2\pi k_f \int_{-\infty}^{t} m(\tau) d\tau , & FM \\
    \end{cases}
    $$
 
@@ -112,7 +115,7 @@ Há duas maneiras de alteramos a fase do sinal
    $$
    \frac{1}{2\pi}\frac{d}{dt} \phi (t) = \begin{cases}
     k_p\frac{1}{2\pi} \frac{d}{dt} m(t), & PM \\
-    k_f  m(t)  , & FM \\ 
+    k_f  m(t)  , & FM \\
    \end{cases}
    $$
 
@@ -120,11 +123,10 @@ Há duas maneiras de alteramos a fase do sinal
 
 ## Desvio de fase e frequência
 
-1.  Modulação PM
+1. Modulação PM
     1. Desvio máximo de fase $\Delta \phi _{max} = k_p \max {|m(t)|}$
-2.  Modulção FM
+2. Modulção FM
     1. Desvio máximo de frequência  $\Delta f _{max} = k_p \max {|m(t)|}$
-
 
 ---
 
@@ -143,7 +145,7 @@ $$
 m(t) = a \cos (2\pi f_m t)
 $$
 
-Utilize-a para obter a expressão do sinal modulado em frequência e 
+Utilize-a para obter a expressão do sinal modulado em frequência e
 
 $$
 \begin{align*}
@@ -154,14 +156,12 @@ $$
 
 ---
 
-
-* O índice de modulação para o sinal FM é 
+* O índice de modulação para o sinal FM é
     $$
     \beta _p = k_p a
     $$
 
-
-* O índice de modulação para o sinal PM é 
+* O índice de modulação para o sinal PM é
     $$
     \begin{align*}
     \beta _f &=  \frac{a k_f }{f_m}  \\
@@ -169,35 +169,25 @@ $$
     \end{align*}
     $$
 
----
-## Modulação de banda-estreita
-
-$$
-\begin{align*}
-    u(t) & = A_c \cos(2\pi f_c t) \cos \phi(t) -  A_c \sin(2\pi f_c t) \sin \phi(t)  \\
-         & \approx A_c \cos(2\pi f_c t) - A_c \phi(t) \sin 2\pi f_c t
-\end{align*}
-$$
-
-![bg auto w:70%](Fig/vetor_am.png)
-![bg auto w:70%](Fig/vetor_fm.png)
 
 ---
+
 ## Exemplo
 
-Considere o sinal $m(t)$ usado para modular em frequência. 
-* Encontre a relação entre $k_p$ e $k_f$, tal que o máximo desvio de fase de ambos o sinais sejam iguais. 
-* Se $k_p = k_f = 1$ qual a máxima frequência instantânea em cada caso?
+Considere o sinal $m(t)$ usado para modular em frequência.
 
+* Encontre a relação entre $k_p$ e $k_f$, tal que o máximo desvio de fase de ambos o sinais sejam iguais.
+* Se $k_p = k_f = 1$ qual a máxima frequência instantânea em cada caso?
 
 ---
 
 ![bg auto w:80%](Fig/mensagem.png)
 
 ---
-## Solução 
 
-Sinal PM 
+## Solução
+
+Sinal PM
 
 $$
 \Delta \phi _{\text{max}} = k_p \max \{|m(t)|\} =k_p
@@ -217,10 +207,8 @@ $$
 \Delta \phi _{\text{max}} = \phi (t=2)=3\pi k_f
 $$
 
-
-
 ---
-Portanto: 
+Portanto:
 
 $$
 k_p = 3\pi k_f
@@ -232,11 +220,12 @@ $$
 \begin{align*}
 f_i(t) & = f_c + \frac{1}{2\pi} \frac{d}{dt}\phi(t) \\
 & = f_c + \frac{1}{2\pi} k_p\frac{d}{dt}m(t) \\
-& = f_c + \frac{k_p}{2\pi}  \,\ \,\, 0< t < 1 \\
-& = f_c + \frac{1}{2\pi}  \,\ \,\, 0< t < 1 \\
-f_{\text{max}} & = f_c + \frac{1}{2\pi}
+& = f_c + \frac{k_p}{2\pi} \left[ g(t)  - 2 \delta (t-2) + \delta(t-3)\right]
 \end{align*}
 $$
+em que $g(t) = u(t) - u(t-1)$, sendo $u(t)$ a função degrau.
+
+
 
 ---
 
@@ -250,12 +239,26 @@ f_{\text{max}}& = f_c + k_f \\
 \end{align*}
 $$
 
+---
+
+## Modulação de banda-estreita
+
+$$
+\begin{align*}
+    u(t) & = A_c \cos(2\pi f_c t) \cos \phi(t) -  A_c \sin(2\pi f_c t) \sin \phi(t)  \\
+         & \approx A_c \cos(2\pi f_c t) - A_c \phi(t) \sin 2\pi f_c t
+\end{align*}
+$$
+
+![bg auto w:70%](Fig/vetor_am.png)
+![bg auto w:70%](Fig/vetor_fm.png)
 
 ---
 <!-- _class: lead -->
 # Caracterização Espectral
 
 ---
+
 ## Modulação em fase (frequência) com sinal senoidais
 
 Considere um sinal modulado em fase:
@@ -264,15 +267,14 @@ $$
 \begin{align*}
 u(t) & = A_c \cos(2\pi f_ct + \beta 2\pi f_m t)    \\
      & = \textrm{Re}\left(m(t)e^{\jmath 2\pi f_c t}\right) \\
-     & = \textrm{Re}\left(A_c e^{\jmath \beta \sin (2\pi f_m t)}e^{\jmath 2\pi f_c t}\right) 
+     & = \textrm{Re}\left(A_c e^{\jmath \beta \sin (2\pi f_m t)}e^{\jmath 2\pi f_c t}\right)
 \end{align*}
 $$
 
-O sinal $m(t)$ é a componente de banda básica e periódica. Portanto, é possível analisá-lo em frequência pela transformada Fourier 
-
+O sinal $m(t)$ é a componente de banda básica e periódica. Portanto, é possível analisá-lo em frequência pela transformada Fourier
 
 $$
-e^{\jmath \beta 2\pi f_m t} = \sum _{n = -\infty}^{\infty}c_n e^{\jmath 2\pi nfm t}
+e^{\jmath \beta 2\pi f_m t} = \sum _{n = -\infty}^{\infty}c_n e^{\jmath 2\pi nf_m t}
 $$
 
 ---
@@ -288,7 +290,7 @@ $$
 $J_n(\beta)$ é a função de Bessel do Primeiro tipo e ordem n
 
 ---
-Subsituindo a série de Fourier no sinal original 
+Subsituindo a série de Fourier no sinal original
 
 $$
 \begin{align*}
@@ -300,26 +302,32 @@ $$
 $$
 
 ---
-## Análise da das harmônicas 
+## Função de Bessel
 
-* Exemplo 
+![bg auto w:80%](Fig/bessel.png)
+
+
+---
+
+## Análise da das harmônicas
+
+* Exemplo
 
     |Potência (\%) | $\beta = 0.5$ | $\beta = 1$ | $\beta = 2$ | $\beta = 5$ |$\beta = 8$ |
     |---|  ---| ---|---|---| --|
-    80 | -| 1 | 2 | 4 |7|
+    80 |  | 1 | 2 | 4 |7|
     90 | 1| 1 | 2 | 5 |8|
     98 | 1| 2 | 3 | 6 |9|
 
+---
 
---- 
-
-## Exemplo 
+## Exemplo
 
 Considere um mensagem $m(t)=\cos(20\pi t)$ modulando em frequência a portadora $c(t) = 10\cos(2\pi f_c t)$. Considere um desvio de frequênmcia $k_f = 50$. Determine a expressão do sinal modulado e quantas harmônicas  devem ser consideradas para conter $99%$ da energia do sinal modulado.
 
 ---
 
-## Solução 
+## Solução
 
 A potência total é dada por $P_c = \frac{A_c^2}{2} = 50$
 
@@ -328,13 +336,13 @@ $$
 \begin{align*}
     u(t) &= 10 \cos(2\pi f_ct + 2\pi k_f \int _{-\infty}^{t}\cos(20\pi \tau)d\tau) \\
     &= 10 \cos(2\pi f_ct + \frac{2\pi k_f}{20\pi}\sin(20\pi \tau)d\tau)  \\
-    &= 10 \cos(2\pi f_ct + 5\sin(20\pi \tau)d\tau) 
+    &= 10 \cos(2\pi f_ct + 5\sin(20\pi \tau)d\tau)
 \end{align*}
 $$
 
 O índice de modulação do sinal é dado por $\beta = \frac{k_f \max|m(t)|}{f_m} = 5$
 
---- 
+---
 
 O sinal modulado é, portanto:
 
@@ -359,18 +367,16 @@ Portanto a largura de banda do sinal FM é de 120 Hz.
 
 O espectro pode ser representado como
 
-
 ![w:70pc](Fig/banda_efetiva.png)
 
-
-
-Para o cálculo de 98% da potência do sinal temos a aproximação 
+Para o cálculo de 98% da potência do sinal temos a aproximação
 
 $$
 B_c = 2 (\beta + 1) f_m
 $$
 
 ---
+
 ## Banda Efetiva PM e FM em Sinais Senoidais
 
 $$
@@ -391,6 +397,7 @@ B_c = \begin{cases}
 $$
 
 ---
+
 ## Conclusões importantes
 
 1. Aumentar a amplitude possui efeito similares em FM e PM \\
@@ -398,23 +405,23 @@ $$
    1. FM: aumento aditivo
    2. PM: aumento proporcional.
 
-
---- 
+---
 
 ## Cálculo do Número de  Harmônicas
+
 Para estimar o número de harmônicas, tem-se
 $$
 M_c = 2(\lfloor{ \beta}\rfloor + 1) + 1 = \begin{cases}
     2\lfloor{ k_pa}\rfloor + 3, & \textrm{PM} \\
-    2\lfloor{ \frac{k_fa}{f_m}}\rfloor + 3, & \textrm{FM} 
+    2\lfloor{ \frac{k_fa}{f_m}}\rfloor + 3, & \textrm{FM}
 \end{cases}
 $$
 
 * IMPORTANTe
-    * (PM) : aumento de $f_m$ não aumenta o número de harmônicas
-    * (FM ): aumento de $f_m$ reduz o número de harmônicas 
+  * (PM) : aumento de $f_m$ não aumenta o número de harmônicas
+  * (FM ): aumento de $f_m$ reduz o número de harmônicas
 
---- 
+---
 
 ## Regra de Cason
 
@@ -427,16 +434,17 @@ B_c = 2(\beta + 1) W = \begin{cases}
 \end{cases}
 $$
 
---- 
+---
 
-## Exemplo 
+## Exemplo
 
 Para um sinal modulado em Fm com mensagem $m(t) = 10\text{sinc}(10^4t)$, determine a largura de banda do sinal transmitido com $k_f=4000$
 
 ---
-## Solução 
 
-A transformada de Fourier da mensagem é 
+## Solução
+
+A transformada de Fourier da mensagem é
 $$
 M(f) = \frac{1}{B} \Pi \left(\frac{f}{B}\right),
 $$
@@ -450,7 +458,7 @@ $$
 \end{align*}
 $$
 
---- 
+---
 A largura de banda da mensagem é dada por:
 
 $$
@@ -465,8 +473,8 @@ $$
 <!-- _class: lead -->
 # Implementação de Moduladores e Demoduladures  FM
 
+---
 
---- 
 ## Modulador utilizando um circuito oscilador
 
 ![bg left:50% w:40pc](Fig/oscilador.png)
@@ -509,7 +517,6 @@ $$
 * Estrutura similar ao modulador AM
 * Fácil adaptação
 
-
 ![bg left w:40pc](Fig/fm_banda_estreita.png)
 
 ---
@@ -537,8 +544,7 @@ $$
   * Note que o termo $\left[2\pi f_c + k_f m(t) \right]$ esta na amlitude da portadora
   * Sinal AM portanto um detector de envelope pode ser utilizado para a demodulação.
 
-
---- 
+---
 
 ## Filtro de demodulação
 
