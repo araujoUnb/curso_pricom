@@ -309,7 +309,7 @@ $$
 
 ---
 
-## Análise da das harmônicas
+## Análise do Número de harmônicas
 
 * Exemplo
 
@@ -417,7 +417,7 @@ M_c = 2(\lfloor{ \beta}\rfloor + 1) + 1 = \begin{cases}
 \end{cases}
 $$
 
-* IMPORTANTe
+* IMPORTANTE
   * (PM) : aumento de $f_m$ não aumenta o número de harmônicas
   * (FM ): aumento de $f_m$ reduz o número de harmônicas
 
@@ -430,7 +430,7 @@ Define a largura de banda efetiva para um sinal mensagem qualquer
 $$
 B_c = 2(\beta + 1) W = \begin{cases}
     k_p \max|m(t)|, & \text{PM}\\
-    \frac{k_f \max|m(t)|}{W}, & \text{PM}
+    \frac{k_f \max|m(t)|}{W}, & \text{FM}
 \end{cases}
 $$
 
@@ -535,14 +535,21 @@ Uso do derivador para extrair a informação da fase
 
 $$
 \begin{align*}
-    \dot{\phi} (t) & = \frac{\partial}{\partial t} \left[A \cos \left( 2\pi f_c t + k_f \int _{-\infty}^{t} m(\tau)d\tau \right) \right] \\
-                 & = A_c \left[2\pi f_c + k_f m(t) \right]A \sin \left( 2\pi f_c t + k_f \int _{-\infty}^{t} m(\tau)d\tau - \pi \right)
+    \dot{\phi} (t) & = \frac{\partial}{\partial t} \left[A_c \cos \left( 2\pi f_c t + k_f \int _{-\infty}^{t} m(\tau)d\tau \right) \right] \\
+                 & = A_c \left[2\pi f_c + k_f m(t) \right]\sin \left( 2\pi f_c t + k_f \int _{-\infty}^{t} m(\tau)d\tau - \pi \right)
 \end{align*}
 $$
 
 * Importante
   * Note que o termo $\left[2\pi f_c + k_f m(t) \right]$ esta na amlitude da portadora
   * Sinal AM portanto um detector de envelope pode ser utilizado para a demodulação.
+
+---
+
+## Exemplo 
+
+![bg auto w:100%](Fig/triangular.png)
+![bg auto w:100%](Fig/diff_fim.png)
 
 ---
 
@@ -564,3 +571,171 @@ $$
 ## Implementação
 
 ![bg auto w:50pc](Fig/implementa_discriminador.png)
+
+
+---
+
+## PLL: Diagrama de bloco
+
+![bg auto w:90%](Fig/pll.png)
+
+---
+
+## PLL (Phase Locked-loop)
+
+Considere a entrada do PLL 
+
+$$
+\begin{align}
+u(t)  &= A_c \cos \left(2\pi f_c t + \phi (t) \right) \\
+\phi (t) &= 2\pi kf \int _{-\infty}^{t}m(\tau) d\tau
+\end{align}
+$$
+Considere que a tensão de controle do VCO é dada pela saída do filtro de Loop; A frequência instantânea do VCO  é
+
+$$
+f_v(t) = f_c + k_v v(t)
+$$
+
+---
+
+Portanto a saída do VCO é 
+$$
+\begin{align}
+y_v(t)  &= A_v \cos \left(2\pi f_c t + \phi_v (t) \right) \\
+\phi_v (t) &= 2\pi kf \int _{-\infty}^{t}m(\tau) d\tau
+\end{align}
+$$
+
+Após o comparador de fase tem-se que
+
+$$
+\begin{align}
+e(t) & = \frac{1}{2}A_v A_c \sin \left(\phi (t) - \phi_v (t)  \right) \\
+\end{align}
+$$
+Se o PLL conseguir "travar" a fase tem-se que
+
+$$
+\begin{align}
+e(t) & \approx \frac{1}{2}A_v A_c \left(\phi (t) - \phi_v (t)  \right) \\
+& \approx \frac{1}{2}A_v A_c \phi_e(t)
+\end{align}
+$$
+
+---
+
+## Modelo de PLL Linearizado
+
+![bg auto w:90%](Fig/pll_lin.png)
+
+---
+
+Utilizando o modelo linearizado
+
+$$
+\begin{align}
+\phi _e (t) &=  \phi (t) - 2\pi k_v \int _{0}{t}v(\tau)d\tau    \\
+ \frac{\partial \phi _e (t)}{\partial t}  +  2\pi k_v v(t)  &=  \frac{\partial \phi  (t)}{\partial t}  \\
+\frac{\partial \phi _e (t)}{\partial t}  +  2\pi k_v \int _{0}^{\infty}\phi_e(\tau) g(t - \tau) &=  \frac{\partial \phi  (t)}{\partial t}  \\
+\end{align}
+$$
+
+Utilizando a transformada de Fourier
+
+$$
+\begin{align}
+(\jmath 2\pi f) \Phi _e(f) + 2\pi k_v \Phi _e(f)G(f) &= \jmath 2\pi f \Phi (f) \\
+\Phi _e(f)&= \frac{1}{1 + \left(\frac{k_v}{\jmath f} G(f)\right)}\Phi (f)
+\end{align}
+$$
+
+---
+
+A saída do VCO é
+
+$$
+\begin{align}
+    V(f) & = \Phi _e(f)  G(f) \\
+         & = \frac{G(f)}{1 + \left(\frac{k_v}{\jmath f} G(f)\right)}\Phi (f)
+\end{align}
+$$
+Se  
+$$
+|k_v \frac{G(f)}{\jmath f}| >> 1
+$$
+
+---
+
+$$
+\begin{align}
+    V(f) & =  \frac{G(f)}{1 + \left(\frac{k_v}{\jmath f} G(f)\right)} \Phi (f) \\
+        & = \frac{\jmath f}{k_v} \Phi (f)  \\
+        & = \frac{\jmath 2\pi f}{2\pi k_v} \Phi (f) \\
+    v(t) &= \frac{1}{2\pi k_v} \frac{\partial \phi (t)}{\partial t} \\
+         & = \frac{2\pi k_f}{2\pi k_v} m(t) \\
+         & = \frac{ k_f}{k_v} m(t)
+\end{align}
+$$
+
+---
+
+<!-- _class: lead -->
+# Transmissores e Receptores FM
+
+---
+
+# Método de Armstrong : Conversor de Frequência
+
+É possível aplicar alterar a frequência do sinal utilizando a seguinte relação
+
+$$
+\begin{align}
+    y(t) &= A \cos ^2 \left(2\pi f_ct + k_f \int m(\tau)d\tau \right) \\
+         &= 0.5 + 0.5A\cos ^2 \left(2\pi 2f_ct + 2k_f \int m(\tau)d\tau \right) 
+\end{align}
+$$
+
+* Conversão de frequência
+* Aumento do desvio de fase
+
+
+--- 
+
+# Método de Armstrong (II)
+
+![bg auto w:90%](Fig/armstrong.png)
+
+---
+
+# Exercício
+
+Projetar um modulador FM indireto ue gera um sinal FM com frequência de 97.3 MHz e desvio máximo de 10.24 KHz. Um gerado NBFM gera um sinal com frequência de protadora de 20 KHz e devio máximo de 5 Hz. Projete um modulador de Armstrong com frequência ajustável ebtre 100 KHz e 500 KHz e com multiplicadores de frequência que sigam potência de 2.
+
+
+![ w:100%](Fig/armostrong_exemplo.png)
+
+
+--- 
+
+# Solução 
+
+Considere os parâmetros do sinal de saída NBFM 
+* $f_{c_1}=20$ kHz 
+* $\Delta f_1 = 5$ Hz
+A Saída do modulador é
+* $f_{c_4}= 97.3$ MHz 
+* $\Delta f_4 = 10.24$ KHz
+
+---
+
+A razão entre as frequências são
+
+$$
+M_1M_2 = \frac{\Delta f_4}{\Delta f_1} = 2048 = 2^{11}
+$$
+ou seja
+* $M_1 = 2^{n_1}$ e $M_2 = 2^{n_2}$
+* $n_1 + n_2 = 11$
+Portanto 
+* $f_{c_2}=2^{n_1}f_{c_1}$ e $f_{c_4}=2^{n_2}f_{c_3}$
