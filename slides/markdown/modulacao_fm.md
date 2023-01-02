@@ -313,11 +313,11 @@ $$
 
 * Exemplo
 
-    |Potência (\%) | $\beta = 0.5$ | $\beta = 1$ | $\beta = 2$ | $\beta = 5$ |$\beta = 8$ |
-    |---|  ---| ---|---|---| --|
-    80 |  | 1 | 2 | 4 |7|
-    90 | 1| 1 | 2 | 5 |8|
-    98 | 1| 2 | 3 | 6 |9|
+    | Potência (\%) | $\beta = 0.5$ | $\beta = 1$ | $\beta = 2$ | $\beta = 5$ | $\beta = 8$ |
+    | ------------- | ------------- | ----------- | ----------- | ----------- | ----------- |
+    | 80            |               | 1           | 2           | 4           | 7           |
+    | 90            | 1             | 1           | 2           | 5           | 8           |
+    | 98            | 1             | 2           | 3           | 6           | 9           |
 
 ---
 
@@ -400,7 +400,7 @@ $$
 
 ## Conclusões importantes
 
-1. Aumentar a amplitude possui efeito similares em FM e PM \\
+1. Aumentar a amplitude possui efeito similares em FM e PM 
 2. Aumentar a frequência da mensagem implica em aumentar a banda FM e PM
    1. FM: aumento aditivo
    2. PM: aumento proporcional.
@@ -721,11 +721,14 @@ Projetar um modulador FM indireto ue gera um sinal FM com frequência de 97.3 MH
 # Solução 
 
 Considere os parâmetros do sinal de saída NBFM 
-* $f_{c_1}=20$ kHz 
-* $\Delta f_1 = 5$ Hz
-A Saída do modulador é
-* $f_{c_4}= 97.3$ MHz 
-* $\Delta f_4 = 10.24$ KHz
+
+
+| Parâmetros           | Entrada do Modulador | Saída do Modulador       |
+| -------------------- | -------------------- | ------------------------ |
+| Frequência central   | $f_{c_1}=20$ kHz     | $f_{c_4}= 97.3$ MHz      |
+| Desvio de frequência | $\Delta f_1 = 5$ Hz  | $\Delta f_4 = 10.24$ KHz |
+
+
 
 ---
 
@@ -739,3 +742,138 @@ ou seja
 * $n_1 + n_2 = 11$
 Portanto 
 * $f_{c_2}=2^{n_1}f_{c_1}$ e $f_{c_4}=2^{n_2}f_{c_3}$
+
+![bg right w:40pc](Fig/armostrong_exemplo.png)
+
+---
+
+Para encontrar a frequência do oscilador há 3 possibilidades
+
+$$
+\begin{align}
+    f_{c_3} = f_{c_2} \pm  f_{\text{LO}} & & f_{c_3} = f_{\text{LO}} - f_{c_2}
+\end{align}
+$$
+
+em que 
+$$
+400.000 < f_{\text{LO}} < 500.000
+$$
+
+![bg right w:40pc](Fig/armostrong_exemplo.png)
+
+
+---
+
+Vamos a primeira possibilidade 
+
+$$
+\begin{align*}
+    f_{c_3} &= f_{c_2} -  f_{\text{LO}} \\
+    f_{c_4} &= 2^{n_2} (f_{c_2} -  f_{\text{LO}}) \\
+    97.3 \times 10^6 &= 2^{n_2} \left( 2^{n_1}f_{c_1} - f_{\text{LO}} \right) \\
+    97.3 \times 10^6   &= 2^{n_2+n_1}f_{c_1} - 2^{n_2}f_{\text{LO}}  \\
+    2^{n_2}f_{\text{LO}} &= 2^{n_2+n_1}f_{c_1} - 97.3 \times 10^6 \\
+
+    f_{\text{LO}} &= \frac{2^{11}f_{c_1} - 97.3 \times 10^6}{2^{n_2}} \\
+
+    f_{\text{LO}} &= \frac{2^{11}20 \times 10^3 - 97.3 \times 10^6}{2^{n_2}} = \frac{-56.34 \times 10^6}{2^{n_2}}\\
+\end{align*}
+$$
+
+Conclusão: Não há solução para $n_2$
+
+---
+
+Segunda possibilidade
+
+$$
+\begin{align*}
+    f_{c_3} &= f_{c_2} +  f_{\text{LO}} \\
+    f_{c_4} &= 2^{n_2} (f_{c_2} +  f_{\text{LO}}) \\
+    97.3 \times 10^6 &= 2^{n_2} \left( 2^{n_1}f_{c_1} + f_{\text{LO}} \right) \\
+    97.3 \times 10^6   &= 2^{n_2+n_1}f_{c_1} + 2^{n_2}f_{\text{LO}}  \\ 
+    2^{n_2}f_{\text{LO}} &= 97.3 \times 10^6 - 2^{n_2+n_1}f_{c_1}  \\
+
+    f_{\text{LO}} &= \frac{ 97.3 \times 10^6 - 2^{11}f_{c_1}}{2^{n_2}} \\
+
+    f_{\text{LO}} &= \frac{97.3 \times 10^6 - 2^{11}20 \times 10^3  }{2^{n_2}} = \frac{56.34 \times 10^6}{2^{n_2}}\\
+\end{align*}
+$$
+Se $n_2 = 7$ $f_{\text{LO}} = 440$ KHz e, portanto, $400.000 < f_{\text{LO}} < 500.000$
+
+---
+
+Terceira possibilidade
+
+$$
+\begin{align*}
+    f_{c_3} &= f_{\text{LO}} - f_{c_2} \\
+    f_{c_4} &= 2^{n_2} (f_{\text{LO}} - f_{c_2}) \\
+    97.3 \times 10^6 &= 2^{n_2} \left( f_{\text{LO}} - 2^{n_1}f_{c_1}\right) \\
+    97.3 \times 10^6   &= 2^{n_2}f_{\text{LO}}  - 2^{11}f_{c_1} +  \\ 
+    2^{n_2}f_{\text{LO}} &= 97.3 \times 10^6 + 2^{11}f_{c_1}  \\
+
+    f_{\text{LO}} &= \frac{ 97.3 \times 10^6 + 2^{11}f_{c_1}}{2^{n_2}} \\
+
+    f_{\text{LO}} &= \frac{97.3 \times 10^6 + 2^{11}20 \times 10^3  }{2^{n_2}} = \frac{13.826 \times 10^7}{2^{n_2}}\\
+\end{align*}
+$$
+Nenhum inteiro entre 0 e 11 satisfaz.
+
+--- 
+
+![bg auto w:80%](fig/../Fig/solucao.png)
+
+
+
+---
+
+<!-- _class: lead -->
+# Exercícios
+
+
+---
+## Questão 1
+
+Considere o sinal na saída do modulador angular dado por 
+
+$$
+u(t) = 100 \cos {\left( 2 \pi f_c t + 4\sin 2000\pi t\right)}
+$$
+com frequência de portadora de 10 MHz.
+
+
+1. Qual a potência média transmitida?
+2. Qual o pico de desvio de fase ?
+3. Qual o pico de desvio de frequência?
+4. Você classificaria esse sinal como FM ou PM? 
+
+--- 
+# Solução 
+* Item 1
+
+$$
+P = \frac{A^2_c}{2} = \frac{500^2}{2} = 5000 W
+$$
+
+* Item 2
+
+$$
+\Delta \phi _{\text {max}} = | 4\sin 2000\pi t| = 4
+$$
+
+---
+
+* Item 3
+
+$$
+\begin{align*}
+    f_i(t) & = f_c + \frac{1}{2\pi}\frac{d\phi(t)}{dt} \\
+           & = f_c + \frac{4}{2\pi}\cos (2000\pi t)2000\pi \\
+           & = f_c + 4000\cos (2000\pi t)\\
+\end{align*}
+$$
+$$
+\Delta f_ {max} = 4 \textrm{ KHz} 
+$$
