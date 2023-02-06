@@ -126,7 +126,7 @@ Há duas maneiras de alteramos a fase do sinal
 1. Modulação PM
     1. Desvio máximo de fase $\Delta \phi _{max} = k_p \max {|m(t)|}$
 2. Modulção FM
-    1. Desvio máximo de frequência  $\Delta f _{max} = k_p \max {|m(t)|}$
+    1. Desvio máximo de frequência  $\Delta f _{max} = k_f \max {|m(t)|}$
 
 ---
 
@@ -265,7 +265,7 @@ Considere um sinal modulado em fase:
 
 $$
 \begin{align*}
-u(t) & = A_c \cos(2\pi f_ct + \beta 2\pi f_m t)    \\
+u(t) & = A_c \cos(2\pi f_ct + \beta \sin 2\pi f_m t)    \\
      & = \textrm{Re}\left(m(t)e^{\jmath 2\pi f_c t}\right) \\
      & = \textrm{Re}\left(A_c e^{\jmath \beta \sin (2\pi f_m t)}e^{\jmath 2\pi f_c t}\right)
 \end{align*}
@@ -274,7 +274,7 @@ $$
 O sinal $m(t)$ é a componente de banda básica e periódica. Portanto, é possível analisá-lo em frequência pela transformada Fourier
 
 $$
-e^{\jmath \beta 2\pi f_m t} = \sum _{n = -\infty}^{\infty}c_n e^{\jmath 2\pi nf_m t}
+e^{\jmath \beta \sin 2\pi f_m t} = \sum _{n = -\infty}^{\infty}c_n e^{\jmath 2\pi nf_m t}
 $$
 
 ---
@@ -295,7 +295,7 @@ Subsituindo a série de Fourier no sinal original
 $$
 \begin{align*}
     u(t) &= \textrm{Re}\left(A_c e^{\jmath \beta \sin (2\pi f_m t)}e^{\jmath 2\pi f_c t}\right)  \\
-        &= \textrm{Re}\left(A_c  \sum _{n = -\infty}^{\infty}c_n e^{\jmath 2\pi nfm t}e^{\jmath 2\pi f_c t}\right) \\
+        &= \textrm{Re}\left(A_c  \sum _{n = -\infty}^{\infty}c_n e^{\jmath 2\pi nf_m t}e^{\jmath 2\pi f_c t}\right) \\
         &= \textrm{Re}\left(A_c  \sum _{n = -\infty}^{\infty}J_n(\beta)e^{\jmath 2\pi (f_c + nf_m) t}\right) \\
         &= A_c \sum _{n = -\infty}^{\infty} J_n(\beta)\cos (2\pi (f_c + nf_m) t)
 \end{align*}
@@ -423,7 +423,7 @@ $$
 
 ---
 
-## Regra de Cason
+## Regra de Carson
 
 Define a largura de banda efetiva para um sinal mensagem qualquer
 
@@ -438,7 +438,7 @@ $$
 
 ## Exemplo
 
-Para um sinal modulado em Fm com mensagem $m(t) = 10\text{sinc}(10^4t)$, determine a largura de banda do sinal transmitido com $k_f=4000$
+Para um sinal modulado em FM com mensagem $m(t) = 10\text{sinc}(10^4t)$, determine a largura de banda do sinal transmitido com $k_f=4000$
 
 ---
 
@@ -710,7 +710,7 @@ $$
 
 # Exercício
 
-Projetar um modulador FM indireto ue gera um sinal FM com frequência de 97.3 MHz e desvio máximo de 10.24 KHz. Um gerado NBFM gera um sinal com frequência de protadora de 20 KHz e devio máximo de 5 Hz. Projete um modulador de Armstrong com frequência ajustável ebtre 100 KHz e 500 KHz e com multiplicadores de frequência que sigam potência de 2.
+Projetar um modulador FM indireto que gera um sinal FM com frequência de 97.3 MHz e desvio máximo de 10.24 KHz. Um gerador NBFM gera um sinal com frequência de protadora de 20 KHz e devio máximo de 5 Hz. Projete um modulador de Armstrong com frequência ajustável ebtre 400 KHz e 500 KHz e com multiplicadores de frequência que sigam potência de 2.
 
 
 ![ w:100%](Fig/armostrong_exemplo.png)
@@ -854,7 +854,7 @@ com frequência de portadora de 10 MHz.
 * Item 1
 
 $$
-P = \frac{A^2_c}{2} = \frac{500^2}{2} = 5000 W
+P = \frac{A^2_c}{2} = \frac{100^2}{2} = 5000 W
 $$
 
 * Item 2
@@ -877,3 +877,32 @@ $$
 $$
 \Delta f_ {max} = 4 \textrm{ KHz} 
 $$
+
+
+--- 
+
+## Questão 2
+A mensagem $m(t)$ no modulador FM com desvio de pico de frequência de 25Hz/V é dada pela figura. Obtenha Obtenha o desvio de frequência em Hz e o desvio de fase em radiano.
+
+
+![bg left w:80%](Fig/grafico_questao.png)
+
+
+---
+
+## Solução
+
+O desvio de frequência é dado por 
+
+$$
+f_d(t) = f_i(t) - f_c = k_fm(t)
+$$
+já o desvio de fase é dado por
+$$
+\phi_d(t) = 2\pi k_f \int _{-\infty}^{t}m(\tau) d\tau
+$$
+
+---
+
+![bg lauto w:90%](Fig/resposta_fd.png)
+![bg auto w:90%](Fig/resposta_phi_d.png)
