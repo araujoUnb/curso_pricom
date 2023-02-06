@@ -4,3 +4,8 @@ LAB_FM/__pycache__/*.pyc
 Modulacao_AM/__pycache__/modAM.cpython-39.pyc
 slides/modulacao_fm.pdf
 slides/*.pdf
+Slides/Ruido/ruido.fdb_latexmk
+Slides/Ruido/ruido.fls
+Slides/Ruido/ruido.log
+Slides/Ruido/ruido.pdf
+Slides/Ruido/ruido.synctex.gz
