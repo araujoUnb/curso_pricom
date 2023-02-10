@@ -448,7 +448,7 @@ $$H_d(f) = \frac{1}{1+j \frac{f}{f_0}}$$
 Como $f_0 = \frac{1}{2 \pi \times 75 \times 10^{-6}} = 2100Hz$. Neste caso: 
 
 \begin{align*}
-\left(\frac{S}{N}\right)_{o,PD} =  \frac{\left(\frac{W}{f_0} \right)^3}{3 \left( \frac{W}{f_0} - arctan \frac{W}{f_0} \right)} \left(\frac{S}{N}\right)_{o} = 10^6 
+\left(\frac{S}{N}\right){o,PD} =  \frac{\left(\frac{W}{f_0} \right)^3}{3 \left( \frac{W}{f_0} - arctan \frac{W}{f_0} \right)} \left(\frac{S}{N}\right){o} = 10^6 
 \end{align*}
 
 
@@ -456,15 +456,17 @@ Como $f_0 = \frac{1}{2 \pi \times 75 \times 10^{-6}} = 2100Hz$. Neste caso:
 \end{frame}
 
 \begin{frame}
-  \frametitle{Solução item 3}
+  Assim temos 
 
-  Por meio dessa relação encontramos: 
+$$
+\left(\frac{S}{N}\right)_{o} = \frac{10^6}{\left( \frac{\left(\frac{8 \cdot 10^3}{2100}\right)^3}{3 \cdot\left(\frac{8 \cdot 10^3}{2100}-\arctan \left(\frac{8 \cdot 10^3}{2100}\right)\right)} \right)} = 1.3541 \times 10^5
+$$
 
-\begin{align*}
-\left(\frac{S}{N}\right)_{o} &= 1.3541 \times 10^5
-P_R \\
-&= 9.55 \times 10^{-5} 
-\end{align*}
+
+Com isso encontramos: 
+
+
+$$ P_R = 9.55 \times 10^{-5}$$
 
 
 e, portanto, 
