@@ -714,5 +714,362 @@ Igualando a zero
 \end{frame}
 
 
+\begin{frame}
+  \frametitle{Demodulação AM Convecional}
 
+   \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \begin{figure}[!h]
+
+        \begin{center}
+          \begin{circuitikz}[american voltages]
+          \draw
+            (0,0) to [short, *-] (1,0) 
+            to [full diode] (5,0)
+            to [short] (5,-1)
+            to [C,l=$C$] (5,-5) 
+            to [short, -*] (0,-5);
+    
+            \draw 
+             (5,0) to [short] (7,0)
+             to    [short] (7,-1)
+             to    [R,l=$R$] (7,-5) 
+             to    [short] (5,-5);
+    
+             \draw (0,0) to [open,v^>=$r(t)$] (0,-5); 
+             \draw (7,0) to [short,-*] (8,0);
+             \draw (7,-5) to [short,-*] (8,-5);
+             \draw (8,0) to [open,v^>=$m(t)$] (8,-5); 
+    
+          \end{circuitikz}
+          \end{center}
+       \end{figure}
+    \end{column}
+    \begin{column}{0.25\textwidth}
+      \begin{block}{Detetor de envelope}
+        \begin{itemize}
+          \item Circuito retificador
+          \item Filtro passa-baixa
+          \item Sída do receptor $d(t) = g_1 + g_2m(t)$
+        \end{itemize}
+      \end{block}
+    \end{column}
+   \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Impacto da constante RC}
+
+    $$
+    \frac{1}{f_c} << RC << \frac{1}{W}
+    $$
+  
+
+  \begin{columns}[T]
+    \begin{column}{0.45\textwidth}
+    \begin{figure}[!t]
+      \begin{center}
+        \includegraphics[width= 0.75\textwidth]{Fig/demod_am_conv_baixo_rc.png}  
+      \end{center}
+    \end{figure}
+    
+        \begin{block}{Baixa constante RC}
+          \begin{itemize}
+            \item Saída do filtro varia abruptamente
+            \item Presença de compoentes de alta-frequência
+          \end{itemize}
+        \end{block}        
+  \end{column}
+  \begin{column}{0.45\textwidth}
+    \begin{figure}[!t]
+      \begin{center}
+        \includegraphics[width= 0.75\textwidth]{Fig/demod_am_conv_alto_rc.png}  
+      \end{center}
+    \end{figure}
+    \begin{block}{Alta constante RC}
+          \begin{itemize}
+            \item Capacitor demora para carregar
+            \item Elimina componentes de alta-frequência da mensagem
+          \end{itemize}
+    \end{block}        
+  \end{column}
+\end{columns}
+\end{frame}
+
+
+\section{SSB-AM}
+
+\begin{frame}
+  \frametitle{Definição}
+
+   \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+
+      \begin{figure}[!t]
+        \begin{center}
+          \begin{tikzpicture}
+            \begin{axis}[
+                width=0.85\textwidth, % Scale the plot to \linewidth
+                grid = major, % Display a grid
+                grid style={dashed,gray!30}, % Set the style
+                xlabel= Frequência, % Set the labels
+                ylabel= Amplitude,
+                ymin=0, ymax=0.5,
+                xmin = -400, xmax = 400,
+                x unit=\si{\hertz}, % Set the respective units
+                y unit=\si{\volt},
+                legend style={at={(0,1.5)},anchor=north west}, % Put the legend below the plot
+                %x tick label style={rotate=90,anchor=east} % Display labels sideways
+              ]
+              
+            
+              \addplot+ [no marks]
+              table[x=Frequencia,y=Amplitude(V)1,col sep=comma] {Fig/sinal_ssb.csv}; 
+              
+              \addplot+ [no marks,red]
+              table[x=Frequencia,y=Amplitude(V)2,col sep=comma] {Fig/sinal_ssb.csv};
+
+              \legend{DSB,SSB}
+            \end{axis}
+          \end{tikzpicture}
+          \caption{Representação em frequênncia do sinal DSB e SSB.}
+        \end{center}
+      \end{figure}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Características da modulação DSB}
+        \begin{itemize}
+          \item Espectro simétrico
+          \item Canal deve ser no mínimo $2W$
+          \item Uso ineficiente do espectro
+        \end{itemize}
+      \end{block}
+
+      \begin{block}{Características da modulação DSB}
+        \begin{itemize}
+          \item Requere uma largura de canal de $W$
+          \item Considera a simetria do espectro
+        \end{itemize}
+      \end{block}
+    \end{column}
+
+
+   \end{columns}
+
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Fundamentação para a modulação SSB: Análise na frequência}
+
+  Considere o filtro de transmissão 
+
+$$
+H(f) = \begin{cases}
+1, & |f| > f_c, \\
+0, & \textrm{caso contrário}
+\end{cases}
+$$
+
+$$
+H(f) = U(f - f_c) + U(-f - f_c)
+$$
+
+Portanto, o espectro SSB é dado por 
+
+\begin{align*}
+  \mathcal{F}[u(t)] & = \mathcal{F}[u_{DSB} \circ h(t)]  \\
+                    & = \mathcal{F}[(2Am(t)\cos(2\pi f_ct)) \circ h(t)] \\
+                    & = AM(f - f_c)U(f -f_c) + AM(f + f_c)U(-f -f_c) \\
+                    & = AM(f)U(f)_{f = f-f_c} + AM(f)U(-f)_{f = f+f_c}
+\end{align*}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Fundamentação para a modulação SSB: Análise no tempo}
+
+  Convertendo para o tempo:
+
+
+\begin{align*} 
+u(t) &= A m(t) \circ  \mathcal{F}^{-1}[U(f)] \exp(\jmath 2 \pi f_c t) + A m(t) \circ  \mathcal{F}^{-1}[U(-f)] \exp(-\jmath 2 \pi f_c t) \\
+     &= A m(t) \circ \frac{1}{2}\left( \delta (t) + \frac{\jmath}{2\pi t} \right)\exp(\jmath 2 \pi f_c t) +  A m(t) \circ \frac{1}{2}\left( \delta (t) - \frac{\jmath}{2\pi t} \right)\exp(-\jmath 2 \pi f_c t) \\
+     &= \frac{A}{2}[m(t) + \jmath \hat{m}(t)]\exp(\jmath 2 \pi f_c t) + \frac{A}{2}[m(t) - \jmath \hat{m}(t)]\exp(-\jmath 2 \pi f_c t) \\
+     &= Am(t)\cos( 2 \pi f_c t) - A\hat{m}(t)\sin( 2 \pi f_c t) 
+\end{align*}
+
+Portanto, a expressão banda superior é dada por
+$$
+u(t) = m(t)\cos( 2 \pi f_c t) - \hat{m}(t)\sin( 2 \pi f_c t).
+$$
+\end{frame}
+
+\begin{frame}
+  \frametitle{}
+
+  Para calcular a banda inferior tem-se que 
+
+
+\begin{align*}
+u(t) + u_l(t) &= 2Am(t)\cos(2\pi f_ct)  \\
+u_l(t)        &= 2Am(t)\cos(2\pi f_ct) - A m(t)\cos( 2 \pi f_c t) + A\hat{m}(t)\sin( 2 \pi f_c t) \\
+u_l(t)        &= A m(t)\cos( 2 \pi f_c t) + A\hat{m}(t)\sin( 2 \pi f_c t)
+\end{align*}
+
+\end{frame}
+
+\section{VSB}
+\begin{frame}
+  \frametitle{Conceito}
+
+
+  
+
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Qual filtro deve ser utilizado?}
+
+  Considere o sinal transmitido
+
+\begin{align*}
+ \mathcal{F}[u(t)] & = \mathcal{F}[u_{DSB} \circ h(t)]  \\
+                   & = \mathcal{F}[(2Am(t)\cos(2\pi f_ct)) \circ h(t)] \\
+                   & = \frac{A}{2}(M(f-f_c) + M(f+f_c))H(f)
+\end{align*}
+
+Na entrada do receptor tem-se que :
+
+\begin{align*}
+v(t)     &= u(t) \cos(2\pi f_ct)  \\
+V(f)     & =\frac{A}{2} [U(f - fc) + U(f + fc)] \\
+         &  \frac{A}{4}\left[(M(f-2f_c) + M(f))H(f-f_c) +  (M(f) + M(f+2f_c))H(f+f_c) \right]
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Qual filtro deve ser utilizado?}
+
+  
+Após o uso de filtro passa-baixa
+
+\begin{align*}
+V(f)     & =  \frac{A}{4}M(f)\left[(H(f-f_c) + H(f+f_c) \right]
+\end{align*}
+
+para que não haja distorção no sinal tem-se que :
+
+$$
+H(f-f_c) + H(f+f_c) = \textrm{constante}
+$$
+\end{frame}
+
+
+\section{Implementações de moduladores}
+
+\begin{frame}
+  \frametitle{Moduladores por série de potência
+  }
+
+  Esse tipo de modulador é caracterizado pela a utilização de um dispositivo não-linear. Considere a relação de entrada e saída
+
+$$
+v_o(t) = a_1v_i(t) + a_2v_2(t),
+$$
+em que,
+$$
+v_i(t) = m(t) +A_c \cos(2\pi f_c t).
+$$
+
+O sinal na saída do dispositivo é portanto
+
+\begin {align*}
+v_o(t)  &=  a_1m(t) +a_1A_c \cos(2\pi f_c t) + a_2(m^2(t) +A^2_c \cos^2(2\pi f_c t) + 2m(t)A_c \cos^2(2\pi f_c t)) \\
+        &=  A_c a_1\left[ 1 + \frac{m(t) a_2}{a_1}\right]\cos(2\pi f_c t) + a_2m^2(t) + a_2A^2_c \cos^2(2\pi f_c t) \\
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Moduladores por série de potência}
+
+  Após o uso de um filtro de banda-passante o sinal transmitido é 
+$$
+v_o(t) = A_c a_1\left[ 1 + \frac{m(t) a_2}{a_1}\right]\cos(2\pi f_c t)
+$$
+
+\begin{block}{Conclusão}
+  Nesta estrutura é possível gerar um sinal AM convecional.
+\end{block}
+
+\end{frame}
+
+\section {Exercícios}
+
+\begin{frame}
+  \frametitle{Questão 1}
+
+  Considere sistema DSB cuja a portadora é dada por $c(t) = A \cos(2\pi f_c t)$ e a mensagem é $m(t) = \text{sinc}(t) + \text{sinc}(t)^2$. Determine a representação em frequência e a largura de banda do sinal modulado
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Solução}
+
+  Considere 
+
+\begin{align*}
+ u(t) &= m(t)c(t) \\
+      &=A\left(\text{sinc}(t) + \text{sinc}(t)^2 \right)   \cos(2\pi f_c t) \\
+U(f) & = \frac{A}{2} \left[ \Pi (f)  + \Delta (f)\right]  \star  \left(\delta (f-f_c) + \delta (f+f_c) \right) \\
+      &= \frac{A}{2} \left[ \Pi (f-f_c)  +  \Delta (f - f_c) +  \Pi (f+f_c)  +  \Delta (f + f_c)\right]
+\end{align*}
+
+A função $\Pi (f-f_c) \neq 0$ para $|f-f_c|<1/2$ e  $\Delta (f-f_c) \neq 0$ para $|f-f_c|<1$. Assim, a largura de banda do sinal de banda passante será de 2 Hz
+
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Questão 2}
+
+  
+Considere o sinal $m(t)$
+$$
+m(t) = 2\cos(4000\pi t) + 5\cos(6000\pi t),
+$$
+o qual modula a portadora $c(t) = 100\cos(2\pi f_c t)$, em que $f_c = 50$ kHz. Determine and desenhe o espectro do sinal DSB-SC
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Solução}
+
+  Considere $f_1= 2$ kHz e $f_2= 3$ kHz
+
+\begin{align*}
+  u(t) & =  2\cos(2\pi f_1 t)\cos(2\pi f_c t) + 5\cos(2\pi f_2 t)\cos(2\pi f_c t)  \text{ Aplicando Fourier ...}  \\ 
+  U(f) & = \left[\delta (f - f_1) + \delta (f + f_1) + \frac{5}{2}\delta (f - f_1) + \frac{5}{2}\delta (f + f_1)\right] \star \frac{100
+  }{2}\left[ \delta (f - f_c) + \delta (f + f_c)\right] \\
+     & =  \frac{100}{2}\left[\delta (f - f_1 - fc)  + \delta (f + f_1 - fc) + \frac{5}{2}\delta (f - f_1 - fc) + \frac{5}{2}\delta (f + f_1 - fc)\right] + \\
+     & \frac{100}{2}\left[\delta (f - f_1 + fc)  + \delta (f + f_1 + fc) + \frac{5}{2}\delta (f - f_1 + fc) + \frac{5}{2}\delta (f + f_1 + fc)\right] 
+\end{align*}
+
+Portanto as componentes de frequência serão 
+
+
+\begin{itemize}
+  \item  $f_c - f_1 = 50  - 2 = 48$ \si{\kilo\hertz} 
+  \item $f_c - f_2 = 50  - 3 = 47$ \si{\kilo\hertz} 
+  \item $f_c + f_1 = 50  + 2 = 52$ \si{\kilo\hertz} 
+  \item $f_c + f_2 = 50  + 4 = 53$ \si{\kilo\hertz}
+  
+\end{itemize}
+
+\end{frame}
 \end{document}
