@@ -1,0 +1,35 @@
+\documentclass[oneside,a4paper,12pt]{article}
+
+
+% Definições-----------------------------------------------------------
+\newcommand{\plano}{Ensino}%Ensino ou Aula
+\newcommand{\departamento}{Faculdade do Gama (FGA)}
+\newcommand{\universidade}{Universidade de Brasília (UnB) \par \departamento }
+\newcommand{\curso}{Engenharia Eletrônica}
+\newcommand{\professores}{Daniel C. Araújo}
+\newcommand{\disciplina}{Princípios de Comunicação para Engenharia}
+\newcommand{\periodo}{2022.2}
+\newcommand{\prequisito}{--}
+\newcommand{\data}{---}
+\newcommand{\tempodeaula}{---}
+\date{}
+
+\input{Package.tex}
+
+\title{\vspace{-0.5cm} Plano de \plano  \\ 
+      \large \disciplina  \vspace{-1.5cm}}
+
+% ---------------------------------------------------------------------
+\begin{document}
+  \pagestyle{fancy}
+% Cabeçalho------------------------------------------------------------
+\input{Cabecalho.tex}
+\input{Texto.tex}
+
+
+% Referências bibliográficas------------------------------------------
+\newpage
+\printbibliography[title={Referências}]%
+\nocite{*}
+
+\end{document}
