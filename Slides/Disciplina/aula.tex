@@ -1,0 +1,169 @@
+\documentclass[10pt,hyperref={pdfpagemode=FullScreen},aspectratio=169]{beamer}
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usepackage[brazil]{babel}
+\usepackage{appendixnumberbeamer}
+\usepackage{lipsum}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage[scale=2]{ccicons}
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+\usepackage{tikz}
+\usetikzlibrary{positioning, shapes.geometric}
+\pgfplotsset{compat=newest} % Allows to place the legend below plot
+\usepgfplotslibrary{units} % Allows to enter the units nicely
+\usepackage{circuitikz}
+\usetikzlibrary{shapes,arrows}
+\usepackage{dirtytalk}
+\usepackage{xspace}
+
+
+
+
+% Bibliography
+\usepackage[
+    backend=biber,
+    style=ieee,
+    natbib=true,
+    url=false, 
+    doi=true,
+    eprint=false
+]{biblatex}
+%\addbibresource{references.bib}
+
+
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+\newcommand{\universidade}{Universidade de Brasília}
+\newcommand{\doctitle}{Princípios de Comunicação para Engenharia}
+
+\definecolor{mpigreen}{HTML}{007977}
+\setbeamercolor{frametitle}{bg=mpigreen}
+
+\title{\doctitle}
+
+\author{Daniel Araújo}
+\institute{\universidade}
+\titlegraphic{\hfill\includegraphics[height=1.5cm]{../logo}}
+
+\title{Ementa da Disciplina}
+
+\author{Prof. Daniel Costa Araújo}
+
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{verbatim}
+\begin{document}
+
+
+\frame{\titlepage}
+
+
+\begin{frame}
+  \frametitle{Conteúdo}
+
+  \begin{itemize}
+    \item Modulações lineares
+    \item Modulação Angular
+    \item Desempenho de receptores
+    \item Comunicação digital em banda base
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Programa}
+\begin{columns}[T]
+  \begin{column}{0.5\textwidth}
+    \begin{block}{1. Conceitos de transmissão}
+      \begin{itemize}
+        \item Sistemas lineares
+        \item Sistemas de banda-básica e banda-passante
+        \item Processos aleatórios
+      \end{itemize}
+    \end{block}
+  
+    \begin{block}{2. Modulações lineares}
+      \begin{itemize}
+        \item AM-DSB
+        \item AM-convencional
+        \item SSB
+        \item VSB
+        \item Modulação em canais com ruído Gaussiano
+      \end{itemize}
+    \end{block}
+  \end{column}
+
+  \begin{column}{0.5\textwidth}
+    \begin{block}{3. Modulação Angular}
+      
+       \begin{itemize}
+        \item Modulação PM
+        \item Modulação FM
+        \item Arquiteturas de transmissor e receptor
+        \item Análise em canais com ruído Gaussiano
+       \end{itemize}
+  
+    \end{block}
+  
+    \begin{block}{4. Comunicação digital em banda base }
+      \begin{itemize}
+        \item Amostragem e Quantização
+        \item PCM linear e não-linear
+        \item Pulso formatador
+        \item critérios de Nyquist para redução de ISI; 
+        \item relação entre taxa de transmissão e largura de banda
+      \end{itemize}
+    \end{block}
+  \end{column}
+\end{columns}
+  
+\end{frame}
+
+
+
+\begin{frame}
+  \frametitle{Avaliações}
+
+  A avaliação da disciplina será feita a partir da média ponderada das avaliações teóricas $A1$, $A2$, $A3$ e as práticas $L1$, $L2$ e $L3$.
+  
+
+  \begin{equation*}
+      NP =  \frac{A1 + A2 + 2*A3}{4} \hspace{1cm} NL =  \frac{L1 + L2 + 2*L3}{4}
+  \end{equation*}
+  
+
+  \begin{block}{Condições para a aprovação}
+    \begin{itemize}
+      \item É obrigatório a participação na última prova e na última atividade laboratório do semestre. Portanto, caso o aluno não esteja presente ou tire zero, ele será automaticamente reprovado!
+      \item $ NP \geq 5 $ e $ NL \geq 5 $
+      \item Garantir a presencialidade de pelo menos 75\% nas aulas
+    \end{itemize}
+  Em atendendo  aos requesitos de aprovação a nota final será
+  $$
+  NF = \frac{0.8*NL + 0.2*NP}{2}
+  $$
+  \end{block}
+  
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Referências}
+
+[1] S. Haykin e M. Moher, Sistemas modernos de comunicações wireless. Bookman, 2009, isbn: 9788577801558.
+
+[2] B. Lathi e Z. Ding, Modern Digital and Analog Communication Systems, sér. Oxf Ser Elec Series. Oxford University Press, 2010, isbn: 9780195384932.
+
+[3] J. Rochol, Sistemas de Comunicação sem Fio: Conceitos e Aplicações, sér. Série Livros Didáticos Informática UFRGS. Bookman Editora, isbn: 9788582604564.
+
+[4] V. SOARES NETO, Sistemas de comunicação serviços, modulação e meios de transmissão. São Paulo Erica, 2015, isbn: 9788536522098.
+
+[5] P. H. YOUNG, Técnicas de Comunicação Eletrônica, 5. Editora Pearson, isbn: 9788576050490.
+
+[6] J. Proakis e M. Salehi, Fundamentals of Communication Systems. Pearson Education, 2013, isbn: 9780133354942.
+
+\end{frame}
+\end{document}
