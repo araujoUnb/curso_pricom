@@ -727,22 +727,25 @@ $Y_n(t) \equiv \frac{V_n(t)}{A_c} \sin\left(\phi_n(t) - \phi(t)\right) $
 \begin{frame}
   \frametitle{Solução do item 1}
    A potência do sinal recebido pode ser encontrada como: 
-
-  \begin{align*}
-  10\log{\frac{P_T}{P_R}} &= 80\\
-  P_R &= 10^{-8}P_T\\
-  P_R &= 10^{-4} W 
-  \end{align*}
-  
-  
-  \begin{align*}
-  \left(\frac{S}{N}\right)_o &= \frac{ \alpha^2 P_{Mn}}{1 + \alpha^2 P_{Mn}} \left(\frac{S}{N}\right)_b
-  &= \frac{ \alpha^2 P_{Mn}}{1 + \alpha^2 P_{Mn}} \frac{P_R}{N_0W}
-  \end{align*}
+\begin{columns}[T] % alinhamento vertical top
+    \begin{column}{.5\textwidth} % coluna da esquerda
+      \begin{align*}
+      10\log{\frac{P_T}{P_R}} &= 80\\
+      P_R &= 10^{-8}P_T\\
+      P_R &= 10^{-4} W 
+      \end{align*}
+    \end{column}
+    
+    \begin{column}{.5\textwidth} % coluna da direita
+      \begin{align*}
+      \left(\frac{S}{N}\right)_o &= \frac{ \alpha^2 P_{Mn}}{1 + \alpha^2 P_{Mn}} \left(\frac{S}{N}\right)_b\\
+      &= \frac{ \alpha^2 P_{Mn}}{1 + \alpha^2 P_{Mn}} \frac{P_R}{N_0W}
+      \end{align*}
+    \end{column}
+\end{columns}
   
 
   Assim, com $P_R = 10^{-4}$, $P_{Mn} = 0.1$, $\alpha = 0.8$ e $$N_0W = 2 \times 0.5 \times 10^{-12} \times 5 \times 10^3 = 5 \times 10^{-9}$$
-\vspace*{-1cm}
 
 $$ \left(\frac{S}{N}\right)_o = 1204 \approx 30.806 dB $$
 
