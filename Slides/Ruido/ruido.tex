@@ -1,20 +1,60 @@
-\documentclass{beamer}
-
-\usetheme{PaloAlto}
-
-\setbeamercolor{frametitle}{fg=black,bg=white}
-
-\setbeamertemplate{footline}{\insertframenumber}
-
-
+\documentclass[aspectratio=169,dvipsnames]{beamer}
+\usepackage{graphicx}
 \usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning}
+\usepackage[export]{adjustbox}
+\usepackage[brazil]{babel}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.8}
 \usepackage{multicol}
 \usepackage{siunitx}
 
+\subtitle{Prof. Daniel C. Araújo}
+\setbeamercolor{title page}{fg=RoyalBlue}
+\setbeamercolor{date}{fg=OliveGreen}
+\setbeamertemplate{title page}
+{
+  \vfill
+  \begin{centering}
+    {\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par}
+    \vskip0.25em%
+    {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}
+    \vskip0.5em%
+    %{\usebeamerfont{date}\usebeamercolor[fg]{date}\insertdate\par}
+    \vfill
+  \end{centering}
+}
+
+
+% Remove o rodapé
+\setbeamertemplate{footline}{}
+
+% Define o cabeçalho com os logos
+\setbeamertemplate{headline}{
+  \leavevmode%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=0.6cm,dp=0.5cm,right, colsep*=0pt]{section in head/foot}%
+    \includegraphics[height=0.8cm,valign=c]{Figs/Comum/unb.png} 
+  \end{beamercolorbox}%
+  \vskip0pt%
+  \tikz \draw[thick] (0,0) -- (\paperwidth,0); % desenha a linha horizontal
+}
+
+
+\setbeamertemplate{footline}{
+  \leavevmode%
+    \tikz \draw[thick] (0,0) -- (\paperwidth,0);
+  \hbox{%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=2.5ex,dp=3ex,center]{section in foot/foot}%
+    Princípios de Comunicação para Engenharia
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+% Remove os elementos padrão do cabeçalho
+\date{\today}
+
+
 \title{Ruído em Sistemas AM e FM}
-\subtitle{Princípios de Comunicação para Engenharia }
+%\subtitle{Princípios de Comunicação para Engenharia }
 \author{Prof. Daniel C. Araújo}
 \institute{Universidade de Brasília}
 %\date{\today}
@@ -24,9 +64,435 @@
 \frame{\titlepage}
 
 
-\section{Exercícios Modulação AM}
+\section{Ruído em Sistemas de Banda-básica}
 
 
+\begin{frame}{Análise de Ruído em Sistemas em Banda Base}
+\begin{itemize}
+    \item Sistemas em banda base são usados como referência para comparação de sistemas de modulação.
+    \item O receptor consiste em um filtro passa-baixa ideal com largura de banda \( W \).
+    \item Potência do ruído para entrada de ruído branco:
+    \begin{equation*}
+        P_{no} = \int_{-W}^{W} \frac{N_0}{2}df = N_0W
+    \end{equation*}
+    \item SNR em banda base:
+    \begin{equation*}
+        \frac{S}{N_b} = \frac{P_R}{N_0W}
+    \end{equation*}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Exemplo}
+
+\begin{block} {Exercício}
+    Encontre a SNR em um sistema em banda base com uma largura de banda de 5 kHz e com \(N_0 = 10^{-14} \text{W/Hz}\). A potência do transmissor é de 1 kilowatt e a atenuação do canal é \(10^{-12}\).
+\end{block}
+\end{frame}
+
+
+
+\begin{frame}{Solução}
+\begin{block}{ }
+
+    Temos \(P_R = 10^{-12} P_T = 10^{-12} \times 10^3 = 10^{-9} \text{Watts}\). Portanto,
+\begin{equation*}
+\frac{S}{N_b} = \frac{P_R}{N_0W} = \frac{10^{-9}}{10^{-14} \times 5000} = 20.
+\end{equation*}
+Isso é equivalente a \(10 \log_{10} 20 = 13 \text{dB}\).
+\end{block}
+\end{frame}
+
+
+\section{Ruído em modulação AM}
+
+\begin{frame}{Demodulação para banda básica}
+
+Considere o sinal recebido
+$$
+r(t) = Am(t)\cos(2\pi f_c t) + n(t).
+$$
+
+Na entrada do demodulador, é feito a multiplicação por um sinal oscilatório de mesma frequência $f_c$
+\begin{align*}
+r(t) \cos(2\pi f_c t + \phi) &= A_c m(t) \cos(2\pi f_c t) \cos(2\pi f_c t + \phi) + n(t) \cos(2\pi f_c t + \phi) \\
+&= \frac{1}{2} A_c m(t) \cos(\phi) + \frac{1}{2} A_c m(t) \cos(4\pi f_c t + \phi) \\
+&\quad + \frac{1}{2} [n_c(t) \cos(\phi) + n_s(t) \sin(\phi)] \\
+&\quad + \frac{1}{2} [n_c(t) \cos(4\pi f_c t + \phi) - n_s(t) \sin(4\pi f_c t + \phi)]. 
+\end{align*}
+\end{frame}
+
+
+\begin{frame}{Sinal de banda-básica}
+    Após o filtro passa-baixa temos que:
+
+    $$
+y(t) = \frac{1}{2} A_c m(t) \cos(\phi) + \frac{1}{2} [n_c(t) \cos(\phi) + n_s(t) \sin(\phi)].
+$$
+
+Se o sinal estiver sincronizado, ou seja, $\phi = 0$
+
+$$
+y(t) = \frac{1}{2} A_c m(t)  + \frac{1}{2} n_c(t).
+$$
+
+\end{frame}
+
+
+\begin{frame}{Cálculo da relação sinal ruído}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+Determinação da potência "útil"
+\begin{align*}
+    P_u &= \frac{1}{4}\int _{-\infty}^{\infty} A^2_c m^2(t) dt\\ 
+        &= \frac{1}{4} A^2_c P_m
+\end{align*}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+Determinação da potência do ruído
+\begin{align*}
+    P_{n_c} &= \frac{1}{4}\textrm{E}\{ n^2_c(t)\} \\
+            &=  \frac{1}{4} \int _{-W}^{W} \frac{N_0}{2} df \\
+            &=  \frac{1}{4} 4W \frac{N_0}{2} \\
+            &= \frac{N_0W}{2}
+\end{align*}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Realação Sinal Ruído para o DSB-SC}
+    \begin{block}{SNR}
+    \begin{align*}
+        \textrm{SNR} &= \frac{\frac{1}{4} A^2_c P_m}{ \frac{N_0W}{2}} \\
+                     &=\frac{A^2_c P_m}{ 2N_0W} \\
+                     &=\frac{P_r}{ N_0W} \\
+                     &= \frac{S}{N_b}
+    \end{align*} 
+\end{block}
+\end{frame}
+
+
+
+
+\begin{frame}{Análise de sinal da modulação SSB}
+
+ Considere o sinal recebido 
+
+ \begin{align*}
+r(t) &= A_c m(t) \cos(2\pi f_c t) + A_c m(t) \sin(2\pi f_c t) + n(t) \\
+     &= (A_c m(t) + n_c(t)) \cos(2\pi f_c t) + (A_c m(t) - n_s(t)) \sin(2\pi f_c t).
+\end{align*}
+
+Após uso do filtro passa-baixa tem-se que
+
+$$
+y(t) = \frac{1}{2} A_c m(t)  + \frac{1}{2} n_c(t).
+$$
+    
+\end{frame}
+
+
+\begin{frame}{Cálculo da relação sinal ruído}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+Determinação da potência "útil"
+\begin{align*}
+    P_u &= \frac{1}{4}\int _{-\infty}^{\infty} A^2_c m^2(t) dt\\ 
+        &= \frac{1}{4} A^2_c P_m
+\end{align*}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+Determinação da potência do ruído
+\begin{align*}
+    P_{n_c} &= \frac{1}{4}\textrm{E}\{ n^2_c(t)\} \\
+            &=  \frac{1}{4} \int _{-W}^{W} \frac{N_0}{2} df \\
+            &=  \frac{1}{4} 2W \frac{N_0}{2} \\
+            &= N_0W
+\end{align*}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}{Realação Sinal Ruído para o SSB}
+    \begin{block}{SNR}
+    \begin{align*}
+        \textrm{SNR} &= \frac{\frac{1}{4} A^2_c P_m}{ \frac{N_0W}{4}} \\
+                     &=\frac{A^2_c P_m}{ N_0W} \\
+                     &=\frac{P_r}{ N_0W} \\
+                     &= \frac{S}{N_b}
+    \end{align*} 
+\end{block}
+\end{frame}
+
+
+\begin{frame}{Ruído em modulação AM-Convencional}
+    No sinal AM-convencional, sinal transmitido é dado por
+    $$
+    u(t) = A(1 + \alpha m_n(t) ) \cos (2\pi f_c t) 
+    $$
+    O sinal recebido é 
+    $$
+     r(t) = [A_c [1 + a_m(t)] + n_c(t)] \cos 2\pi f_c t - n_s(t) \sin 2\pi f_c t,
+    $$
+
+A componente DC na forma de onda demodulada é removido e, portanto, a saída do filtro passa-baixa é
+    $$
+    y(t) = \frac{1}{2} A_c a_m(t) + \frac{n_c(t)}{2}.
+    $$
+\end{frame}
+
+
+\begin{frame}{Cálculo da relação sinal ruído}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+Determinação da potência "útil"
+\begin{align*}
+  P_R = \frac{A_c^2}{2} [1 + \alpha ^2 P_{m}],
+\end{align*}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+Determinação da potência do ruído
+\begin{align*}
+      P_{n_c} &= \frac{1}{4}\textrm{E}\{ n^2_c(t)\} \\
+            &=  \frac{1}{4} \int _{-W}^{W} \frac{N_0}{2} df \\
+            &=  \frac{1}{4} 4W \frac{N_0}{2} \\
+            &= \frac{N_0W}{2}
+\end{align*}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+
+\begin{frame}{Relação Sinal Ruído para o AM-Convecional}
+    \begin{block}{SNR}
+        \begin{minipage}{0.48\linewidth}
+            \begin{align*}
+                \frac{S}{N}_{AM} &= \frac{1}{4} A_c^2 \alpha^2 P_{Mn} \\
+                &= \frac{1}{4} \frac{A_c^2 \alpha^2 P_{Mn}}{P_{nc}} \\
+                &= \frac{A_c^2 \alpha^2 P_{Mn}}{2N_0W} \\
+            \end{align*}
+        \end{minipage}
+        \hfill
+        \begin{minipage}{0.48\linewidth}
+            \begin{align*}
+                &= \frac{\frac{\alpha^2 P_{Mn}}{1 + \alpha^2 P_{Mn}} \frac{A_c^2}{2}}{N_0W} \\
+                &= \frac{\alpha^2 P_{Mn}}{1 + \alpha^2 P_{Mn}} \frac{P_R}{N_0W} \\
+                &= \frac{\alpha^2 P_{Mn}}{1 + \alpha^2 P_{Mn}} \frac{S}{N}_{b} \\
+                &= \eta \left( \frac{S}{N} \right)_{b},
+            \end{align*}
+        \end{minipage}
+    \end{block}
+\end{frame}
+
+
+\begin{frame}{Exemplo}
+    \begin{block}{Comparação entre as modulações AM}
+Assumimos que a mensagem é um processo aleatório estacionário em sentido amplo \( M(t) \) com a função de autocorrelação
+\[ R_M(\tau) = 16 \text{sinc}^2(10,000\tau). \]
+
+Também sabemos que todas as realizações do processo da mensagem satisfazem a condição
+\[ \max |m(t)| = 6. \]
+
+\end{block}
+\end{frame}
+
+\begin{frame}{Exemplo: Continuação}
+\begin{block}{Continuação}
+        Queremos transmitir essa mensagem para um destino através de um canal com atenuação de 50 dB e ruído aditivo branco com densidade espectral de potência \( S_N(f) = \frac{N_0}{2} = 10^{-12} \) W/Hz. Também queremos alcançar uma SNR na saída do modulador de pelo menos 50 dB. Qual é a potência do transmissor necessária e a largura de banda do canal se empregarmos os seguintes esquemas de modulação?
+
+        \begin{itemize}
+    \item DSB AM.
+    \item SSB AM.
+    \item AM convencional com índice de modulação igual a 0.8.
+\end{itemize}
+
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Solução}
+Primeiro, determinamos a largura de banda do processo da mensagem. Para fazer isso, obtemos a densidade espectral de potência do processo da mensagem, ou seja, $S_M(f) = g[R_M(\tau)] = \frac{16}{10,000} \Lambda \left( \frac{f}{10,000} \right)$, que é diferente de zero para \( -10,000 < f < 10,000 \); portanto, \( W = 10,000 \) Hz. Agora, podemos determinar \( \frac{S}{N}_b \) como uma base de comparação:
+\[
+\frac{S}{N}_b = \frac{P_R}{N_0W} = \frac{P_R}{2 \times 10^{-12} \times 10^4} = \frac{10^8 P_R}{2}.
+\]
+
+Uma vez que a atenuação do canal é de 50 dB, segue-se que $10 \log \frac{P_T}{P_R} = 50$
+portanto,
+
+\[
+P_R = 10^{-5} P_T.
+\]
+\end{frame}
+
+\begin{frame}{Solução: Continuação}
+Assim,
+\[
+\frac{S}{N}_b = \frac{10^{-5} \times 10^8 P_T}{2} = \frac{10^3 P_T}{2}.
+\]
+1. Para DSB-SC AM, temos: $\frac{S}{N}_o = \frac{S}{N}_b = \frac{10^3 P_T}{2} \approx 50 \text{ dB} = 10^5.$
+
+Portanto,
+\[
+\frac{10^3 P_T}{2} = 10^5 \implies P_T = 200 \text{ Watts}
+\]
+e
+\[
+BW = 2W = 2 \times 10,000 = 20,000 \text{ Hz} \approx 20 \text{ kHz}.
+\]
+\end{frame}
+
+\begin{frame}{Solução: Continuação}
+    2. Para SSB AM, temos:
+
+\[
+\frac{S}{N}_o = \frac{S}{N}_b = \frac{10^3 P_T}{2} = 10^5 \implies P_T = 200 \text{ Watts}
+\]
+
+e
+
+\[
+BW = W = 10,000 \text{ Hz} = 10 \text{ kHz}.
+\]
+
+\end{frame}
+
+
+\begin{frame}{Solução: Continuação}
+    3. Para AM convencional, com \( a = 0.8 \):
+
+\[
+\frac{S}{N}_o = \eta \frac{S}{N}_b = \eta \frac{10^3 P_T}{2}
+\]
+
+onde \( \eta \) é a eficiência de modulação dada por
+
+\[
+\eta = \frac{a^2 P_{Mn}}{1 + a^2 P_{Mn}}.
+\]
+
+Primeiro, encontramos \( P_{Mn} \), o conteúdo de potência do sinal de mensagem normalizado. Uma vez que \( \text{max} |m(t)| = 6 \), temos
+
+\[
+P_{Mn} = \frac{P_M}{(\text{max} |m(t)|)^2} = \frac{P_M}{36}.
+\]
+
+\end{frame}
+
+
+\begin{frame}{Solução: Continuação}
+Para determinar \( P_m \), temos:
+\[ P_m = R_\eta (\tau)_{\tau=0} = 16; \]
+Portanto,
+\[ P_{mn} = \frac{16}{36} = \frac{4}{9}. \]
+Assim,
+\[ \eta = \frac{0.82 \times \frac{4}{9}}{1 + 0.82 \times \frac{4}{9}} \approx 0.22. \]
+\end{frame}
+
+
+\begin{frame}{Solução: Continuação}
+Portanto,
+\[ \frac{S}{N_0} \approx 0.22 \times \frac{10^3 P_T}{2} = 0.11 \times 10^3 P_T = 10^5 \]
+ou
+\[ P_T \approx 909 \text{ Watts}. \]
+A largura de banda do AM convencional é igual à largura de banda do DSB AM, i.e.,
+\[ BW = 2W = 20 \text{ kHz}. \]
+\end{frame}
+
+
+
+\section{Efeito do Ruído da Modulação Angular}
+
+\begin{frame}{Modelo de sinal}
+    \begin{align*}
+u(t) &= A_c \cos(2\pi f_c t + \phi(t)) \\
+     &= \left\{ 
+         \begin{array}{ll}
+         A_c \cos(2\pi f_c t + 2\pi k_f \int_{-\infty}^{t} m(\tau) d\tau) & \text{FM} \\
+         A_c \cos(2\pi f_c t + k_p m(t)) & \text{PM}
+         \end{array}
+    \right.
+\end{align*}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.85\linewidth]{Figs/FM/diagrama_bloco_fm.png}
+    \caption{Diagrama de bloco do sistema FM}
+    \label{fig:efm_ruido}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}{Modelo Vetorial}
+    \begin{columns}[T] % O 'T' alinha o topo das colunas
+
+    \begin{column}{0.5\textwidth} % Especifica que a coluna irá ocupar metade da largura do frame
+        Considere o ruído de banda passante
+        \begin{align*}
+        n(t) &= \sqrt{n_c^2(t) + n_s^2(t)} \cos \left( 2\pi f_c t + \arctan \left( \frac{n_s(t)}{n_c(t)} \right) \right) \\
+        &= V_n(t) \cos \left( 2\pi f_c t + \phi_n(t) \right),
+        \end{align*}
+        Vamos assumir que
+        $$
+        V_n(t) << A_c
+        $$
+    \end{column}
+
+    \begin{column}{0.5\textwidth} % Especifica que a coluna irá ocupar metade da largura do frame
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.8\linewidth]{Figs//FM/analise_vetorial.png}
+            \caption{Representação Vetorial}
+            \label{fig:enter-label}
+        \end{figure}
+    \end{column}
+
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Sinal recebido aproximado}
+    \begin{align*}
+r(t) &\approx (A_c + V_n(t) \cos(\phi_n(t) - \phi(t))) \\
+&\quad \times \cos\left(2\pi f_c t + \phi(t) + \arctan\left(\frac{V_n(t) \sin(\phi_n(t) - \phi(t))}{A_c + V_n(t) \cos(\phi_n(t) - \phi(t))}\right)\right) \\
+&\approx (A_c + V_n(t) \cos(\phi_n(t) - \phi(t))) \\
+&\quad \times \cos\left(2\pi f_c t + \phi(t) + \frac{V_n(t) \sin(\phi_n(t) - \phi(t))}{A_c}\right) .
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}{Sinal demodulado}
+\begin{align*}
+y(t) &= \left\{
+\begin{array}{ll}
+\phi(t) + \frac{V_n(t)}{A_c} \sin(\phi_n(t) - \phi(t)) & \text{PM} \\
+\frac{1}{2\pi} \frac{d}{dt} \left( \phi(t) + \frac{V_n(t)}{A_c} \sin(\phi_n(t) - \phi(t)) \right) & \text{FM}
+\end{array}
+\right.
+\\
+&= \left\{
+\begin{array}{ll}
+k_{pm}(t) + \frac{V_n(t)}{A_c} \sin(\phi_n(t) - \phi(t)) & \text{PM} \\
+k_{fm}(t) + \frac{1}{2\pi} \frac{d}{dt} \frac{V_n(t)}{A_c} \sin(\phi_n(t) - \phi(t)) & \text{FM}
+\end{array}
+\right.
+\\
+&= \left\{
+\begin{array}{ll}
+k_{pm}(t) + Y_n(t) & \text{PM} \\
+k_{fm}(t) + \frac{1}{2\pi} \frac{d}{dt} Y_n(t) & \text{FM}
+\end{array}
+\right.
+\end{align*}
+Em que,
+$Y_n(t) \equiv \frac{V_n(t)}{A_c} \sin\left(\phi_n(t) - \phi(t)\right) $
+\end{frame}
+
+%-----------------------------------------------------------------------------------------
+
+\section{Lista de Exercícios}
 \begin{frame}
   \frametitle{Exercício 1}
 
@@ -59,11 +525,7 @@
     &= P_0 B \cdot 2 \arctan\left(\frac{W}{B}\right)
     \end{align*}
 
-    A potência do ruído na saída do filtor é
-
-    $$
-    P_{n,o} = \int _{-W}^{W} \frac{N_0}{2}df = N_0 W
-     $$
+    A potência do ruído na saída do filtro é $ P_{n,o} = \int _{-W}^{W} \frac{N_0}{2}df = N_0 W $
 
 \end{frame}
 
@@ -240,8 +702,6 @@
 
 
 
-
-\section{Modulação FM}
 
 
 \begin{frame}
