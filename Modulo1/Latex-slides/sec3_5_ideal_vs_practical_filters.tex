@@ -4,43 +4,109 @@
 
 \subsection{Filtros Ideais}
 
-\begin{frame}{Tipos de Filtros Ideais}
+\begin{frame}{Tipos de Filtros Ideais: Passa-Baixas e Passa-Altas}
 
-Filtros ideais têm resposta em frequência perfeitamente seletiva:
-
-\begin{enumerate}
-\item \textbf{Passa-Baixas (Low-Pass):}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\textbf{Passa-Baixas (LP):}
 \[
 H_{LP}(\omega) = \begin{cases}
-1 & |\omega| \leq \omega_c \\
-0 & |\omega| > \omega_c
+1, & |\omega| \leq \omega_c \\
+0, & |\omega| > \omega_c
 \end{cases}
 \]
+\vspace{-0.2cm}
+\begin{center}
+\begin{tikzpicture}[scale=0.72]
+\draw[->] (-2.6,0) -- (2.6,0) node[right,font=\scriptsize] {$\omega$};
+\draw[->] (0,-0.15) -- (0,1.4) node[above,font=\scriptsize] {$|H|$};
+\draw[line width=1.8pt,blue] (-2.5,0) -- (-1.2,0) -- (-1.2,1) -- (1.2,1) -- (1.2,0) -- (2.5,0);
+\draw[dashed,gray] (-1.2,0) node[below,font=\scriptsize] {$-\omega_c$} -- (-1.2,1);
+\draw[dashed,gray] (1.2,0) node[below,font=\scriptsize] {$\omega_c$} -- (1.2,1);
+\node[left,font=\scriptsize] at (0,1) {$1$};
+\end{tikzpicture}
+\end{center}
+Passa frequências \textbf{abaixo} de $\omega_c$.
 
-\item \textbf{Passa-Altas (High-Pass):}
+\column{0.48\textwidth}
+\textbf{Passa-Altas (HP):}
 \[
 H_{HP}(\omega) = \begin{cases}
-0 & |\omega| < \omega_c \\
-1 & |\omega| \geq \omega_c
+0, & |\omega| < \omega_c \\
+1, & |\omega| \geq \omega_c
 \end{cases}
 \]
+\vspace{-0.2cm}
+\begin{center}
+\begin{tikzpicture}[scale=0.72]
+\draw[->] (-2.6,0) -- (2.6,0) node[right,font=\scriptsize] {$\omega$};
+\draw[->] (0,-0.15) -- (0,1.4) node[above,font=\scriptsize] {$|H|$};
+\draw[line width=1.8pt,blue] (-2.5,1) -- (-1.2,1) -- (-1.2,0) -- (1.2,0) -- (1.2,1) -- (2.5,1);
+\draw[dashed,gray] (-1.2,0) node[below,font=\scriptsize] {$-\omega_c$} -- (-1.2,1);
+\draw[dashed,gray] (1.2,0) node[below,font=\scriptsize] {$\omega_c$} -- (1.2,1);
+\node[left,font=\scriptsize] at (0,1) {$1$};
+\end{tikzpicture}
+\end{center}
+Passa frequências \textbf{acima} de $\omega_c$.
+\end{columns}
 
-\item \textbf{Passa-Faixas (Band-Pass):}
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Tipos de Filtros Ideais: Passa-Faixas e Rejeita-Faixas}
+
+\begin{columns}[T]
+\column{0.48\textwidth}
+\textbf{Passa-Faixas (BP):}
 \[
 H_{BP}(\omega) = \begin{cases}
-1 & \omega_1 \leq |\omega| \leq \omega_2 \\
-0 & \text{caso contrário}
+1, & \omega_1 \!\leq\! |\omega| \!\leq\! \omega_2 \\
+0, & \text{caso contrário}
 \end{cases}
 \]
+\vspace{-0.2cm}
+\begin{center}
+\begin{tikzpicture}[scale=0.72]
+\draw[->] (-2.7,0) -- (2.7,0) node[right,font=\scriptsize] {$\omega$};
+\draw[->] (0,-0.15) -- (0,1.4) node[above,font=\scriptsize] {$|H|$};
+\draw[line width=1.8pt,blue]
+  (-2.5,0) -- (-2.1,0) -- (-2.1,1) -- (-0.8,1) -- (-0.8,0)
+  -- (0.8,0) -- (0.8,1) -- (2.1,1) -- (2.1,0) -- (2.5,0);
+\node[below,font=\tiny] at (-2.1,0) {$-\omega_2$};
+\node[below,font=\tiny] at (-0.8,0) {$-\omega_1$};
+\node[below,font=\tiny] at (0.8,0) {$\omega_1$};
+\node[below,font=\tiny] at (2.1,0) {$\omega_2$};
+\node[left,font=\scriptsize] at (0,1) {$1$};
+\end{tikzpicture}
+\end{center}
+Passa uma \textbf{faixa} entre $\omega_1$ e $\omega_2$.
 
-\item \textbf{Rejeita-Faixas (Band-Stop):}
+\column{0.48\textwidth}
+\textbf{Rejeita-Faixas (BS):}
 \[
 H_{BS}(\omega) = \begin{cases}
-0 & \omega_1 < |\omega| < \omega_2 \\
-1 & \text{caso contrário}
+0, & \omega_1 \!<\! |\omega| \!<\! \omega_2 \\
+1, & \text{caso contrário}
 \end{cases}
 \]
-\end{enumerate}
+\vspace{-0.2cm}
+\begin{center}
+\begin{tikzpicture}[scale=0.72]
+\draw[->] (-2.7,0) -- (2.7,0) node[right,font=\scriptsize] {$\omega$};
+\draw[->] (0,-0.15) -- (0,1.4) node[above,font=\scriptsize] {$|H|$};
+\draw[line width=1.8pt,blue]
+  (-2.5,1) -- (-2.1,1) -- (-2.1,0) -- (-0.8,0) -- (-0.8,1)
+  -- (0.8,1) -- (0.8,0) -- (2.1,0) -- (2.1,1) -- (2.5,1);
+\node[below,font=\tiny] at (-2.1,0) {$-\omega_2$};
+\node[below,font=\tiny] at (-0.8,0) {$-\omega_1$};
+\node[below,font=\tiny] at (0.8,0) {$\omega_1$};
+\node[below,font=\tiny] at (2.1,0) {$\omega_2$};
+\node[left,font=\scriptsize] at (0,1) {$1$};
+\end{tikzpicture}
+\end{center}
+\textbf{Bloqueia} uma faixa entre $\omega_1$ e $\omega_2$.
+\end{columns}
 
 \end{frame}
 
@@ -407,6 +473,21 @@ onde $R_n$ é uma função racional (razão de polinômios).
 \textbf{Aplicação:} Quando a ordem mínima é crítica (custo, consumo de energia).
 
 \textbf{Desvantagem:} Fase muito não-linear, maior distorção de fase.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Comparação Visual: Filtros Práticos de Ordem 4}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.72\textheight, keepaspectratio]{figures/cap3/filters_comparison}
+\end{center}
+
+\vspace{-0.3cm}
+\begin{block}{Observação}
+Butterworth: passante plana, sem ondulação. \quad Chebyshev: transição mais rápida. \quad Bessel: fase mais linear.
+\end{block}
 
 \end{frame}
 

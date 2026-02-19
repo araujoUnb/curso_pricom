@@ -340,36 +340,52 @@ Duas DFTs de tamanho $N/2$!
 
 % ============================================
 
-\begin{frame}[fragile]{Implementação Prática da FFT}
+\begin{frame}{Bibliotecas para FFT}
 
-\textbf{Bibliotecas disponíveis:}
+\textbf{Implementações disponíveis:}
 
 \begin{itemize}
-\item \textbf{Python:} \texttt{numpy.fft.fft()}, \texttt{scipy.fft}
-\item \textbf{MATLAB:} \texttt{fft()}
-\item \textbf{C/C++:} FFTW (Fastest Fourier Transform in the West)
-\item \textbf{Hardware:} DSPs, FPGAs com blocos FFT dedicados
+\item \textbf{Python/NumPy:} \texttt{numpy.fft.fft(x)} e \texttt{numpy.fft.fftfreq(N, d=Ts)}
+\item \textbf{Python/SciPy:} \texttt{scipy.fft.fft(x)} --- mais opções e mais rápido
+\item \textbf{MATLAB/Octave:} \texttt{fft(x)}, \texttt{fftshift(X)}
+\item \textbf{C/C++:} FFTW --- \textit{Fastest Fourier Transform in the West}
+\item \textbf{Hardware:} DSPs e FPGAs possuem blocos FFT dedicados
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.4cm}
 
-\textbf{Uso típico em Python:}
+\textbf{Passos típicos em qualquer biblioteca:}
+
+\begin{enumerate}
+\item Coletar amostras $x[n]$ com taxa $f_s \geq 2f_{\max}$
+\item Aplicar janela (Hanning, Hamming, etc.) se necessário
+\item Calcular FFT com $N = 2^m$
+\item Mapear índices $k$ para frequências $f_k = k\cdot f_s/N$
+\item Usar $|X[k]|$ para espectro de magnitude
+\end{enumerate}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}[fragile]{Exemplo: Código Python (NumPy)}
 
 \begin{verbatim}
 import numpy as np
 
-# Sinal no tempo
-x = np.array([...])  # N amostras
-N = len(x)
+fs = 1000          # taxa de amostragem (Hz)
+N  = 1024          # número de amostras (potência de 2)
+Ts = 1.0 / fs      # período de amostragem
 
-# FFT
-X = np.fft.fft(x)
+x = np.array([...])        # N amostras do sinal
 
-# Frequências correspondentes
-freqs = np.fft.fftfreq(N, d=Ts)
+# Janela e FFT
+w = np.hanning(N)
+X = np.fft.fft(x * w)
 
-# Espectro de magnitude
-magnitude = np.abs(X)
+# Frequências e espectro de magnitude
+freqs = np.fft.fftfreq(N, d=Ts)   # vetor de frequências
+mag   = np.abs(X) / N              # magnitude normalizada
 \end{verbatim}
 
 \end{frame}
@@ -443,6 +459,22 @@ x_w[n] = x[n] \cdot w[n]
 \end{enumerate}
 
 \textbf{Compromisso:} Redução de vazamento $\leftrightarrow$ Alargamento do lóbulo principal.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Efeito das Janelas no Espectro}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.72\textheight, keepaspectratio]{figures/cap3/dft_windowing}
+\end{center}
+
+\vspace{-0.3cm}
+\begin{block}{Compromisso fundamental}
+Janela com menor vazamento (Blackman) \textbf{alarga} o lóbulo principal.
+Janela retangular tem melhor resolução mas \textbf{pior} supressão de lóbulos laterais.
+\end{block}
 
 \end{frame}
 

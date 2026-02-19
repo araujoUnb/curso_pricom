@@ -92,7 +92,7 @@ Thumbs.db
 *.backup
 
 # ============================================
-# PDF gerado (descomente se NÃO quiser versionar o PDF)
+# PDF gerado
 # ============================================
-# *.pdf
+*.pdf
 

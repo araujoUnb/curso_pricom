@@ -98,27 +98,27 @@ F(\omega) = 3 \cdot \frac{1}{2+j\omega} + 5 \cdot \frac{8}{16+\omega^2}
 \begin{frame}{Propriedade de Deslocamento no Tempo}
 
 \begin{block}{Propriedade 2: Deslocamento Temporal}
-Se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
 \[
-f(t - t_0) \xleftrightarrow{\ft} F(\omega) e^{-j\omega t_0}
+f(t - t_0) \xleftrightarrow{\ft} F(\omega)\, e^{-j\omega t_0}
 \]
 \end{block}
 
-\textbf{Demonstração:}
+\textbf{Demonstração:} Mudança de variável $\tau = t - t_0$:
 
 \[
-\FT{f(t - t_0)} = \int_{-\infty}^{\infty} f(t - t_0) e^{-j\omega t} dt
+\FT{f(t - t_0)} = \int_{-\infty}^{\infty} f(\tau)\, e^{-j\omega(\tau + t_0)}\, d\tau
+= e^{-j\omega t_0}\!\int_{-\infty}^{\infty} f(\tau)\, e^{-j\omega\tau}\, d\tau
+= F(\omega)\,e^{-j\omega t_0}
 \]
 
-Mudança de variável: $\tau = t - t_0$, então $t = \tau + t_0$ e $dt = d\tau$:
+\textbf{Observações:}
+\begin{itemize}
+\item Magnitude não muda: $|F(\omega)\,e^{-j\omega t_0}| = |F(\omega)|$
+\item Fase adicionada é \textbf{linear}: $\Delta\phi(\omega) = -\omega t_0$
+\item Atraso no tempo $\leftrightarrow$ fase linear na frequência
+\end{itemize}
 
-\[
-= \int_{-\infty}^{\infty} f(\tau) e^{-j\omega(\tau + t_0)} d\tau = e^{-j\omega t_0} \int_{-\infty}^{\infty} f(\tau) e^{-j\omega\tau} d\tau
-\]
-
-\[
-= F(\omega) e^{-j\omega t_0}
-\]
+\textbf{Exemplo:} $\rect\!\left(\dfrac{t-t_0}{\tau}\right) \xleftrightarrow{\ft} \tau\sinc\!\left(\dfrac{\omega\tau}{2\pi}\right) e^{-j\omega t_0}$
 
 \end{frame}
 
@@ -180,27 +180,25 @@ f(t) e^{j\omega_0 t} \xleftrightarrow{\ft} F(\omega - \omega_0)
 
 \begin{frame}{Modulação AM e o Teorema da Modulação}
 
-Para sinais reais, usamos $\cos(\omega_0 t) = \frac{e^{j\omega_0 t} + e^{-j\omega_0 t}}{2}$:
+Usando $\cos(\omega_0 t) = \dfrac{e^{j\omega_0 t} + e^{-j\omega_0 t}}{2}$ e a linearidade:
 
 \[
-f(t) \cos(\omega_0 t) = \frac{1}{2}f(t)e^{j\omega_0 t} + \frac{1}{2}f(t)e^{-j\omega_0 t}
-\]
-
-Pela linearidade e deslocamento em frequência:
-
-\[
-\FT{f(t) \cos(\omega_0 t)} = \frac{1}{2}F(\omega - \omega_0) + \frac{1}{2}F(\omega + \omega_0)
+\FT{f(t) \cos(\omega_0 t)}
+= \tfrac{1}{2}\FT{f(t)e^{j\omega_0 t}} + \tfrac{1}{2}\FT{f(t)e^{-j\omega_0 t}}
 \]
 
 \begin{block}{Teorema da Modulação}
 \[
-f(t) \cos(\omega_0 t) \xleftrightarrow{\ft} \frac{1}{2}[F(\omega - \omega_0) + F(\omega + \omega_0)]
+f(t) \cos(\omega_0 t) \xleftrightarrow{\ft} \frac{1}{2}\bigl[F(\omega - \omega_0) + F(\omega + \omega_0)\bigr]
 \]
 \end{block}
 
-\textbf{Significado:} Multiplicar por cosseno cria duas cópias do espectro deslocadas para $\pm\omega_0$.
-
-\textbf{Base da modulação AM (Amplitude Modulation).}
+\textbf{Interpretação:}
+\begin{itemize}
+\item Multiplicar por cosseno cria \textbf{duas cópias} do espectro
+\item Cada cópia deslocada para $+\omega_0$ e $-\omega_0$
+\item Base da \textbf{modulação AM}: portadora na frequência $\omega_0$
+\end{itemize}
 
 \end{frame}
 
@@ -213,27 +211,20 @@ f(t) \cos(\omega_0 t) \xleftrightarrow{\ft} \frac{1}{2}[F(\omega - \omega_0) + F
 \begin{block}{Propriedade 4: Escala Temporal}
 Se $f(t) \xleftrightarrow{\ft} F(\omega)$ e $a \neq 0$, então:
 \[
-f(at) \xleftrightarrow{\ft} \frac{1}{|a|} F\left(\frac{\omega}{a}\right)
+f(at) \xleftrightarrow{\ft} \frac{1}{|a|} F\!\left(\frac{\omega}{a}\right)
 \]
 \end{block}
 
-\textbf{Demonstração para} $a > 0$:
+\textbf{Demonstração} ($a>0$): substituindo $\tau = at$, $dt = d\tau/a$:
 
-\[
-\FT{f(at)} = \int_{-\infty}^{\infty} f(at) e^{-j\omega t} dt
-\]
+\begin{align*}
+\FT{f(at)}
+  &= \int_{-\infty}^{\infty} f(at)\,e^{-j\omega t}\,dt
+   = \frac{1}{a}\int_{-\infty}^{\infty} f(\tau)\,e^{-j(\omega/a)\tau}\,d\tau \\[4pt]
+  &= \frac{1}{a}\,F\!\left(\frac{\omega}{a}\right)
+\end{align*}
 
-Mudança de variável: $\tau = at$, então $t = \tau/a$ e $dt = d\tau/a$:
-
-\[
-= \int_{-\infty}^{\infty} f(\tau) e^{-j\omega \tau/a} \frac{d\tau}{a} = \frac{1}{a} \int_{-\infty}^{\infty} f(\tau) e^{-j(\omega/a)\tau} d\tau
-\]
-
-\[
-= \frac{1}{a} F\left(\frac{\omega}{a}\right)
-\]
-
-Para $a < 0$, os limites de integração invertem, dando o fator $1/|a|$.
+Para $a < 0$ os limites invertem, dando o fator $1/|a|$.
 
 \end{frame}
 
@@ -352,6 +343,21 @@ Portanto:
 \[
 = \int_{-\infty}^{\infty} f_1(\tau) F_2(\omega) e^{-j\omega\tau} d\tau = F_2(\omega) \int_{-\infty}^{\infty} f_1(\tau) e^{-j\omega\tau} d\tau = F_2(\omega) F_1(\omega)
 \]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Convolução no Tempo = Multiplicação em Frequência}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.72\textheight, keepaspectratio]{figures/cap3/convolution_example}
+\end{center}
+
+\vspace{-0.2cm}
+\begin{block}{Resultado}
+Calcular via convolução no tempo \textbf{ou} multiplicação na frequência dá o mesmo resultado.
+\end{block}
 
 \end{frame}
 
@@ -691,35 +697,50 @@ Trocando a ordem:
 
 % ============================================
 
-\begin{frame}{Tabela Resumo: Propriedades da Transformada de Fourier}
+\begin{frame}{Tabela Resumo: Propriedades (I)}
 
 \begin{table}
-\footnotesize
+\small
 \begin{tabular}{|l|c|}
 \hline
 \textbf{Propriedade} & \textbf{Relação} \\
 \hline
 Linearidade & $af_1(t) + bf_2(t) \xleftrightarrow{\ft} aF_1(\omega) + bF_2(\omega)$ \\
 \hline
-Deslocamento temporal & $f(t - t_0) \xleftrightarrow{\ft} F(\omega)e^{-j\omega t_0}$ \\
+Deslocamento temporal & $f(t - t_0) \xleftrightarrow{\ft} F(\omega)\,e^{-j\omega t_0}$ \\
 \hline
-Deslocamento em freq. & $f(t)e^{j\omega_0 t} \xleftrightarrow{\ft} F(\omega - \omega_0)$ \\
+Deslocamento em freq. & $f(t)\,e^{j\omega_0 t} \xleftrightarrow{\ft} F(\omega - \omega_0)$ \\
 \hline
-Escala temporal & $f(at) \xleftrightarrow{\ft} \frac{1}{|a|}F(\omega/a)$ \\
+Escala temporal & $f(at) \xleftrightarrow{\ft} \dfrac{1}{|a|}F\!\left(\dfrac{\omega}{a}\right)$ \\[4pt]
 \hline
-Convolução no tempo & $f_1(t) \conv f_2(t) \xleftrightarrow{\ft} F_1(\omega)F_2(\omega)$ \\
+Convolução no tempo & $f_1(t) \conv f_2(t) \xleftrightarrow{\ft} F_1(\omega)\cdot F_2(\omega)$ \\
 \hline
-Multiplicação no tempo & $f_1(t)f_2(t) \xleftrightarrow{\ft} \frac{1}{2\pi}[F_1 \conv F_2](\omega)$ \\
+Multiplicação no tempo & $f_1(t)\cdot f_2(t) \xleftrightarrow{\ft} \dfrac{1}{2\pi}[F_1 \conv F_2](\omega)$ \\[4pt]
 \hline
-Derivação & $\frac{df(t)}{dt} \xleftrightarrow{\ft} j\omega F(\omega)$ \\
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Tabela Resumo: Propriedades (II)}
+
+\begin{table}
+\small
+\begin{tabular}{|l|c|}
 \hline
-Integração & $\int_{-\infty}^{t} f(\tau)d\tau \xleftrightarrow{\ft} \frac{F(\omega)}{j\omega} + \pi F(0)\delta(\omega)$ \\
+\textbf{Propriedade} & \textbf{Relação} \\
+\hline
+Derivação no tempo & $\dfrac{d^n f}{dt^n} \xleftrightarrow{\ft} (j\omega)^n F(\omega)$ \\[4pt]
+\hline
+Integração no tempo & $\displaystyle\int_{-\infty}^{t} f\,d\tau \xleftrightarrow{\ft} \dfrac{F(\omega)}{j\omega} + \pi F(0)\delta(\omega)$ \\[4pt]
 \hline
 Dualidade & $F(t) \xleftrightarrow{\ft} 2\pi f(-\omega)$ \\
 \hline
-Simetria (real) & $f(t) = f^*(t) \Rightarrow F(-\omega) = F^*(\omega)$ \\
+Simetria Hermitiana & $f(t)\in\mathbb{R} \;\Rightarrow\; F(-\omega) = F^*(\omega)$ \\
 \hline
-Parseval & $\int |f(t)|^2 dt = \frac{1}{2\pi}\int |F(\omega)|^2 d\omega$ \\
+Parseval & $\displaystyle\int |f(t)|^2\,dt = \dfrac{1}{2\pi}\int |F(\omega)|^2\,d\omega$ \\[4pt]
 \hline
 \end{tabular}
 \end{table}
