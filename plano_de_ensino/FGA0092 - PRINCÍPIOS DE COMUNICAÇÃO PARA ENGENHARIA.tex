@@ -1,0 +1,192 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{../figures_global/}}
+\usepackage{fancyhdr}
+\usepackage[backend=biber, style=numeric, sorting=none]{biblatex}
+\usepackage{hyperref}
+\addbibresource{referencias.bib}
+
+\geometry{margin=2.5cm, headheight=32pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textbf{Faculdade de Ciências e Tecnologias em Engenharia}}
+\fancyhead[R]{\includegraphics[height=0.85cm]{../figures_global/unb.png}}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyfoot[C]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[L]{\small\textbf{Faculdade de Ciências e Tecnologias em Engenharia}}%
+  \fancyhead[R]{\includegraphics[height=0.85cm]{../figures_global/unb.png}}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+  \fancyfoot[C]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+  \renewcommand{\footrulewidth}{0.4pt}%
+}
+
+\title{\textbf{Plano de Ensino}}
+\author{FGA0092 -- Princípios de Comunicação para Engenharia}
+\date{}
+
+\begin{document}
+
+\thispagestyle{plain}
+\maketitle
+\vspace{-1.2em}
+
+
+\vspace{1em}
+
+\section{Descrição Geral}
+
+Esta disciplina aborda os fundamentos de sistemas de comunicação modernos, com ênfase em análise espectral, técnicas de modulação analógica e digital, ruído em sistemas de comunicação e noções de protocolos e redes. Serão estudados: espectro e sinais (Série e Transformada de Fourier, densidade espectral); modulações analógicas (AM, FM, PM, PLL); ruído em sistemas analógicos; comunicação digital em banda-base (amostragem, quantização, PCM); desempenho de enlaces digitais (taxa de erro de bit); e noções de protocolos e redes. O curso fornece base para disciplinas avançadas de processamento de sinais, comunicações digitais e sistemas de telecomunicações.
+
+\section{Pré-requisitos}
+
+\begin{itemize}[noitemsep]
+  \item FGA0102 -- Sinais e Sistemas
+  \item FGA0067 -- Teoria de Circuitos Eletrônicos I
+\end{itemize}
+
+\section{Professor}
+
+\textbf{Nome:} Daniel C. Araújo
+
+O contato pode ser feito via e-mail (\href{mailto:daniel.araujo@unb.br}{daniel.araujo@unb.br}), pelo Microsoft Teams ou pelo SIGAA.
+
+\section{As aulas}
+
+O curso será ministrado presencialmente no campus da FCTE. O material da disciplina será disponibilizado pelo SIGAA.
+
+\section{Objetivos}
+
+\begin{itemize}[noitemsep]
+  \item Compreender a análise espectral de sinais e sua aplicação em sistemas de comunicação.
+  \item Dominar as técnicas de modulação analógica (AM, FM, PM) e suas variantes.
+  \item Analisar o efeito do ruído em sistemas analógicos e digitais de comunicação.
+  \item Entender os processos de amostragem, quantização e modulação por código de pulso (PCM).
+  \item Avaliar o desempenho de enlaces de comunicação digital em termos de taxa de erro de bit.
+  \item Obter noções básicas de protocolos e arquiteturas de redes de comunicação.
+\end{itemize}
+
+\section{Conteúdo Programático}
+
+\begin{center}
+\small
+\begin{tabular}{|p{0.22\textwidth}|p{0.22\textwidth}|p{0.22\textwidth}|p{0.22\textwidth}|}
+\hline
+\textbf{Módulo 1: Espectro e Sinais} & \textbf{Módulo 2: Modulações Analógicas} & \textbf{Módulo 3: ADC e Digital} & \textbf{Lab PRICOM} \\
+\hline
+\parbox[t]{0.20\textwidth}{%
+  \vspace{0.2em}
+  \begin{itemize}[noitemsep, leftmargin=*, nosep, font=\small]
+    \item Classificação de sinais
+    \item Série de Fourier
+    \item Transformada de Fourier
+    \item Densidade Espectral de Energia
+    \item Densidade Espectral de Potência
+    \item Sinais passa-bandas
+  \end{itemize}
+  \vspace{0.2em}
+} &
+\parbox[t]{0.20\textwidth}{%
+  \vspace{0.2em}
+  \begin{itemize}[noitemsep, leftmargin=*, nosep, font=\small]
+    \item Modulação em Amplitude (AM)
+    \item Variantes: DSB, DSB+C, SSB, VSB
+    \item Modulação em Frequência (FM)
+    \item Modulação em Fase (PM)
+    \item PLL
+    \item Ruído em Sistemas Analógicos
+    \item RSR em Demoduladores
+  \end{itemize}
+  \vspace{0.2em}
+} &
+\parbox[t]{0.20\textwidth}{%
+  \vspace{0.2em}
+  \begin{itemize}[noitemsep, leftmargin=*, nosep, font=\small]
+    \item Amostragem
+    \item Quantização
+    \item PCM Linear e Não-linear
+    \item Codificação de Linha
+    \item Interferência Entre Símbolos (ISI)
+    \item Taxa de Erro de Bit (TEB)
+    \item Noções de Protocolos
+  \end{itemize}
+  \vspace{0.2em}
+} &
+\parbox[t]{0.20\textwidth}{%
+  \vspace{0.2em}
+  \begin{itemize}[noitemsep, leftmargin=*, nosep, font=\small]
+    \item Análise Espectral (FFT)
+    \item Modulação AM
+    \item Modulação FM
+    \item PLL
+    \item Amostragem e Aliasing
+    \item Quantização e PCM
+    \item Análise de TEB
+  \end{itemize}
+  \vspace{0.2em}
+} \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Avaliação}
+
+A avaliação da disciplina é composta por duas componentes: \textbf{Teoria} e \textbf{Prática de Laboratório}.
+
+\subsection*{Componente Teórica}
+
+A nota teórica ($N_T$) é calculada a partir da média ponderada das três provas:
+
+\[
+N_T = \frac{P_1 + P_2 + 2 \cdot P_3}{4}
+\]
+
+\subsection*{Componente Prática}
+
+A nota prática ($N_L$) é calculada a partir da média aritmética dos relatórios das oito práticas de laboratório:
+
+\[
+N_L = \frac{\text{Rel}_1 + \text{Rel}_2 + \cdots + \text{Rel}_8}{8}
+\]
+
+\subsection*{Nota Final e Aprovação}
+
+A nota final ($N_F$) é a média ponderada das componentes teórica e prática:
+
+\[
+N_F = 0.75 \cdot N_T + 0.25 \cdot N_L
+\]
+
+\textbf{Condições para aprovação:}
+\begin{itemize}[noitemsep]
+  \item \underline{O aluno DEVE ser aprovado tanto na teoria quanto na prática}. Isso significa:
+    \begin{itemize}[noitemsep, leftmargin=1cm]
+      \item $N_T \geq 5$ (nota na teoria)
+      \item $N_L \geq 5$ (nota na prática)
+    \end{itemize}
+  \item \underline{É obrigatória a participação na última prova teórica (P3)}. Caso o aluno não esteja presente ou tire zero, será automaticamente reprovado.
+  \item A aprovação final é obtida se $N_F \geq 5$.
+  \item A frequência mínima de 75\% nas aulas teóricas é obrigatória.
+  \item A presença mínima de 75\% na prática de laboratório é obrigatória.
+\end{itemize}
+
+
+
+\section{Referências}
+
+\nocite{*}
+\printbibliography[heading=none]
+
+\end{document}
