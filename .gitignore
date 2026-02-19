@@ -129,13 +129,13 @@ Thumbs.db
 # ============================================
 # Figuras geradas (exceto globais)
 # ============================================
-# Ignorar figuras geradas nos módulos
-Modulo1/Latex-slides/figures/**/*.pdf
+# Ignorar PNGs gerados nos módulos
 Modulo1/Latex-slides/figures/**/*.png
-Modulo2/Latex-slides/figures/**/*.pdf
 Modulo2/Latex-slides/figures/**/*.png
-Modulo3/Latex-slides/figures/**/*.pdf
 Modulo3/Latex-slides/figures/**/*.png
+
+# Ignorar todos os PDFs
+*.pdf
 
 # Manter apenas as figuras globais
 !figures_global/
