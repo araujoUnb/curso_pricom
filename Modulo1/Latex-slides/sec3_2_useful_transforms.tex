@@ -1,0 +1,545 @@
+% ============================================
+% SEÇÃO 3.2: TRANSFORMADAS DE FUNÇÕES ÚTEIS
+% ============================================
+
+\subsection{Introdução}
+
+\begin{frame}{Funções Fundamentais em Sistemas de Comunicação}
+
+Certas funções aparecem frequentemente na análise de sinais e sistemas:
+
+\begin{itemize}
+\item \textbf{Função delta:} impulsos, amostragem
+\item \textbf{Constantes e senoidais:} portadoras, osciladores
+\item \textbf{Função degrau:} ligar/desligar, causalidade
+\item \textbf{Pulsos:} transmissão de dados digitais
+\item \textbf{Gaussiana:} ruído, pulsos em fibras ópticas
+\end{itemize}
+
+\vspace{0.5cm}
+
+Conhecer as transformadas dessas funções permite:
+\begin{itemize}
+\item Análise rápida de sistemas complexos
+\item Uso de propriedades para derivar novas transformadas
+\item Compreensão do comportamento espectral
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Função Delta de Dirac}
+
+\begin{frame}{Função Delta de Dirac: Definição}
+
+A \textbf{função delta de Dirac} $\delta(t)$ não é uma função no sentido clássico, mas uma \textit{distribuição} definida por suas propriedades:
+
+\begin{enumerate}
+\item $\delta(t) = 0$ para todo $t \neq 0$
+\item $\int_{-\infty}^{\infty} \delta(t) dt = 1$
+\item \textbf{Propriedade de amostragem:}
+\[
+\int_{-\infty}^{\infty} f(t) \delta(t - t_0) dt = f(t_0)
+\]
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Interpretação física:} Impulso infinitamente estreito com área unitária.
+
+\vspace{0.3cm}
+
+\textbf{Representação gráfica:} Seta vertical com altura indicando a "força" (área).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Transformada da Delta de Dirac}
+
+\textbf{Cálculo:}
+
+\[
+\FT{\delta(t)} = \int_{-\infty}^{\infty} \delta(t) e^{-j\omega t} dt
+\]
+
+Usando a propriedade de amostragem com $f(t) = e^{-j\omega t}$ e $t_0 = 0$:
+
+\[
+\FT{\delta(t)} = e^{-j\omega \cdot 0} = 1
+\]
+
+\begin{block}{Par de Transformadas}
+\[
+\boxed{\delta(t) \xleftrightarrow{\ft} 1}
+\]
+\end{block}
+
+\textbf{Interpretação:} Um impulso no tempo contém \textbf{todas as frequências} com amplitude igual.
+
+\textbf{Delta deslocada:} $\delta(t - t_0) \xleftrightarrow{\ft} e^{-j\omega t_0}$
+
+\end{frame}
+
+% ============================================
+
+\subsection{Constante}
+
+\begin{frame}{Transformada de uma Constante}
+
+Queremos encontrar a transformada de $f(t) = A$ (constante para todo $t$).
+
+\textbf{Problema:} A integral $\int_{-\infty}^{\infty} A e^{-j\omega t} dt$ não converge!
+
+\textbf{Solução:} Usar a \textbf{dualidade}. Sabemos que:
+
+\[
+\delta(t) \xleftrightarrow{\ft} 1
+\]
+
+A propriedade de dualidade afirma que se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
+
+\[
+F(t) \xleftrightarrow{\ft} 2\pi f(-\omega)
+\]
+
+Aplicando com $f(t) = \delta(t)$ e $F(\omega) = 1$:
+
+\[
+1 \xleftrightarrow{\ft} 2\pi \delta(-\omega) = 2\pi \delta(\omega)
+\]
+
+\begin{block}{Par de Transformadas}
+\[
+\boxed{A \xleftrightarrow{\ft} 2\pi A \delta(\omega)}
+\]
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Exponencial Complexa}
+
+\begin{frame}{Transformada da Exponencial Complexa}
+
+Considere $f(t) = e^{j\omega_0 t}$ (senoidal complexa na frequência $\omega_0$).
+
+Usando deslocamento em frequência (propriedade que veremos depois) ou dualidade:
+
+\[
+F(\omega) = \int_{-\infty}^{\infty} e^{j\omega_0 t} e^{-j\omega t} dt = \int_{-\infty}^{\infty} e^{-j(\omega - \omega_0) t} dt
+\]
+
+Esta integral é $2\pi\delta(\omega - \omega_0)$:
+
+\begin{block}{Par de Transformadas}
+\[
+\boxed{e^{j\omega_0 t} \xleftrightarrow{\ft} 2\pi \delta(\omega - \omega_0)}
+\]
+\end{block}
+
+\textbf{Interpretação:} Uma senoidal de frequência $\omega_0$ tem espectro com um único impulso em $\omega = \omega_0$.
+
+\textbf{Significado físico:} Sinal monocromático puro.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Transformadas de Cosseno e Seno}
+
+Usando a fórmula de Euler: $\cos(\omega_0 t) = \frac{e^{j\omega_0 t} + e^{-j\omega_0 t}}{2}$
+
+Pela linearidade:
+
+\[
+\FT{\cos(\omega_0 t)} = \frac{1}{2}\FT{e^{j\omega_0 t}} + \frac{1}{2}\FT{e^{-j\omega_0 t}}
+\]
+
+\[
+= \frac{1}{2} \cdot 2\pi\delta(\omega - \omega_0) + \frac{1}{2} \cdot 2\pi\delta(\omega + \omega_0)
+\]
+
+\[
+= \pi[\delta(\omega - \omega_0) + \delta(\omega + \omega_0)]
+\]
+
+Similarmente para o seno: $\sin(\omega_0 t) = \frac{e^{j\omega_0 t} - e^{-j\omega_0 t}}{2j}$
+
+\begin{block}{Pares de Transformadas}
+\[
+\boxed{\cos(\omega_0 t) \xleftrightarrow{\ft} \pi[\delta(\omega - \omega_0) + \delta(\omega + \omega_0)]}
+\]
+\[
+\boxed{\sin(\omega_0 t) \xleftrightarrow{\ft} j\pi[\delta(\omega + \omega_0) - \delta(\omega - \omega_0)]}
+\]
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Função Degrau}
+
+\begin{frame}{Função Degrau Unitário}
+
+A \textbf{função degrau unitário} (Heaviside):
+
+\[
+u(t) = \begin{cases}
+1 & t > 0 \\
+1/2 & t = 0 \\
+0 & t < 0
+\end{cases}
+\]
+
+\textbf{Relação com a função sinal:}
+
+A função sinal é definida como:
+\[
+\sgn(t) = \begin{cases}
+1 & t > 0 \\
+0 & t = 0 \\
+-1 & t < 0
+\end{cases}
+\]
+
+Observe que: $u(t) = \frac{1 + \sgn(t)}{2}$ e $\sgn(t) = 2u(t) - 1$
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Transformada da Função Sinal}
+
+Para encontrar $\FT{u(t)}$, primeiro calculamos $\FT{\sgn(t)}$.
+
+Expressamos $\sgn(t)$ como limite:
+\[
+\sgn(t) = \lim_{a \to 0^+} [e^{-at}u(t) - e^{at}u(-t)]
+\]
+
+Como $e^{-at}u(t) \xleftrightarrow{\ft} \frac{1}{a+j\omega}$ e $e^{at}u(-t) \xleftrightarrow{\ft} \frac{1}{a-j\omega}$:
+
+\[
+\FT{\sgn(t)} = \lim_{a \to 0^+} \left[\frac{1}{a+j\omega} - \frac{1}{a-j\omega}\right]
+\]
+
+\[
+= \lim_{a \to 0^+} \frac{(a-j\omega) - (a+j\omega)}{(a+j\omega)(a-j\omega)} = \lim_{a \to 0^+} \frac{-2j\omega}{a^2+\omega^2}
+\]
+
+Para $\omega \neq 0$: $\FT{\sgn(t)} = \frac{-2j\omega}{\omega^2} = \frac{2}{j\omega}$
+
+\begin{block}{Transformada da Função Sinal}
+\[
+\boxed{\sgn(t) \xleftrightarrow{\ft} \frac{2}{j\omega}}
+\]
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Transformada do Degrau Unitário}
+
+Usando $u(t) = \frac{1 + \sgn(t)}{2}$:
+
+\[
+\FT{u(t)} = \frac{1}{2}\FT{1} + \frac{1}{2}\FT{\sgn(t)}
+\]
+
+\[
+= \frac{1}{2} \cdot 2\pi\delta(\omega) + \frac{1}{2} \cdot \frac{2}{j\omega}
+\]
+
+\[
+= \pi\delta(\omega) + \frac{1}{j\omega}
+\]
+
+\begin{block}{Transformada do Degrau}
+\[
+\boxed{u(t) \xleftrightarrow{\ft} \pi\delta(\omega) + \frac{1}{j\omega}}
+\]
+\end{block}
+
+\textbf{Interpretação:}
+\begin{itemize}
+\item Componente DC: $\pi\delta(\omega)$ (valor médio de 1/2)
+\item Componente variável: $1/(j\omega)$ (componentes de frequência)
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Funções de Pulso}
+
+\begin{frame}{Pulso Retangular}
+
+Já derivamos anteriormente:
+
+\[
+\rect(t/\tau) = \begin{cases}
+1 & |t| \leq \tau/2 \\
+0 & |t| > \tau/2
+\end{cases}
+\]
+
+\begin{block}{Transformada}
+\[
+\boxed{\rect(t/\tau) \xleftrightarrow{\ft} \tau \sinc\left(\frac{\omega\tau}{2\pi}\right)}
+\]
+\end{block}
+
+onde $\sinc(x) = \frac{\sin(\pi x)}{\pi x}$.
+
+\textbf{Propriedades:}
+\begin{itemize}
+\item Lóbulo principal: $-2\pi/\tau < \omega < 2\pi/\tau$
+\item Zeros em $\omega = \pm 2\pi n/\tau$, $n = 1, 2, 3, ...$
+\item Amplitude decresce como $1/\omega$
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Função Triangular}
+
+A \textbf{função triangular}:
+
+\[
+\tri(t/\tau) = \begin{cases}
+1 - |t|/\tau & |t| \leq \tau \\
+0 & |t| > \tau
+\end{cases}
+\]
+
+\textbf{Observação:} $\tri(t/\tau) = \rect(t/\tau) \conv \rect(t/\tau)$ (convolução de retângulo consigo mesmo).
+
+Pela propriedade de convolução (que veremos na próxima seção):
+
+\[
+\FT{\tri(t/\tau)} = \FT{\rect(t/\tau)} \cdot \FT{\rect(t/\tau)} = \left[\tau \sinc\left(\frac{\omega\tau}{2\pi}\right)\right]^2
+\]
+
+\begin{block}{Transformada}
+\[
+\boxed{\tri(t/\tau) \xleftrightarrow{\ft} \tau \sinc^2\left(\frac{\omega\tau}{2\pi}\right)}
+\]
+\end{block}
+
+\textbf{Nota:} O espectro decai mais rápido ($\propto 1/\omega^2$) que o retângulo.
+
+\end{frame}
+
+% ============================================
+
+\subsection{Função Gaussiana}
+
+\begin{frame}{Pulso Gaussiano}
+
+A \textbf{função Gaussiana}:
+
+\[
+f(t) = e^{-\alpha t^2}, \quad \alpha > 0
+\]
+
+\textbf{Cálculo da transformada:}
+
+\[
+F(\omega) = \int_{-\infty}^{\infty} e^{-\alpha t^2} e^{-j\omega t} dt
+\]
+
+Completando o quadrado no expoente:
+\[
+-\alpha t^2 - j\omega t = -\alpha\left(t + \frac{j\omega}{2\alpha}\right)^2 - \frac{\omega^2}{4\alpha}
+\]
+
+\[
+F(\omega) = e^{-\omega^2/(4\alpha)} \int_{-\infty}^{\infty} e^{-\alpha\left(t + \frac{j\omega}{2\alpha}\right)^2} dt
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Pulso Gaussiano (continuação)}
+
+Mudança de variável: $u = t + j\omega/(2\alpha)$, $du = dt$:
+
+\[
+F(\omega) = e^{-\omega^2/(4\alpha)} \int_{-\infty}^{\infty} e^{-\alpha u^2} du
+\]
+
+A integral Gaussiana: $\int_{-\infty}^{\infty} e^{-\alpha u^2} du = \sqrt{\pi/\alpha}$
+
+Portanto:
+
+\[
+F(\omega) = \sqrt{\frac{\pi}{\alpha}} e^{-\omega^2/(4\alpha)}
+\]
+
+\begin{block}{Transformada da Gaussiana}
+\[
+\boxed{e^{-\alpha t^2} \xleftrightarrow{\ft} \sqrt{\frac{\pi}{\alpha}} e^{-\omega^2/(4\alpha)}}
+\]
+\end{block}
+
+\textbf{Propriedade notável:} Uma Gaussiana transforma-se em outra Gaussiana!
+
+\textbf{Ótimo no princípio de incerteza:} Produto $\Delta t \cdot \Delta \omega = 1/2$ (mínimo).
+
+\end{frame}
+
+% ============================================
+
+\subsection{Trem de Impulsos}
+
+\begin{frame}{Trem de Impulsos Periódico}
+
+Um \textbf{trem de impulsos} (impulse train) com período $T$:
+
+\[
+f(t) = \sum_{n=-\infty}^{\infty} \delta(t - nT)
+\]
+
+Este sinal é periódico com período $T$ e pode ser expandido em série de Fourier:
+
+\[
+f(t) = \sum_{n=-\infty}^{\infty} c_n e^{jn\omega_0 t}, \quad \omega_0 = \frac{2\pi}{T}
+\]
+
+Os coeficientes são:
+\[
+c_n = \frac{1}{T} \int_{-T/2}^{T/2} \delta(t) e^{-jn\omega_0 t} dt = \frac{1}{T}
+\]
+
+Portanto:
+\[
+f(t) = \frac{1}{T} \sum_{n=-\infty}^{\infty} e^{jn\omega_0 t}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Transformada do Trem de Impulsos}
+
+Tomando a transformada de Fourier:
+
+\[
+F(\omega) = \FT{\frac{1}{T} \sum_{n=-\infty}^{\infty} e^{jn\omega_0 t}} = \frac{1}{T} \sum_{n=-\infty}^{\infty} \FT{e^{jn\omega_0 t}}
+\]
+
+Como $e^{jn\omega_0 t} \xleftrightarrow{\ft} 2\pi\delta(\omega - n\omega_0)$:
+
+\[
+F(\omega) = \frac{2\pi}{T} \sum_{n=-\infty}^{\infty} \delta(\omega - n\omega_0) = \omega_0 \sum_{n=-\infty}^{\infty} \delta(\omega - n\omega_0)
+\]
+
+\begin{block}{Trem de Impulsos}
+\[
+\boxed{\sum_{n=-\infty}^{\infty} \delta(t - nT) \xleftrightarrow{\ft} \frac{2\pi}{T} \sum_{n=-\infty}^{\infty} \delta\left(\omega - \frac{2\pi n}{T}\right)}
+\]
+\end{block}
+
+\textbf{Interpretação:} Impulsos periódicos no tempo $\leftrightarrow$ impulsos periódicos na frequência!
+
+\textbf{Aplicação:} Fundamental para amostragem de sinais.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Tabela Resumo: Transformadas de Funções Úteis}
+
+\begin{table}
+\small
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Sinal} $f(t)$ & \textbf{Transformada} $F(\omega)$ \\
+\hline
+$\delta(t)$ & $1$ \\
+\hline
+$1$ & $2\pi\delta(\omega)$ \\
+\hline
+$e^{j\omega_0 t}$ & $2\pi\delta(\omega - \omega_0)$ \\
+\hline
+$\cos(\omega_0 t)$ & $\pi[\delta(\omega - \omega_0) + \delta(\omega + \omega_0)]$ \\
+\hline
+$\sin(\omega_0 t)$ & $j\pi[\delta(\omega + \omega_0) - \delta(\omega - \omega_0)]$ \\
+\hline
+$u(t)$ & $\pi\delta(\omega) + \frac{1}{j\omega}$ \\
+\hline
+$\sgn(t)$ & $\frac{2}{j\omega}$ \\
+\hline
+$e^{-at}u(t)$, $a > 0$ & $\frac{1}{a+j\omega}$ \\
+\hline
+$e^{-a|t|}$, $a > 0$ & $\frac{2a}{a^2+\omega^2}$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Tabela Resumo (continuação)}
+
+\begin{table}
+\small
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Sinal} $f(t)$ & \textbf{Transformada} $F(\omega)$ \\
+\hline
+$\rect(t/\tau)$ & $\tau \sinc(\omega\tau/2\pi)$ \\
+\hline
+$\tri(t/\tau)$ & $\tau \sinc^2(\omega\tau/2\pi)$ \\
+\hline
+$e^{-\alpha t^2}$ & $\sqrt{\pi/\alpha} \, e^{-\omega^2/(4\alpha)}$ \\
+\hline
+$\sum_{n=-\infty}^{\infty} \delta(t - nT)$ & $\frac{2\pi}{T} \sum_{n=-\infty}^{\infty} \delta(\omega - 2\pi n/T)$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\vspace{0.5cm}
+
+\textbf{Essas transformadas são fundamentais!}
+
+Memorize os pares mais importantes e use propriedades (próxima seção) para derivar outros.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Observações e Padrões}
+
+\textbf{Padrões observados:}
+
+\begin{enumerate}
+\item \textbf{Dualidade tempo-frequência:}
+   \begin{itemize}
+   \item Impulso no tempo $\leftrightarrow$ constante na frequência
+   \item Constante no tempo $\leftrightarrow$ impulso na frequência
+   \item Impulsos periódicos $\leftrightarrow$ impulsos periódicos
+   \end{itemize}
+
+\item \textbf{Decaimento:}
+   \begin{itemize}
+   \item Decaimento exponencial $\leftrightarrow$ Lorentziana
+   \item Gaussiana $\leftrightarrow$ Gaussiana
+   \end{itemize}
+
+\item \textbf{Suavidade:}
+   \begin{itemize}
+   \item Descontinuidades $\rightarrow$ decaimento lento do espectro ($1/\omega$)
+   \item Continuidade $\rightarrow$ decaimento mais rápido ($1/\omega^2$ ou exponencial)
+   \end{itemize}
+\end{enumerate}
+
+\end{frame}

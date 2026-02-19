@@ -1,0 +1,98 @@
+# ============================================
+# Arquivos gerados pelo LaTeX
+# ============================================
+
+# Arquivos auxiliares
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+
+# Arquivos intermediários
+*.dvi
+*.xdv
+*-converted-to.*
+
+# Arquivos de bibliografia
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.run.xml
+
+# Arquivos de índice
+*.idx
+*.ilg
+*.ind
+
+# Arquivos do Beamer
+*.nav
+*.pre
+*.snm
+*.vrb
+
+# Arquivos de glossário
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.glsdefs
+*.lzo
+*.lzs
+
+# Arquivos do makeindex
+*.nlo
+*.nls
+
+# Arquivos do latexmk
+*.fdb_latexmk
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)
+*.pdfsync
+
+# Arquivos do pythontex
+*.pytxcode
+pythontex-files-*/
+
+# Arquivos do TikZ
+*.dpth
+*.md5
+*.auxlock
+
+# Arquivos de build
+build/
+_minted*/
+
+# ============================================
+# Arquivos do sistema
+# ============================================
+.DS_Store
+Thumbs.db
+*~
+
+# ============================================
+# Arquivos do editor
+# ============================================
+*.swp
+*.swo
+*.bak
+*.backup
+
+# ============================================
+# PDF gerado (descomente se NÃO quiser versionar o PDF)
+# ============================================
+# *.pdf
+

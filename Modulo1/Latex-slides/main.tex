@@ -1,0 +1,188 @@
+\documentclass[aspectratio=169]{beamer}
+
+% ============================================
+% PACOTES ADICIONAIS
+% ============================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{ifthen}
+\usepackage{bm}
+\usepackage{array}
+\usepackage{cancel}
+\usepackage{tikz}
+\usepackage{circuitikz}
+
+% ============================================
+% VARIÁVEIS DE CONFIGURAÇÃO
+% ============================================
+
+% --- Informações do Autor ---
+\newcommand{\autorNome}{Prof. Daniel Costa Araújo}
+\newcommand{\autorEmail}{daniel.araujo@unb.br}
+
+% --- Título e Subtítulo ---
+\newcommand{\tituloApresentacao}{Análise e Transmissão de Sinais}
+\newcommand{\subtituloApresentacao}{Capítulo 3: Transformada de Fourier e Sistemas LTI}
+
+% --- Idioma ---
+\newcommand{\idioma}{pt}
+
+% --- Instituição (Português) ---
+\newcommand{\universidadePT}{Universidade de Brasília}
+\newcommand{\departamentoPT}{Faculdade de Ciências e Tecnologia em Engenharias}
+\newcommand{\laboratorioPT}{Laboratório de Telecomunicações}
+
+% --- Instituição (Inglês) ---
+\newcommand{\universidadeEN}{University of Brasília}
+\newcommand{\departamentoEN}{Faculty of Sciences and Technology in Engineering}
+\newcommand{\laboratorioEN}{Telecommunications Laboratory}
+
+% --- Data ---
+\newcommand{\dataApresentacao}{\today}
+
+% ============================================
+% CONFIGURAÇÃO AUTOMÁTICA BASEADA NO IDIOMA
+% ============================================
+\newcommand{\institutoFinal}{%
+    \ifthenelse{\equal{\idioma}{pt}}{%
+        \universidadePT \\ \laboratorioPT%
+    }{%
+        \universidadeEN \\ \laboratorioEN%
+    }%
+}
+\newcommand{\universidadeFinal}{%
+    \ifthenelse{\equal{\idioma}{pt}}{\universidadePT}{\universidadeEN}%
+}
+\newcommand{\laboratorioFinal}{%
+    \ifthenelse{\equal{\idioma}{pt}}{\laboratorioPT}{\laboratorioEN}%
+}
+
+% ============================================
+% CARREGAR TEMPLATE UnB/LabTelecom
+% ============================================
+\input{../../template/beamertheme-unb.sty}
+
+% ============================================
+% APLICAR CONFIGURAÇÕES AO DOCUMENTO
+% ============================================
+\title{\tituloApresentacao}
+\subtitle{\subtituloApresentacao}
+\author{\autorNome}
+\institute{\institutoFinal}
+\date{\dataApresentacao}
+
+% ============================================
+% COMANDOS ÚTEIS
+% ============================================
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\uvect}[1]{\hat{\mathbf{#1}}}
+\newcommand{\curl}{\nabla \times}
+\newcommand{\divg}{\nabla \cdot}
+\newcommand{\pder}[2]{\frac{\partial #1}{\partial #2}}
+
+% Comandos para Capítulo 3 - Análise e Transmissão de Sinais
+\newcommand{\FT}[1]{\mathcal{F}\{#1\}}
+\newcommand{\IFT}[1]{\mathcal{F}^{-1}\{#1\}}
+\newcommand{\ft}{\mathcal{F}}
+\newcommand{\xleftrightarrow}[1]{\mathrel{\overset{#1}{\longleftrightarrow}}}
+\newcommand{\conv}{\ast}
+\newcommand{\sinc}{\text{sinc}}
+\newcommand{\rect}{\text{rect}}
+\newcommand{\tri}{\text{tri}}
+\newcommand{\sgn}{\text{sgn}}
+\DeclareMathOperator{\Real}{Re}
+\DeclareMathOperator{\Imag}{Im}
+
+% ============================================
+% TAMANHOS PADRONIZADOS DE FIGURAS
+% ============================================
+% Figura ocupando slide inteiro (SOZINHA, sem texto/equações)
+\newcommand{\figFull}{0.85\textwidth}
+% Figura no mesmo slide COM texto/equações acima ou abaixo
+\newcommand{\figHalf}{0.65\textwidth}
+% Figura ocupando metade vertical (lado a lado)
+\newcommand{\figHalfV}{0.48\textwidth}
+% Compatibilidade com código existente
+\newcommand{\figw}{\figFull}
+
+% ============================================
+% INÍCIO DO DOCUMENTO
+% ============================================
+\begin{document}
+
+% ============================================
+% SLIDE DE TÍTULO
+% ============================================
+\begin{frame}
+\titlepage
+\end{frame}
+
+% ============================================
+% SUMÁRIO
+% ============================================
+\begin{frame}[allowframebreaks]{Sumário}
+\tableofcontents[hideallsubsections]
+\end{frame}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SLIDE DE TRANSIÇÃO: CAPÍTULO 3
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{
+\setbeamercolor{background canvas}{bg=structure.fg}
+\setbeamercolor{normal text}{fg=white}
+\usebeamercolor[fg]{normal text}
+\begin{frame}[plain,c]
+\begin{center}
+{\Huge\textbf{Capítulo 3}}\\[0.8cm]
+{\LARGE Análise e Transmissão de Sinais}\\[0.5cm]
+{\large Transformada de Fourier, sistemas LTI e análise espectral}
+\end{center}
+\end{frame}
+}
+
+% ============================================
+% CAPÍTULO 3: ANÁLISE E TRANSMISSÃO DE SINAIS
+% ============================================
+\input{cap3_analise_transmissao_sinais}
+
+% ============================================
+% AGRADECIMENTOS
+% ============================================
+\begin{frame}{Agradecimentos}
+\begin{center}
+\Large Obrigado pela atenção!
+
+\vspace{1cm}
+
+\normalsize
+\textbf{Contato:}\\
+\autorEmail
+
+\vspace{0.5cm}
+
+\textbf{\laboratorioFinal}\\
+\universidadeFinal
+
+\vspace{0.5cm}
+
+\textbf{Dúvidas?}
+\end{center}
+\end{frame}
+
+% ============================================
+% REFERÊNCIAS
+% ============================================
+\begin{frame}[allowframebreaks]{Referências}
+\nocite{*}
+\bibliographystyle{ieeetr}
+\bibliography{references}
+\end{frame}
+
+\end{document}

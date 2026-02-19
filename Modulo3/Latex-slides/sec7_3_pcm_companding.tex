@@ -1,0 +1,349 @@
+% ============================================
+% SEÇÃO 7.3: PCM E COMPANDING
+% ============================================
+
+% ------------------------------------------------------------------
+\subsection{PCM — Modulação por Código de Pulso}
+% ------------------------------------------------------------------
+
+\begin{frame}{A Cadeia ADC Completa}
+  \begin{center}
+  \begin{tikzpicture}[
+    adcblk/.style={draw, rectangle, rounded corners=4pt,
+                   minimum width=2.1cm, minimum height=0.9cm,
+                   text centered, fill=unbprimary!12,
+                   draw=unbprimary, font=\small, inner sep=4pt},
+    arw/.style={->, thick, >=stealth, color=unbprimary},
+    lbl/.style={font=\scriptsize, color=unbsecondary, text centered}
+  ]
+    % Blocos
+    \node[adcblk]                      (aa)   {Filtro\\Anti-aliasing};
+    \node[adcblk, right=0.85cm of aa]  (samp) {Amostrador\\$f_s > 2W$};
+    \node[adcblk, right=0.85cm of samp](quant){Quantizador\\$L = 2^n$};
+    \node[adcblk, right=0.85cm of quant](enc) {Codificador\\PCM};
+
+    % Setas e rótulos de sinal
+    \draw[arw] (-1.7,0) node[left, font=\small]{$g(t)$} -- (aa);
+    \draw[arw] (aa)    -- (samp)  node[midway,above,lbl]{$g(t)$ filtrado};
+    \draw[arw] (samp)  -- (quant) node[midway,above,lbl]{$g[n]$};
+    \draw[arw] (quant) -- (enc)   node[midway,above,lbl]{$\hat{g}[n]$};
+    \draw[arw] (enc)   -- ++(1.7,0)
+                       node[right, font=\small]{$b_1 b_2\cdots b_n$};
+
+    % Parâmetros abaixo de cada bloco
+    \node[lbl, below=0.45cm of aa]   {$f_c \le f_s/2$};
+    \node[lbl, below=0.45cm of samp] {$T_s = 1/f_s$};
+    \node[lbl, below=0.45cm of quant]{$\Delta = V_{pp}/L$};
+    \node[lbl, below=0.45cm of enc]  {$n$ bits/amostra};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.4cm}
+  Cada etapa tem parâmetros de projeto que determinam a
+  qualidade e a taxa de bits resultante.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Codificação Binária: PCM}
+  Após a quantização, cada nível $\hat{g}[n]$ recebe uma
+  \textbf{palavra binária de $n$ bits} (representação PCM).
+
+  \vspace{0.3cm}
+  Com $n$ bits podemos representar $L = 2^n$ níveis:
+  \[
+    L = 2^n
+    \quad\Longleftrightarrow\quad
+    n = \log_2 L
+  \]
+
+  \vspace{0.3cm}
+  \textbf{Exemplo com $n = 3$ bits ($L = 8$ níveis):}
+
+  \vspace{0.2cm}
+  \begin{center}
+  \begin{tabular}{ccc}
+    \hline
+    Índice $k$ & Código binário & Nível $\hat{g}$\\
+    \hline
+    0 & \texttt{000} & $V_{\min} + 0{,}5\Delta$ \\
+    1 & \texttt{001} & $V_{\min} + 1{,}5\Delta$ \\
+    $\vdots$ & $\vdots$ & $\vdots$ \\
+    7 & \texttt{111} & $V_{\min} + 7{,}5\Delta$ \\
+    \hline
+  \end{tabular}
+  \end{center}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Taxa de Bits e Largura de Banda PCM}
+  A \textbf{taxa de bits} (bit rate) do canal PCM é:
+  \[
+    R_b = n \cdot f_s \quad \text{[bits/s]}
+  \]
+  onde $n$ é o número de bits por amostra e
+  $f_s$ é a taxa de amostragem.
+
+  \vspace{0.35cm}
+  A largura de banda mínima necessária para transmitir o PCM
+  (sem inter-símbolos) é:
+  \[
+    B_{\min} = \frac{R_b}{2} = \frac{n\,f_s}{2}
+  \]
+
+  \vspace{0.35cm}
+  \textbf{Compromisso clássico:}
+  \begin{itemize}
+    \item Qualidade alta $\Rightarrow$ $n$ grande $\Rightarrow$ $R_b$ alto
+          $\Rightarrow$ mais largura de banda
+    \item Largura de banda limitada $\Rightarrow$ $n$ reduzido
+          $\Rightarrow$ mais ruído de quantização
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Exemplo de Projeto PCM: Telefonia Digital}
+  \textbf{Parâmetros do canal de voz (ITU-T G.711):}
+
+  \vspace{0.2cm}
+  \begin{itemize}
+    \item Largura de banda da voz: $W = 4\,\text{kHz}$
+    \item Taxa de amostragem escolhida: $f_s = 8\,\text{kHz}$
+          \quad (garante $f_s > 2W$, com margem)
+    \item Resolução: $n = 8$ bits/amostra ($L = 256$ níveis)
+  \end{itemize}
+
+  \vspace{0.35cm}
+  \textbf{Taxa de bits por canal:}
+  \[
+    R_b = n \cdot f_s = 8 \times 8\,000 = 64\,\text{kb/s}
+  \]
+
+  \textbf{SQNR máximo (senoide):}
+  \[
+    \SQNR_{\mathrm{dB}} \approx 1{,}76 + 6{,}02 \times 8 \approx 50\,\text{dB}
+  \]
+
+  \vspace{0.2cm}
+  \textbf{Observação:} 50 dB é adequado para inteligibilidade da voz,
+  mas ainda abaixo da qualidade de áudio de alta fidelidade (CD: $\sim$98 dB).
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Companding}
+% ------------------------------------------------------------------
+
+\begin{frame}{Por Que Companding? Motivação}
+  \textbf{Problema com quantização uniforme para a voz:}
+
+  \vspace{0.2cm}
+  A amplitude da voz humana \textbf{não tem distribuição uniforme} —
+  amplitudes pequenas são muito mais frequentes do que amplitudes grandes.
+
+  \vspace{0.35cm}
+  Com quantização uniforme:
+  \begin{itemize}
+    \item Os poucos níveis disponíveis se distribuem \textbf{igualmente}
+          por toda a faixa
+    \item A maioria das amostras (pequena amplitude) usa apenas
+          uma \alert{pequena fração} dos níveis
+    \item Para sinais fracos, o SQNR cai drasticamente
+  \end{itemize}
+
+  \vspace{0.35cm}
+  \textbf{Solução:} usar passos $\Delta$ \textbf{menores perto de zero}
+  e maiores para amplitudes altas.\\
+  Isso é a \alert{quantização não-uniforme}.
+
+  \vspace{0.25cm}
+  Na prática, implementada via \textbf{companding}:
+  \textbf{comp}ression + exp\textbf{anding}.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{O Conceito de Companding}
+  \textbf{Companding = Compressão + Quantização Uniforme + Expansão}
+
+  \vspace{0.35cm}
+  \begin{center}
+  \begin{tikzpicture}[
+    cmpblk/.style={draw, rectangle, rounded corners=4pt,
+                   minimum width=2.0cm, minimum height=0.85cm,
+                   text centered, fill=unbprimary!12,
+                   draw=unbprimary, font=\small},
+    arw/.style={->, thick, >=stealth, color=unbprimary},
+    lbl/.style={font=\scriptsize, color=unbsecondary}
+  ]
+    \node[cmpblk]                       (comp)  {Compressor\\(não-linear)};
+    \node[cmpblk, right=0.9cm of comp]  (quant) {Quantizador\\Uniforme};
+    \node[cmpblk, right=0.9cm of quant] (chan)  {Canal / Transmissão};
+    \node[cmpblk, right=0.9cm of chan]  (exp)   {Expansor\\(inverso)};
+
+    \draw[arw] (-1.5,0) node[left, font=\small]{$g[n]$} -- (comp);
+    \draw[arw] (comp)  -- (quant) node[midway,above,lbl]{comprimido};
+    \draw[arw] (quant) -- (chan)  node[midway,above,lbl]{bits PCM};
+    \draw[arw] (chan)  -- (exp)   node[midway,above,lbl]{bits};
+    \draw[arw] (exp)   -- ++(1.5,0) node[right,font=\small]{$\hat{g}[n]$};
+
+    \node[lbl, below=0.4cm of comp]  {TX};
+    \node[lbl, below=0.4cm of exp]   {RX};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item \textbf{Compressor:} amplifica amplitudes pequenas e comprime
+          amplitudes grandes antes da quantização
+    \item \textbf{Expansor:} aplica a função inversa no receptor
+          para restaurar as amplitudes originais
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Lei $\mu$: Definição Matemática}
+  Padrão nos EUA, Canadá e Japão (ITU-T G.711, $\mu = 255$):
+  \[
+    C_\mu(x) = \operatorname{sgn}(x) \,
+               \frac{\ln\!\left(1 + \mu\,|x|\right)}{\ln(1 + \mu)},
+               \qquad |x| \le 1
+  \]
+
+  \vspace{0.2cm}
+  \textbf{Propriedades:}
+  \begin{itemize}
+    \item Para $\mu|x| \gg 1$ (sinal grande):
+          $C_\mu(x) \approx \operatorname{sgn}(x)\,\dfrac{\ln(\mu|x|)}{\ln(1+\mu)}$
+          — compressão logarítmica
+    \item Para $\mu|x| \ll 1$ (sinal pequeno):
+          $C_\mu(x) \approx x$ — aproximadamente linear
+    \item Caso limite: $\mu \to 0$ recupera a quantização uniforme
+  \end{itemize}
+
+  \vspace{0.2cm}
+  A \textbf{inversão} (expansor) é:
+  \[
+    C_\mu^{-1}(y) = \operatorname{sgn}(y) \,
+                    \frac{(1+\mu)^{|y|} - 1}{\mu}
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Lei A: Definição Matemática}
+  Padrão na Europa e em sistemas legados no Brasil
+  (ITU-T G.711, $A = 87{,}6$):
+  \[
+    C_A(x) = \operatorname{sgn}(x)\cdot
+    \begin{cases}
+      \dfrac{A\,|x|}{1 + \ln A},             & 0 \le |x| < \dfrac{1}{A}\\[8pt]
+      \dfrac{1 + \ln\!\left(A\,|x|\right)}{1 + \ln A},
+                                              & \dfrac{1}{A} \le |x| \le 1
+    \end{cases}
+  \]
+
+  \vspace{0.2cm}
+  \textbf{Diferença em relação à lei $\mu$:}
+  \begin{itemize}
+    \item A lei A é \textbf{linear} para amplitudes muito pequenas
+          ($|x| < 1/A$) e logarítmica para amplitudes maiores
+    \item A lei $\mu$ é logarítmica em toda a faixa
+    \item Ambas garantem SQNR quase constante
+          em uma ampla faixa de níveis de sinal
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Curvas de Compressão}
+  \begin{center}
+    \includegraphics[width=0.92\textwidth]{figures/cap7/companding_curves}
+  \end{center}
+  {\footnotesize
+    A curva de compressão é côncava: a inclinação (resolução) é
+    maior perto de zero e menor para grandes amplitudes.
+    A linha tracejada mostra a curva linear sem compressão.
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Comparação de SQNR: Uniforme vs.\ $\mu$-law}
+  \begin{center}
+    \includegraphics[width=0.92\textwidth]{figures/cap7/companding_sqnr_comparison}
+  \end{center}
+  \vspace{-0.15cm}
+  {\footnotesize
+    Com quantização uniforme, o SQNR cai rapidamente para sinais fracos.
+    Com $\mu$-law, o SQNR permanece quase constante ao longo de uma
+    ampla faixa dinâmica — essencial para a voz humana.
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}[fragile]{Implementação em Python: $\mu$-law Companding}
+\begin{lstlisting}[language=Python]
+import numpy as np
+
+def mu_law_compress(x, mu=255):
+    return np.sign(x) * np.log(1 + mu*np.abs(x)) / np.log(1 + mu)
+
+def mu_law_expand(y, mu=255):
+    return np.sign(y) * (1/mu) * ((1+mu)**np.abs(y) - 1)
+
+def quantize_uniform(x, n_bits, v_min=-1.0, v_max=1.0):
+    L   = 2**n_bits
+    d   = (v_max - v_min) / L
+    idx = np.clip(np.floor((np.clip(x, v_min, v_max)-v_min)/d), 0, L-1)
+    return v_min + (idx.astype(int) + 0.5) * d
+
+# Pipeline de companding
+g        = 0.05 * np.sin(2*np.pi*np.linspace(0,100,1_000_000))
+g_comp   = mu_law_compress(g)          # compressao
+g_q_comp = quantize_uniform(g_comp, 8) # quantizacao uniforme
+g_rec    = mu_law_expand(g_q_comp)     # expansao
+sqnr_mu  = 10*np.log10(np.mean(g**2)/np.mean((g_rec - g)**2))
+print(f"SQNR mu-law: {sqnr_mu:.1f} dB")
+\end{lstlisting}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Resumo}
+% ------------------------------------------------------------------
+
+\begin{frame}{Resumo: Conversão Analógico-Digital}
+  \begin{block}{Resultado 1 — Amostragem (Nyquist-Shannon)}
+    \[
+      f_s > 2W
+      \qquad\Longrightarrow\qquad
+      G_s(f) = f_s\sum_{k=-\infty}^{\infty} G(f - k\,f_s)
+    \]
+  \end{block}
+
+  \vspace{0.25cm}
+
+  \begin{block}{Resultado 2 — Ruído de Quantização}
+    \[
+      P_q = \frac{\Delta^2}{12},
+      \qquad
+      \Delta = \frac{V_{pp}}{2^n}
+    \]
+  \end{block}
+
+  \vspace{0.25cm}
+
+  \begin{block}{Resultado 3 — SQNR (senoide em faixa cheia)}
+    \[
+      \SQNR_{\mathrm{dB}} \approx 1{,}76 + 6{,}02\,n \;\text{dB}
+      \qquad\longleftarrow\quad 6\text{ dB por bit}
+    \]
+  \end{block}
+
+  \vspace{0.2cm}
+  \textbf{Companding} ($\mu$-law / A-law) mantém SQNR quase constante
+  para sinais com distribuição de amplitude não-uniforme (ex.: voz).
+\end{frame}

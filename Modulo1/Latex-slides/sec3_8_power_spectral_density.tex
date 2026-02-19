@@ -1,0 +1,652 @@
+% ============================================
+% SEÇÃO 3.8: POTÊNCIA E DENSIDADE ESPECTRAL DE POTÊNCIA
+% ============================================
+
+\subsection{Sinais de Potência}
+
+\begin{frame}{Potência Média de um Sinal}
+
+Para sinais que não têm energia finita (sinais de potência), define-se a \textbf{potência média}:
+
+\[
+P = \lim_{T \to \infty} \frac{1}{T} \int_{-T/2}^{T/2} |f(t)|^2 dt
+\]
+
+\textbf{Exemplos de sinais de potência:}
+
+\begin{itemize}
+\item Sinais periódicos: $\cos(\omega_0 t)$, ondas quadradas
+\item Constantes: $f(t) = A$
+\item Sinais aleatórios estacionários: ruído branco, processos ergódicos
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Diferença fundamental:}
+
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+& \textbf{Energia} & \textbf{Potência} \\
+\hline
+Sinais de energia & Finita & Zero \\
+Sinais de potência & Infinita & Finita \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{Nota:} $P$ tem unidades de watts (ou normalizadas).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplos: Potência de Sinais}
+
+\textbf{Exemplo 1: Senoide}
+
+$f(t) = A\cos(\omega_0 t)$
+
+\[
+P = \lim_{T \to \infty} \frac{1}{T} \int_{-T/2}^{T/2} A^2\cos^2(\omega_0 t) dt
+\]
+
+Usando $\cos^2(\theta) = (1 + \cos(2\theta))/2$ e integrando sobre período inteiro:
+
+\[
+P = A^2 \cdot \frac{1}{2} = \frac{A^2}{2}
+\]
+
+\vspace{0.3cm}
+
+\textbf{Exemplo 2: Constante}
+
+$f(t) = A$
+
+\[
+P = \lim_{T \to \infty} \frac{1}{T} \int_{-T/2}^{T/2} A^2 dt = A^2
+\]
+
+\vspace{0.3cm}
+
+\textbf{Exemplo 3: Onda quadrada periódica}
+
+Amplitude $\pm A$, período $T_0$: $P = A^2$
+
+\end{frame}
+
+% ============================================
+
+\subsection{Densidade Espectral de Potência}
+
+\begin{frame}{Necessidade da PSD}
+
+\textbf{Problema:} Para sinais de potência, a transformada de Fourier padrão não existe!
+
+Para $f(t) = A\cos(\omega_0 t)$:
+
+\[
+\int_{-\infty}^{\infty} |A\cos(\omega_0 t)| dt = \infty
+\]
+
+Não satisfaz condição de Dirichlet.
+
+\vspace{0.3cm}
+
+\textbf{Solução:} Usar funções generalizadas (distribuições) ou definir potência no domínio da frequência através da \textbf{Densidade Espectral de Potência (PSD)}.
+
+\textbf{PSD} $S(\omega)$ indica como a potência está distribuída em frequência.
+
+\vspace{0.3cm}
+
+\textbf{Relação fundamental:}
+
+\[
+P = \frac{1}{2\pi} \int_{-\infty}^{\infty} S(\omega) d\omega
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Definição da PSD}
+
+Para um sinal de potência $f(t)$, define-se:
+
+\textbf{Sinal truncado:}
+
+\[
+f_T(t) = \begin{cases}
+f(t) & |t| \leq T/2 \\
+0 & |t| > T/2
+\end{cases}
+\]
+
+$f_T(t)$ tem energia finita, logo possui transformada $F_T(\omega)$.
+
+\begin{block}{Densidade Espectral de Potência}
+\[
+S(\omega) = \lim_{T \to \infty} \frac{1}{T} |F_T(\omega)|^2 = \lim_{T \to \infty} \frac{|F_T(\omega)|^2}{T}
+\]
+\end{block}
+
+\textbf{Interpretação:}
+
+\begin{itemize}
+\item DEE normalizada pelo tempo de observação
+\item $S(\omega)$ tem unidades de potência por Hz
+\item Indica distribuição de potência no espectro
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{PSD de Sinais Periódicos}
+
+Para sinal periódico com série de Fourier:
+
+\[
+f(t) = \sum_{n=-\infty}^{\infty} c_n e^{jn\omega_0 t}
+\]
+
+A PSD é:
+
+\begin{block}{PSD de Sinal Periódico}
+\[
+S(\omega) = 2\pi \sum_{n=-\infty}^{\infty} |c_n|^2 \delta(\omega - n\omega_0)
+\]
+\end{block}
+
+\textbf{Características:}
+
+\begin{itemize}
+\item Espectro discreto (impulsos nas harmônicas)
+\item Impulsos localizados em $\omega = n\omega_0$
+\item Área de cada impulso: $2\pi|c_n|^2$ (potência naquela harmônica)
+\item Potência total: $P = \sum_{n=-\infty}^{\infty} |c_n|^2$
+\end{itemize}
+
+\textbf{Significado físico:} Sinal periódico tem potência concentrada em frequências discretas.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: PSD de Senoide}
+
+\textbf{Sinal:} $f(t) = A\cos(\omega_0 t)$
+
+Escrevendo em forma exponencial:
+
+\[
+f(t) = \frac{A}{2} e^{j\omega_0 t} + \frac{A}{2} e^{-j\omega_0 t}
+\]
+
+Coeficientes: $c_1 = c_{-1} = A/2$, $c_n = 0$ para $n \neq \pm 1$
+
+\textbf{PSD:}
+
+\[
+S(\omega) = 2\pi \left[\left|\frac{A}{2}\right|^2 \delta(\omega - \omega_0) + \left|\frac{A}{2}\right|^2 \delta(\omega + \omega_0)\right]
+\]
+
+\[
+= \frac{\pi A^2}{2} [\delta(\omega - \omega_0) + \delta(\omega + \omega_0)]
+\]
+
+\textbf{Potência total:}
+
+\[
+P = \frac{1}{2\pi} \cdot \frac{\pi A^2}{2} \cdot 2 = \frac{A^2}{2}
+\]
+
+Confirma cálculo no tempo!
+
+\end{frame}
+
+% ============================================
+
+\subsection{Autocorrelação e Teorema de Wiener-Khinchin}
+
+\begin{frame}{Função de Autocorrelação para Sinais de Potência}
+
+A \textbf{função de autocorrelação} para um sinal de potência é:
+
+\[
+R(\tau) = \lim_{T \to \infty} \frac{1}{T} \int_{-T/2}^{T/2} f(t) f^*(t - \tau) dt
+\]
+
+\textbf{Propriedades:}
+
+\begin{itemize}
+\item $R(0) = P$ (potência média)
+\item $R(\tau) = R^*(-\tau)$ (simetria Hermitiana)
+\item Para sinais reais: $R(\tau) = R(-\tau)$ (par)
+\item $|R(\tau)| \leq R(0) = P$
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Interpretação física:}
+
+\begin{itemize}
+\item Mede correlação temporal do sinal
+\item $R(\tau)$ grande $\rightarrow$ valores em $t$ e $t+\tau$ correlacionados
+\item $R(\tau)$ pequeno $\rightarrow$ valores descorrelacionados
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Teorema de Wiener-Khinchin}
+
+\begin{block}{Teorema de Wiener-Khinchin}
+A PSD e a função de autocorrelação formam um par de transformadas de Fourier:
+\[
+R(\tau) \xleftrightarrow{\ft} S(\omega)
+\]
+
+Ou seja:
+\[
+S(\omega) = \int_{-\infty}^{\infty} R(\tau) e^{-j\omega\tau} d\tau
+\]
+\[
+R(\tau) = \frac{1}{2\pi} \int_{-\infty}^{\infty} S(\omega) e^{j\omega\tau} d\omega
+\]
+\end{block}
+
+\textbf{Importância:}
+
+\begin{itemize}
+\item Relaciona propriedades temporais (correlação) com espectrais (potência)
+\item PSD pode ser calculada via autocorrelação
+\item Fundamental em processamento de sinais aleatórios
+\item Base para análise espectral não-paramétrica
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demonstração do Teorema (esboço)}
+
+Começando com a definição de PSD:
+
+\[
+S(\omega) = \lim_{T \to \infty} \frac{|F_T(\omega)|^2}{T}
+\]
+
+Expandindo $|F_T(\omega)|^2 = F_T(\omega) F_T^*(\omega)$:
+
+\[
+|F_T(\omega)|^2 = \int_{-T/2}^{T/2} f_T(t) e^{-j\omega t} dt \int_{-T/2}^{T/2} f_T^*(t') e^{j\omega t'} dt'
+\]
+
+Combinando as integrais e mudando variável $\tau = t - t'$:
+
+\[
+|F_T(\omega)|^2 = \int \int f_T(t) f_T^*(t') e^{-j\omega(t-t')} dt' dt
+\]
+
+Após manipulação e tomando limite $T \to \infty$:
+
+\[
+S(\omega) = \int_{-\infty}^{\infty} \left[\lim_{T \to \infty} \frac{1}{T} \int f(t) f^*(t-\tau) dt\right] e^{-j\omega\tau} d\tau
+\]
+
+\[
+= \int_{-\infty}^{\infty} R(\tau) e^{-j\omega\tau} d\tau
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Autocorrelação de Senoide}
+
+\textbf{Sinal:} $f(t) = A\cos(\omega_0 t)$
+
+\textbf{Autocorrelação:}
+
+\[
+R(\tau) = \lim_{T \to \infty} \frac{1}{T} \int_{-T/2}^{T/2} A\cos(\omega_0 t) \cdot A\cos(\omega_0(t-\tau)) dt
+\]
+
+Usando identidade $\cos(a)\cos(b) = \frac{1}{2}[\cos(a-b) + \cos(a+b)]$:
+
+\[
+R(\tau) = \lim_{T \to \infty} \frac{A^2}{2T} \int_{-T/2}^{T/2} [\cos(\omega_0 \tau) + \cos(2\omega_0 t - \omega_0\tau)] dt
+\]
+
+O segundo termo integra a zero sobre período completo:
+
+\[
+R(\tau) = \frac{A^2}{2} \cos(\omega_0 \tau)
+\]
+
+\textbf{Transformada:}
+
+\[
+S(\omega) = \frac{A^2}{2} \FT{\cos(\omega_0 \tau)} = \frac{\pi A^2}{2}[\delta(\omega - \omega_0) + \delta(\omega + \omega_0)]
+\]
+
+Confirma resultado anterior!
+
+\end{frame}
+
+% ============================================
+
+\subsection{PSD na Saída de Sistemas LTI}
+
+\begin{frame}{Transformação de PSD por Sistema LTI}
+
+\textbf{Sistema:} Entrada $x(t)$ com PSD $S_x(\omega)$, saída $y(t)$ com PSD $S_y(\omega)$.
+
+\textbf{Relação na frequência:} $Y(\omega) = H(\omega) X(\omega)$
+
+\textbf{Derivação:}
+
+Para sinal truncado: $Y_T(\omega) = H(\omega) X_T(\omega)$
+
+\[
+|Y_T(\omega)|^2 = |H(\omega)|^2 |X_T(\omega)|^2
+\]
+
+Tomando limite:
+
+\[
+S_y(\omega) = \lim_{T \to \infty} \frac{|Y_T(\omega)|^2}{T} = |H(\omega)|^2 \lim_{T \to \infty} \frac{|X_T(\omega)|^2}{T}
+\]
+
+\begin{block}{Relação Entrada-Saída para PSD}
+\[
+\boxed{S_y(\omega) = |H(\omega)|^2 S_x(\omega)}
+\]
+\end{block}
+
+\textbf{Idêntico à relação para DEE!}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Potência na Saída de Sistema LTI}
+
+A potência na saída é:
+
+\[
+P_y = \frac{1}{2\pi} \int_{-\infty}^{\infty} S_y(\omega) d\omega
+\]
+
+Substituindo $S_y(\omega) = |H(\omega)|^2 S_x(\omega)$:
+
+\[
+P_y = \frac{1}{2\pi} \int_{-\infty}^{\infty} |H(\omega)|^2 S_x(\omega) d\omega
+\]
+
+\textbf{Interpretação:}
+
+\begin{itemize}
+\item Cada componente espectral da entrada é filtrada por $|H(\omega)|^2$
+\item Frequências amplificadas pelo sistema contribuem mais à potência de saída
+\item Frequências atenuadas contribuem menos
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Aplicação importante:} Análise de ruído em sistemas de comunicação.
+
+\end{frame}
+
+% ============================================
+
+\subsection{Ruído Branco}
+
+\begin{frame}{Ruído Branco}
+
+\textbf{Ruído branco ideal:} Processo aleatório com PSD constante para todas as frequências.
+
+\begin{block}{PSD de Ruído Branco}
+\[
+S_n(\omega) = \frac{N_0}{2} \quad \text{para todo} \quad \omega
+\]
+\end{block}
+
+onde $N_0$ é a densidade espectral de potência bilateral.
+
+\vspace{0.3cm}
+
+\textbf{Características:}
+
+\begin{itemize}
+\item Potência infinita: $P = \int_{-\infty}^{\infty} (N_0/2)/(2\pi) d\omega = \infty$
+\item Todas as frequências igualmente representadas
+\item Analogia: Luz branca contém todas as cores
+\item Modelo idealizado (fisicamente irrealizável)
+\end{itemize}
+
+\textbf{Autocorrelação:}
+
+\[
+R_n(\tau) = \frac{N_0}{2} \delta(\tau)
+\]
+
+Amostras em tempos diferentes são completamente descorrelacionadas!
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Ruído Branco Filtrado}
+
+\textbf{Situação prática:} Ruído branco passa por filtro (canal, receptor).
+
+\textbf{Entrada:} Ruído branco $n(t)$ com $S_n(\omega) = N_0/2$
+
+\textbf{Saída:} $y(t) = n(t) \conv h(t)$
+
+\textbf{PSD da saída:}
+
+\[
+S_y(\omega) = |H(\omega)|^2 \cdot \frac{N_0}{2}
+\]
+
+\textbf{Potência do ruído na saída:}
+
+\[
+P_y = \frac{1}{2\pi} \int_{-\infty}^{\infty} |H(\omega)|^2 \frac{N_0}{2} d\omega = \frac{N_0}{4\pi} \int_{-\infty}^{\infty} |H(\omega)|^2 d\omega
+\]
+
+Pela relação de Parseval:
+
+\[
+P_y = \frac{N_0}{2} \int_{-\infty}^{\infty} |h(t)|^2 dt
+\]
+
+\textbf{Ruído filtrado já não é branco!} PSD tem forma de $|H(\omega)|^2$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Ruído Branco em Filtro RC}
+
+\textbf{Filtro:} RC passa-baixas com $H(\omega) = 1/(1 + j\omega RC)$
+
+\textbf{Entrada:} Ruído branco $S_n(\omega) = N_0/2$
+
+\textbf{PSD na saída:}
+
+\[
+S_y(\omega) = \frac{N_0/2}{1 + (\omega RC)^2}
+\]
+
+\textbf{Potência do ruído na saída:}
+
+\[
+P_y = \frac{1}{2\pi} \int_{-\infty}^{\infty} \frac{N_0/2}{1 + (\omega RC)^2} d\omega
+\]
+
+Com $\omega_c = 1/(RC)$:
+
+\[
+P_y = \frac{N_0}{4\pi} \cdot \frac{2\pi}{\omega_c} = \frac{N_0}{4\omega_c} = \frac{N_0}{4} \cdot RC = \frac{N_0 \cdot BW}{2}
+\]
+
+onde $BW = 1/(4RC)$ é a largura de banda de ruído do filtro.
+
+\textbf{Conclusão:} Potência de ruído proporcional à largura de banda!
+
+\end{frame}
+
+% ============================================
+
+\subsection{Relação Sinal-Ruído (SNR)}
+
+\begin{frame}{Relação Sinal-Ruído}
+
+A \textbf{Relação Sinal-Ruído (SNR)} quantifica qualidade do sinal:
+
+\[
+\text{SNR} = \frac{P_{\text{sinal}}}{P_{\text{ruído}}}
+\]
+
+Em decibéis:
+
+\[
+\text{SNR}_{dB} = 10\log_{10}\left(\frac{P_{\text{sinal}}}{P_{\text{ruído}}}\right)
+\]
+
+\vspace{0.3cm}
+
+\textbf{Importância:}
+
+\begin{itemize}
+\item Medida fundamental de qualidade em comunicações
+\item Determina taxa de erro e capacidade do canal
+\item SNR alta: comunicação confiável
+\item SNR baixa: erros frequentes, degradação
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Valores típicos:}
+
+\begin{itemize}
+\item Telefonia analógica: SNR $>$ 30 dB
+\item Comunicação digital: SNR $>$ 10-15 dB (depende da modulação)
+\item Rádio FM: SNR $>$ 40 dB para boa qualidade
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{SNR em Sistemas de Banda Limitada}
+
+\textbf{Sistema:} Sinal $s(t)$ com potência $P_s$ + ruído branco $n(t)$ com PSD $N_0/2$.
+
+\textbf{Após filtro passa-baixas ideal de largura $W$:}
+
+Potência do sinal: $P_s$ (assumindo sinal banda-limitada em $W$)
+
+Potência do ruído:
+
+\[
+P_n = \frac{1}{2\pi} \int_{-W}^{W} \frac{N_0}{2} d\omega = \frac{N_0 \cdot 2W}{4\pi} = \frac{N_0 W}{2\pi}
+\]
+
+Em Hz ($f = \omega/2\pi$):
+
+\[
+P_n = N_0 B
+\]
+
+onde $B = W/(2\pi)$ é a largura de banda em Hz.
+
+\textbf{SNR:}
+
+\[
+\text{SNR} = \frac{P_s}{N_0 B}
+\]
+
+\textbf{Compromisso:} Aumentar banda $B$ aumenta capacidade mas também aumenta ruído!
+
+\end{frame}
+
+% ============================================
+
+\subsection{Exemplo Integrado}
+
+\begin{frame}{Exemplo: Comunicação em Canal Ruidoso}
+
+\textbf{Sistema:}
+
+\begin{itemize}
+\item Sinal transmitido: $s(t) = A\cos(\omega_c t)$, potência $P_s = A^2/2$
+\item Canal: Atenuação $\alpha$, ruído branco aditivo $N_0/2$
+\item Filtro receptor: Passa-faixas centrado em $\omega_c$, largura $2B$
+\end{itemize}
+
+\textbf{Sinal recebido (antes do filtro):}
+
+\[
+r(t) = \alpha s(t) + n(t)
+\]
+
+\textbf{Após filtro:}
+
+Potência do sinal: $P_{s,out} = \alpha^2 P_s = \alpha^2 A^2/2$
+
+Potência do ruído: $P_{n,out} = N_0 B$ (banda bilateral $2B$, mas simetria)
+
+\textbf{SNR na saída:}
+
+\[
+\text{SNR}_{out} = \frac{\alpha^2 A^2/2}{N_0 B} = \frac{\alpha^2 A^2}{2N_0 B}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resumo da Seção 3.8}
+
+\textbf{Conceitos de potência:}
+
+\begin{itemize}
+\item \textbf{Potência média:} $P = \lim_{T\to\infty} \frac{1}{T}\int |f(t)|^2 dt$
+\item Para sinais periódicos: $P = \sum |c_n|^2$
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Densidade Espectral de Potência (PSD):}
+
+\begin{itemize}
+\item $S(\omega)$: distribuição de potência em frequência
+\item $P = \frac{1}{2\pi}\int S(\omega) d\omega$
+\item Sinais periódicos: espectro discreto (impulsos)
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Teorema de Wiener-Khinchin:} $R(\tau) \xleftrightarrow{\ft} S(\omega)$
+
+\vspace{0.3cm}
+
+\textbf{Sistemas LTI:} $S_y(\omega) = |H(\omega)|^2 S_x(\omega)$
+
+\vspace{0.3cm}
+
+\textbf{Ruído branco:}
+
+\begin{itemize}
+\item PSD constante: $S_n = N_0/2$
+\item Após filtragem: potência $\propto$ largura de banda
+\item SNR = $P_s/(N_0 B)$
+\end{itemize}
+
+\end{frame}

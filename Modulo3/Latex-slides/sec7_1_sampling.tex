@@ -1,0 +1,311 @@
+% ============================================
+% SEÇÃO 7.1: AMOSTRAGEM
+% Derivações completas, passo a passo.
+% ============================================
+
+% ------------------------------------------------------------------
+\subsection{Motivação e Modelo}
+% ------------------------------------------------------------------
+
+\begin{frame}{Por Que Digitalizar Sinais?}
+  \begin{columns}[T]
+    \column{0.52\textwidth}
+    \textbf{O mundo é analógico:}
+    \begin{itemize}
+      \item Voz humana $\rightarrow$ pressão de ar contínua
+      \item Música $\rightarrow$ ondas mecânicas
+      \item Temperatura, pressão, tensão elétrica\ldots
+    \end{itemize}
+    \vspace{0.3cm}
+    \textbf{Computadores só entendem 0 e 1.}\\
+    \vspace{0.2cm}
+    Precisamos \alert{converter} o sinal analógico para digital (ADC).
+
+    \column{0.45\textwidth}
+    \textbf{Aplicações cotidianas:}
+    \begin{itemize}
+      \item \textbf{Telefonia:} $f_s = 8\,\text{kHz}$, 8 bits
+      \item \textbf{CD de áudio:} $f_s = 44{,}1\,\text{kHz}$, 16 bits
+      \item \textbf{Wi-Fi / 5G:} ADC em GHz!
+    \end{itemize}
+    \vspace{0.3cm}
+    \textbf{Cadeia ADC — 3 etapas:}
+    \begin{enumerate}
+      \item \alert{Amostragem}
+      \item Quantização
+      \item Codificação (PCM)
+    \end{enumerate}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Modelo Matemático do Amostrador Ideal}
+  Seja $g(t)$ um sinal \textbf{passa-baixas limitado em banda}:
+  \[
+    G(f) = 0 \quad \text{para } |f| \ge W
+  \]
+
+  \vspace{0.3cm}
+  O amostrador ideal multiplica $g(t)$ por um
+  \textbf{trem de impulsos de Dirac} (``pente'') espaçado de $T_s$:
+  \[
+    \delta_{T_s}(t) = \sum_{n=-\infty}^{\infty} \delta(t - nT_s)
+    \qquad T_s = \frac{1}{f_s}
+  \]
+
+  \vspace{0.3cm}
+  O \textbf{sinal amostrado} resultante é:
+  \[
+    g_s(t) = g(t) \cdot \delta_{T_s}(t)
+  \]
+
+  \vspace{0.3cm}
+  \textbf{Questão fundamental:} qual o menor $f_s$ que ainda permite
+  reconstruir $g(t)$ com perfeição?
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Derivação do Teorema de Nyquist-Shannon}
+% ------------------------------------------------------------------
+
+\begin{frame}{Derivação — Passo 1: Sinal Amostrado no Tempo}
+  Expandindo $g_s(t)$ com a definição do trem de impulsos:
+  \[
+    g_s(t) = g(t) \cdot \sum_{n=-\infty}^{\infty} \delta(t - nT_s)
+           = \sum_{n=-\infty}^{\infty} g(t)\,\delta(t - nT_s)
+  \]
+
+  \vspace{0.35cm}
+  Usamos a \textbf{propriedade de filtragem} da delta de Dirac:
+  \[
+    x(t)\,\delta(t - t_0) = x(t_0)\,\delta(t - t_0)
+  \]
+  O impulso em $t_0$ ``captura'' o valor $x(t_0)$ e descarta todo o
+  resto do sinal.
+
+  \vspace{0.35cm}
+  Aplicando a cada termo da soma:
+  \[
+    g_s(t) = \sum_{n=-\infty}^{\infty} g(nT_s)\,\delta(t - nT_s)
+  \]
+
+  Uma sequência de impulsos ponderados pelos valores das amostras $g(nT_s)$.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Derivação — Passo 2: Transformada de Fourier e Convolução}
+  No domínio da frequência, \textbf{multiplicação no tempo} equivale a
+  \textbf{convolução na frequência}:
+  \[
+    G_s(f) = \FT{g_s(t)}
+           = \FT{g(t) \cdot \delta_{T_s}(t)}
+           = G(f) \ast \FT{\delta_{T_s}(t)}
+  \]
+
+  \vspace{0.4cm}
+  Para completar, precisamos calcular
+  $\FT{\delta_{T_s}(t)}$ — a transformada do trem de impulsos.
+
+  \vspace{0.4cm}
+  \textbf{Passo 3 — Transformada do Trem de Impulsos}
+
+  O trem de impulsos é periódico com período $T_s$. Desenvolvendo-o
+  em Série de Fourier exponencial, todos os coeficientes têm o mesmo
+  módulo $1/T_s = f_s$. Portanto:
+  \[
+    \FT{\sum_{n=-\infty}^{\infty}\delta(t - nT_s)}
+    = f_s \sum_{k=-\infty}^{\infty} \delta(f - k\,f_s)
+  \]
+
+  \medskip
+  \textit{Conclusão elegante: um trem de impulsos no tempo gera outro
+  trem de impulsos na frequência, com espaçamento $f_s = 1/T_s$.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Derivação — Passo 4: Convolução com o Trem de Impulsos}
+  Substituindo em $G_s(f) = G(f) \ast \FT{\delta_{T_s}(t)}$:
+  \[
+    G_s(f)
+    = G(f) \ast \left(\, f_s \sum_{k=-\infty}^{\infty} \delta(f - k\,f_s) \right)
+  \]
+
+  \vspace{0.3cm}
+  Pela \textbf{distributividade} da convolução, levamos $\ast$ para
+  dentro do somatório:
+  \[
+    G_s(f)
+    = f_s \sum_{k=-\infty}^{\infty} G(f) \ast \delta(f - k\,f_s)
+  \]
+
+  \vspace{0.3cm}
+  Aplicamos a propriedade de \textbf{deslocamento por convolução}:
+  \[
+    X(f) \ast \delta(f - f_0) = X(f - f_0)
+  \]
+
+  Portanto, cada termo desloca $G(f)$ de $k\,f_s$:
+  \[
+    G_s(f) = f_s \sum_{k=-\infty}^{\infty} G(f - k\,f_s)
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Resultado: Espectro do Sinal Amostrado}
+  \begin{block}{Espectro do Sinal Amostrado}
+    \[
+      G_s(f) = f_s \sum_{k=-\infty}^{\infty} G(f - k\,f_s)
+    \]
+    O espectro de $g_s(t)$ é uma \textbf{soma periódica de réplicas}
+    de $G(f)$, cada uma deslocada de $k\,f_s$ e escalada por $f_s$.
+  \end{block}
+
+  \vspace{0.3cm}
+  \textbf{Consequências imediatas:}
+  \begin{itemize}
+    \item A amostragem \alert{repete o espectro} a cada $f_s$ Hz.
+    \item Se as réplicas não se sobrepõem, $G(f)$ pode ser isolada
+          com um filtro passa-baixas ideal de corte em $W$.
+    \item Se houver sobreposição $\Rightarrow$ \alert{aliasing}
+          — distorção irrecuperável.
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Condição de Nyquist e Aliasing}
+% ------------------------------------------------------------------
+
+\begin{frame}{Visualização do Espectro Amostrado}
+  \begin{center}
+    \includegraphics[width=0.93\textwidth]{figures/cap7/sampling_spectrum}
+  \end{center}
+  \vspace{-0.2cm}
+  {\footnotesize
+    \textit{(a)} Sem aliasing ($f_s > 2W$): réplicas bem separadas;
+    o filtro passa-baixas (corte em $\pm W$) recupera $G(f)$ exatamente.\\
+    \textit{(b)} Com aliasing ($f_s < 2W$): réplicas sobrepostas (vermelho);
+    $G(f)$ é distorcida de forma irrecuperável.
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Condição de Nyquist — Derivação}
+  Para reconstrução perfeita, as réplicas \textbf{não podem se sobrepor}.
+
+  \vspace{0.4cm}
+  \begin{itemize}
+    \item Réplica em $k = 0$: ocupa $\left[-W,\;+W\right]$
+    \item Réplica em $k = 1$: ocupa $\left[f_s - W,\;f_s + W\right]$
+  \end{itemize}
+
+  \vspace{0.3cm}
+  Para que as réplicas em $k=0$ e $k=1$ não se sobreponham,
+  o início da réplica em $f_s$ deve estar além do fim da réplica em $0$:
+  \[
+    f_s - W > W
+    \quad\Longrightarrow\quad
+    f_s > 2W
+  \]
+
+  \begin{block}{Teorema de Nyquist-Shannon}
+    Um sinal $g(t)$ com espectro limitado a $[-W, W]$ Hz pode ser
+    \textbf{perfeitamente reconstruído} a partir de suas amostras
+    $\{g(nT_s)\}$ se, e somente se:
+    \[
+      f_s > 2W
+    \]
+    A taxa mínima $f_{\mathrm{Nyquist}} = 2W$ é a \textbf{taxa de Nyquist}.
+  \end{block}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Aliasing: O Que Acontece Quando $f_s < 2W$?}
+  \textbf{Aliasing} = sobreposição das réplicas espectrais.
+
+  \vspace{0.3cm}
+  \textbf{Efeito prático:} uma componente de frequência $f_0 > f_s/2$
+  ``se disfarça'' de uma frequência espúria
+  $f_{\text{alias}} = |f_0 - f_s|$ no sinal recuperado.
+
+  \vspace{0.3cm}
+  \textbf{Exemplo numérico:} sinal em $f_0 = 800$ Hz amostrado com
+  $f_s = 900$ Hz.
+  \[
+    f_{\text{alias}} = |800 - 900| = 100\,\text{Hz}
+    \qquad\longleftarrow\quad\text{frequência completamente errada!}
+  \]
+
+  \vspace{0.25cm}
+  \textbf{Observação:} uma vez que o aliasing ocorre, a informação
+  perdida \alert{não pode ser recuperada}.
+
+  \vspace{0.25cm}
+  \textbf{Solução na prática:} inserir um \textbf{filtro anti-aliasing}
+  (passa-baixas analógico com corte em $f_s/2$) \textit{antes} do
+  amostrador, garantindo que o sinal seja estritamente limitado em banda.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Aliasing — Demonstração Visual}
+  \begin{center}
+    \includegraphics[width=0.93\textwidth]{figures/cap7/aliasing_demo}
+  \end{center}
+  \vspace{-0.2cm}
+  {\footnotesize
+    \textit{(a)} Amostragem adequada: os pontos descrevem corretamente o
+    sinal original.
+    \textit{(b)} Subamostragem: os mesmos pontos amostrados
+    ({\color[HTML]{F2A900}laranja}) coincidem com uma senóide de
+    frequência muito mais baixa ({\color[HTML]{C0392B}vermelho}) — o alias.
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Amostragem no Domínio do Tempo}
+  \begin{center}
+    \includegraphics[width=0.88\textwidth]{figures/cap7/sampling_time_domain}
+  \end{center}
+  {\footnotesize
+    (a)~Sinal original contínuo.\ \
+    (b)~Trem de impulsos espaçados de $T_s$.\ \
+    (c)~Sinal amostrado = impulsos ponderados pelas amostras $g(nT_s)$.
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Reconstrução do Sinal}
+% ------------------------------------------------------------------
+
+\begin{frame}{Reconstrução: Filtro Passa-Baixas Ideal}
+  Se $f_s > 2W$, podemos \textbf{recuperar $g(t)$ exatamente} filtrando
+  $g_s(t)$ com um filtro passa-baixas ideal de corte em $W$:
+  \[
+    H(f) = \frac{1}{f_s}\,\rect\!\left(\frac{f}{2W}\right)
+    \quad\Longrightarrow\quad
+    \hat{G}(f) = G_s(f) \cdot H(f) = G(f)
+  \]
+
+  \vspace{0.3cm}
+  No domínio do tempo, o filtro ideal corresponde a um pulso sinc:
+  \[
+    h(t) = \IFT{H(f)} = \frac{2W}{f_s}\,\sinc(2Wt)
+  \]
+
+  \vspace{0.3cm}
+  A reconstrução completa do sinal contínuo é a
+  \textbf{interpolação sinc}:
+  \[
+    g(t) = \sum_{n=-\infty}^{\infty} g(nT_s)\,\sinc\!\left(\frac{t - nT_s}{T_s}\right)
+  \]
+
+  \textit{Intuição:} cada amostra gera um pulso sinc centrado em $nT_s$;
+  a superposição de todos os sincs reconstrói o sinal contínuo original.
+\end{frame}
