@@ -1,0 +1,693 @@
+% ============================================
+% SEÇÃO 3.9: COMPUTAÇÃO NUMÉRICA DA TRANSFORMADA DE FOURIER
+% ============================================
+
+\subsection{Motivação}
+
+\begin{frame}{Por que Transformada Discreta?}
+
+\textbf{Transformada de Fourier contínua:}
+
+\[
+F(\omega) = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt
+\]
+
+\textbf{Problemas para implementação computacional:}
+
+\begin{enumerate}
+\item \textbf{Integral infinita:} Computadores não processam intervalos infinitos
+\item \textbf{Tempo contínuo:} Necessário amostrar o sinal discretamente
+\item \textbf{Frequência contínua:} Impossível calcular para todo $\omega$
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Solução:} \textbf{Transformada Discreta de Fourier (DFT)}
+
+\begin{itemize}
+\item Opera em sequências finitas de amostras
+\item Produz espectro em frequências discretas
+\item Computável em tempo finito
+\item Base para análise espectral prática
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Amostragem de Sinais}
+
+\begin{frame}{Teorema da Amostragem (Nyquist-Shannon)}
+
+\textbf{Problema:} Converter sinal contínuo $f(t)$ em amostras discretas $f[n]$.
+
+\begin{block}{Teorema de Nyquist-Shannon}
+Um sinal de banda limitada $f(t)$ com frequência máxima $f_{max}$ pode ser perfeitamente reconstruído a partir de suas amostras se a taxa de amostragem $f_s$ satisfizer:
+\[
+f_s \geq 2f_{max}
+\]
+\end{block}
+
+\textbf{Definições:}
+
+\begin{itemize}
+\item \textbf{Taxa de Nyquist:} $f_N = 2f_{max}$ (taxa mínima)
+\item \textbf{Período de amostragem:} $T_s = 1/f_s$
+\item \textbf{Amostras:} $f[n] = f(nT_s)$ para $n = 0, 1, 2, ..., N-1$
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Consequência:} Se $f_s < 2f_{max}$, ocorre \textbf{aliasing} (distorção espectral).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aliasing}
+
+\textbf{Aliasing} ocorre quando a taxa de amostragem é insuficiente.
+
+\textbf{Efeito:}
+
+Frequências acima de $f_s/2$ aparecem como frequências mais baixas (aliases):
+
+\[
+f_{alias} = |f_{sinal} - kf_s|
+\]
+
+para algum inteiro $k$ que minimiza $f_{alias}$.
+
+\vspace{0.3cm}
+
+\textbf{Exemplo clássico:} Rodas de carroça em filmes aparecem girando para trás.
+
+\textbf{Prevenção:}
+
+\begin{enumerate}
+\item \textbf{Filtro anti-aliasing:} Passa-baixas antes da amostragem
+   
+   Remove componentes acima de $f_s/2$
+
+\item \textbf{Sobreamostragem:} Usar $f_s \gg 2f_{max}$
+   
+   Margem de segurança, facilita filtragem
+\end{enumerate}
+
+\textbf{Prática comum:} $f_s = (2.5 \text{ a } 4) \times 2f_{max}$
+
+\end{frame}
+
+% ============================================
+
+\subsection{Transformada Discreta de Fourier}
+
+\begin{frame}{Definição da DFT}
+
+Dado sequência finita de $N$ amostras: $x[0], x[1], ..., x[N-1]$
+
+\begin{block}{Transformada Discreta de Fourier (DFT)}
+\[
+X[k] = \sum_{n=0}^{N-1} x[n] e^{-j2\pi kn/N}, \quad k = 0, 1, ..., N-1
+\]
+\end{block}
+
+\begin{block}{DFT Inversa (IDFT)}
+\[
+x[n] = \frac{1}{N} \sum_{k=0}^{N-1} X[k] e^{j2\pi kn/N}, \quad n = 0, 1, ..., N-1
+\]
+\end{block}
+
+\textbf{Parâmetros:}
+
+\begin{itemize}
+\item $N$: Número de amostras (comprimento da DFT)
+\item $x[n]$: Amostras no domínio do tempo
+\item $X[k]$: Coeficientes espectrais (geralmente complexos)
+\item $k$: Índice de frequência discreta
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Interpretação da DFT}
+
+\textbf{Frequências discretas:}
+
+A DFT avalia o espectro em $N$ frequências igualmente espaçadas:
+
+\[
+f_k = \frac{k f_s}{N} = \frac{k}{NT_s}, \quad k = 0, 1, ..., N-1
+\]
+
+ou em frequência angular:
+
+\[
+\omega_k = \frac{2\pi k}{N T_s}
+\]
+
+\textbf{Resolução em frequência:}
+
+\[
+\Delta f = \frac{f_s}{N} = \frac{1}{T_{obs}}
+\]
+
+onde $T_{obs} = NT_s$ é o tempo total de observação.
+
+\vspace{0.3cm}
+
+\textbf{Conclusões importantes:}
+
+\begin{itemize}
+\item Maior $N$ $\rightarrow$ melhor resolução em frequência
+\item Maior $f_s$ $\rightarrow$ maior faixa de frequências (até $f_s/2$)
+\item Compromisso: resolução vs. faixa vs. custo computacional
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Propriedades da DFT}
+
+\textbf{Periodicidade:}
+
+\[
+X[k + N] = X[k], \quad x[n + N] = x[n]
+\]
+
+A DFT assume sinais periódicos com período $N$.
+
+\vspace{0.3cm}
+
+\textbf{Simetria (para sinais reais):}
+
+Se $x[n]$ é real, então:
+
+\[
+X[N-k] = X^*[k]
+\]
+
+Logo, $|X[N-k]| = |X[k]|$ (espectro de magnitude simétrico).
+
+Basta calcular $k = 0, 1, ..., N/2$ (metade dos pontos).
+
+\vspace{0.3cm}
+
+\textbf{Linearidade:}
+
+\[
+\text{DFT}\{ax_1[n] + bx_2[n]\} = aX_1[k] + bX_2[k]
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Relação DFT-TF Contínua}
+
+\textbf{Aproximação:} A DFT aproxima a Transformada de Fourier contínua.
+
+Para sinal amostrado $f(t)$ com $f[n] = f(nT_s)$:
+
+\[
+X[k] \approx T_s F(\omega_k)
+\]
+
+onde $\omega_k = 2\pi k/(NT_s)$.
+
+\vspace{0.3cm}
+
+\textbf{Derivação intuitiva:}
+
+A integral da TF é aproximada por uma soma (regra do retângulo):
+
+\[
+F(\omega) = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt \approx T_s \sum_{n=0}^{N-1} f(nT_s) e^{-j\omega nT_s}
+\]
+
+Avaliando em $\omega = \omega_k = 2\pi k/(NT_s)$:
+
+\[
+F(\omega_k) \approx T_s \sum_{n=0}^{N-1} f[n] e^{-j2\pi kn/N} = T_s X[k]
+\]
+
+\textbf{Fator $T_s$:} Escala devido ao intervalo de amostragem.
+
+\end{frame}
+
+% ============================================
+
+\subsection{Fast Fourier Transform (FFT)}
+
+\begin{frame}{Complexidade Computacional}
+
+\textbf{Cálculo direto da DFT:}
+
+\[
+X[k] = \sum_{n=0}^{N-1} x[n] e^{-j2\pi kn/N}
+\]
+
+Para cada $k$, são necessárias:
+\begin{itemize}
+\item $N$ multiplicações complexas
+\item $N-1$ adições complexas
+\end{itemize}
+
+Para todos os $N$ valores de $k$:
+
+\textbf{Complexidade: $O(N^2)$}
+
+\vspace{0.3cm}
+
+\textbf{Exemplo:} Para $N = 1024$:
+
+DFT direta: $\approx 1.048.576$ operações
+
+\vspace{0.3cm}
+
+\textbf{Problema:} Proibitivo para $N$ grande (análise em tempo real, processamento de imagens, etc.).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Fast Fourier Transform (FFT)}
+
+A \textbf{FFT} é um algoritmo eficiente para calcular a DFT.
+
+\textbf{Ideia fundamental (Cooley-Tukey):}
+
+Explorar simetrias e periodicidades de $e^{-j2\pi/N}$ (fator de rotação).
+
+Dividir DFT de tamanho $N$ em:
+\begin{itemize}
+\item Duas DFTs de tamanho $N/2$ (pares e ímpares)
+\item Combinar resultados com multiplicações simples
+\item Repetir recursivamente
+\end{itemize}
+
+\textbf{Complexidade FFT: $O(N\log_2 N)$}
+
+\vspace{0.3cm}
+
+\textbf{Requisito:} $N$ deve ser potência de 2 (para FFT radix-2).
+
+$N = 2^m$ para algum inteiro $m$.
+
+\vspace{0.3cm}
+
+\textbf{Ganho de velocidade:}
+
+Para $N = 1024 = 2^{10}$:
+
+FFT: $\approx 10.240$ operações (100× mais rápido!)
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Algoritmo FFT (esboço)}
+
+\textbf{Decomposição butterfly (radix-2):}
+
+\[
+X[k] = \sum_{n=0}^{N-1} x[n] W_N^{kn}
+\]
+
+onde $W_N = e^{-j2\pi/N}$ (twiddle factor).
+
+Separando índices pares e ímpares:
+
+\[
+X[k] = \sum_{r=0}^{N/2-1} x[2r] W_N^{k(2r)} + \sum_{r=0}^{N/2-1} x[2r+1] W_N^{k(2r+1)}
+\]
+
+\[
+= \sum_{r=0}^{N/2-1} x[2r] W_{N/2}^{kr} + W_N^k \sum_{r=0}^{N/2-1} x[2r+1] W_{N/2}^{kr}
+\]
+
+\[
+= X_{even}[k] + W_N^k \cdot X_{odd}[k]
+\]
+
+Duas DFTs de tamanho $N/2$!
+
+\textbf{Continua recursivamente até DFTs de tamanho 2 (triviais).}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}[fragile]{Implementação Prática da FFT}
+
+\textbf{Bibliotecas disponíveis:}
+
+\begin{itemize}
+\item \textbf{Python:} \texttt{numpy.fft.fft()}, \texttt{scipy.fft}
+\item \textbf{MATLAB:} \texttt{fft()}
+\item \textbf{C/C++:} FFTW (Fastest Fourier Transform in the West)
+\item \textbf{Hardware:} DSPs, FPGAs com blocos FFT dedicados
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Uso típico em Python:}
+
+\begin{verbatim}
+import numpy as np
+
+# Sinal no tempo
+x = np.array([...])  # N amostras
+N = len(x)
+
+# FFT
+X = np.fft.fft(x)
+
+# Frequências correspondentes
+freqs = np.fft.fftfreq(N, d=Ts)
+
+# Espectro de magnitude
+magnitude = np.abs(X)
+\end{verbatim}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Fenômenos Práticos}
+
+\begin{frame}{Vazamento Espectral (Spectral Leakage)}
+
+\textbf{Problema:} DFT assume sinal periódico com período $N$.
+
+Se o sinal não é periódico em $N$ ou não contém número inteiro de ciclos:
+
+\textbf{Vazamento espectral:} Energia de uma frequência "vaza" para outras.
+
+\vspace{0.3cm}
+
+\textbf{Causa:}
+
+Truncamento do sinal = multiplicação por janela retangular.
+
+No domínio da frequência: convolução com sinc.
+
+Lóbulos laterais do sinc espalham energia.
+
+\vspace{0.3cm}
+
+\textbf{Consequências:}
+
+\begin{itemize}
+\item Picos espectrais alargados
+\item Componentes espúrias
+\item Resolução reduzida
+\end{itemize}
+
+\textbf{Solução:} Janelamento (windowing).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Janelamento (Windowing)}
+
+\textbf{Técnica:} Multiplicar sinal por função janela antes da DFT.
+
+\[
+x_w[n] = x[n] \cdot w[n]
+\]
+
+\textbf{Janelas comuns:}
+
+\begin{enumerate}
+\item \textbf{Retangular:} $w[n] = 1$ (sem janelamento)
+   
+   Melhor resolução, pior vazamento
+
+\item \textbf{Hanning (Hann):} $w[n] = 0.5[1 - \cos(2\pi n/N)]$
+   
+   Compromisso, muito usada
+
+\item \textbf{Hamming:} $w[n] = 0.54 - 0.46\cos(2\pi n/N)$
+   
+   Lóbulos laterais menores
+
+\item \textbf{Blackman:} Combinação de cossenos
+   
+   Melhor supressão de lóbulos, resolução pior
+
+\item \textbf{Kaiser:} Parametrizável (trade-off ajustável)
+\end{enumerate}
+
+\textbf{Compromisso:} Redução de vazamento $\leftrightarrow$ Alargamento do lóbulo principal.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Efeito Cerca (Picket Fence Effect)}
+
+\textbf{Problema:} DFT calcula apenas em $N$ frequências discretas.
+
+Se componente espectral cai entre dois bins de frequência:
+
+\textbf{Efeito:} Amplitude subestimada, distribuída entre bins adjacentes.
+
+\vspace{0.3cm}
+
+\textbf{Analogia:} Ver paisagem através de cerca — perde informação entre ripas.
+
+\vspace{0.3cm}
+
+\textbf{Soluções:}
+
+\begin{enumerate}
+\item \textbf{Aumentar $N$:} Mais bins, menor espaçamento $\Delta f$
+   
+   Requer mais amostras (tempo maior)
+
+\item \textbf{Zero-padding:} Adicionar zeros ao final do sinal
+   
+   Aumenta $N$ sem coletar mais dados
+   
+   Interpola espectro (não aumenta informação real!)
+
+\item \textbf{Algoritmos de estimação:} Interpolação parabólica, ajuste de curvas
+\end{enumerate}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Zero-Padding}
+
+\textbf{Técnica:} Adicionar zeros ao final da sequência.
+
+Sequência original: $x[0], ..., x[N-1]$
+
+Após zero-padding: $x[0], ..., x[N-1], 0, ..., 0$ (total $M > N$ pontos)
+
+\vspace{0.3cm}
+
+\textbf{Efeito:}
+
+\begin{itemize}
+\item DFT de tamanho $M$ (mais bins)
+\item Resolução $\Delta f = f_s/M$ (menor que antes)
+\item \textbf{Interpola} o espectro entre bins originais
+\item \textbf{Não adiciona informação nova!} (apenas interpola)
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Uso:}
+
+\begin{itemize}
+\item Visualização mais suave do espectro
+\item Facilitarde detecção de picos
+\item FFT requer $N = 2^m$: zero-pad para próxima potência de 2
+\end{itemize}
+
+\textbf{Nota:} Zero-padding não substitui coleta de mais dados reais!
+
+\end{frame}
+
+% ============================================
+
+\subsection{Exemplos Práticos}
+
+\begin{frame}{Exemplo 1: DFT de Senoide}
+
+\textbf{Sinal:} $x(t) = \cos(2\pi f_0 t)$ com $f_0 = 10$ Hz
+
+\textbf{Amostragem:} $f_s = 100$ Hz, $N = 128$ amostras
+
+\textbf{Parâmetros:}
+
+\begin{itemize}
+\item $T_s = 1/f_s = 0.01$ s
+\item $T_{obs} = NT_s = 1.28$ s
+\item $\Delta f = f_s/N = 100/128 \approx 0.78$ Hz
+\end{itemize}
+
+\textbf{Resultado esperado:}
+
+Dois picos em $f = \pm 10$ Hz (ou equivalentemente em $k = 13$ e $k = 115$).
+
+\[
+k_0 = \frac{f_0 N}{f_s} = \frac{10 \times 128}{100} = 12.8 \approx 13
+\]
+
+\textbf{Observação:} Como $f_0$ não é múltiplo exato de $\Delta f$, haverá algum vazamento espectral.
+
+Uso de janela Hanning reduz vazamento.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 2: Análise Espectral de Áudio}
+
+\textbf{Aplicação:} Análise de nota musical (440 Hz = Lá central)
+
+\textbf{Parâmetros:}
+
+\begin{itemize}
+\item Taxa de amostragem: $f_s = 44100$ Hz (padrão CD)
+\item Tamanho da janela: $N = 4096$ amostras
+\item Resolução: $\Delta f = 44100/4096 \approx 10.77$ Hz
+\end{itemize}
+
+\textbf{Procedimento:}
+
+\begin{enumerate}
+\item Aplicar janela Hamming
+\item Calcular FFT (4096 pontos)
+\item Encontrar pico dominante
+\item Estimar frequência fundamental
+\item Identificar harmônicas
+\end{enumerate}
+
+\textbf{Resultado:} Pico em $k = 41$ corresponde a:
+
+\[
+f = \frac{41 \times 44100}{4096} \approx 441.7 \text{ Hz}
+\]
+
+Próximo de 440 Hz (Lá4).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 3: Espectrograma}
+
+\textbf{Espectrograma:} Representação tempo-frequência.
+
+\textbf{Ideia:} Dividir sinal longo em janelas curtas, calcular FFT de cada janela.
+
+\textbf{Algoritmo (STFT - Short-Time Fourier Transform):}
+
+\begin{enumerate}
+\item Dividir sinal em segmentos sobrepostos
+\item Aplicar janela a cada segmento
+\item Calcular FFT de cada segmento
+\item Empilhar resultados em matriz 2D
+\item Visualizar como imagem (cor = magnitude)
+\end{enumerate}
+
+\textbf{Parâmetros típicos:}
+
+\begin{itemize}
+\item Tamanho da janela: 1024-4096 amostras
+\item Sobreposição: 50-75\% (melhor continuidade temporal)
+\end{itemize}
+
+\textbf{Aplicações:}
+
+\begin{itemize}
+\item Análise de fala (fonemas, formantes)
+\item Reconhecimento de padrões sonoros
+\item Processamento de áudio (remoção de ruído)
+\item Análise de sinais biomédicos (ECG, EEG)
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Considerações Práticas}
+
+\textbf{Escolha de parâmetros:}
+
+\begin{enumerate}
+\item \textbf{Taxa de amostragem $f_s$:}
+   
+   Pelo menos $2 \times$ frequência máxima de interesse
+   
+   Margem típica: $f_s = 2.5$ a $4 \times 2f_{max}$
+
+\item \textbf{Número de amostras $N$:}
+   
+   Determina resolução: $\Delta f = f_s/N$
+   
+   Para FFT: usar $N = 2^m$ (potência de 2)
+   
+   Compromisso: resolução vs. localização temporal
+
+\item \textbf{Janela:}
+   
+   Hanning/Hamming: uso geral
+   
+   Blackman: melhor supressão de lóbulos
+   
+   Retangular: apenas se sinal já é periódico em $N$
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Regra prática:} Para análise espectral, zero-pad para $N \geq 4-8$ vezes o número de amostras reais.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resumo da Seção 3.9}
+
+\textbf{Conceitos fundamentais:}
+
+\begin{itemize}
+\item \textbf{Amostragem:} $f_s \geq 2f_{max}$ (Teorema de Nyquist)
+\item \textbf{DFT:} $X[k] = \sum_{n=0}^{N-1} x[n] e^{-j2\pi kn/N}$
+\item \textbf{FFT:} Algoritmo rápido, $O(N\log N)$ vs. $O(N^2)$
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Parâmetros importantes:}
+
+\begin{itemize}
+\item Resolução: $\Delta f = f_s/N$
+\item Faixa: $0$ a $f_s/2$ (Nyquist)
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Fenômenos práticos:}
+
+\begin{itemize}
+\item \textbf{Aliasing:} Subamostragem causa distorção
+\item \textbf{Vazamento:} Sinal não-periódico espalha energia
+\item \textbf{Efeito cerca:} Frequências entre bins subestimadas
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Soluções:}
+
+Janelamento (Hanning, Hamming), zero-padding, sobreamostragem.
+
+\end{frame}

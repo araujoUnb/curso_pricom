@@ -1,0 +1,588 @@
+% ============================================
+% SEÇÃO 3.7: ENERGIA E DENSIDADE ESPECTRAL DE ENERGIA
+% ============================================
+
+\subsection{Energia de Sinais}
+
+\begin{frame}{Classificação de Sinais por Energia e Potência}
+
+Sinais podem ser classificados em duas categorias:
+
+\begin{enumerate}
+\item \textbf{Sinais de Energia:}
+   \begin{itemize}
+   \item Energia finita: $0 < E < \infty$
+   \item Potência média: $P = 0$
+   \item Exemplos: pulsos, sinais transitórios, sinais causais decrescentes
+   \end{itemize}
+
+\item \textbf{Sinais de Potência:}
+   \begin{itemize}
+   \item Energia infinita: $E = \infty$
+   \item Potência média finita: $0 < P < \infty$
+   \item Exemplos: sinais periódicos, constantes, aleatórios estacionários
+   \end{itemize}
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Nota:} Alguns sinais (como $t$ ou $e^t$) não se enquadram em nenhuma categoria: energia e potência infinitas.
+
+\textbf{Foco desta seção:} Sinais de energia.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Energia de um Sinal no Domínio do Tempo}
+
+A \textbf{energia} de um sinal $f(t)$ é definida como:
+
+\[
+E = \int_{-\infty}^{\infty} |f(t)|^2 dt
+\]
+
+\textbf{Interpretação física:}
+
+\begin{itemize}
+\item Para sinal de tensão $v(t)$ em resistor de 1 $\Omega$: energia dissipada
+\item $|f(t)|^2$ é a potência instantânea
+\item Integral acumula energia total ao longo do tempo
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Unidades:}
+
+\begin{itemize}
+\item Se $f(t)$ é tensão em volts: energia em joules
+\item Se $f(t)$ é normalizado: energia adimensional
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Para sinais complexos:} $|f(t)|^2 = f(t) \cdot f^*(t)$ onde $f^*(t)$ é o conjugado complexo.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplos: Energia de Sinais}
+
+\textbf{Exemplo 1: Pulso retangular}
+
+$f(t) = A\rect(t/\tau)$
+
+\[
+E = \int_{-\tau/2}^{\tau/2} A^2 dt = A^2\tau
+\]
+
+Energia proporcional à amplitude ao quadrado e à duração.
+
+\vspace{0.3cm}
+
+\textbf{Exemplo 2: Exponencial decrescente}
+
+$f(t) = e^{-at}u(t)$, $a > 0$
+
+\[
+E = \int_{0}^{\infty} e^{-2at} dt = \left[-\frac{e^{-2at}}{2a}\right]_0^{\infty} = \frac{1}{2a}
+\]
+
+Energia inversamente proporcional à taxa de decaimento.
+
+\vspace{0.3cm}
+
+\textbf{Exemplo 3: Senoide}
+
+$f(t) = A\cos(\omega_0 t)$ (para todo $t$)
+
+\[
+E = \int_{-\infty}^{\infty} A^2\cos^2(\omega_0 t) dt = \infty
+\]
+
+Sinal periódico tem energia infinita (é sinal de potência).
+
+\end{frame}
+
+% ============================================
+
+\subsection{Teorema de Parseval}
+
+\begin{frame}{Energia no Domínio da Frequência}
+
+\textbf{Teorema de Parseval} relaciona energia nos domínios do tempo e frequência.
+
+\begin{block}{Teorema de Parseval}
+Se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
+\[
+E = \int_{-\infty}^{\infty} |f(t)|^2 dt = \frac{1}{2\pi} \int_{-\infty}^{\infty} |F(\omega)|^2 d\omega
+\]
+\end{block}
+
+\textbf{Significado:}
+
+\begin{itemize}
+\item A energia total é a mesma calculada no tempo ou na frequência
+\item A energia é conservada entre os domínios
+\item $|F(\omega)|^2/(2\pi)$ representa densidade de energia por unidade de frequência
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Analogia:} Como a energia total de um sistema físico permanece constante em diferentes sistemas de coordenadas.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demonstração do Teorema de Parseval (revisão)}
+
+Começamos com a definição de energia:
+
+\[
+E = \int_{-\infty}^{\infty} |f(t)|^2 dt = \int_{-\infty}^{\infty} f(t) f^*(t) dt
+\]
+
+Substituindo a transformada inversa para $f^*(t)$:
+
+\[
+f^*(t) = \left[\frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) e^{j\omega t} d\omega\right]^* = \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) e^{-j\omega t} d\omega
+\]
+
+Portanto:
+
+\[
+E = \int_{-\infty}^{\infty} f(t) \left[\frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) e^{-j\omega t} d\omega\right] dt
+\]
+
+Trocando a ordem de integração:
+
+\[
+E = \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) \left[\int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt\right] d\omega
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demonstração do Teorema de Parseval (conclusão)}
+
+A integral interna é justamente $F(\omega)$:
+
+\[
+E = \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) F(\omega) d\omega
+\]
+
+\[
+= \frac{1}{2\pi} \int_{-\infty}^{\infty} |F(\omega)|^2 d\omega
+\]
+
+Portanto:
+
+\[
+\boxed{\int_{-\infty}^{\infty} |f(t)|^2 dt = \frac{1}{2\pi} \int_{-\infty}^{\infty} |F(\omega)|^2 d\omega}
+\]
+
+\textbf{Conclusão:} A energia pode ser calculada em qualquer domínio, com resultado idêntico.
+
+\textbf{Importância prática:} Às vezes é mais fácil calcular energia na frequência que no tempo.
+
+\end{frame}
+
+% ============================================
+
+\subsection{Densidade Espectral de Energia}
+
+\begin{frame}{Definição de Densidade Espectral de Energia}
+
+A \textbf{Densidade Espectral de Energia (DEE)} ou \textit{Energy Spectral Density (ESD)} é definida como:
+
+\begin{block}{Densidade Espectral de Energia}
+\[
+\Psi(\omega) = |F(\omega)|^2
+\]
+\end{block}
+
+\textbf{Unidades:} Energia por Hz (ou por rad/s, dependendo se usa $f$ ou $\omega$).
+
+\textbf{Interpretação:}
+
+\begin{itemize}
+\item $\Psi(\omega)$ indica quanto de energia está concentrado em cada frequência
+\item Áreas sob $\Psi(\omega)$ representam energia em bandas de frequência
+\item Pelo Teorema de Parseval:
+\[
+E = \frac{1}{2\pi} \int_{-\infty}^{\infty} \Psi(\omega) d\omega
+\]
+\end{itemize}
+
+\textbf{Propriedade:} Para sinais reais, $\Psi(\omega)$ é par: $\Psi(-\omega) = \Psi(\omega)$
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: DEE de Pulso Retangular}
+
+\textbf{Sinal:} $f(t) = A\rect(t/\tau)$
+
+Já sabemos que:
+\[
+F(\omega) = A\tau \sinc\left(\frac{\omega\tau}{2\pi}\right)
+\]
+
+\textbf{Densidade espectral de energia:}
+
+\[
+\Psi(\omega) = |F(\omega)|^2 = A^2\tau^2 \sinc^2\left(\frac{\omega\tau}{2\pi}\right)
+\]
+
+\textbf{Características:}
+
+\begin{itemize}
+\item Máximo em $\omega = 0$: $\Psi(0) = A^2\tau^2$
+\item Zeros em $\omega = \pm 2\pi n/\tau$ para $n = 1, 2, 3, ...$
+\item Maior parte da energia no lóbulo principal: $|\omega| < 2\pi/\tau$
+\item Decai como $1/\omega^2$ para grandes $\omega$
+\end{itemize}
+
+\textbf{Verificação do Teorema de Parseval:} A integral de $\Psi(\omega)/(2\pi)$ deve dar $A^2\tau$ (energia no tempo).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: DEE de Exponencial Decrescente}
+
+\textbf{Sinal:} $f(t) = e^{-at}u(t)$, $a > 0$
+
+Transformada:
+\[
+F(\omega) = \frac{1}{a + j\omega}
+\]
+
+\textbf{Densidade espectral de energia:}
+
+\[
+\Psi(\omega) = |F(\omega)|^2 = \frac{1}{|a + j\omega|^2} = \frac{1}{a^2 + \omega^2}
+\]
+
+\textbf{Características:}
+
+\begin{itemize}
+\item Forma Lorentziana
+\item Máximo em $\omega = 0$: $\Psi(0) = 1/a^2$
+\item Em $\omega = \pm a$: $\Psi(a) = 1/(2a^2)$ (metade do máximo)
+\item Decai como $1/\omega^2$ para $\omega \to \infty$
+\end{itemize}
+
+\textbf{Energia total:}
+
+\[
+E = \frac{1}{2\pi} \int_{-\infty}^{\infty} \frac{1}{a^2 + \omega^2} d\omega = \frac{1}{2\pi} \cdot \frac{2\pi}{2a} = \frac{1}{2a}
+\]
+
+Confirma cálculo no tempo!
+
+\end{frame}
+
+% ============================================
+
+\subsection{Largura de Banda de Energia}
+
+\begin{frame}{Conceito de Largura de Banda}
+
+A \textbf{largura de banda} de um sinal quantifica a faixa de frequências que contém sua energia significativa.
+
+\textbf{Definições comuns:}
+
+\begin{enumerate}
+\item \textbf{Largura de banda absoluta:}
+   
+   Menor intervalo $[-W, W]$ onde $F(\omega) \neq 0$
+   
+   (pode ser infinita)
+
+\item \textbf{Largura de banda de 3 dB:}
+   
+   Faixa onde $\Psi(\omega) \geq \Psi_{\max}/2$
+
+\item \textbf{Largura de banda de ruído:}
+   
+   Largura de um retângulo equivalente de mesma área e altura máxima:
+   \[
+   B_n = \frac{1}{\Psi(0)} \int_{-\infty}^{\infty} \Psi(\omega) d\omega = \frac{2\pi E}{\Psi(0)}
+   \]
+
+\item \textbf{Largura de banda de X\%:}
+   
+   Menor faixa $[-W_x, W_x]$ contendo X\% da energia total
+\end{enumerate}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Cálculo de Largura de Banda de X\%}
+
+\textbf{Definição:} Encontrar $W_x$ tal que:
+
+\[
+\frac{1}{2\pi} \int_{-W_x}^{W_x} \Psi(\omega) d\omega = \alpha E
+\]
+
+onde $\alpha$ é a fração desejada (ex: 0.90 para 90\%, 0.99 para 99\%).
+
+\vspace{0.3cm}
+
+\textbf{Exemplo: Pulso retangular}
+
+Para $f(t) = \rect(t/\tau)$ com $\Psi(\omega) = \tau^2 \sinc^2(\omega\tau/2\pi)$:
+
+\begin{itemize}
+\item Lóbulo principal ($|\omega| < 2\pi/\tau$) contém $\approx 90\%$ da energia
+\item $W_{90\%} \approx 2\pi/\tau$ ou $B_{90\%} \approx 1/\tau$ em Hz
+\end{itemize}
+
+\textbf{Princípio geral:}
+
+\[
+\text{Duração no tempo} \times \text{Largura de banda} \approx \text{constante}
+\]
+
+Pulso mais curto $\rightarrow$ espectro mais largo.
+
+\end{frame}
+
+% ============================================
+
+\subsection{Relação de Incerteza}
+
+\begin{frame}{Desigualdade de Heisenberg-Gabor}
+
+\textbf{Duração efetiva} de um sinal:
+
+\[
+\Delta t = \sqrt{\frac{\int_{-\infty}^{\infty} t^2 |f(t)|^2 dt}{\int_{-\infty}^{\infty} |f(t)|^2 dt}}
+\]
+
+\textbf{Largura de banda efetiva:}
+
+\[
+\Delta \omega = \sqrt{\frac{\int_{-\infty}^{\infty} \omega^2 |F(\omega)|^2 d\omega}{\int_{-\infty}^{\infty} |F(\omega)|^2 d\omega}}
+\]
+
+\begin{block}{Desigualdade de Heisenberg-Gabor}
+\[
+\Delta t \cdot \Delta \omega \geq \frac{1}{2}
+\]
+\end{block}
+
+\textbf{Significado:}
+
+\begin{itemize}
+\item Produto tempo-frequência tem limite inferior
+\item Não podemos ter sinal arbitrariamente concentrado em ambos os domínios
+\item Compromisso fundamental: localização no tempo $\leftrightarrow$ localização em frequência
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Sinal Ótimo: Gaussiana}
+
+O \textbf{pulso Gaussiano} atinge a igualdade na desigualdade:
+
+\[
+f(t) = e^{-\alpha t^2} \quad \xleftrightarrow{\ft} \quad F(\omega) = \sqrt{\frac{\pi}{\alpha}} e^{-\omega^2/(4\alpha)}
+\]
+
+Para este sinal:
+
+\[
+\Delta t \cdot \Delta \omega = \frac{1}{2}
+\]
+
+\textbf{Propriedades da Gaussiana:}
+
+\begin{itemize}
+\item Gaussiana no tempo $\leftrightarrow$ Gaussiana na frequência
+\item Melhor localização simultânea tempo-frequência
+\item Mínima incerteza
+\item Usada em comunicações ópticas e rádio
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Todos os outros sinais:} $\Delta t \cdot \Delta \omega > 1/2$
+
+\end{frame}
+
+% ============================================
+
+\subsection{Energia na Saída de Sistemas LTI}
+
+\begin{frame}{Energia através de Sistema LTI}
+
+\textbf{Sistema:} Entrada $x(t)$ com transformada $X(\omega)$, saída $y(t)$.
+
+\textbf{Relação:} $Y(\omega) = H(\omega) X(\omega)$
+
+\textbf{Energia da entrada:}
+
+\[
+E_x = \frac{1}{2\pi} \int_{-\infty}^{\infty} |X(\omega)|^2 d\omega
+\]
+
+\textbf{Energia da saída:}
+
+\[
+E_y = \frac{1}{2\pi} \int_{-\infty}^{\infty} |Y(\omega)|^2 d\omega = \frac{1}{2\pi} \int_{-\infty}^{\infty} |H(\omega)|^2 |X(\omega)|^2 d\omega
+\]
+
+\begin{block}{Relação Entrada-Saída}
+\[
+\Psi_y(\omega) = |H(\omega)|^2 \Psi_x(\omega)
+\]
+\end{block}
+
+\textbf{Interpretação:} A DEE da saída é a DEE da entrada multiplicada pelo quadrado da magnitude da resposta em frequência.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Pulso através de Filtro RC}
+
+\textbf{Entrada:} Pulso $x(t) = \delta(t)$ (impulso unitário)
+
+$X(\omega) = 1$, $\Psi_x(\omega) = 1$
+
+\textbf{Sistema:} Filtro RC passa-baixas
+
+\[
+H(\omega) = \frac{1}{1 + j\omega RC}
+\]
+
+\textbf{DEE da saída:}
+
+\[
+\Psi_y(\omega) = |H(\omega)|^2 = \frac{1}{1 + (\omega RC)^2}
+\]
+
+\textbf{Energia da saída:}
+
+\[
+E_y = \frac{1}{2\pi} \int_{-\infty}^{\infty} \frac{1}{1 + (\omega RC)^2} d\omega
+\]
+
+Com $\omega_c = 1/(RC)$:
+
+\[
+E_y = \frac{1}{2\pi} \cdot \frac{2\pi}{\omega_c \cdot 2} = \frac{1}{2\omega_c} = \frac{RC}{2}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Energia em Banda Limitada}
+
+\textbf{Problema:} Qual fração da energia passa por um filtro passa-baixas ideal?
+
+\textbf{Filtro:} $H(\omega) = \rect(\omega/2W)$ com largura de banda $W$
+
+\textbf{Energia transmitida:}
+
+\[
+E_{pass} = \frac{1}{2\pi} \int_{-W}^{W} \Psi_x(\omega) d\omega
+\]
+
+\textbf{Fração da energia:}
+
+\[
+\eta = \frac{E_{pass}}{E_{total}} = \frac{\int_{-W}^{W} \Psi_x(\omega) d\omega}{\int_{-\infty}^{\infty} \Psi_x(\omega) d\omega}
+\]
+
+\vspace{0.3cm}
+
+\textbf{Exemplo: Exponencial} $e^{-a|t|}$ com $\Psi(\omega) = 4a^2/(a^2+\omega^2)^2$
+
+Para $W = 3a$: $\eta \approx 0.95$ (95\% da energia dentro de $[-3a, 3a]$)
+
+\textbf{Aplicação:} Projeto de sistemas com banda limitada.
+
+\end{frame}
+
+% ============================================
+
+\subsection{Autocorrelação e DEE}
+
+\begin{frame}{Função de Autocorrelação}
+
+A \textbf{função de autocorrelação} de um sinal de energia $f(t)$ é:
+
+\[
+R(\tau) = \int_{-\infty}^{\infty} f(t) f^*(t - \tau) dt
+\]
+
+\textbf{Propriedades:}
+
+\begin{itemize}
+\item $R(0) = E$ (energia total)
+\item $R(\tau) = R^*(-\tau)$ (simetria Hermitiana)
+\item Para sinais reais: $R(\tau) = R(-\tau)$ (par)
+\item $|R(\tau)| \leq R(0) = E$
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Interpretação:} Mede similaridade do sinal com versão deslocada de si mesmo.
+
+\begin{block}{Teorema de Wiener-Khinchin (Energia)}
+\[
+R(\tau) \xleftrightarrow{\ft} \Psi(\omega) = |F(\omega)|^2
+\]
+\end{block}
+
+A autocorrelação e a DEE são pares de Fourier!
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resumo da Seção 3.7}
+
+\textbf{Conceitos fundamentais:}
+
+\begin{itemize}
+\item \textbf{Energia no tempo:} $E = \int |f(t)|^2 dt$
+\item \textbf{Energia na frequência:} $E = \frac{1}{2\pi}\int |F(\omega)|^2 d\omega$
+\item \textbf{Teorema de Parseval:} Energia conservada entre domínios
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Densidade Espectral de Energia:}
+
+\begin{itemize}
+\item $\Psi(\omega) = |F(\omega)|^2$
+\item Indica distribuição de energia em frequência
+\item Em sistemas LTI: $\Psi_y(\omega) = |H(\omega)|^2 \Psi_x(\omega)$
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Princípios importantes:}
+
+\begin{itemize}
+\item Relação de incerteza: $\Delta t \cdot \Delta \omega \geq 1/2$
+\item Gaussiana é ótima (atinge igualdade)
+\item Largura de banda relacionada com duração temporal
+\end{itemize}
+
+\textbf{Próximo:} Sinais de potência e densidade espectral de potência.
+
+\end{frame}

@@ -1,0 +1,27 @@
+[project]
+name = "curso_pricom"
+created_at = "2026-02-19"
+
+[structure]
+module_code_dir = "Code"
+module_slides_dir = "Latex-slides"
+global_template_dir = "template"
+global_figures_dir = "figures_global"
+
+[modules.Modulo1]
+root = "Modulo1"
+code = "Modulo1/Code"
+slides = "Modulo1/Latex-slides"
+
+[modules.Modulo2]
+root = "Modulo2"
+code = "Modulo2/Code"
+slides = "Modulo2/Latex-slides"
+
+[python]
+interpreter = ".venv/bin/python"
+purpose = "Geracao de figuras dos slides"
+
+[python.packages]
+required = ["numpy", "matplotlib", "scipy"]
+installed_versions = { numpy = "2.4.2", matplotlib = "3.10.8", scipy = "1.17.0" }

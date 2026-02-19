@@ -1,0 +1,56 @@
+% Template Beamer para UnB/LabTelecom
+% Cores da UnB
+\definecolor{unbprimary}{RGB}{0,59,92}      % #003B5C
+\definecolor{unbsecondary}{RGB}{0,102,51}   % #006633
+\definecolor{unbaccent}{RGB}{242,169,0}      % #F2A900
+
+
+% Configuração do tema
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Aplicar cores UnB
+\setbeamercolor{structure}{fg=unbprimary}
+\setbeamercolor{title}{fg=white}
+\setbeamercolor{frametitle}{fg=white}
+\setbeamercolor{section in toc}{fg=unbprimary}
+\setbeamercolor{subsection in toc}{fg=unbsecondary}
+
+% Configurações de fonte
+\setbeamerfont{title}{size=\huge,series=\bfseries}
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+
+
+
+% Cabeçalho com logos
+\setbeamertemplate{headline}{
+  \begin{beamercolorbox}[wd=\paperwidth,ht=1.2cm]{headline}
+    \begin{columns}
+      \column{0.3\textwidth}
+      \raisebox{0.5cm}{\includegraphics[height=0.8cm]{../../figures_global/unb.png}}
+      \column{0.25\textwidth}
+      \centering
+      \textcolor{unbprimary}{\textbf{\universidadeFinal}}
+      \column{0.35\textwidth}
+      \hfill
+      \raisebox{0.5cm}{\includegraphics[height=0.8cm]{../../figures_global/labtelecom.png}}
+    \end{columns}
+  \end{beamercolorbox}
+}
+
+% Rodapé
+\setbeamertemplate{footline}{
+  \begin{beamercolorbox}[wd=\paperwidth,ht=0.5cm]{footline}
+    \hspace{1cm}
+    \textcolor{unbprimary}{\insertshorttitle}
+    \hfill
+    \textcolor{unbprimary}{\insertframenumber/\inserttotalframenumber}
+    \hspace{1cm}
+  \end{beamercolorbox}
+}
+
+% Remover símbolos de navegação e mini frames (evita conflito com TikZ)
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{mini frames}{}
+\setbeamertemplate{mini frame in current subsection}{}
+\setbeamertemplate{mini frame in other section}[default]

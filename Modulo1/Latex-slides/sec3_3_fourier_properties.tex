@@ -1,0 +1,754 @@
+% ============================================
+% SEÇÃO 3.3: PROPRIEDADES DA TRANSFORMADA DE FOURIER
+% ============================================
+
+\subsection{Introdução}
+
+\begin{frame}{Propriedades da Transformada de Fourier}
+
+As propriedades da Transformada de Fourier permitem:
+
+\begin{itemize}
+\item Derivar novas transformadas a partir de conhecidas
+\item Simplificar cálculos complexos
+\item Entender relações fundamentais entre tempo e frequência
+\item Analisar sistemas e operações sobre sinais
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Propriedades principais a serem estudadas:}
+
+\begin{enumerate}
+\item Linearidade
+\item Deslocamento no tempo e na frequência
+\item Escala temporal
+\item Convolução (tempo e frequência)
+\item Derivação e integração
+\item Dualidade e simetrias
+\item Teorema de Parseval
+\end{enumerate}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Linearidade}
+
+\begin{frame}{Propriedade de Linearidade}
+
+\begin{block}{Propriedade 1: Linearidade}
+Se $f_1(t) \xleftrightarrow{\ft} F_1(\omega)$ e $f_2(t) \xleftrightarrow{\ft} F_2(\omega)$, então:
+\[
+af_1(t) + bf_2(t) \xleftrightarrow{\ft} aF_1(\omega) + bF_2(\omega)
+\]
+para quaisquer constantes $a$ e $b$.
+\end{block}
+
+\textbf{Demonstração:}
+
+\[
+\FT{af_1(t) + bf_2(t)} = \int_{-\infty}^{\infty} [af_1(t) + bf_2(t)] e^{-j\omega t} dt
+\]
+
+\[
+= a\int_{-\infty}^{\infty} f_1(t) e^{-j\omega t} dt + b\int_{-\infty}^{\infty} f_2(t) e^{-j\omega t} dt
+\]
+
+\[
+= aF_1(\omega) + bF_2(\omega)
+\]
+
+\textbf{Conclusão:} A transformada de Fourier é um \textbf{operador linear}.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Linearidade}
+
+\textbf{Problema:} Encontrar a transformada de $f(t) = 3e^{-2t}u(t) + 5e^{-4|t|}$
+
+\textbf{Solução:}
+
+Sabemos que:
+\begin{itemize}
+\item $e^{-2t}u(t) \xleftrightarrow{\ft} \frac{1}{2+j\omega}$
+\item $e^{-4|t|} \xleftrightarrow{\ft} \frac{8}{16+\omega^2}$
+\end{itemize}
+
+Pela linearidade:
+
+\[
+F(\omega) = 3 \cdot \frac{1}{2+j\omega} + 5 \cdot \frac{8}{16+\omega^2}
+\]
+
+\[
+= \frac{3}{2+j\omega} + \frac{40}{16+\omega^2}
+\]
+
+\textbf{Sem linearidade:} Teríamos que calcular integrais complexas!
+
+\end{frame}
+
+% ============================================
+
+\subsection{Deslocamento Temporal}
+
+\begin{frame}{Propriedade de Deslocamento no Tempo}
+
+\begin{block}{Propriedade 2: Deslocamento Temporal}
+Se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
+\[
+f(t - t_0) \xleftrightarrow{\ft} F(\omega) e^{-j\omega t_0}
+\]
+\end{block}
+
+\textbf{Demonstração:}
+
+\[
+\FT{f(t - t_0)} = \int_{-\infty}^{\infty} f(t - t_0) e^{-j\omega t} dt
+\]
+
+Mudança de variável: $\tau = t - t_0$, então $t = \tau + t_0$ e $dt = d\tau$:
+
+\[
+= \int_{-\infty}^{\infty} f(\tau) e^{-j\omega(\tau + t_0)} d\tau = e^{-j\omega t_0} \int_{-\infty}^{\infty} f(\tau) e^{-j\omega\tau} d\tau
+\]
+
+\[
+= F(\omega) e^{-j\omega t_0}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Interpretação do Deslocamento Temporal}
+
+\[
+f(t - t_0) \xleftrightarrow{\ft} F(\omega) e^{-j\omega t_0}
+\]
+
+\textbf{Observações importantes:}
+
+\begin{itemize}
+\item \textbf{Magnitude não muda:} $|F(\omega) e^{-j\omega t_0}| = |F(\omega)|$
+\item \textbf{Fase é alterada:} $\angle[F(\omega) e^{-j\omega t_0}] = \angle F(\omega) - \omega t_0$
+\item Deslocamento no tempo $\rightarrow$ mudança de fase linear na frequência
+\item A inclinação da fase adicional é $-t_0$
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Exemplo prático:} $\rect\left(\frac{t-t_0}{\tau}\right) \xleftrightarrow{\ft} \tau \sinc\left(\frac{\omega\tau}{2\pi}\right) e^{-j\omega t_0}$
+
+Um pulso atrasado tem o mesmo espectro de magnitude, mas fase alterada.
+
+\end{frame}
+
+% ============================================
+
+\subsection{Deslocamento em Frequência}
+
+\begin{frame}{Propriedade de Deslocamento em Frequência (Modulação)}
+
+\begin{block}{Propriedade 3: Deslocamento em Frequência}
+Se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
+\[
+f(t) e^{j\omega_0 t} \xleftrightarrow{\ft} F(\omega - \omega_0)
+\]
+\end{block}
+
+\textbf{Demonstração:}
+
+\[
+\FT{f(t) e^{j\omega_0 t}} = \int_{-\infty}^{\infty} f(t) e^{j\omega_0 t} e^{-j\omega t} dt
+\]
+
+\[
+= \int_{-\infty}^{\infty} f(t) e^{-j(\omega - \omega_0) t} dt = F(\omega - \omega_0)
+\]
+
+\textbf{Interpretação:} Multiplicar por $e^{j\omega_0 t}$ no tempo desloca o espectro em $\omega_0$.
+
+\textbf{Aplicação fundamental:} \textbf{Modulação} em sistemas de comunicação!
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Modulação AM e o Teorema da Modulação}
+
+Para sinais reais, usamos $\cos(\omega_0 t) = \frac{e^{j\omega_0 t} + e^{-j\omega_0 t}}{2}$:
+
+\[
+f(t) \cos(\omega_0 t) = \frac{1}{2}f(t)e^{j\omega_0 t} + \frac{1}{2}f(t)e^{-j\omega_0 t}
+\]
+
+Pela linearidade e deslocamento em frequência:
+
+\[
+\FT{f(t) \cos(\omega_0 t)} = \frac{1}{2}F(\omega - \omega_0) + \frac{1}{2}F(\omega + \omega_0)
+\]
+
+\begin{block}{Teorema da Modulação}
+\[
+f(t) \cos(\omega_0 t) \xleftrightarrow{\ft} \frac{1}{2}[F(\omega - \omega_0) + F(\omega + \omega_0)]
+\]
+\end{block}
+
+\textbf{Significado:} Multiplicar por cosseno cria duas cópias do espectro deslocadas para $\pm\omega_0$.
+
+\textbf{Base da modulação AM (Amplitude Modulation).}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Escala Temporal}
+
+\begin{frame}{Propriedade de Escala Temporal}
+
+\begin{block}{Propriedade 4: Escala Temporal}
+Se $f(t) \xleftrightarrow{\ft} F(\omega)$ e $a \neq 0$, então:
+\[
+f(at) \xleftrightarrow{\ft} \frac{1}{|a|} F\left(\frac{\omega}{a}\right)
+\]
+\end{block}
+
+\textbf{Demonstração para} $a > 0$:
+
+\[
+\FT{f(at)} = \int_{-\infty}^{\infty} f(at) e^{-j\omega t} dt
+\]
+
+Mudança de variável: $\tau = at$, então $t = \tau/a$ e $dt = d\tau/a$:
+
+\[
+= \int_{-\infty}^{\infty} f(\tau) e^{-j\omega \tau/a} \frac{d\tau}{a} = \frac{1}{a} \int_{-\infty}^{\infty} f(\tau) e^{-j(\omega/a)\tau} d\tau
+\]
+
+\[
+= \frac{1}{a} F\left(\frac{\omega}{a}\right)
+\]
+
+Para $a < 0$, os limites de integração invertem, dando o fator $1/|a|$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Interpretação da Escala Temporal}
+
+\[
+f(at) \xleftrightarrow{\ft} \frac{1}{|a|} F\left(\frac{\omega}{a}\right)
+\]
+
+\textbf{Casos importantes:}
+
+\begin{enumerate}
+\item \textbf{Compressão no tempo} ($a > 1$):
+   \begin{itemize}
+   \item Sinal mais rápido/estreito no tempo
+   \item Espectro mais largo/expandido em frequência
+   \item Amplitude espectral reduzida por $1/a$
+   \end{itemize}
+
+\item \textbf{Expansão no tempo} ($0 < a < 1$):
+   \begin{itemize}
+   \item Sinal mais lento/largo no tempo
+   \item Espectro mais estreito/comprimido em frequência
+   \item Amplitude espectral aumentada por $1/a$
+   \end{itemize}
+
+\item \textbf{Reversão temporal} ($a = -1$):
+   \[
+   f(-t) \xleftrightarrow{\ft} F(-\omega)
+   \]
+\end{enumerate}
+
+\textbf{Princípio fundamental:} Compromisso tempo-frequência!
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Escala Temporal}
+
+\textbf{Problema:} Se $\rect(t) \xleftrightarrow{\ft} \sinc(\omega/2\pi)$, encontre a transformada de $\rect(t/5)$.
+
+\textbf{Solução:}
+
+Temos $f(t) = \rect(t)$ e queremos $\FT{\rect(t/5)} = \FT{f(t/5)}$.
+
+Isso corresponde a $a = 1/5$ na propriedade de escala:
+
+\[
+f(t/5) \xleftrightarrow{\ft} \frac{1}{|1/5|} F\left(\frac{\omega}{1/5}\right) = 5 F(5\omega)
+\]
+
+Como $F(\omega) = \sinc(\omega/2\pi)$:
+
+\[
+\FT{\rect(t/5)} = 5 \sinc(5\omega/2\pi) = 5 \sinc(\omega/\frac{2\pi}{5})
+\]
+
+\textbf{Verificação:} Pulso 5× mais largo $\rightarrow$ espectro 5× mais estreito e 5× mais alto.
+
+\end{frame}
+
+% ============================================
+
+\subsection{Convolução}
+
+\begin{frame}{Convolução no Tempo}
+
+A \textbf{convolução} de dois sinais:
+\[
+[f_1 \conv f_2](t) = \int_{-\infty}^{\infty} f_1(\tau) f_2(t - \tau) d\tau
+\]
+
+\begin{block}{Propriedade 5: Convolução no Tempo}
+Se $f_1(t) \xleftrightarrow{\ft} F_1(\omega)$ e $f_2(t) \xleftrightarrow{\ft} F_2(\omega)$, então:
+\[
+f_1(t) \conv f_2(t) \xleftrightarrow{\ft} F_1(\omega) \cdot F_2(\omega)
+\]
+\end{block}
+
+\textbf{Significado:} Convolução no tempo $\leftrightarrow$ multiplicação na frequência.
+
+\textbf{Importância:} A resposta de um sistema LTI é a convolução da entrada com a resposta ao impulso:
+\[
+y(t) = x(t) \conv h(t) \quad \Rightarrow \quad Y(\omega) = X(\omega) H(\omega)
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demonstração: Convolução no Tempo}
+
+Queremos mostrar que $\FT{f_1(t) \conv f_2(t)} = F_1(\omega) \cdot F_2(\omega)$.
+
+\[
+\FT{f_1 \conv f_2} = \int_{-\infty}^{\infty} \left[\int_{-\infty}^{\infty} f_1(\tau) f_2(t - \tau) d\tau\right] e^{-j\omega t} dt
+\]
+
+Trocando a ordem de integração:
+
+\[
+= \int_{-\infty}^{\infty} f_1(\tau) \left[\int_{-\infty}^{\infty} f_2(t - \tau) e^{-j\omega t} dt\right] d\tau
+\]
+
+A integral interna é a transformada de $f_2(t - \tau)$. Pela propriedade de deslocamento:
+
+\[
+\int_{-\infty}^{\infty} f_2(t - \tau) e^{-j\omega t} dt = F_2(\omega) e^{-j\omega\tau}
+\]
+
+Portanto:
+
+\[
+= \int_{-\infty}^{\infty} f_1(\tau) F_2(\omega) e^{-j\omega\tau} d\tau = F_2(\omega) \int_{-\infty}^{\infty} f_1(\tau) e^{-j\omega\tau} d\tau = F_2(\omega) F_1(\omega)
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Convolução em Frequência (Multiplicação no Tempo)}
+
+\begin{block}{Propriedade 6: Convolução em Frequência}
+Se $f_1(t) \xleftrightarrow{\ft} F_1(\omega)$ e $f_2(t) \xleftrightarrow{\ft} F_2(\omega)$, então:
+\[
+f_1(t) \cdot f_2(t) \xleftrightarrow{\ft} \frac{1}{2\pi} [F_1(\omega) \conv F_2(\omega)]
+\]
+\end{block}
+
+onde a convolução em frequência é:
+\[
+[F_1 \conv F_2](\omega) = \int_{-\infty}^{\infty} F_1(\lambda) F_2(\omega - \lambda) d\lambda
+\]
+
+\textbf{Demonstração:} Similar à anterior, usando a transformada inversa.
+
+\textbf{Dualidade com a propriedade anterior:}
+\begin{itemize}
+\item Tempo: convolução $\leftrightarrow$ Frequência: multiplicação
+\item Tempo: multiplicação $\leftrightarrow$ Frequência: convolução (com fator $1/2\pi$)
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Derivação e Integração}
+
+\begin{frame}{Propriedade de Derivação}
+
+\begin{block}{Propriedade 7: Derivação no Tempo}
+Se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
+\[
+\frac{df(t)}{dt} \xleftrightarrow{\ft} j\omega F(\omega)
+\]
+\end{block}
+
+\textbf{Demonstração:}
+
+Começamos com:
+\[
+f(t) = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) e^{j\omega t} d\omega
+\]
+
+Derivando ambos os lados em relação a $t$:
+
+\[
+\frac{df(t)}{dt} = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) \frac{d}{dt}[e^{j\omega t}] d\omega = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) \cdot j\omega e^{j\omega t} d\omega
+\]
+
+\[
+= \frac{1}{2\pi} \int_{-\infty}^{\infty} [j\omega F(\omega)] e^{j\omega t} d\omega
+\]
+
+Portanto: $\FT{df/dt} = j\omega F(\omega)$
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Interpretação e Generalização da Derivação}
+
+\[
+\frac{df(t)}{dt} \xleftrightarrow{\ft} j\omega F(\omega)
+\]
+
+\textbf{Interpretação:}
+\begin{itemize}
+\item Derivar no tempo = multiplicar por $j\omega$ na frequência
+\item Componentes de alta frequência são enfatizadas (proporcional a $\omega$)
+\item Componente DC é eliminada ($\omega = 0$)
+\end{itemize}
+
+\textbf{Generalização para n-ésima derivada:}
+\[
+\frac{d^n f(t)}{dt^n} \xleftrightarrow{\ft} (j\omega)^n F(\omega)
+\]
+
+\textbf{Aplicação:} Resolver equações diferenciais!
+
+Exemplo: $\frac{dy}{dt} + ay = x(t)$ torna-se $(j\omega + a)Y(\omega) = X(\omega)$
+
+Solução: $Y(\omega) = \frac{X(\omega)}{j\omega + a}$
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Propriedade de Integração}
+
+\begin{block}{Propriedade 8: Integração no Tempo}
+Se $f(t) \xleftrightarrow{\ft} F(\omega)$ e $F(0) = 0$, então:
+\[
+\int_{-\infty}^{t} f(\tau) d\tau \xleftrightarrow{\ft} \frac{F(\omega)}{j\omega}
+\]
+
+Se $F(0) \neq 0$:
+\[
+\int_{-\infty}^{t} f(\tau) d\tau \xleftrightarrow{\ft} \frac{F(\omega)}{j\omega} + \pi F(0) \delta(\omega)
+\]
+\end{block}
+
+\textbf{Interpretação:}
+\begin{itemize}
+\item Integrar no tempo = dividir por $j\omega$ na frequência
+\item Componentes de baixa frequência são enfatizadas (proporcional a $1/\omega$)
+\item Pode adicionar componente DC se a área sob $f(t)$ for não-zero
+\end{itemize}
+
+\textbf{Relação com derivação:} Operações inversas no tempo $\leftrightarrow$ operações inversas na frequência.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Derivação e Integração}
+
+\textbf{Problema:} Sabendo que $e^{-at}u(t) \xleftrightarrow{\ft} \frac{1}{a+j\omega}$, encontre a transformada de $te^{-at}u(t)$.
+
+\textbf{Solução:} Use a propriedade de derivação na frequência (dual da derivação no tempo):
+
+\[
+(-jt) f(t) \xleftrightarrow{\ft} \frac{dF(\omega)}{d\omega}
+\]
+
+Portanto:
+\[
+t f(t) \xleftrightarrow{\ft} j \frac{dF(\omega)}{d\omega}
+\]
+
+Com $f(t) = e^{-at}u(t)$ e $F(\omega) = \frac{1}{a+j\omega}$:
+
+\[
+\frac{dF(\omega)}{d\omega} = \frac{d}{d\omega}\left[\frac{1}{a+j\omega}\right] = \frac{-j}{(a+j\omega)^2}
+\]
+
+\[
+\FT{te^{-at}u(t)} = j \cdot \frac{-j}{(a+j\omega)^2} = \frac{1}{(a+j\omega)^2}
+\]
+
+\end{frame}
+
+% ============================================
+
+\subsection{Dualidade}
+
+\begin{frame}{Propriedade de Dualidade}
+
+\begin{block}{Propriedade 9: Dualidade}
+Se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
+\[
+F(t) \xleftrightarrow{\ft} 2\pi f(-\omega)
+\]
+\end{block}
+
+\textbf{Demonstração:}
+
+Começamos com a transformada inversa:
+\[
+f(t) = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) e^{j\omega t} d\omega
+\]
+
+Trocando $t$ e $\omega$:
+\[
+f(\omega) = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(t) e^{j\omega t} dt
+\]
+
+Multiplicando por $2\pi$ e substituindo $\omega \to -\omega$:
+\[
+2\pi f(-\omega) = \int_{-\infty}^{\infty} F(t) e^{-j\omega t} dt = \FT{F(t)}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplos de Dualidade}
+
+A dualidade permite obter novos pares de transformadas:
+
+\textbf{Exemplo 1:}
+\[
+\delta(t) \xleftrightarrow{\ft} 1 \quad \Rightarrow \quad 1 \xleftrightarrow{\ft} 2\pi\delta(-\omega) = 2\pi\delta(\omega)
+\]
+
+\textbf{Exemplo 2:}
+\[
+\rect(t/\tau) \xleftrightarrow{\ft} \tau\sinc(\omega\tau/2\pi)
+\]
+
+Pela dualidade:
+\[
+\tau\sinc(t\tau/2\pi) \xleftrightarrow{\ft} 2\pi\rect(-\omega/\tau) = 2\pi\rect(\omega/\tau)
+\]
+
+Simplificando com $\tau = 2\pi/W$:
+\[
+\frac{2W}{\pi}\sinc(Wt/\pi) \xleftrightarrow{\ft} 2\pi\rect(\omega\pi/2W)
+\]
+
+\textbf{Conclusão:} Função sinc no tempo $\leftrightarrow$ retângulo na frequência (banda limitada!)
+
+\end{frame}
+
+% ============================================
+
+\subsection{Simetrias}
+
+\begin{frame}{Propriedades de Simetria para Sinais Reais}
+
+Para um sinal \textbf{real} $f(t) = f^*(t)$, a transformada possui simetrias importantes:
+
+\begin{block}{Simetria Hermitiana}
+Se $f(t)$ é real, então:
+\[
+F(-\omega) = F^*(\omega)
+\]
+\end{block}
+
+\textbf{Consequências:}
+
+\begin{itemize}
+\item \textbf{Parte real:} $\Real\{F(-\omega)\} = \Real\{F(\omega)\}$ (par)
+\item \textbf{Parte imaginária:} $\Imag\{F(-\omega)\} = -\Imag\{F(\omega)\}$ (ímpar)
+\item \textbf{Magnitude:} $|F(-\omega)| = |F(\omega)|$ (par)
+\item \textbf{Fase:} $\angle F(-\omega) = -\angle F(\omega)$ (ímpar)
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Implicação prática:} Para sinais reais, basta conhecer $F(\omega)$ para $\omega \geq 0$!
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Simetrias para Sinais Pares e Ímpares}
+
+\textbf{Se} $f(t)$ \textbf{é real e par} ($f(-t) = f(t)$):
+
+\[
+F(\omega) = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt = \int_{-\infty}^{\infty} f(t) \cos(\omega t) dt
+\]
+
+A componente imaginária se cancela, então $F(\omega)$ é \textbf{real e par}.
+
+\vspace{0.3cm}
+
+\textbf{Se} $f(t)$ \textbf{é real e ímpar} ($f(-t) = -f(t)$):
+
+\[
+F(\omega) = -j \int_{-\infty}^{\infty} f(t) \sin(\omega t) dt
+\]
+
+A componente real se cancela, então $F(\omega)$ é \textbf{imaginário puro e ímpar}.
+
+\vspace{0.3cm}
+
+\textbf{Tabela resumo:}
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+$f(t)$ & $F(\omega)$ \\
+\hline
+Real e par & Real e par \\
+Real e ímpar & Imaginário puro e ímpar \\
+\hline
+\end{tabular}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Teorema de Parseval}
+
+\begin{frame}{Teorema de Parseval (Conservação de Energia)}
+
+\begin{block}{Teorema de Parseval}
+Se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
+\[
+\int_{-\infty}^{\infty} |f(t)|^2 dt = \frac{1}{2\pi} \int_{-\infty}^{\infty} |F(\omega)|^2 d\omega
+\]
+\end{block}
+
+\textbf{Interpretação:}
+\begin{itemize}
+\item Lado esquerdo: \textbf{energia total no domínio do tempo}
+\item Lado direito: \textbf{energia total no domínio da frequência}
+\item A energia é conservada entre os dois domínios!
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Generalização (Teorema de Rayleigh):}
+\[
+\int_{-\infty}^{\infty} f_1(t) f_2^*(t) dt = \frac{1}{2\pi} \int_{-\infty}^{\infty} F_1(\omega) F_2^*(\omega) d\omega
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demonstração do Teorema de Parseval}
+
+Começamos com:
+\[
+\int_{-\infty}^{\infty} |f(t)|^2 dt = \int_{-\infty}^{\infty} f(t) f^*(t) dt
+\]
+
+Substituindo a transformada inversa para $f^*(t)$:
+\[
+f^*(t) = \left[\frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) e^{j\omega t} d\omega\right]^* = \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) e^{-j\omega t} d\omega
+\]
+
+Então:
+\[
+\int_{-\infty}^{\infty} |f(t)|^2 dt = \int_{-\infty}^{\infty} f(t) \left[\frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) e^{-j\omega t} d\omega\right] dt
+\]
+
+Trocando a ordem:
+\[
+= \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) \left[\int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt\right] d\omega = \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) F(\omega) d\omega
+\]
+
+\[
+= \frac{1}{2\pi} \int_{-\infty}^{\infty} |F(\omega)|^2 d\omega
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Tabela Resumo: Propriedades da Transformada de Fourier}
+
+\begin{table}
+\footnotesize
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Propriedade} & \textbf{Relação} \\
+\hline
+Linearidade & $af_1(t) + bf_2(t) \xleftrightarrow{\ft} aF_1(\omega) + bF_2(\omega)$ \\
+\hline
+Deslocamento temporal & $f(t - t_0) \xleftrightarrow{\ft} F(\omega)e^{-j\omega t_0}$ \\
+\hline
+Deslocamento em freq. & $f(t)e^{j\omega_0 t} \xleftrightarrow{\ft} F(\omega - \omega_0)$ \\
+\hline
+Escala temporal & $f(at) \xleftrightarrow{\ft} \frac{1}{|a|}F(\omega/a)$ \\
+\hline
+Convolução no tempo & $f_1(t) \conv f_2(t) \xleftrightarrow{\ft} F_1(\omega)F_2(\omega)$ \\
+\hline
+Multiplicação no tempo & $f_1(t)f_2(t) \xleftrightarrow{\ft} \frac{1}{2\pi}[F_1 \conv F_2](\omega)$ \\
+\hline
+Derivação & $\frac{df(t)}{dt} \xleftrightarrow{\ft} j\omega F(\omega)$ \\
+\hline
+Integração & $\int_{-\infty}^{t} f(\tau)d\tau \xleftrightarrow{\ft} \frac{F(\omega)}{j\omega} + \pi F(0)\delta(\omega)$ \\
+\hline
+Dualidade & $F(t) \xleftrightarrow{\ft} 2\pi f(-\omega)$ \\
+\hline
+Simetria (real) & $f(t) = f^*(t) \Rightarrow F(-\omega) = F^*(\omega)$ \\
+\hline
+Parseval & $\int |f(t)|^2 dt = \frac{1}{2\pi}\int |F(\omega)|^2 d\omega$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resumo da Seção 3.3}
+
+\textbf{As propriedades da Transformada de Fourier são ferramentas poderosas:}
+
+\begin{itemize}
+\item \textbf{Linearidade:} Permite decompor problemas complexos
+\item \textbf{Deslocamentos:} Relacionam atrasos e modulação
+\item \textbf{Escala:} Quantifica compromisso tempo-frequência
+\item \textbf{Convolução:} Simplifica análise de sistemas LTI
+\item \textbf{Derivação/Integração:} Resolvem equações diferenciais
+\item \textbf{Dualidade:} Gera novos pares de transformadas
+\item \textbf{Parseval:} Conserva energia entre domínios
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Dominando estas propriedades, você pode:}
+\begin{itemize}
+\item Analisar sistemas complexos sem cálculos longos
+\item Entender comportamento espectral intuitivamente
+\item Projetar filtros e sistemas de comunicação eficientes
+\end{itemize}
+
+\end{frame}

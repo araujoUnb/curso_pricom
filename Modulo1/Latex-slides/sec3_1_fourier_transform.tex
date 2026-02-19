@@ -1,0 +1,478 @@
+% ============================================
+% SEÇÃO 3.1: TRANSFORMADA DE FOURIER DE SINAIS
+% ============================================
+
+\subsection{Motivação}
+
+\begin{frame}{Por que a Transformada de Fourier?}
+
+A análise de sistemas de comunicação requer ferramentas para:
+
+\begin{itemize}
+\item Entender como os sinais se comportam em diferentes frequências
+\item Projetar filtros e sistemas de transmissão
+\item Calcular larguras de banda necessárias
+\item Analisar distorção e interferência
+\end{itemize}
+
+\vspace{0.5cm}
+
+A \textbf{Transformada de Fourier} é a ferramenta fundamental que permite:
+\begin{itemize}
+\item Passar do domínio do tempo para o domínio da frequência
+\item Analisar o conteúdo espectral de sinais
+\item Simplificar a análise de sistemas lineares
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Derivação da Transformada de Fourier}
+
+\begin{frame}{Série de Fourier para Sinais Periódicos}
+
+Para um sinal periódico $f(t)$ com período $T_0$ e frequência fundamental $\omega_0 = 2\pi/T_0$:
+
+\[
+f(t) = \sum_{n=-\infty}^{\infty} c_n e^{jn\omega_0 t}
+\]
+
+onde os coeficientes são:
+
+\[
+c_n = \frac{1}{T_0} \int_{-T_0/2}^{T_0/2} f(t) e^{-jn\omega_0 t} dt
+\]
+
+\vspace{0.3cm}
+
+\textbf{Ideia:} Representar qualquer sinal periódico como soma de exponenciais complexas.
+
+\vspace{0.3cm}
+
+\textbf{E sinais não-periódicos?} Podemos pensar neles como sinais periódicos com $T_0 \to \infty$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{De Série para Transformada: Passo 1}
+
+Substituindo $c_n$ na série de Fourier:
+
+\[
+f(t) = \sum_{n=-\infty}^{\infty} \left[ \frac{1}{T_0} \int_{-T_0/2}^{T_0/2} f(\tau) e^{-jn\omega_0 \tau} d\tau \right] e^{jn\omega_0 t}
+\]
+
+Reorganizando:
+
+\[
+f(t) = \sum_{n=-\infty}^{\infty} \left[ \int_{-T_0/2}^{T_0/2} f(\tau) e^{-jn\omega_0 \tau} d\tau \right] \frac{e^{jn\omega_0 t}}{T_0}
+\]
+
+Como $\omega_0 = 2\pi/T_0$, temos $1/T_0 = \omega_0/(2\pi)$:
+
+\[
+f(t) = \sum_{n=-\infty}^{\infty} \left[ \int_{-T_0/2}^{T_0/2} f(\tau) e^{-jn\omega_0 \tau} d\tau \right] \frac{\omega_0}{2\pi} e^{jn\omega_0 t}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{De Série para Transformada: Passo 2}
+
+Quando $T_0 \to \infty$:
+
+\begin{itemize}
+\item O espaçamento entre harmônicas $\omega_0 \to 0$ (espectro contínuo)
+\item A variável discreta $n\omega_0$ torna-se contínua: $\omega$
+\item O intervalo de integração $[-T_0/2, T_0/2] \to [-\infty, \infty]$
+\item A soma $\sum (\cdots) \omega_0$ torna-se integral $\int (\cdots) d\omega$
+\end{itemize}
+
+\vspace{0.5cm}
+
+Definindo a \textbf{Transformada de Fourier}:
+
+\[
+F(\omega) = \lim_{T_0 \to \infty} \int_{-T_0/2}^{T_0/2} f(t) e^{-j\omega t} dt = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Par de Transformadas de Fourier}
+
+\begin{block}{Definições}
+\textbf{Transformada de Fourier (direta):}
+\[
+F(\omega) = \FT{f(t)} = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt
+\]
+
+\textbf{Transformada Inversa de Fourier:}
+\[
+f(t) = \IFT{F(\omega)} = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) e^{j\omega t} d\omega
+\]
+
+Notação: $f(t) \xleftrightarrow{\ft} F(\omega)$
+\end{block}
+
+\vspace{0.3cm}
+
+\textbf{Interpretação:} $F(\omega)$ representa a "quantidade" de cada frequência $\omega$ presente no sinal $f(t)$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Condições de Existência}
+
+A transformada de Fourier $F(\omega)$ existe se $f(t)$ satisfaz as \textbf{condições de Dirichlet}:
+
+\begin{enumerate}
+\item $f(t)$ é absolutamente integrável:
+\[
+\int_{-\infty}^{\infty} |f(t)| dt < \infty
+\]
+
+\item $f(t)$ tem número finito de máximos e mínimos em qualquer intervalo finito
+
+\item $f(t)$ tem número finito de descontinuidades finitas em qualquer intervalo finito
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\textbf{Observação:} Sinais de energia finita sempre têm transformada de Fourier. Para sinais de potência (como senoidais), usa-se a função delta de Dirac.
+
+\end{frame}
+
+% ============================================
+
+\subsection{Espectro de Magnitude e Fase}
+
+\begin{frame}{Representação Espectral}
+
+A transformada $F(\omega)$ é geralmente complexa:
+
+\[
+F(\omega) = |F(\omega)| e^{j\phi(\omega)} = \Real\{F(\omega)\} + j\Imag\{F(\omega)\}
+\]
+
+onde:
+
+\begin{itemize}
+\item \textbf{Espectro de magnitude:} $|F(\omega)| = \sqrt{\Real^2\{F(\omega)\} + \Imag^2\{F(\omega)\}}$
+\item \textbf{Espectro de fase:} $\phi(\omega) = \arctan\left(\frac{\Imag\{F(\omega)\}}{\Real\{F(\omega)\}}\right)$
+\end{itemize}
+
+\vspace{0.5cm}
+
+O espectro completo requer ambas informações: magnitude \textbf{e} fase.
+
+Para sinais reais, temos simetrias úteis:
+\begin{itemize}
+\item $|F(-\omega)| = |F(\omega)|$ (magnitude par)
+\item $\phi(-\omega) = -\phi(\omega)$ (fase ímpar)
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Exemplos}
+
+\begin{frame}{Exemplo 1: Pulso Retangular}
+
+Considere um pulso retangular de duração $\tau$ e amplitude $A$:
+
+\[
+f(t) = \begin{cases}
+A & |t| \leq \tau/2 \\
+0 & |t| > \tau/2
+\end{cases} = A \cdot \rect(t/\tau)
+\]
+
+\textbf{Cálculo da transformada:}
+
+\[
+F(\omega) = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt = \int_{-\tau/2}^{\tau/2} A e^{-j\omega t} dt
+\]
+
+\[
+= A \left[ \frac{e^{-j\omega t}}{-j\omega} \right]_{-\tau/2}^{\tau/2} = A \frac{e^{-j\omega\tau/2} - e^{j\omega\tau/2}}{-j\omega}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 1: Pulso Retangular (continuação)}
+
+Usando a identidade de Euler: $\sin(\theta) = \frac{e^{j\theta} - e^{-j\theta}}{2j}$
+
+\[
+F(\omega) = A \frac{e^{j\omega\tau/2} - e^{-j\omega\tau/2}}{j\omega} = A \frac{2\sin(\omega\tau/2)}{\omega}
+\]
+
+\[
+= A\tau \frac{\sin(\omega\tau/2)}{\omega\tau/2}
+\]
+
+Definindo a \textbf{função sinc}: $\sinc(x) = \frac{\sin(\pi x)}{\pi x}$
+
+Obtemos:
+
+\[
+F(\omega) = A\tau \sinc\left(\frac{\omega\tau}{2\pi}\right)
+\]
+
+\textbf{Conclusão:} Pulso retangular no tempo $\leftrightarrow$ função sinc na frequência.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 1: Análise do Resultado}
+
+\[
+\boxed{f(t) = A\rect(t/\tau) \quad \xleftrightarrow{\ft} \quad F(\omega) = A\tau \sinc\left(\frac{\omega\tau}{2\pi}\right)}
+\]
+
+\textbf{Observações importantes:}
+
+\begin{itemize}
+\item Primeiro zero em $\omega = \pm 2\pi/\tau$
+\item \textbf{Largura de banda}: $B \approx 1/\tau$ (inverso da duração)
+\item Quanto mais estreito o pulso no tempo, mais largo o espectro
+\item $F(0) = A\tau$ (área sob o pulso)
+\item Espectro real (fase zero ou $\pi$) porque o pulso é par
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Veja:} O espectro do pulso retangular ilustra esses pontos.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 2: Exponencial Decrescente}
+
+Considere um sinal exponencial causal:
+
+\[
+f(t) = \begin{cases}
+e^{-at} & t \geq 0 \\
+0 & t < 0
+\end{cases} = e^{-at} u(t), \quad a > 0
+\]
+
+onde $u(t)$ é a função degrau unitário.
+
+\textbf{Cálculo da transformada:}
+
+\[
+F(\omega) = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt = \int_{0}^{\infty} e^{-at} e^{-j\omega t} dt
+\]
+
+\[
+= \int_{0}^{\infty} e^{-(a+j\omega)t} dt = \left[ \frac{e^{-(a+j\omega)t}}{-(a+j\omega)} \right]_{0}^{\infty}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 2: Exponencial Decrescente (continuação)}
+
+Como $a > 0$, temos $e^{-(a+j\omega)t} \to 0$ quando $t \to \infty$:
+
+\[
+F(\omega) = 0 - \frac{1}{-(a+j\omega)} = \frac{1}{a+j\omega}
+\]
+
+Racionalizando (multiplicando por conjugado):
+
+\[
+F(\omega) = \frac{1}{a+j\omega} \cdot \frac{a-j\omega}{a-j\omega} = \frac{a-j\omega}{a^2+\omega^2}
+\]
+
+\[
+\boxed{F(\omega) = \frac{a}{a^2+\omega^2} - j\frac{\omega}{a^2+\omega^2}}
+\]
+
+\textbf{Espectro de magnitude:}
+\[
+|F(\omega)| = \frac{1}{\sqrt{a^2+\omega^2}}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 2: Análise do Resultado}
+
+\[
+\boxed{f(t) = e^{-at}u(t) \quad \xleftrightarrow{\ft} \quad F(\omega) = \frac{1}{a+j\omega}}
+\]
+
+\textbf{Características do espectro:}
+
+\begin{itemize}
+\item Magnitude: $|F(\omega)| = 1/\sqrt{a^2+\omega^2}$ (forma Lorentziana)
+\item Fase: $\phi(\omega) = -\arctan(\omega/a)$
+\item Em $\omega = 0$: $|F(0)| = 1/a$ (valor máximo)
+\item Em $\omega = \pm a$: $|F(\omega)| = 1/(a\sqrt{2})$ (redução de 3 dB)
+\item Largura de banda: $B \approx a$ (relacionada à constante de decaimento)
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Interpretação física:} Decaimento rápido no tempo ($a$ grande) $\rightarrow$ espectro largo na frequência.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 3: Pulso Exponencial Bilateral}
+
+Considere um pulso exponencial bilateral (simétrico):
+
+\[
+f(t) = e^{-a|t|}, \quad a > 0
+\]
+
+Este sinal pode ser decomposto em:
+\[
+f(t) = e^{-at}u(t) + e^{at}u(-t) = e^{-at}u(t) + e^{-a(-t)}u(-t)
+\]
+
+\textbf{Cálculo:}
+
+\[
+F(\omega) = \int_{-\infty}^{0} e^{at} e^{-j\omega t} dt + \int_{0}^{\infty} e^{-at} e^{-j\omega t} dt
+\]
+
+Para $t < 0$: $\int_{-\infty}^{0} e^{(a-j\omega)t} dt = \frac{1}{a-j\omega}$
+
+Para $t > 0$: $\int_{0}^{\infty} e^{-(a+j\omega)t} dt = \frac{1}{a+j\omega}$
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 3: Resultado}
+
+\[
+F(\omega) = \frac{1}{a-j\omega} + \frac{1}{a+j\omega} = \frac{(a+j\omega) + (a-j\omega)}{(a-j\omega)(a+j\omega)}
+\]
+
+\[
+= \frac{2a}{a^2+\omega^2}
+\]
+
+\[
+\boxed{f(t) = e^{-a|t|} \quad \xleftrightarrow{\ft} \quad F(\omega) = \frac{2a}{a^2+\omega^2}}
+\]
+
+\textbf{Observações:}
+
+\begin{itemize}
+\item $F(\omega)$ é \textbf{real} (fase zero) porque $f(t)$ é par
+\item Espectro Lorentziano centrado em $\omega = 0$
+\item $F(0) = 2/a$, $F(\pm a) = 1/a$
+\item Forma mais concentrada no tempo que o exponencial unilateral
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Interpretação Física}
+
+\begin{frame}{Interpretação Física da Transformada de Fourier}
+
+A transformada pode ser vista como uma \textbf{correlação} do sinal com exponenciais complexas:
+
+\[
+F(\omega) = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt
+\]
+
+\begin{itemize}
+\item $e^{-j\omega t} = \cos(\omega t) - j\sin(\omega t)$ é uma oscilação na frequência $\omega$
+\item O produto $f(t) e^{-j\omega t}$ mede quanto de $f(t)$ "combina" com essa frequência
+\item A integral acumula essa correlação sobre todo o tempo
+\item $|F(\omega)|$ grande $\rightarrow$ forte presença da frequência $\omega$ em $f(t)$
+\item $|F(\omega)|$ pequeno $\rightarrow$ pouca presença da frequência $\omega$
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Analogia:} A transformada de Fourier "decompõe" o sinal em componentes de frequência, assim como um prisma decompõe luz branca em cores.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Princípio da Incerteza Tempo-Frequência}
+
+Dos exemplos, observamos uma relação fundamental:
+
+\begin{center}
+\textbf{Duração no tempo} $\times$ \textbf{Largura de banda} $\approx$ constante
+\end{center}
+
+\vspace{0.3cm}
+
+Matematicamente (Desigualdade de Heisenberg-Gabor):
+
+\[
+\Delta t \cdot \Delta \omega \geq \frac{1}{2}
+\]
+
+onde $\Delta t$ é a duração efetiva e $\Delta \omega$ é a largura de banda efetiva.
+
+\vspace{0.3cm}
+
+\textbf{Consequências práticas:}
+
+\begin{itemize}
+\item Pulsos curtos requerem grande largura de banda
+\item Sinais de banda estreita devem ter longa duração
+\item Compromisso fundamental em sistemas de comunicação
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resumo da Seção 3.1}
+
+\textbf{Conceitos fundamentais:}
+
+\begin{itemize}
+\item Transformada de Fourier: generalização da série de Fourier para sinais não-periódicos
+\item Par de transformadas: $f(t) \xleftrightarrow{\ft} F(\omega)$
+\item Espectro: magnitude e fase descrevem conteúdo em frequência
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Pares importantes derivados:}
+
+\begin{itemize}
+\item $\rect(t/\tau) \xleftrightarrow{\ft} \tau\sinc(\omega\tau/2\pi)$
+\item $e^{-at}u(t) \xleftrightarrow{\ft} 1/(a+j\omega)$
+\item $e^{-a|t|} \xleftrightarrow{\ft} 2a/(a^2+\omega^2)$
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Princípio fundamental:}
+\begin{center}
+Sinal concentrado no tempo $\leftrightarrow$ Espectro disperso em frequência
+\end{center}
+
+\end{frame}

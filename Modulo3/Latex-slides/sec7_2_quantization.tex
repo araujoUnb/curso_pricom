@@ -1,0 +1,394 @@
+% ============================================
+% SEÇÃO 7.2: QUANTIZAÇÃO
+% Derivações completas, passo a passo.
+% ============================================
+
+% ------------------------------------------------------------------
+\subsection{Quantizador Uniforme}
+% ------------------------------------------------------------------
+
+\begin{frame}{Por Que Quantizar?}
+  Após a amostragem, temos $g[n] = g(nT_s)$:
+  discreto no tempo, mas com \textbf{amplitude ainda contínua}.
+
+  \vspace{0.35cm}
+  \begin{columns}[T]
+    \column{0.50\textwidth}
+    \textbf{O problema:}
+    \begin{itemize}
+      \item Um processador só armazena valores \alert{discretos}
+      \item Com $n$ bits há apenas $2^n$ valores representáveis
+      \item Amplitudes contínuas \textbf{precisam ser arredondadas}
+    \end{itemize}
+
+    \column{0.47\textwidth}
+    \textbf{Analogia cotidiana:}
+    \begin{itemize}
+      \item Régua com marcas a cada 1 mm
+      \item $23{,}731$ mm $\;\to\;$ $23{,}7$ mm
+      \item O erro é inevitável — só reduzível
+    \end{itemize}
+  \end{columns}
+
+  \vspace{0.4cm}
+  \textbf{A questão central:}
+  \begin{enumerate}
+    \item Quanto ruído a quantização introduz?
+    \item Como esse ruído depende do número de bits?
+  \end{enumerate}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{O Quantizador Uniforme}
+  Seja $g[n]$ com faixa de amplitude $[V_{\min}, V_{\max}]$.
+
+  \vspace{0.3cm}
+  Dividindo a faixa total $V_{pp} = V_{\max} - V_{\min}$ em
+  $L$ intervalos \textbf{iguais}, o tamanho de cada degrau é:
+  \[
+    \Delta = \frac{V_{pp}}{L}
+  \]
+
+  O $k$-ésimo intervalo cobre $\bigl[V_{\min} + k\Delta,\;
+  V_{\min} + (k+1)\Delta\bigr)$ e é mapeado para o seu
+  \textbf{ponto médio}:
+  \[
+    \hat{g}[n] = V_{\min} + \Bigl(k + \tfrac{1}{2}\Bigr)\Delta,
+    \quad k = 0, 1, \ldots, L-1
+  \]
+
+  \vspace{0.3cm}
+  A saída é uma \textbf{função escada}: cada amplitude de entrada é
+  arredondada para o nível de quantização mais próximo.
+
+  \vspace{0.3cm}
+  Com $n$ bits podemos representar $L = 2^n$ níveis.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Característica do Quantizador}
+  \begin{center}
+    \includegraphics[width=0.96\textwidth]{figures/cap7/quantization_illustration}
+  \end{center}
+  {\footnotesize
+    \textit{(a)} Função entrada-saída (escada). O passo $\Delta$ é
+    o tamanho de cada degrau.
+    \textit{(b)} Sinal original (azul) vs.\ quantizado (verde); as barras
+    roxas indicam o erro em cada amostra.
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Ruído de Quantização}
+% ------------------------------------------------------------------
+
+\begin{frame}{O Erro de Quantização}
+  O \textbf{erro de quantização} é a diferença entre o valor
+  quantizado e o valor real:
+  \[
+    e_q[n] = \hat{g}[n] - g[n]
+  \]
+
+  \vspace{0.3cm}
+  Como o quantizador mapeia cada amostra para o
+  \textbf{ponto médio} de seu intervalo $\Delta$,
+  o erro fica sempre limitado a:
+  \[
+    -\frac{\Delta}{2} \;\le\; e_q[n] \;\le\; +\frac{\Delta}{2}
+  \]
+
+  \vspace{0.4cm}
+  \textbf{Compromisso fundamental:}
+  \begin{itemize}
+    \item Erro menor $\Rightarrow$ $\Delta$ menor
+          $\Rightarrow$ mais níveis $L = V_{pp}/\Delta$
+          $\Rightarrow$ mais bits $n = \log_2 L$
+    \item Aumentar $n$ em 1 bit $\Rightarrow$ $\Delta$ cai pela metade
+          $\Rightarrow$ erro máximo cai pela metade
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Modelo Estatístico do Erro de Quantização}
+  \textbf{Hipóteses do modelo de ruído de quantização}
+  (válidas para $L$ grande e sinal variando rapidamente):
+
+  \begin{enumerate}
+    \item $e_q[n]$ é uma \textbf{variável aleatória uniforme} em
+          $[-\Delta/2,\; +\Delta/2]$
+    \item Erros em amostras consecutivas são \textbf{não-correlacionados}
+    \item O erro é \textbf{independente} do sinal de entrada
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  Sob essas hipóteses, a função de densidade de probabilidade (PDF) é:
+  \[
+    p(e_q) =
+    \begin{cases}
+      \dfrac{1}{\Delta}, & \text{se } -\dfrac{\Delta}{2}
+                            \le e_q \le \dfrac{\Delta}{2} \\[8pt]
+      0,                 & \text{caso contrário}
+    \end{cases}
+  \]
+
+  Cada valor do erro é \textbf{igualmente provável} dentro do intervalo.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{PDF do Erro de Quantização}
+  \begin{center}
+    \includegraphics[width=0.72\textwidth]{figures/cap7/quantization_error_pdf}
+  \end{center}
+  \vspace{-0.1cm}
+  Verificações rápidas: \;
+  $\int_{-\Delta/2}^{\Delta/2}\frac{1}{\Delta}\,de_q = 1$ \;(\checkmark)\;
+  e \;
+  $E[e_q] = \int e_q \cdot\frac{1}{\Delta}\,de_q = 0$ \;(\checkmark)
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Derivação de $P_q = \Delta^2/12$}
+% ------------------------------------------------------------------
+
+\begin{frame}{Derivação de $P_q$ — Passo 1: Definição Formal}
+  A \textbf{potência do ruído de quantização} $P_q$ é o valor esperado
+  do \emph{quadrado} do erro:
+  \[
+    P_q = E\!\left[e_q^2\right]
+  \]
+
+  \vspace{0.3cm}
+  Para uma variável aleatória contínua, o valor esperado de uma função
+  $f(e_q)$ é calculado como:
+  \[
+    E\!\left[f(e_q)\right] = \int_{-\infty}^{+\infty} f(e_q)\,p(e_q)\,de_q
+  \]
+
+  \vspace{0.3cm}
+  Portanto, a definição formal de $P_q$ é:
+  \[
+    P_q = \int_{-\infty}^{+\infty} e_q^2 \; p(e_q) \; de_q
+  \]
+
+  \textit{Interpretação:} pesamos $e_q^2$ pela sua
+  probabilidade $p(e_q)$ e somamos (integramos) sobre todos os valores.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Derivação de $P_q$ — Passo 2: Substituição da PDF}
+  Como $p(e_q) = 1/\Delta$ somente no intervalo
+  $[-\Delta/2, +\Delta/2]$ e zero fora dele,
+  podemos restringir os limites da integral:
+  \[
+    P_q = \int_{-\Delta/2}^{+\Delta/2} e_q^2 \cdot \frac{1}{\Delta} \; de_q
+  \]
+
+  \vspace{0.4cm}
+  \textbf{Passo 3 — Resolver a integral}
+
+  A constante $1/\Delta$ sai da integral:
+  \[
+    P_q = \frac{1}{\Delta}
+          \int_{-\Delta/2}^{+\Delta/2} e_q^2 \; de_q
+  \]
+
+  A primitiva de $e_q^2$ é $e_q^3/3$. Aplicando o teorema fundamental
+  do cálculo:
+  \[
+    P_q = \frac{1}{\Delta}
+          \left[\frac{e_q^3}{3}\right]_{-\Delta/2}^{+\Delta/2}
+        = \frac{1}{\Delta}
+          \cdot\frac{\left(\Delta/2\right)^3 - \left(-\Delta/2\right)^3}{3}
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Derivação de $P_q$ — Passo 4: Simplificação}
+  Calculamos os cubos:
+  \[
+    \left(\frac{\Delta}{2}\right)^{\!3} = \frac{\Delta^3}{8},
+    \qquad
+    \left(-\frac{\Delta}{2}\right)^{\!3} = -\frac{\Delta^3}{8}
+  \]
+
+  \vspace{0.3cm}
+  Substituindo na expressão anterior:
+  \[
+    P_q = \frac{1}{\Delta}
+          \cdot\frac{\;\dfrac{\Delta^3}{8} -
+                     \left(-\dfrac{\Delta^3}{8}\right)}{3}
+        = \frac{1}{\Delta}
+          \cdot\frac{\;2\cdot\dfrac{\Delta^3}{8}\;}{3}
+        = \frac{1}{\Delta}\cdot\frac{\Delta^3}{12}
+  \]
+
+  \vspace{0.3cm}
+  Cancelando um fator $\Delta$:
+  \[
+    P_q = \frac{\Delta^2}{12}
+  \]
+
+  \begin{block}{Potência do Ruído de Quantização}
+    \[
+      P_q = \frac{\Delta^2}{12}
+    \]
+    Para reduzir $P_q$ à metade ($-3$ dB), é preciso reduzir $\Delta$
+    por $\sqrt{2}$, ou seja, dobrar $L$ — adicionar \textbf{1 bit}.
+  \end{block}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{SQNR e Regra dos 6 dB}
+% ------------------------------------------------------------------
+
+\begin{frame}{Relação Sinal-Ruído de Quantização (SQNR)}
+  A qualidade da quantização é medida pelo \textbf{SQNR}
+  (\textit{Signal-to-Quantization-Noise Ratio}):
+  \[
+    \SQNR = \frac{P_s}{P_q}
+           = \frac{P_s}{\Delta^2/12}
+           = \frac{12\,P_s}{\Delta^2}
+  \]
+
+  \vspace{0.3cm}
+  Expressando $\Delta$ em termos do número de bits $n$
+  ($L = 2^n$ níveis, faixa $V_{pp}$):
+  \[
+    \Delta = \frac{V_{pp}}{2^n}
+    \;\Longrightarrow\;
+    \SQNR = \frac{12\,P_s}{\left(V_{pp}/2^n\right)^2}
+           = \frac{12\,P_s}{V_{pp}^2}\cdot 2^{2n}
+  \]
+
+  \vspace{0.3cm}
+  \textbf{Observação:} $2^{2n} = 4^n$.
+  Adicionar 1 bit multiplica o SQNR por 4 (ou seja, $+6$ dB).
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{SQNR para um Sinal Senoidal — Derivação}
+  \textbf{Caso prático:} senoide $g(t) = A\cos(\omega t)$ que ocupa
+  \textbf{toda a faixa} do quantizador.
+
+  \vspace{0.3cm}
+  Parâmetros:
+  \[
+    V_{pp} = A - (-A) = 2A,
+    \qquad
+    P_s = \frac{A^2}{2}
+    \quad\text{(potência média da senoide)}
+  \]
+
+  \vspace{0.3cm}
+  Substituindo na expressão geral do SQNR:
+  \[
+    \SQNR = \frac{12\cdot(A^2/2)}{(2A)^2}\cdot 2^{2n}
+           = \frac{6A^2}{4A^2}\cdot 2^{2n}
+           = \frac{3}{2}\cdot 2^{2n}
+           = 1{,}5\cdot 4^n
+  \]
+
+  \vspace{0.3cm}
+  Convertendo para decibéis ($X_{\mathrm{dB}} = 10\log_{10}X$):
+  \[
+    \SQNR_{\mathrm{dB}}
+    = 10\log_{10}\!\left(1{,}5\cdot 4^n\right)
+    = 10\log_{10}(1{,}5) + n\cdot 10\log_{10}(4)
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{A Regra dos 6 dB por Bit}
+  Calculando os valores numéricos dos logaritmos:
+  \[
+    10\log_{10}(1{,}5) \approx 1{,}76\;\text{dB},
+    \qquad
+    10\log_{10}(4)     \approx 6{,}02\;\text{dB}
+  \]
+
+  \vspace{0.2cm}
+  Portanto:
+  \[
+    \SQNR_{\mathrm{dB}} \approx 1{,}76 + 6{,}02\,n
+  \]
+
+  \begin{block}{Regra dos 6 dB/bit (senoide em faixa cheia)}
+    \[
+      \SQNR_{\mathrm{dB}} \approx 1{,}76 + 6{,}02\,n\;\text{dB}
+    \]
+    Cada bit adicional eleva o SQNR em \textbf{$\approx 6$ dB}.
+  \end{block}
+
+  \vspace{0.2cm}
+  \textbf{Exemplos práticos:}
+  \begin{itemize}
+    \item $n = 8$ bits: \;\;$\SQNR \approx 50\,\text{dB}$ \quad(telefonia PCM)
+    \item $n = 16$ bits: $\SQNR \approx 98\,\text{dB}$ \quad(CD de áudio)
+    \item $n = 24$ bits: $\SQNR \approx 146\,\text{dB}$ \,(estúdio profissional)
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{SQNR vs.\ Número de Bits — Confirmação Numérica}
+  \begin{center}
+    \includegraphics[width=0.93\textwidth]{figures/cap7/sqnr_vs_bits}
+  \end{center}
+  \vspace{-0.2cm}
+  {\footnotesize
+    Simulação com senoide de $10^6$ amostras confirma a fórmula
+    $1{,}76 + 6{,}02\,n$ dB com excelente precisão para $n \ge 4$ bits.
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Efeito da Resolução na Qualidade do Sinal}
+  \begin{center}
+    \includegraphics[width=0.98\textwidth]{figures/cap7/quantization_resolution}
+  \end{center}
+  \vspace{-0.15cm}
+  {\footnotesize
+    Com $n = 2$ bits a forma de onda é severamente distorcida.
+    Com $n = 8$ bits a diferença para o sinal original é imperceptível.
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}[fragile]{Implementação em Python}
+\begin{lstlisting}[language=Python]
+import numpy as np
+
+def quantize_uniform(x, n_bits, v_min=-1.0, v_max=1.0):
+    L     = 2**n_bits                        # numero de niveis
+    delta = (v_max - v_min) / L             # tamanho do passo
+    x_c   = np.clip(x, v_min, v_max)        # limitar faixa
+    idx   = np.floor((x_c - v_min)/delta).astype(int)
+    idx   = np.clip(idx, 0, L-1)
+    return v_min + (idx + 0.5) * delta       # ponto medio
+
+# Calcular SQNR para varios numeros de bits
+t = np.linspace(0, 100, 1_000_000)
+g = np.sin(2*np.pi*t)                       # senoide em faixa cheia
+
+for n in [4, 8, 16]:
+    g_q  = quantize_uniform(g, n)
+    sqnr = 10 * np.log10(np.mean(g**2) / np.mean((g_q-g)**2))
+    teo  = 1.76 + 6.02*n
+    print(f"n={n:2d}: SQNR = {sqnr:.1f} dB  (teoria: {teo:.1f} dB)")
+\end{lstlisting}
+\vspace{0.05cm}
+{\ttfamily\scriptsize
+n= 4: SQNR = ~25.9 dB \; (teoria: 25.8 dB)\\
+n= 8: SQNR = ~49.9 dB \; (teoria: 49.9 dB)\\
+n=16: SQNR = ~98.1 dB \; (teoria: 98.1 dB)}
+\end{frame}

@@ -1,0 +1,195 @@
+\documentclass[aspectratio=169]{beamer}
+
+% ============================================
+% PACOTES ADICIONAIS
+% ============================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{ifthen}
+\usepackage{bm}
+\usepackage{array}
+\usepackage{cancel}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, fit}
+\usepackage{listings}
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{unbprimary}\bfseries,
+    stringstyle=\color{unbsecondary!80!black},
+    commentstyle=\color{gray}\itshape,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=5pt,
+    frame=single,
+    rulecolor=\color{gray!40},
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=4,
+    backgroundcolor=\color{gray!8},
+    xleftmargin=0.4cm,
+    xrightmargin=0.1cm,
+}
+
+% ============================================
+% VARIÁVEIS DE CONFIGURAÇÃO
+% ============================================
+
+% --- Informações do Autor ---
+\newcommand{\autorNome}{Prof. Daniel Costa Araújo}
+\newcommand{\autorEmail}{daniel.araujo@unb.br}
+
+% --- Título e Subtítulo ---
+\newcommand{\tituloApresentacao}{Conversão Analógico-Digital}
+\newcommand{\subtituloApresentacao}{Capítulo 7 (Proakis) e Capítulo 5 (Lathi)}
+
+% --- Idioma ---
+\newcommand{\idioma}{pt}
+
+% --- Instituição (Português) ---
+\newcommand{\universidadePT}{Universidade de Brasília}
+\newcommand{\departamentoPT}{Faculdade de Ciências e Tecnologia em Engenharias}
+\newcommand{\laboratorioPT}{Laboratório de Telecomunicações}
+
+% --- Instituição (Inglês) ---
+\newcommand{\universidadeEN}{University of Brasília}
+\newcommand{\departamentoEN}{Faculty of Sciences and Technology in Engineering}
+\newcommand{\laboratorioEN}{Telecommunications Laboratory}
+
+% --- Data ---
+\newcommand{\dataApresentacao}{\today}
+
+% ============================================
+% CONFIGURAÇÃO AUTOMÁTICA BASEADA NO IDIOMA
+% ============================================
+\newcommand{\institutoFinal}{%
+    \ifthenelse{\equal{\idioma}{pt}}{%
+        \universidadePT \\ \laboratorioPT%
+    }{%
+        \universidadeEN \\ \laboratorioEN%
+    }%
+}
+\newcommand{\universidadeFinal}{%
+    \ifthenelse{\equal{\idioma}{pt}}{\universidadePT}{\universidadeEN}%
+}
+\newcommand{\laboratorioFinal}{%
+    \ifthenelse{\equal{\idioma}{pt}}{\laboratorioPT}{\laboratorioEN}%
+}
+
+% ============================================
+% CARREGAR TEMPLATE UnB/LabTelecom
+% ============================================
+\input{../../template/beamertheme-unb.sty}
+
+% ============================================
+% APLICAR CONFIGURAÇÕES AO DOCUMENTO
+% ============================================
+\title{\tituloApresentacao}
+\subtitle{\subtituloApresentacao}
+\author{\autorNome}
+\institute{\institutoFinal}
+\date{\dataApresentacao}
+
+% ============================================
+% COMANDOS ÚTEIS
+% ============================================
+\newcommand{\FT}[1]{\mathcal{F}\{#1\}}
+\newcommand{\IFT}[1]{\mathcal{F}^{-1}\{#1\}}
+\newcommand{\conv}{\ast}
+\newcommand{\sinc}{\mathrm{sinc}}
+\newcommand{\rect}{\mathrm{rect}}
+\newcommand{\SQNR}{\mathrm{SQNR}}
+\newcommand{\SNR}{\mathrm{SNR}}
+\DeclareMathOperator{\Real}{Re}
+\DeclareMathOperator{\Imag}{Im}
+
+% ============================================
+% TAMANHOS PADRONIZADOS DE FIGURAS
+% ============================================
+\newcommand{\figFull}{0.85\textwidth}
+\newcommand{\figHalf}{0.65\textwidth}
+\newcommand{\figHalfV}{0.48\textwidth}
+\newcommand{\figw}{\figFull}
+
+% ============================================
+% INÍCIO DO DOCUMENTO
+% ============================================
+\begin{document}
+
+% ============================================
+% SLIDE DE TÍTULO
+% ============================================
+\begin{frame}
+\titlepage
+\end{frame}
+
+% ============================================
+% SUMÁRIO
+% ============================================
+\begin{frame}{Sumário}
+\tableofcontents[hideallsubsections]
+\end{frame}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SLIDE DE TRANSIÇÃO: CAPÍTULO 7
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{
+\setbeamercolor{background canvas}{bg=structure.fg}
+\setbeamercolor{normal text}{fg=white}
+\usebeamercolor[fg]{normal text}
+\begin{frame}[plain,c]
+\begin{center}
+{\Huge\textbf{Capítulo 7}}\\[0.8cm]
+{\LARGE Conversão Analógico-Digital}\\[0.5cm]
+{\large Amostragem, Quantização, PCM e Companding}
+\end{center}
+\end{frame}
+}
+
+% ============================================
+% CAPÍTULO 7: CONVERSÃO ANALÓGICO-DIGITAL
+% ============================================
+\input{cap7_analog_to_digital_conversion}
+
+% ============================================
+% AGRADECIMENTOS
+% ============================================
+\begin{frame}{Agradecimentos}
+\begin{center}
+\Large Obrigado pela atenção!
+
+\vspace{1cm}
+
+\normalsize
+\textbf{Contato:}\\
+\autorEmail
+
+\vspace{0.5cm}
+
+\textbf{\laboratorioFinal}\\
+\universidadeFinal
+
+\vspace{0.5cm}
+
+\textbf{Dúvidas?}
+\end{center}
+\end{frame}
+
+% ============================================
+% REFERÊNCIAS
+% ============================================
+\begin{frame}[allowframebreaks]{Referências}
+\nocite{*}
+\bibliographystyle{ieeetr}
+\bibliography{references}
+\end{frame}
+
+\end{document}
