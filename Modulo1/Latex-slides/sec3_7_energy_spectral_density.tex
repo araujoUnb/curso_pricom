@@ -67,41 +67,40 @@ E = \int_{-\infty}^{\infty} |f(t)|^2 dt
 
 % ============================================
 
-\begin{frame}{Exemplos: Energia de Sinais}
+\begin{frame}{Exemplos: Cálculo de Energia}
 
-\textbf{Exemplo 1: Pulso retangular}
-
-$f(t) = A\rect(t/\tau)$
-
+\begin{columns}[T]
+\column{0.5\textwidth}
+\textbf{Pulso retangular} $A\rect(t/\tau)$:
 \[
-E = \int_{-\tau/2}^{\tau/2} A^2 dt = A^2\tau
+E = \int_{-\tau/2}^{\tau/2} A^2\,dt = A^2\tau
 \]
+$\Rightarrow$ proporcional à duração $\tau$.
 
-Energia proporcional à amplitude ao quadrado e à duração.
+\vspace{0.4cm}
 
-\vspace{0.3cm}
-
-\textbf{Exemplo 2: Exponencial decrescente}
-
-$f(t) = e^{-at}u(t)$, $a > 0$
-
+\textbf{Exponencial causal} $e^{-at}u(t)$:
 \[
-E = \int_{0}^{\infty} e^{-2at} dt = \left[-\frac{e^{-2at}}{2a}\right]_0^{\infty} = \frac{1}{2a}
+E = \int_0^{\infty} e^{-2at}\,dt = \frac{1}{2a}
 \]
+$\Rightarrow$ decaimento rápido = energia \textbf{menor}.
 
-Energia inversamente proporcional à taxa de decaimento.
-
-\vspace{0.3cm}
-
-\textbf{Exemplo 3: Senoide}
-
-$f(t) = A\cos(\omega_0 t)$ (para todo $t$)
-
+\column{0.5\textwidth}
+\textbf{Senoide} $A\cos(\omega_0 t)$:
 \[
-E = \int_{-\infty}^{\infty} A^2\cos^2(\omega_0 t) dt = \infty
+E = \int_{-\infty}^{\infty} A^2\cos^2(\omega_0 t)\,dt = \infty
 \]
+Sinal periódico: energia infinita — é \textbf{sinal de potência}!
 
-Sinal periódico tem energia infinita (é sinal de potência).
+\vspace{0.4cm}
+\begin{block}{Classificação}
+\begin{tabular}{lcc}
+ & $E$ & $P$ \\
+Energia & finita & $0$ \\
+Potência & $\infty$ & finita
+\end{tabular}
+\end{block}
+\end{columns}
 
 \end{frame}
 

@@ -236,23 +236,29 @@ F(\omega) = A\tau \sinc\left(\frac{\omega\tau}{2\pi}\right)
 
 \begin{frame}{Exemplo 1: Análise do Resultado}
 
+\begin{block}{Par de Transformadas: Pulso Retangular}
 \[
-\boxed{f(t) = A\rect(t/\tau) \quad \xleftrightarrow{\ft} \quad F(\omega) = A\tau \sinc\left(\frac{\omega\tau}{2\pi}\right)}
+A\,\rect\!\left(\frac{t}{\tau}\right) \xleftrightarrow{\ft} A\tau\,\sinc\!\left(\frac{\omega\tau}{2\pi}\right)
 \]
+\end{block}
 
-\textbf{Observações importantes:}
-
+\begin{columns}[T]
+\column{0.42\textwidth}
+\textbf{Observações:}
 \begin{itemize}
-\item Primeiro zero em $\omega = \pm 2\pi/\tau$
-\item \textbf{Largura de banda}: $B \approx 1/\tau$ (inverso da duração)
-\item Quanto mais estreito o pulso no tempo, mais largo o espectro
-\item $F(0) = A\tau$ (área sob o pulso)
-\item Espectro real (fase zero ou $\pi$) porque o pulso é par
+\item Primeiro zero: $\omega = \pm 2\pi/\tau$
+\item Largura de banda: $B \approx 1/\tau$
+\item Pulso \textbf{estreito} $\Rightarrow$ espectro \textbf{largo}
+\item $F(0) = A\tau$ (área total do pulso)
+\item Espectro real pois $f(t)$ é par
 \end{itemize}
 
-\vspace{0.3cm}
-
-\textbf{Veja:} O espectro do pulso retangular ilustra esses pontos.
+\column{0.58\textwidth}
+\vspace{-0.3cm}
+\begin{center}
+\includegraphics[width=\linewidth, height=0.55\textheight, keepaspectratio]{figures/cap3/rect_fourier}
+\end{center}
+\end{columns}
 
 \end{frame}
 
@@ -331,6 +337,22 @@ F(\omega) = \frac{1}{a+j\omega} \cdot \frac{a-j\omega}{a-j\omega} = \frac{a-j\om
 \vspace{0.3cm}
 
 \textbf{Interpretação física:} Decaimento rápido no tempo ($a$ grande) $\rightarrow$ espectro largo na frequência.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 2: Visualização do Espectro}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.72\textheight, keepaspectratio]{figures/cap3/exponential_fourier}
+\end{center}
+
+\vspace{-0.3cm}
+\begin{itemize}
+\item Decaimento mais rápido no tempo ($a$ maior) $\Rightarrow$ espectro mais \textbf{largo}
+\item Frequência de corte de 3\,dB ocorre em $\omega = a$
+\end{itemize}
 
 \end{frame}
 
