@@ -1,0 +1,137 @@
+% ============================================
+% SEÇÃO 6.4: DIAGRAMA DE OLHO
+% Ferramenta de diagnóstico visual.
+% ============================================
+
+% ------------------------------------------------------------------
+\subsection{Conceito}
+% ------------------------------------------------------------------
+
+\begin{frame}{Onde Estamos na Cadeia?}
+  \drawpipeline{channel,detector}
+  \vspace{0.1cm}
+  {\small Nesta seção: \textbf{Canal} e \textbf{Detector} — o diagrama de
+  olho é a ferramenta visual que revela o efeito do canal (ruído, ISI,
+  jitter) sobre a qualidade do sinal antes da decisão.}
+\end{frame}
+
+\begin{frame}{O que é o Diagrama de Olho?}
+  O \alert{diagrama de olho} (ou \textit{eye diagram}) é uma técnica
+  de visualização obtida ao \textbf{sobrepor} segmentos consecutivos
+  do sinal recebido, cada um com duração de 1 ou 2 intervalos de símbolo.
+
+  \vspace{0.3cm}
+  \textbf{Como construir:}
+  \begin{enumerate}
+    \item Receba o sinal $r(t)$ após a filtragem.
+    \item Corte em trechos de duração $2T$.
+    \item Sobreponha todos os trechos no mesmo gráfico.
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  \textit{O padrão resultante lembra um ``olho'' — e quanto mais
+  \textbf{aberto} o olho, melhor a qualidade do sinal.}
+
+  \vspace{0.3cm}
+  Na prática, basta conectar o sinal a um osciloscópio com disparo
+  (\textit{trigger}) sincronizado à taxa de símbolo.
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Interpretação}
+% ------------------------------------------------------------------
+
+\begin{frame}{Leitura do Diagrama de Olho}
+  O diagrama de olho revela, \textbf{de uma só vez}, diversas
+  informações sobre a qualidade do enlace:
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item \textbf{Abertura vertical} → margem de ruído disponível.
+    \begin{itemize}
+      \item Quanto maior, mais ruído o sistema tolera.
+    \end{itemize}
+
+    \vspace{0.2cm}
+    \item \textbf{Abertura horizontal} → margem de temporização (\textit{timing margin}).
+    \begin{itemize}
+      \item Quanto mais larga, menos sensível a \textit{jitter}.
+    \end{itemize}
+
+    \vspace{0.2cm}
+    \item \textbf{Espessura das trilhas} → quantidade de ISI e ruído.
+    \begin{itemize}
+      \item Trilhas finas = pouco ISI; trilhas grossas = ISI severa.
+    \end{itemize}
+
+    \vspace{0.2cm}
+    \item \textbf{Cruzamentos} (\textit{zero crossings}) → variações de temporização (\textit{jitter}).
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Parâmetros do Diagrama de Olho}
+  \begin{center}
+    \begin{tikzpicture}[scale=1.0]
+      % "Eye" shape
+      \draw[thick, UNB_BLUE] (0,0) .. controls (1.5,1.2) and (3.5,1.2) .. (5,0);
+      \draw[thick, UNB_BLUE] (0,0) .. controls (1.5,-1.2) and (3.5,-1.2) .. (5,0);
+      \draw[thick, UNB_BLUE!50] (0,0) .. controls (1.5,0.6) and (3.5,0.6) .. (5,0);
+      \draw[thick, UNB_BLUE!50] (0,0) .. controls (1.5,-0.6) and (3.5,-0.6) .. (5,0);
+
+      % Vertical opening
+      \draw[<->, thick, RED] (2.5, -0.85) -- (2.5, 0.85);
+      \node[right, RED, font=\footnotesize\bfseries] at (2.6, 0) {Abertura vertical};
+
+      % Horizontal opening
+      \draw[<->, thick, UNB_GREEN] (0.8, 0) -- (4.2, 0);
+      \node[above, UNB_GREEN, font=\footnotesize\bfseries] at (2.5, 0.05) {Abertura horizontal};
+
+      % Optimal sampling
+      \draw[dashed, thick, UNB_GOLD] (2.5, -1.5) -- (2.5, 1.5);
+      \node[above, UNB_GOLD, font=\footnotesize\bfseries] at (2.5, 1.5) {Instante ótimo};
+
+      % Labels
+      \node[below, font=\footnotesize] at (0, -1.4) {$0$};
+      \node[below, font=\footnotesize] at (2.5, -1.4) {$T$};
+      \node[below, font=\footnotesize] at (5, -1.4) {$2T$};
+
+      % ISI annotation
+      \draw[<->, thick, PURPLE] (5.3, -1.2) -- (5.3, -0.6);
+      \node[right, PURPLE, font=\footnotesize\bfseries] at (5.4, -0.9) {ISI};
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.2cm}
+  {\footnotesize
+    A abertura vertical indica a \textbf{margem de ruído};
+    a horizontal, a \textbf{margem de temporização}.
+    O instante ótimo de amostragem é no centro do olho.}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Exemplos Práticos}
+% ------------------------------------------------------------------
+
+\begin{frame}{Diagrama de Olho: Canal e Efeito do Roll-off}
+  \begin{columns}[T]
+    \column{0.49\textwidth}
+    \textbf{Canal limpo vs.\ ruidoso}
+    \begin{center}
+      \includegraphics[width=\textwidth]{figures/cap6/eye_diagram_clean}
+    \end{center}
+    {\scriptsize
+      (a) Olho bem aberto — margem confortável.
+      (b) Com ruído, o olho ``fecha''.}
+
+    \column{0.49\textwidth}
+    \textbf{Efeito do roll-off $\alpha$}
+    \begin{center}
+      \includegraphics[width=\textwidth]{figures/cap6/eye_diagram_rolloff}
+    \end{center}
+    {\scriptsize
+      $\alpha = 0$: olho estreito (sensível a jitter).
+      $\alpha = 1$: olho mais largo e robusto.}
+  \end{columns}
+\end{frame}

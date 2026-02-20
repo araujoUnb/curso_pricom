@@ -7,6 +7,13 @@
 \subsection{Quantizador Uniforme}
 % ------------------------------------------------------------------
 
+\begin{frame}{Onde Estamos na Cadeia?}
+  \drawpipeline{quant}
+  \vspace{0.1cm}
+  {\small Nesta seção: \textbf{Quantizador} — o sinal já está discreto no
+  tempo; agora discretizamos a amplitude e analisamos o ruído introduzido.}
+\end{frame}
+
 \begin{frame}{Por Que Quantizar?}
   Após a amostragem, temos $g[n] = g(nT_s)$:
   discreto no tempo, mas com \textbf{amplitude ainda contínua}.
@@ -70,7 +77,7 @@
 
 \begin{frame}{Característica do Quantizador}
   \begin{center}
-    \includegraphics[width=0.96\textwidth]{figures/cap7/quantization_illustration}
+    \includegraphics[width=0.82\textwidth]{figures/cap7/quantization_illustration}
   \end{center}
   {\footnotesize
     \textit{(a)} Função entrada-saída (escada). O passo $\Delta$ é
@@ -340,7 +347,7 @@
 
 \begin{frame}{SQNR vs.\ Número de Bits — Confirmação Numérica}
   \begin{center}
-    \includegraphics[width=0.93\textwidth]{figures/cap7/sqnr_vs_bits}
+    \includegraphics[width=0.80\textwidth]{figures/cap7/sqnr_vs_bits}
   \end{center}
   \vspace{-0.2cm}
   {\footnotesize
@@ -353,7 +360,7 @@
 
 \begin{frame}{Efeito da Resolução na Qualidade do Sinal}
   \begin{center}
-    \includegraphics[width=0.98\textwidth]{figures/cap7/quantization_resolution}
+    \includegraphics[width=0.84\textwidth]{figures/cap7/quantization_resolution}
   \end{center}
   \vspace{-0.15cm}
   {\footnotesize

@@ -1,0 +1,227 @@
+% ============================================
+% SEÇÃO 6.3: FORMATAÇÃO DE PULSO E ISI
+% Critério de Nyquist, pulso cosseno levantado.
+% ============================================
+
+% ------------------------------------------------------------------
+\subsection{Interferência Intersimbólica (ISI)}
+% ------------------------------------------------------------------
+
+\begin{frame}{Onde Estamos na Cadeia?}
+  \drawpipeline{pulseshaper}
+  \vspace{0.1cm}
+  {\small Nesta seção: \textbf{Formatador de Pulso} — a escolha do pulso
+  $p(t)$ determina a banda ocupada e a sensibilidade à ISI.
+  O critério de Nyquist e o cosseno levantado são as ferramentas centrais.}
+\end{frame}
+
+\begin{frame}{O Problema da ISI}
+  Considere o sinal transmitido:
+  \[
+    s(t) = \sum_{k} a_k\, p(t - kT)
+  \]
+
+  No receptor, amostramos $r(t)$ nos instantes $t = nT$:
+  \[
+    r(nT) = \underbrace{a_n\, p(0)}_{\text{símbolo desejado}}
+    + \underbrace{\sum_{k \neq n} a_k\, p(nT - kT)}_{\text{ISI}}
+    + n(nT)
+  \]
+
+  \vspace{0.3cm}
+  Se $p(t)$ for ``largo demais'', as \alert{caudas} de pulsos vizinhos
+  contaminam o instante de amostragem → \textbf{Interferência Intersimbólica (ISI)}.
+
+  \vspace{0.3cm}
+  \textit{A ISI é tão prejudicial quanto o ruído — e pode ser eliminada
+  com a escolha adequada de $p(t)$.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Visualização da ISI}
+  \begin{center}
+    \includegraphics[width=0.78\textwidth]{figures/cap6/pulse_shaping_isi}
+  \end{center}
+  \vspace{-0.2cm}
+  {\footnotesize
+    (a) Pulsos sinc ideais têm zeros em $t = nT$ ($n \neq 0$) → sem ISI.
+    (b) Pulsos mais ``gordos'' geram sobreposição → ISI nos instantes de decisão.}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Critério de Nyquist para Zero ISI}
+% ------------------------------------------------------------------
+
+\begin{frame}{Condição para ISI Nula}
+  Para eliminar a ISI, precisamos que $p(t)$ satisfaça:
+  \[
+    p(nT) = \begin{cases} 1, & n = 0 \\ 0, & n \neq 0 \end{cases}
+  \]
+
+  \vspace{0.2cm}
+  Isso equivale, no domínio da frequência, ao \alert{Critério de Nyquist}:
+  \[
+    \sum_{k=-\infty}^{\infty} P\!\left(f - \frac{k}{T}\right) = T
+    \quad \forall\, f
+  \]
+
+  \vspace{0.3cm}
+  \textit{Interpretação:} quando ``dobramos'' (somamos réplicas de) $P(f)$
+  com espaçamento $1/T$, o resultado deve ser \textbf{constante}.
+
+  \vspace{0.2cm}
+  O pulso mais simples que satisfaz isso é o $\sinc$:
+  \[
+    p(t) = \sinc\!\left(\frac{t}{T}\right) \quad \Longleftrightarrow \quad
+    P(f) = T\,\rect(fT)
+  \]
+  Banda mínima: $W = \dfrac{1}{2T}$ (filtro retangular ideal).
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Problema do Pulso Sinc Puro}
+  O pulso $\sinc(t/T)$ é \textbf{matematicamente perfeito}, mas na prática:
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item \textbf{Decaimento lento} — caudas decaem como $1/t$ apenas.
+    \item Pequeno \alert{erro de temporização} $\epsilon$ causa ISI severa
+          (a série $\sum 1/n$ diverge!).
+    \item \textbf{Não é realizável} — resposta ao impulso infinita e não causal.
+  \end{itemize}
+
+  \vspace{0.4cm}
+  \textit{Solução prática:} usar um pulso com \textbf{banda extra}
+  (roll-off) que ainda satisfaz o critério de Nyquist, mas cujas
+  caudas decaem mais rápido → \alert{Cosseno Levantado}.
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Pulso Cosseno Levantado}
+% ------------------------------------------------------------------
+
+\begin{frame}{Definição — Domínio da Frequência}
+  O espectro do \alert{cosseno levantado} com fator de
+  \textit{roll-off} $\alpha \in [0, 1]$:
+  \[
+    P(f) = \begin{cases}
+      T, & |f| \le \dfrac{1-\alpha}{2T} \\[8pt]
+      \dfrac{T}{2}\left[1 + \cos\!\left(
+        \dfrac{\pi T}{\alpha}\left(|f| - \dfrac{1-\alpha}{2T}\right)
+      \right)\right], & \dfrac{1-\alpha}{2T} < |f| \le \dfrac{1+\alpha}{2T} \\[8pt]
+      0, & |f| > \dfrac{1+\alpha}{2T}
+    \end{cases}
+  \]
+
+  \vspace{0.2cm}
+  A \textbf{largura de banda} ocupada é:
+  \[
+    W = \frac{1+\alpha}{2T}
+  \]
+
+  \vspace{0.1cm}
+  {\footnotesize
+  $\alpha = 0$: banda mínima ($W = 1/2T$), mas caudas lentas (sinc puro). \\
+  $\alpha = 1$: dobro da banda ($W = 1/T$), mas caudas decaem como $1/t^3$ — muito mais robusto.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Definição — Domínio do Tempo}
+  No tempo, o pulso cosseno levantado é:
+  \[
+    p(t) = \sinc\!\left(\frac{t}{T}\right) \cdot
+    \frac{\cos\!\left(\dfrac{\pi \alpha\, t}{T}\right)}
+    {1 - \left(\dfrac{2\alpha\, t}{T}\right)^{\!2}}
+  \]
+
+  \vspace{0.3cm}
+  \textbf{Observação importante:}
+  \begin{itemize}
+    \item O fator $\sinc(t/T)$ garante zeros em $t = nT$ → critério de Nyquist.
+    \item O fator cosseno/denominador acelera o decaimento das caudas.
+    \item Para $\alpha > 0$, as caudas decaem como $\sim 1/|t|^3$.
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \textit{Quanto maior $\alpha$, mais robusto ao erro de temporização,
+  porém maior a banda ocupada.}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Visualização}
+% ------------------------------------------------------------------
+
+\begin{frame}{Cosseno Levantado: Tempo e Frequência}
+  \begin{columns}[T]
+    \column{0.49\textwidth}
+    \textbf{Domínio do tempo}
+    \begin{center}
+      \includegraphics[width=\textwidth]{figures/cap6/raised_cosine_time}
+    \end{center}
+    {\scriptsize
+      Todos os pulsos passam por zero em $t = nT$.
+      Com $\alpha = 1$, as caudas decaem como $1/|t|^3$.}
+
+    \column{0.49\textwidth}
+    \textbf{Domínio da frequência}
+    \begin{center}
+      \includegraphics[width=\textwidth]{figures/cap6/raised_cosine_freq}
+    \end{center}
+    {\scriptsize
+      $\alpha = 0$: filtro retangular (banda mínima $1/2T$).
+      $\alpha = 1$: transição suave, banda dobrada $1/T$.}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Comparação: Retangular vs.\ Sinc vs.\ Cosseno Levantado}
+  \begin{center}
+    \includegraphics[width=0.88\textwidth]{figures/cap6/pulse_shaping_comparison}
+  \end{center}
+  \vspace{-0.2cm}
+  {\footnotesize
+    O sinal total resulta da soma de pulsos deslocados. Em (a), as
+    descontinuidades causam banda infinita. Em (b) e (c), a suavização
+    limita o espectro, mas apenas (b) e (c) eliminam ISI nos instantes $nT$.}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Eficiência Espectral}
+% ------------------------------------------------------------------
+
+\begin{frame}{Relação Banda--Taxa}
+  Com pulso cosseno levantado de roll-off $\alpha$, a banda necessária é:
+  \[
+    W = \frac{1 + \alpha}{2T} = \frac{(1+\alpha)\, R_s}{2}
+  \]
+
+  \vspace{0.2cm}
+  A \textbf{eficiência espectral} (para sistema binário) é:
+  \[
+    \eta = \frac{R_b}{W} = \frac{2}{1 + \alpha} \quad
+    \text{[bits/s/Hz]}
+  \]
+
+  \vspace{0.3cm}
+  \begin{center}
+  \renewcommand{\arraystretch}{1.2}
+  \footnotesize
+  \begin{tabular}{c c c}
+    \hline
+    $\alpha$ & Banda $W$ & Eficiência $\eta$ \\
+    \hline
+    0    & $R_b/2$  & 2 bits/s/Hz \\
+    0.5  & $0{,}75\, R_b$ & 1{,}33 bits/s/Hz \\
+    1.0  & $R_b$    & 1 bit/s/Hz \\
+    \hline
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.2cm}
+  \textit{Na prática, $\alpha$ entre 0,2 e 0,5 oferece bom
+  compromisso entre banda e robustez.}
+\end{frame}
