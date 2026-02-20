@@ -1,0 +1,94 @@
+% ============================================
+% SEÇÃO 6.1: SISTEMAS DE COMUNICAÇÃO DIGITAL
+% Visão geral do sistema em banda base.
+% ============================================
+
+% ------------------------------------------------------------------
+\subsection{Visão Geral}
+% ------------------------------------------------------------------
+
+\begin{frame}{Onde Estamos na Cadeia?}
+  \drawpipeline{linecoder,pulseshaper,channel,detector}
+  \vspace{0.1cm}
+  {\small Neste capítulo: os bits produzidos pelo PCM precisam ser
+  transmitidos pelo canal. Estudamos como mapear bits em formas de onda,
+  controlar a banda ocupada e tomar decisões no receptor.}
+\end{frame}
+
+\begin{frame}{O que é Transmissão Digital em Banda Base?}
+  Na \alert{transmissão em banda base}, o sinal digital é enviado
+  \textbf{diretamente} pelo canal, sem modulação por portadora.
+
+  \vspace{0.4cm}
+  \textbf{Exemplos práticos:}
+  \begin{itemize}
+    \item Comunicação interna em computadores (barramentos)
+    \item Ethernet cabeada (10BASE-T, 100BASE-TX)
+    \item Linha telefônica digital (DSL — trecho local)
+    \item USB, HDMI, PCIe
+  \end{itemize}
+
+  \vspace{0.4cm}
+  \textit{A ideia central: representar bits como formas de onda
+  elétrica e transmiti-los por um canal com ruído e limitação de banda.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Cadeia de Transmissão Digital}
+  \begin{center}
+    \includegraphics[width=0.82\textwidth]{figures/cap6/digital_comm_system}
+  \end{center}
+  \vspace{-0.2cm}
+  {\footnotesize
+    A fonte gera símbolos $\{a_k\}$; o codificador de linha mapeia em
+    níveis elétricos; o formatador de pulso gera $s(t)$; o canal adiciona
+    ruído $n(t)$; o receptor filtra e decide $\hat{a}_k$.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Elementos do Sistema}
+  \textbf{1. Fonte digital} — gera uma sequência de símbolos $\{a_k\}$,
+  onde cada $a_k$ pertence a um alfabeto de $M$ níveis.
+
+  \vspace{0.3cm}
+  \textbf{2. Formatação de pulso} — o sinal transmitido é:
+  \[
+    s(t) = \sum_{k=-\infty}^{\infty} a_k\, p(t - kT)
+  \]
+  onde $p(t)$ é o \alert{pulso básico} e $T$ é o \alert{intervalo de sinalização}.
+
+  \vspace{0.3cm}
+  \textbf{3. Canal} — introduz atenuação, distorção e ruído aditivo $n(t)$:
+  \[
+    r(t) = s(t) * h_c(t) + n(t)
+  \]
+
+  \vspace{0.3cm}
+  \textbf{4. Receptor} — filtra $r(t)$, amostra em $t = kT$ e decide
+  qual símbolo $\hat{a}_k$ foi enviado.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Taxas Fundamentais}
+  Para um sistema $M$-ário com intervalo de símbolo $T$:
+
+  \vspace{0.3cm}
+  \textbf{Taxa de sinalização} (taxa de símbolos):
+  \[
+    R_s = \frac{1}{T} \quad \text{[símbolos/s ou \textit{baud}]}
+  \]
+
+  \vspace{0.3cm}
+  \textbf{Taxa de bits:}
+  \[
+    R_b = R_s \cdot \log_2 M = \frac{\log_2 M}{T} \quad \text{[bits/s]}
+  \]
+
+  \vspace{0.3cm}
+  \textit{Exemplo:} Um sistema 4-PAM ($M=4$) com $R_s = 1000$ baud
+  transmite $R_b = 1000 \times 2 = 2000$ bits/s — o \alert{dobro}
+  da taxa de um sistema binário na mesma banda.
+\end{frame}

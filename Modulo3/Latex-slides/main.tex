@@ -14,6 +14,7 @@
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{ifthen}
+\usepackage{xstring}
 \usepackage{bm}
 \usepackage{array}
 \usepackage{cancel}
@@ -48,8 +49,8 @@
 \newcommand{\autorEmail}{daniel.araujo@unb.br}
 
 % --- Título e Subtítulo ---
-\newcommand{\tituloApresentacao}{Conversão Analógico-Digital}
-\newcommand{\subtituloApresentacao}{Capítulo 7 (Proakis) e Capítulo 5 (Lathi)}
+\newcommand{\tituloApresentacao}{Conversão A/D e Transmissão Digital}
+\newcommand{\subtituloApresentacao}{Capítulos 6--7 (Proakis) e Capítulo 5 (Lathi)}
 
 % --- Idioma ---
 \newcommand{\idioma}{pt}
@@ -112,6 +113,80 @@
 \DeclareMathOperator{\Imag}{Im}
 
 % ============================================
+% MACRO: DIAGRAMA DE BLOCO DA CADEIA COMPLETA
+% Uso: \drawpipeline{lista,de,blocos,destacados}
+% Blocos disponíveis: aa, sampler, quant, encoder,
+%                     linecoder, pulseshaper, channel, detector
+% ============================================
+\newcommand{\drawpipeline}[1]{%
+  % --- Pré-computar estilos ANTES de entrar no tikzpicture ---
+  % (evita conflito entre xstring e pgfkeys)
+  \IfSubStr{#1}{aa}{\def\blkAA{hblk}}{\def\blkAA{blk}}%
+  \IfSubStr{#1}{sampler}{\def\blkSAMP{hblk}}{\def\blkSAMP{blk}}%
+  \IfSubStr{#1}{quant}{\def\blkQ{hblk}}{\def\blkQ{blk}}%
+  \IfSubStr{#1}{encoder}{\def\blkENC{hblk}}{\def\blkENC{blk}}%
+  \IfSubStr{#1}{linecoder}{\def\blkLC{hblk}}{\def\blkLC{blk}}%
+  \IfSubStr{#1}{pulseshaper}{\def\blkPS{hblk}}{\def\blkPS{blk}}%
+  \IfSubStr{#1}{channel}{\def\blkCH{hblk}}{\def\blkCH{blk}}%
+  \IfSubStr{#1}{detector}{\def\blkDET{hblk}}{\def\blkDET{blk}}%
+  \begin{center}
+  \begin{tikzpicture}[
+    blk/.style={draw, fill=gray!10, rectangle, rounded corners=3pt,
+                minimum width=1.80cm, minimum height=0.68cm,
+                text centered, font=\scriptsize, draw=gray!50, inner sep=3pt},
+    hblk/.style={draw, fill=unbprimary!80, rectangle, rounded corners=3pt,
+                 minimum width=1.80cm, minimum height=0.68cm,
+                 text centered, font=\scriptsize\bfseries,
+                 text=white, draw=unbprimary, inner sep=3pt},
+    arw/.style={->, >=stealth, semithick, color=gray!60},
+    grplbl/.style={font=\tiny\itshape, color=unbprimary!70}
+  ]
+    % ---------- ROW 1: ADC (y=0) ----------
+    \node[\blkAA]   (aa)   at (0,   0)   {\strut Filt.~AA};
+    \node[\blkSAMP] (samp) at (2.2, 0)   {\strut Amostrador};
+    \node[\blkQ]    (q)    at (4.4, 0)   {\strut Quantizador};
+    \node[\blkENC]  (enc)  at (6.6, 0)   {\strut Cod.~PCM};
+
+    % ---------- ROW 2: Digital TX (y=-1.4) ----------
+    \node[\blkLC]  (lc)  at (0,   -1.4) {\strut Cod.~Linha};
+    \node[\blkPS]  (ps)  at (2.2, -1.4) {\strut F.~Pulso};
+    \node[\blkCH]  (ch)  at (4.4, -1.4) {\strut Canal};
+    \node[\blkDET] (det) at (6.6, -1.4) {\strut Detector};
+
+    % ---------- SETAS ROW 1 ----------
+    \draw[arw] (-1.1, 0) node[left, font=\scriptsize]{$g(t)$} -- (aa);
+    \draw[arw] (aa)   -- (samp);
+    \draw[arw] (samp) -- (q);
+    \draw[arw] (q)    -- (enc);
+
+    % ---------- CONECTOR SNAKE (enc → lc) ----------
+    % Desce de enc, vai para a esquerda, sobe para lc
+    \draw[arw, rounded corners=4pt]
+      (enc.south) -- ++(0,-0.38) -| (lc.north);
+
+    % ---------- SETAS ROW 2 ----------
+    \draw[arw] (lc)  -- (ps);
+    \draw[arw] (ps)  -- (ch);
+    \draw[arw] (ch)  -- (det);
+    \draw[arw] (det.east) -- ++(0.7,0)
+               node[right, font=\scriptsize]{$\hat{a}_k$};
+
+    % ---------- RÓTULOS DE CAPÍTULO ----------
+    \node[grplbl, above=3pt] at (3.3, 0.34)  {Cap.~7: Conversão A/D};
+    \node[grplbl, below=3pt] at (3.3, -1.74) {Cap.~6: Transmissão Digital};
+  \end{tikzpicture}
+  \end{center}%
+}
+
+% --- Cores adicionais para TikZ (cap6) ---
+\definecolor{UNB_BLUE}{HTML}{003B5C}
+\definecolor{UNB_GREEN}{HTML}{006633}
+\definecolor{UNB_GOLD}{HTML}{F2A900}
+\definecolor{RED}{HTML}{C0392B}
+\definecolor{PURPLE}{HTML}{8E44AD}
+\definecolor{TEAL}{HTML}{16A085}
+
+% ============================================
 % TAMANHOS PADRONIZADOS DE FIGURAS
 % ============================================
 \newcommand{\figFull}{0.85\textwidth}
@@ -134,8 +209,30 @@
 % ============================================
 % SUMÁRIO
 % ============================================
-\begin{frame}{Sumário}
-\tableofcontents[hideallsubsections]
+\begin{frame}{Sumário — Capítulo 7: Conversão A/D}
+  \tableofcontents[sections={<1-3>},hideallsubsections]
+\end{frame}
+
+\begin{frame}{Sumário — Capítulo 6: Transmissão Digital}
+  \tableofcontents[sections={<4-8>},hideallsubsections]
+\end{frame}
+
+% ============================================
+% VISÃO GERAL: CADEIA COMPLETA
+% ============================================
+\begin{frame}{Visão Geral: Da Amostragem à Modulação}
+  \begin{block}{Cadeia completa de processamento digital}
+    \vspace{0.1cm}
+    \drawpipeline{}
+    \vspace{-0.1cm}
+  \end{block}
+  \vspace{0.15cm}
+  {\footnotesize
+  Estudaremos cada etapa desta cadeia:
+  o \textbf{Cap.~7} cobre a conversão A/D (filtro anti-aliasing,
+  amostragem, quantização e PCM);
+  o \textbf{Cap.~6} cobre a transmissão digital em banda base
+  (codificação de linha, formatação de pulso, diagrama de olho e PAM).}
 \end{frame}
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -158,6 +255,28 @@
 % CAPÍTULO 7: CONVERSÃO ANALÓGICO-DIGITAL
 % ============================================
 \input{cap7_analog_to_digital_conversion}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SLIDE DE TRANSIÇÃO: CAPÍTULO 6
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{
+\setbeamercolor{background canvas}{bg=structure.fg}
+\setbeamercolor{normal text}{fg=white}
+\usebeamercolor[fg]{normal text}
+\begin{frame}[plain,c]
+\begin{center}
+{\Huge\textbf{Capítulo 6}}\\[0.8cm]
+{\LARGE Princípios de Transmissão Digital}\\[0.5cm]
+{\large Codificação de Linha, Formatação de Pulso,\\
+Diagrama de Olho e PAM M-ário}
+\end{center}
+\end{frame}
+}
+
+% ============================================
+% CAPÍTULO 6: TRANSMISSÃO DIGITAL DE DADOS
+% ============================================
+\input{cap6_digital_data_transmission}
 
 % ============================================
 % AGRADECIMENTOS

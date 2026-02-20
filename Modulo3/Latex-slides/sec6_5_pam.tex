@@ -1,0 +1,188 @@
+% ============================================
+% SEÇÃO 6.5: PAM — SINALIZAÇÃO M-ÁRIA
+% Extensão para múltiplos níveis.
+% ============================================
+
+% ------------------------------------------------------------------
+\subsection{Motivação para M-PAM}
+% ------------------------------------------------------------------
+
+\begin{frame}{Onde Estamos na Cadeia?}
+  \drawpipeline{pulseshaper,detector}
+  \vspace{0.1cm}
+  {\small Nesta seção: \textbf{$M$-PAM} — ampliamos o alfabeto de
+  símbolos para $M$ níveis, aumentando a eficiência espectral ao
+  custo de maior sensibilidade ao ruído.}
+\end{frame}
+
+\begin{frame}{Por que Usar Mais de 2 Níveis?}
+  No sistema binário (2-PAM), cada símbolo carrega \textbf{1 bit}.
+
+  \vspace{0.3cm}
+  Se usarmos $M$ níveis de amplitude (\alert{$M$-PAM}), cada símbolo
+  carrega $\log_2 M$ bits:
+  \[
+    R_b = R_s \cdot \log_2 M
+  \]
+
+  \vspace{0.2cm}
+  Para uma mesma banda $W$, podemos \textbf{aumentar a taxa de bits}
+  sem aumentar a taxa de símbolos $R_s$ — ou, equivalentemente,
+  manter $R_b$ e \alert{reduzir pela metade} a banda a cada
+  duplicação de $M$.
+
+  \vspace{0.3cm}
+  \textit{Exemplo prático:} Ethernet 2.5GBASE-T e 5GBASE-T usam
+  \textbf{PAM-4} e \textbf{PAM-16} para atingir altas taxas em
+  cabos de par trançado.
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Definição do Sinal M-PAM}
+% ------------------------------------------------------------------
+
+\begin{frame}{Sinal $M$-PAM}
+  O sinal transmitido é:
+  \[
+    s(t) = \sum_{k} a_k\, p(t - kT)
+  \]
+  onde agora $a_k \in \{-(M-1),\; -(M-3),\; \ldots,\; +(M-3),\; +(M-1)\}$.
+
+  \vspace{0.3cm}
+  Os $M$ níveis são \textbf{igualmente espaçados} com distância $2d$:
+  \[
+    a_k \in \{(2m - 1 - M)\, d \;:\; m = 1, 2, \ldots, M\}
+  \]
+
+  \vspace{0.3cm}
+  \textit{Exemplo para 4-PAM} ($M = 4$, $d = 1$):
+  \[
+    a_k \in \{-3,\; -1,\; +1,\; +3\}
+  \]
+  Cada símbolo representa $\log_2 4 = 2$ bits:
+  $00 \to -3$, $01 \to -1$, $10 \to +1$, $11 \to +3$.
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Constelação e Formas de Onda}
+% ------------------------------------------------------------------
+
+\begin{frame}{Constelações PAM}
+  \begin{center}
+    \includegraphics[width=0.78\textwidth]{figures/cap6/pam_constellation}
+  \end{center}
+  \vspace{-0.2cm}
+  {\footnotesize
+    A ``constelação'' de um sinal $M$-PAM é um conjunto de pontos
+    sobre uma linha real. As linhas tracejadas indicam os limiares de
+    decisão. Com mais níveis, a distância entre vizinhos diminui.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Comparação de Formas de Onda: 2-PAM vs.\ 4-PAM}
+  \begin{center}
+    \includegraphics[width=0.78\textwidth]{figures/cap6/pam_waveforms}
+  \end{center}
+  \vspace{-0.2cm}
+  {\footnotesize
+    Em (a), cada bit gera um símbolo — taxa de símbolo igual à de bits.
+    Em (b), dois bits são agrupados em um símbolo 4-PAM — a taxa de
+    símbolo cai pela metade, economizando banda.}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Probabilidade de Erro}
+% ------------------------------------------------------------------
+
+\begin{frame}{Decisão e Probabilidade de Erro}
+  No receptor, o sinal amostrado é comparado com \textbf{limiares}:
+  \[
+    \hat{a}_k = \arg\min_{a_m} |r(kT) - a_m|
+  \]
+
+  \vspace{0.3cm}
+  Para $M$-PAM com ruído gaussiano $\sigma^2$ e distância $2d$:
+
+  \vspace{0.2cm}
+  A probabilidade de erro de \textbf{símbolo} é:
+  \[
+    P_s = 2\left(1 - \frac{1}{M}\right) Q\!\left(\frac{d}{\sigma}\right)
+  \]
+
+  \vspace{0.2cm}
+  onde $Q(x) = \frac{1}{\sqrt{2\pi}} \int_x^{\infty} e^{-u^2/2}\, du$.
+
+  \vspace{0.3cm}
+  \textit{Observação:} quanto maior $M$, menor a distância $d$
+  (para mesma potência média), e portanto \alert{maior a taxa de erro}.
+  Há um compromisso entre eficiência espectral e desempenho.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Energia Média e SNR}
+  A \textbf{energia média por símbolo} do $M$-PAM é:
+  \[
+    E_s = \frac{(M^2 - 1)\, d^2}{3}
+  \]
+
+  Substituindo $d = \sqrt{3 E_s / (M^2 - 1)}$ na expressão de $P_s$:
+  \[
+    P_s = 2\left(1 - \frac{1}{M}\right)
+    Q\!\left(\sqrt{\frac{3\, E_s}{(M^2 - 1)\,\sigma^2}}\right)
+  \]
+
+  \vspace{0.3cm}
+  Em termos da \textbf{energia por bit} $E_b = E_s / \log_2 M$:
+  \[
+    P_s = 2\left(1 - \frac{1}{M}\right)
+    Q\!\left(\sqrt{\frac{3\, \log_2 M}{M^2 - 1} \cdot
+    \frac{2 E_b}{N_0}}\right)
+  \]
+
+  \vspace{0.2cm}
+  \textit{Aumentar $M$ exige maior $E_b/N_0$ para manter a mesma
+  $P_s$ — é o ``custo'' da eficiência espectral.}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Diagrama de Olho M-PAM}
+% ------------------------------------------------------------------
+
+\begin{frame}{Diagrama de Olho para 4-PAM}
+  \begin{center}
+    \includegraphics[width=0.78\textwidth]{figures/cap6/eye_diagram_4pam}
+  \end{center}
+  \vspace{-0.2cm}
+  {\footnotesize
+    Com 4 níveis, aparecem 3 ``olhos'' empilhados. As linhas tracejadas
+    amarelas indicam os limiares de decisão. O olho central é menor que
+    no caso binário — \alert{maior sensibilidade ao ruído}.}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Resumo do Capítulo}
+% ------------------------------------------------------------------
+
+\begin{frame}{Resumo — Transmissão Digital em Banda Base}
+  \textbf{Codificação de Linha:} define como bits viram formas de onda.
+  Códigos como Polar NRZ, Manchester e AMI têm diferentes compromissos
+  em banda, DC e sincronismo.
+
+  \vspace{0.3cm}
+  \textbf{Formatação de Pulso:} o pulso $p(t)$ deve satisfazer o
+  critério de Nyquist para eliminar ISI. O cosseno levantado com
+  roll-off $\alpha$ é a escolha padrão:
+  \[
+    W = \frac{(1+\alpha)\, R_s}{2}
+  \]
+
+  \vspace{0.3cm}
+  \textbf{Diagrama de Olho:} ferramenta visual que revela margem de
+  ruído, margem de temporização e quantidade de ISI.
+
+  \vspace{0.3cm}
+  \textbf{$M$-PAM:} usando $M$ níveis, a eficiência espectral aumenta
+  ($\log_2 M$ bits/símbolo), mas a sensibilidade ao ruído cresce.
+\end{frame}
