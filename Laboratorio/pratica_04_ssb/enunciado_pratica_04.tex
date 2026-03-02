@@ -1,0 +1,287 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Enunciado -- Prática 04}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Prática 04}}\\[0.15cm]
+  {\Large\textbf{Modulação SSB (Banda Lateral Única)}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Duração:} 50 minutos \hfill
+\textbf{Software:} GNU Radio Companion $\geq$ 3.10 \hfill
+\textbf{Semestre:} 2026/1
+
+\bigskip
+
+% ======================================================
+\section{Objetivos}
+
+\begin{itemize}
+  \item Gerar o sinal DSB-SC e identificar as bandas laterais superior
+    (USB) e inferior (LSB) no espectro.
+  \item Eliminar uma banda lateral usando filtro passa-banda, obtendo o
+    sinal SSB.
+  \item Comparar a largura de banda do DSB-SC com a do SSB no espectro.
+  \item Demodular o sinal SSB por detecção coerente e comparar com a mensagem
+    original.
+  \item Discutir vantagens, desvantagens e aplicações do SSB.
+\end{itemize}
+
+% ======================================================
+\section{Fundamentos teóricos (síntese)}
+
+O sinal DSB-SC ocupa largura de banda $B_\text{DSB} = 2 f_m$. O sinal
+\textbf{SSB} elimina uma das bandas laterais, reduzindo a largura de banda
+pela metade:
+\begin{equation}
+  B_\text{SSB} = f_m.
+\end{equation}
+
+O sinal SSB pode ser escrito usando a \textbf{representação de Hilbert}:
+\begin{align}
+  s_\text{USB}(t) &= m(t)\cos(2\pi f_c t) - \hat{m}(t)\sin(2\pi f_c t), \\
+  s_\text{LSB}(t) &= m(t)\cos(2\pi f_c t) + \hat{m}(t)\sin(2\pi f_c t),
+\end{align}
+onde $\hat{m}(t)$ é a \textbf{transformada de Hilbert} de $m(t)$ (defasagem
+de $-90°$ em todas as frequências).
+
+Na abordagem por \textbf{filtragem}, gera-se o DSB-SC e aplica-se um filtro
+passa-banda que seleciona apenas USB ou LSB.
+
+A demodulação é idêntica à do DSB-SC: multiplicar pelo oscilador local +
+filtro passa-baixas.
+
+% ======================================================
+\section{Materiais e blocos GNU Radio}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l l}
+    \toprule
+    \textbf{Bloco GRC} & \textbf{Localização} & \textbf{Função} \\
+    \midrule
+    \texttt{Variable}           & Miscellaneous        & Parâmetros globais \\
+    \texttt{Signal Source} (3×) & Waveform Generators  & Msg, portadora, oscilador local \\
+    \texttt{Multiply}           & Math Operators       & DSB-SC e demodulação \\
+    \texttt{Band Pass Filter}   & Filters              & Selecionar USB ou LSB \\
+    \texttt{Low Pass Filter}    & Filters              & Recuperar mensagem \\
+    \texttt{Hilbert}            & Filters              & Transformada de Hilbert \\
+    \texttt{Throttle}           & Misc Operators       & Controle de CPU \\
+    \texttt{QT GUI Time Sink}   & Instrumentation      & Formas de onda \\
+    \texttt{QT GUI Freq Sink}   & Instrumentation      & Espectros \\
+    \bottomrule
+  \end{tabular}
+  \caption{Blocos utilizados na Prática 04.}
+\end{table}
+
+% ======================================================
+\section{Roteiro de montagem e execução (50 min)}
+
+\subsection*{Parâmetros iniciais}
+
+\begin{center}
+\begin{tabular}{l l}
+  \texttt{samp\_rate} = 48\,000\,Hz & $f_m$ = 2\,000\,Hz \\
+  $f_c$ = 12\,000\,Hz & Amplitudes = 1.0 \\
+\end{tabular}
+\end{center}
+
+\subsection*{Etapa 1 -- Gerar DSB-SC e identificar bandas laterais (0--12 min)}
+
+\begin{instrucao}[Geração e análise do DSB-SC]
+\begin{enumerate}[label=\arabic*.]
+  \item Crie variáveis \texttt{samp\_rate = 48000}, \texttt{fc = 12000},
+    \texttt{fm = 2000}.
+  \item Adicione \textbf{Signal Source 1} (mensagem): Cosine, freq = \texttt{fm}.
+  \item Adicione \textbf{Signal Source 2} (portadora): Cosine, freq = \texttt{fc}.
+  \item Adicione \texttt{Multiply} e conecte as duas fontes.
+  \item Adicione \texttt{Throttle} $\to$ \texttt{QT GUI Freq Sink}.
+  \item Execute. No espectro, localize:
+    \begin{itemize}
+      \item USB: pico em $f_c + f_m = 14\,000$\,Hz.
+      \item LSB: pico em $f_c - f_m = 10\,000$\,Hz.
+      \item Verifique: não há pico em $f_c = 12\,000$\,Hz.
+    \end{itemize}
+  \item Meça a largura de banda do DSB-SC (distância entre os picos).
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 2 -- Filtragem para obter USB (12--22 min)}
+
+\begin{instrucao}[Selecionar banda lateral superior (USB)]
+\begin{enumerate}[label=\arabic*.]
+  \item Adicione um \texttt{Band Pass Filter} após o \texttt{Throttle}:
+    \begin{itemize}
+      \item Decimation = 1
+      \item Low Cutoff Freq = $f_c + f_m/2 = 13\,000$\,Hz
+      \item High Cutoff Freq = $f_c + f_m \times 2 = 16\,000$\,Hz
+      \item Transition Width = 500\,Hz
+      \item Window = Hamming
+    \end{itemize}
+  \item Conecte a saída do BPF a um segundo \texttt{QT GUI Freq Sink}
+    (ou segundo canal do mesmo).
+  \item Execute. \textbf{Observe:}
+    \begin{itemize}
+      \item Apenas o pico em 14\,000\,Hz deve aparecer.
+      \item O pico em 10\,000\,Hz deve ter desaparecido.
+    \end{itemize}
+  \item Anote a largura de banda do SSB-USB e compare com o DSB-SC.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 3 -- Filtragem para obter LSB (22--30 min)}
+
+\begin{instrucao}[Selecionar banda lateral inferior (LSB)]
+\begin{enumerate}[label=\arabic*.]
+  \item Adicione um segundo \texttt{Band Pass Filter} (em paralelo com o
+    caminho USB):
+    \begin{itemize}
+      \item Low Cutoff Freq = $f_c - f_m \times 2 = 8\,000$\,Hz
+      \item High Cutoff Freq = $f_c - f_m/2 = 11\,000$\,Hz
+    \end{itemize}
+  \item Conecte sua saída a um terceiro canal da Freq Sink.
+  \item Execute. Verifique que apenas o pico em 10\,000\,Hz aparece.
+  \item Compare visualmente DSB-SC, USB e LSB no espectro.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 4 -- Demodulação do SSB (30--44 min)}
+
+\begin{instrucao}[Demodulação coerente do SSB-USB]
+\begin{enumerate}[label=\arabic*.]
+  \item Adicione \textbf{Signal Source 3} (oscilador local): Cosine,
+    freq = \texttt{fc}, amplitude = 2.0.
+  \item Adicione \texttt{Multiply} (Multiply2): conecte saída do BPF
+    (USB) e o oscilador local.
+  \item Adicione \texttt{Low Pass Filter}:
+    \begin{itemize}
+      \item Cutoff Freq = \texttt{fm * 1.5}
+      \item Transition Width = 400\,Hz
+    \end{itemize}
+  \item Conecte ao \texttt{QT GUI Time Sink}: canal 1 = mensagem original,
+    canal 2 = sinal demodulado.
+  \item Execute. Compare os dois canais. A mensagem deve ser recuperada com
+    um fator de escala.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 5 -- Método da transformada de Hilbert (44--50 min)}
+
+\begin{instrucao}[Geração SSB via Hilbert (opcional / demonstração)]
+\begin{enumerate}[label=\arabic*.]
+  \item Adicione um bloco \texttt{Hilbert} (Number of Taps = 65) à saída da
+    mensagem.
+  \item Crie dois caminhos paralelos com portadoras:
+    \begin{itemize}
+      \item Caminho I: msg $\times$ cos(2$\pi f_c t$) (portadora em fase)
+      \item Caminho Q: Hilbert(msg) $\times$ sin(2$\pi f_c t$) (portadora em
+        quadratura)
+    \end{itemize}
+  \item Subtração dos caminhos $\to$ USB; soma $\to$ LSB.
+  \item Observe o espectro e compare com o método de filtragem.
+\end{enumerate}
+\end{instrucao}
+
+% ======================================================
+\section{Tabela de registro}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l c c c}
+    \toprule
+    \textbf{Parâmetro} & \textbf{DSB-SC} & \textbf{SSB-USB} & \textbf{SSB-LSB} \\
+    \midrule
+    Largura de banda (Hz)        & & & \\
+    Número de picos espectrais   & & & \\
+    Frequência do(s) pico(s) (Hz) & & & \\
+    Amplitude do pico principal  & & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Comparação entre DSB-SC, SSB-USB e SSB-LSB.}
+\end{table}
+
+% ======================================================
+\section{Perguntas para o relatório}
+
+\begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
+
+  \item Como você identificou a banda lateral superior (USB) e a inferior
+    (LSB) no espectro do DSB-SC? Que característica do espectro permite
+    diferenciá-las?
+
+  \item Qual foi a largura de banda medida do sinal SSB em comparação com
+    o DSB-SC? Confirme a relação $B_\text{SSB} = B_\text{DSB}/2$ com os
+    dados da Tabela~2.
+
+  \item Quais são as vantagens e desvantagens práticas do SSB em relação ao
+    DSB-SC? Cite ao menos duas vantagens e uma desvantagem.
+
+  \item Por que a demodulação do SSB é mais sensível ao erro de fase do
+    oscilador local do que a do DSB-SC? O que acontece no domínio da
+    frequência quando há erro de fase?
+
+  \item Compare o método de geração por \textbf{filtragem} com o método
+    da \textbf{transformada de Hilbert}: qual é mais simples de implementar
+    em hardware? Qual apresentou melhor supressão da banda lateral indesejada
+    neste experimento?
+
+\end{enumerate}
+
+% ======================================================
+\section{Entregáveis}
+
+\begin{itemize}
+  \item Relatório em PDF (\texttt{relatorio\_pratica\_04.tex}).
+  \item Captura do espectro mostrando DSB-SC, USB e LSB (três cenários).
+  \item Captura da comparação temporal: mensagem original vs.\ demodulada.
+  \item Tabela de comparação preenchida.
+  \item Respostas às 5 questões.
+\end{itemize}
+
+\begin{atencao}[Sobre os parâmetros do Band Pass Filter]
+Ajuste as frequências de corte do BPF com cuidado: a banda de transição deve
+ser mais estreita do que a separação entre os picos (aqui $f_m = 2000$\,Hz).
+Se o BPF não atenuar suficientemente a banda indesejada, aumente o número de
+coeficientes do filtro (\textit{Num Taps}) ou use uma janela de Kaiser.
+\end{atencao}
+
+\end{document}

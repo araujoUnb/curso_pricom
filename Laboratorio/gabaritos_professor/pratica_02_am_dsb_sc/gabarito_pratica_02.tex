@@ -1,0 +1,129 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\geometry{margin=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{nota}[1][]{colback=yellow!10,colframe=orange!60!black,fonttitle=\bfseries,title=#1,breakable}
+
+\begin{document}
+\begin{center}
+  \includegraphics[width=0.16\textwidth]{../../../figures_global/unb.png}\\[0.3cm]
+  {\large\textbf{GABARITO DO PROFESSOR -- USO RESTRITO}}\\[0.2cm]
+  {\large FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.2cm]
+  \rule{12cm}{0.8pt}\\[0.2cm]
+  {\Large\textbf{Prática 02: Modulação AM DSB-SC}}\\[0.2cm]
+  \rule{12cm}{0.8pt}
+\end{center}
+
+\section*{Gráfico esperado}
+\begin{center}
+  \includegraphics[width=0.88\textwidth]{grafico_esperado.png}
+\end{center}
+\textit{O gráfico acima foi gerado pelo script \texttt{gerar\_grafico.py} desta pasta.}
+
+\section*{Respostas esperadas}
+
+\begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*, itemsep=1em]
+
+  \item \textbf{Por que o espectro do DSB-SC não apresenta pico na frequência da portadora?}
+
+    \textbf{Resposta esperada:} Para $s(t) = m(t)\cos(2\pi f_c t)$ com
+    $m(t) = A_m\cos(2\pi f_m t)$, o produto resulta em
+    $S(f) = \tfrac{A_m}{2}[\delta(f-(f_c-f_m)) + \delta(f-(f_c+f_m))]$.
+    O coeficiente em $f_c$ é zero porque não há componente constante (DC) em $m(t)$.
+    No espectro do GNU Radio, a ausência do pico em $f_c = 10000$\,Hz confirma que
+    toda a energia está nas bandas laterais.
+
+    \begin{nota}[Erros comuns]
+      Não relacionar a ausência da portadora com a falta de componente DC na mensagem.
+      A explicação matemática usando o produto de cossenos deve ser apresentada.
+    \end{nota}
+
+  \item \textbf{Como a variação de $f_m$ afeta as posições das bandas laterais no espectro?}
+
+    \textbf{Resposta esperada:} As bandas laterais são $f_\text{BL} = f_c \pm f_m$.
+    Para $f_c = 10000$\,Hz: $f_m=500 \to 9500/10500$\,Hz; $f_m=1000 \to 9000/11000$\,Hz;
+    $f_m=2000 \to 8000/12000$\,Hz; $f_m=4000 \to 6000/14000$\,Hz. A simetria em relação
+    a $f_c$ confirma que o DSB-SC transmite informação redundante nas duas bandas
+    laterais.
+
+    \begin{nota}[Erros comuns]
+      Medir incorretamente a posição dos picos por erros de cursor no espectro, ou não
+      identificar a simetria das bandas laterais em torno de $f_c$.
+    \end{nota}
+
+  \item \textbf{O que acontece com o sinal demodulado quando há erro de fase no oscilador local?}
+
+    \textbf{Resposta esperada:} A amplitude demodulada é proporcional a $\cos(\theta)$,
+    onde $\theta$ é o erro de fase. Para $\theta=30°$: $\cos(30°) \approx 0{,}866$
+    (atenuação de $13{,}4\%$); para $60°$: $\cos(60°) = 0{,}5$ (atenuação de $50\%$);
+    para $90°$: $\cos(90°) = 0$ (cancelamento total). Este é o principal problema do
+    DSB-SC: exige oscilador local perfeitamente sincronizado em fase.
+
+    \begin{nota}[Erros comuns]
+      Descrever apenas qualitativamente (``sinal cai'') sem calcular os valores de
+      $\cos\theta$ para os erros de fase específicos indicados no roteiro.
+    \end{nota}
+
+  \item \textbf{Quais são os critérios para escolher a frequência de corte do filtro passa-baixas na demodulação?}
+
+    \textbf{Resposta esperada:} O filtro deve ter frequência de corte entre $f_m$ e
+    $2f_c - f_m$. Um corte muito baixo ($ < f_m$) atenua o próprio sinal mensagem.
+    Um corte muito alto ($ > f_c$) permite que os componentes dobrados em $2f_c$
+    passem e corrompam o sinal. O valor ótimo é $f_\text{cutoff} \approx 1{,}5\,f_m$.
+    A largura de transição também é relevante para a atenuação dos termos em $2f_c$.
+
+    \begin{nota}[Erros comuns]
+      Não perceber que o LPF serve para eliminar os termos em $2f_c$ gerados pelo
+      produto de demodulação, focando apenas na atenuação de ruído fora de banda.
+    \end{nota}
+
+  \item \textbf{Como a mensagem recuperada se compara com a mensagem original em amplitude e forma?}
+
+    \textbf{Resposta esperada:} O sinal recuperado deve ser $\tfrac{A_m}{2}\cos(2\pi f_m t)$,
+    ou seja, metade da amplitude original (fator $0{,}5$ do produto de dois cossenos).
+    Esta atenuação é esperada e pode ser compensada por um amplificador de ganho 2.
+    Se o LPF e o oscilador local estiverem corretamente configurados, não há distorção:
+    apenas a escala difere da mensagem original.
+
+    \begin{nota}[Erros comuns]
+      Confundir o fator de escala esperado ($0{,}5$) com distorção ou erro de
+      implementação do fluxograma.
+    \end{nota}
+
+\end{enumerate}
+
+\section*{Critérios de correção}
+\begin{tabular}{ll}
+  \toprule
+  Critério & Pontuação \\
+  \midrule
+  Q1 -- Ausência de portadora ligada à falta de DC em $m(t)$, com algebra & 1,0 ponto \\
+  Q2 -- Cálculo correto de $f_c \pm f_m$ para cada valor de $f_m$         & 1,0 ponto \\
+  Q3 -- Valores de $\cos\theta$ e impacto na amplitude demodulada          & 1,0 ponto \\
+  Q4 -- Critério de escolha de $f_\text{cutoff}$ com justificativa         & 1,0 ponto \\
+  Q5 -- Fator de escala 0,5 identificado e interpretado corretamente       & 1,0 ponto \\
+  \midrule
+  \textbf{Total} & \textbf{5,0 pontos} \\
+  \bottomrule
+\end{tabular}
+
+\bigskip
+\begin{nota}[Nota de correção geral]
+  Priorizar coerência física e evidência experimental (capturas de tela, tabelas).
+  Respostas sem evidência visual devem ter desconto. Não penalizar pequenos erros
+  de cálculo se o raciocínio físico estiver correto.
+\end{nota}
+
+\end{document}

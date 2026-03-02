@@ -1,0 +1,139 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\geometry{margin=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{nota}[1][]{colback=yellow!10,colframe=orange!60!black,fonttitle=\bfseries,title=#1,breakable}
+
+\begin{document}
+\begin{center}
+  \includegraphics[width=0.16\textwidth]{../../../figures_global/unb.png}\\[0.3cm]
+  {\large\textbf{GABARITO DO PROFESSOR -- USO RESTRITO}}\\[0.2cm]
+  {\large FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.2cm]
+  \rule{12cm}{0.8pt}\\[0.2cm]
+  {\Large\textbf{Prática 08: Amostragem e Aliasing}}\\[0.2cm]
+  \rule{12cm}{0.8pt}
+\end{center}
+
+\section*{Gráfico esperado}
+\begin{center}
+  \includegraphics[width=0.88\textwidth]{grafico_esperado.png}
+\end{center}
+\textit{O gráfico acima foi gerado pelo script \texttt{gerar\_grafico.py} desta pasta.}
+
+\section*{Respostas esperadas}
+
+\begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*, itemsep=1em]
+
+  \item \textbf{Verifique o critério de Nyquist e calcule a frequência de aliasing para os cenários A--F.}
+
+    \textbf{Resposta esperada:}
+    Cenário A ($f_0=1000$, $f_{s,ef}=12000$\,Hz): Nyquist ok ($1000 < 6000$); sem aliasing.
+    Cenário B ($f_0=5000$, $f_{s,ef}=12000$\,Hz): Nyquist ok ($5000 < 6000$); sem aliasing.
+    Cenário C ($f_0=7000$, $f_{s,ef}=12000$\,Hz): violação ($7000 > 6000$);
+    $f_\text{alias} = |7000 - 12000| = 5000$\,Hz.
+    Cenário D ($f_0=1000$, $f_{s,ef}=4800$\,Hz): ok ($1000 < 2400$); sem aliasing.
+    Cenário E ($f_0=2500$, $f_{s,ef}=4800$\,Hz): violação ($2500 > 2400$);
+    $f_\text{alias} = |2500 - 4800| = 2300$\,Hz.
+    Cenário F ($f_0=3500$, $f_{s,ef}=4800$\,Hz): violação;
+    $f_\text{alias} = |3500 - 4800| = 1300$\,Hz.
+
+    \begin{nota}[Erros comuns]
+      Calcular $f_\text{alias}$ como $f_0 - f_s$ em vez de $|f_0 - n f_s|$ para o
+      valor inteiro $n$ que minimiza o resultado, ou usar $f_s$ em vez de $f_s/2$
+      como frequência de Nyquist.
+    \end{nota}
+
+  \item \textbf{Como o aliasing se manifesta no domínio do tempo no Cenário C?}
+
+    \textbf{Resposta esperada:} No Cenário C, o sinal de 7000\,Hz após decimação
+    aparenta ter frequência 5000\,Hz. No tempo, a forma de onda oscila mais lentamente
+    que o sinal original: em vez de 7 ciclos por milissegundo, parece ter 5 ciclos.
+    Isso ocorre porque as amostras capturadas a 12000\,Hz de um sinal de 7000\,Hz
+    correspondem exatamente às amostras que seriam obtidas de um sinal de 5000\,Hz
+    (reflexo em $f_s/2 = 6000$\,Hz).
+
+    \begin{nota}[Erros comuns]
+      Descrever o aliasing apenas no espectro sem relacionar com a manifestação
+      no domínio do tempo: o sinal parece oscilar em frequência diferente da real.
+    \end{nota}
+
+  \item \textbf{Qual é a diferença entre frequência real e frequência aparente após amostragem insuficiente?}
+
+    \textbf{Resposta esperada:} A frequência aparente é a frequência com que as amostras
+    parecem variar; a frequência real é a do sinal analógico original. Sem informação
+    adicional (taxa de amostragem e frequência do sinal fonte), um receptor não pode
+    distinguir 7000\,Hz subamostrado de um sinal real de 5000\,Hz: ambos produzem
+    exatamente as mesmas sequências de amostras. Esta ambiguidade é a essência do aliasing
+    e justifica o filtro anti-aliasing antes da amostragem.
+
+    \begin{nota}[Erros comuns]
+      Dizer que o receptor ``pode calcular'' a frequência real sem informação adicional.
+      A ambiguidade é fundamental e não pode ser resolvida apenas com as amostras.
+    \end{nota}
+
+  \item \textbf{Como o filtro anti-aliasing (LPF) resolve o problema nos Cenários C e E? Há alguma limitação?}
+
+    \textbf{Resposta esperada:} No Cenário C: o LPF com \texttt{cutoff}$=6000$\,Hz atenua
+    o sinal de 7000\,Hz antes da decimação, eliminando o aliasing; o pico em 5000\,Hz
+    desaparece. No Cenário E: o LPF com \texttt{cutoff}$=2400$\,Hz deve atenuar o sinal
+    de 2500\,Hz. Como $f_0=2500 > f_\text{cutoff}=2400$\,Hz, o próprio sinal de interesse
+    é atenuado -- o filtro AA resolve o aliasing mas remove o sinal que está acima de
+    $f_s/2$, incluindo o sinal útil quando ele está muito próximo da frequência de Nyquist.
+
+    \begin{nota}[Erros comuns]
+      Afirmar que o LPF ``preserva o sinal'' no Cenário E sem notar que
+      $2500 > 2400$\,Hz e o sinal de interesse é atenuado pelo próprio filtro AA.
+    \end{nota}
+
+  \item \textbf{Quais são as diferenças entre o bloco \texttt{Keep 1 in N} (simulação) e um ADC real?}
+
+    \textbf{Resposta esperada:} O bloco \texttt{Keep 1 in N} realiza subamostragem ideal:
+    descarta amostras sem ruído de quantização, sem jitter de amostragem, sem distorção de
+    abertura. Um ADC real: (1) tem jitter de relógio que limita o SNR
+    ($\text{SNR}_\text{jitter} = 1/(2\pi f_0 \tau_j)^2$); (2) tem largura de abertura finita;
+    (3) tem ruído de quantização proporcional ao número de bits; (4) tem largura de banda
+    de entrada limitada pelo circuito amostrador. Na simulação, o aliasing é perfeitamente
+    determinístico; no ADC real, não-idealidades adicionam aleatoriedade.
+
+    \begin{nota}[Erros comuns]
+      Descrever apenas o jitter sem mencionar o ruído de quantização ou a largura de
+      banda de entrada, que são também limitações fundamentais do ADC real.
+    \end{nota}
+
+\end{enumerate}
+
+\section*{Critérios de correção}
+\begin{tabular}{ll}
+  \toprule
+  Critério & Pontuação \\
+  \midrule
+  Q1 -- Critério de Nyquist e cálculo de $f_\text{alias}$ para todos os cenários & 1,0 ponto \\
+  Q2 -- Manifestação do aliasing no tempo: oscilação mais lenta, não só espectro  & 1,0 ponto \\
+  Q3 -- Ambiguidade fundamental: amostras idênticas para duas frequências distintas & 1,0 ponto \\
+  Q4 -- Limitação do filtro AA no Cenário E: atenua o próprio sinal de interesse  & 1,0 ponto \\
+  Q5 -- Diferenças entre Keep 1 in N e ADC real: jitter, quantização e banda      & 1,0 ponto \\
+  \midrule
+  \textbf{Total} & \textbf{5,0 pontos} \\
+  \bottomrule
+\end{tabular}
+
+\bigskip
+\begin{nota}[Nota de correção geral]
+  Priorizar coerência física e evidência experimental (capturas de tela, tabelas).
+  Respostas sem evidência visual devem ter desconto. Não penalizar pequenos erros
+  de cálculo se o raciocínio físico estiver correto.
+\end{nota}
+
+\end{document}

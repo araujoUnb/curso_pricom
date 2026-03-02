@@ -1,0 +1,292 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Enunciado -- Prática 02}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Prática 02}}\\[0.15cm]
+  {\Large\textbf{Modulação AM DSB-SC}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Duração:} 50 minutos \hfill
+\textbf{Software:} GNU Radio Companion $\geq$ 3.10 \hfill
+\textbf{Semestre:} 2026/1
+
+\bigskip
+
+% ======================================================
+\section{Objetivos}
+
+\begin{itemize}
+  \item Implementar no GNU Radio a modulação AM DSB-SC (Double Sideband
+    Suppressed Carrier) e verificar a ausência da portadora no espectro.
+  \item Identificar as bandas laterais superior e inferior no espectro do
+    sinal modulado.
+  \item Realizar a demodulação coerente (síncrona) e avaliar o efeito de
+    erros de fase do oscilador local.
+  \item Determinar os parâmetros críticos do filtro passa-baixas para a
+    recuperação fiel do sinal mensagem.
+\end{itemize}
+
+% ======================================================
+\section{Fundamentos teóricos (síntese)}
+
+Na modulação \textbf{AM DSB-SC}, o sinal modulado é:
+\begin{equation}
+  s(t) = m(t)\cos(2\pi f_c t),
+  \label{eq:dsbsc}
+\end{equation}
+onde $m(t)$ é o sinal mensagem e $f_c$ é a frequência da portadora.
+Para uma mensagem senoidal $m(t) = A_m\cos(2\pi f_m t)$, o espectro resulta em:
+\begin{equation}
+  S(f) = \frac{A_m}{2}\bigl[\delta(f - (f_c - f_m)) + \delta(f - (f_c + f_m))\bigr]
+         + \text{réplicas em } -f,
+\end{equation}
+mostrando \textbf{duas bandas laterais} em $f_c \pm f_m$ e
+\textbf{sem componente na portadora} $f_c$.
+
+A demodulação coerente multiplica $s(t)$ por $\cos(2\pi f_c t + \theta)$
+e aplica um filtro passa-baixas (LPF):
+\begin{equation}
+  s(t)\cdot\cos(2\pi f_c t + \theta)
+  = \frac{A_m}{2}\cos(\theta)\cos(2\pi f_m t)
+  + \text{termos em } 2f_c \text{ (removidos pelo LPF)}.
+\end{equation}
+Um erro de fase $\theta \neq 0$ atenua o sinal recuperado pelo fator
+$\cos\theta$; para $\theta = 90°$ o sinal é completamente suprimido.
+
+% ======================================================
+\section{Materiais e blocos GNU Radio}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l l}
+    \toprule
+    \textbf{Bloco GRC} & \textbf{Localização} & \textbf{Função} \\
+    \midrule
+    \texttt{Variable}           & Miscellaneous        & Define \texttt{samp\_rate}, \texttt{fc}, \texttt{fm} \\
+    \texttt{Signal Source} (2×) & Waveform Generators  & Mensagem e portadora \\
+    \texttt{Multiply}           & Math Operators       & Modular: $m(t)\times c(t)$ \\
+    \texttt{Throttle}           & Misc Operators       & Controle de CPU \\
+    \texttt{Low Pass Filter}    & Filters              & LPF na demodulação \\
+    \texttt{QT GUI Time Sink}   & Instrumentation      & Formas de onda \\
+    \texttt{QT GUI Freq Sink}   & Instrumentation      & Espectros \\
+    \texttt{QT GUI Range}       & GUI Widgets          & Controle de fase \\
+    \bottomrule
+  \end{tabular}
+  \caption{Blocos utilizados na Prática 02.}
+\end{table}
+
+% ======================================================
+\section{Roteiro de montagem e execução (50 min)}
+
+\subsection*{Parâmetros iniciais}
+
+\begin{center}
+\begin{tabular}{l l}
+  \texttt{samp\_rate} = 48\,000 & $f_m$ = 1\,000\,Hz \\
+  $f_c$ = 10\,000\,Hz           & Amplitude mensagem = 1.0 \\
+  Amplitude portadora = 1.0     & Tipo do sinal: Float \\
+\end{tabular}
+\end{center}
+
+\subsection*{Etapa 1 -- Modulador DSB-SC (0--12 min)}
+
+\begin{instrucao}[Construção do modulador]
+\begin{enumerate}[label=\arabic*.]
+  \item Crie variáveis \texttt{samp\_rate = 48000}, \texttt{fc = 10000},
+    \texttt{fm = 1000}.
+  \item Adicione \textbf{Signal Source 1} (mensagem):
+    Waveform = Cosine, Frequency = \texttt{fm}, Amplitude = 1.0.
+  \item Adicione \textbf{Signal Source 2} (portadora):
+    Waveform = Cosine, Frequency = \texttt{fc}, Amplitude = 1.0.
+  \item Adicione um bloco \texttt{Multiply} (Float, 2 entradas).
+    Conecte as saídas dos dois \texttt{Signal Source} a ele.
+  \item Adicione \texttt{Throttle} e conecte a saída do \texttt{Multiply}.
+  \item Adicione \texttt{QT GUI Time Sink} e \texttt{QT GUI Freq Sink}
+    à saída do \texttt{Throttle}.
+  \item Execute (\texttt{F6}). \textbf{Verifique:}
+    \begin{itemize}
+      \item No tempo: envoltória variando ao ritmo de $f_m$ (batimento).
+      \item No espectro: dois picos em $f_c - f_m = 9\,000\,\text{Hz}$
+        e $f_c + f_m = 11\,000\,\text{Hz}$; \emph{sem pico em $f_c = 10\,000\,\text{Hz}$}.
+    \end{itemize}
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 2 -- Variação da frequência de mensagem (12--22 min)}
+
+\begin{instrucao}[Observar movimento das bandas laterais]
+\begin{enumerate}[label=\arabic*.]
+  \item Crie variável \texttt{fm} como \texttt{QT GUI Range}
+    (min: 200, max: 6000, passo: 200, padrão: 1000).
+  \item Execute. Deslize \texttt{fm} para 500, 1000, 2000, 4000 e 5000\,Hz.
+  \item \textbf{Registre} a posição das bandas laterais em cada caso.
+    Confirme que estão em $f_c \pm f_m$.
+  \item Observe o limite superior: quando $f_m$ se aproxima de $f_c$,
+    o que acontece com as bandas?
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 3 -- Demodulador coerente (22--38 min)}
+
+\begin{instrucao}[Construção do demodulador]
+\begin{enumerate}[label=\arabic*.]
+  \item Crie uma variável \texttt{phase\_deg} como \texttt{QT GUI Range}
+    (min: 0, max: 90, passo: 5, padrão: 0).
+  \item Converta para radianos: crie uma variável
+    \texttt{phase\_rad = phase\_deg * 3.14159 / 180}.
+  \item Adicione \textbf{Signal Source 3} (oscilador local de demodulação):
+    Frequency = \texttt{fc}, Phase Offset = \texttt{phase\_rad}.
+  \item Adicione um segundo \texttt{Multiply}. Conecte o sinal DSB-SC
+    (saída do Throttle) e o oscilador local.
+  \item Adicione um \texttt{Low Pass Filter}:
+    \begin{itemize}
+      \item Decimation = 1
+      \item Cutoff Freq = \texttt{fm * 1.5} (ex.: 1500\,Hz)
+      \item Transition Width = 300\,Hz
+      \item Window = Hamming
+    \end{itemize}
+  \item Conecte: Multiply2 $\to$ LPF $\to$ QT GUI Time Sink (segundo canal).
+  \item Execute. Compare a mensagem original (Sink canal 1) com a recuperada
+    (Sink canal 2) quando \texttt{phase\_deg = 0}.
+  \item Aumente gradualmente \texttt{phase\_deg} para 30°, 60° e 90°.
+    \textbf{Observe} o que acontece com a amplitude da mensagem recuperada.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 4 -- Ajuste do LPF (38--46 min)}
+
+\begin{instrucao}[Otimizar o filtro passa-baixas]
+\begin{enumerate}[label=\arabic*.]
+  \item Com \texttt{phase\_deg = 0}, teste os seguintes valores de
+    \textit{Cutoff Freq} do LPF: 500, 1500, 3000 e 8000\,Hz.
+  \item Observe no osciloscópio e no espectro as diferenças entre os casos.
+  \item Preencha a tabela de parâmetros com as observações.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 5 -- Registro e conclusões (46--50 min)}
+
+\begin{enumerate}[label=\arabic*.]
+  \item Tire capturas de tela para: espectro do sinal modulado, espectro do
+    sinal demodulado com \texttt{phase\_deg = 0}, e forma de onda com erro
+    de fase máximo (90°).
+  \item Salve o flowgraph (\texttt{.grc}).
+\end{enumerate}
+
+% ======================================================
+\section{Tabela de registro}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l c c c c}
+    \toprule
+    \textbf{Parâmetro} & \boldmath$f_m = 500$ & \boldmath$f_m = 1000$ &
+      \boldmath$f_m = 2000$ & \boldmath$f_m = 4000$ \\
+    \midrule
+    Banda lateral inferior (Hz) & & & & \\
+    Banda lateral superior (Hz) & & & & \\
+    Pico em $f_c$? (S/N)        & & & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Posição das bandas laterais vs.\ frequência da mensagem.}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l c c c c}
+    \toprule
+    \textbf{Erro de fase} & 0° & 30° & 60° & 90° \\
+    \midrule
+    Amplitude recuperada (relativa) &  &  &  &  \\
+    Relação com $\cos\theta$        &  &  &  &  \\
+    \bottomrule
+  \end{tabular}
+  \caption{Efeito do erro de fase na demodulação.}
+\end{table}
+
+% ======================================================
+\section{Perguntas para o relatório}
+
+\begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
+
+  \item Como o espectro do sinal DSB-SC confirmou a ausência da portadora?
+    Explique em termos da equação~\eqref{eq:dsbsc} por que não há energia em
+    $f_c$.
+
+  \item Quais bandas laterais foram observadas? Como elas se relacionam
+    matematicamente com $f_m$ e $f_c$? Usando os dados da Tabela~2,
+    confirme a relação $f_\text{BL} = f_c \pm f_m$.
+
+  \item O que ocorreu na saída demodulada quando foi introduzido erro de fase
+    no oscilador local? Calcule a atenuação teórica para 30°, 60° e 90° e
+    compare com o medido.
+
+  \item Quais parâmetros do filtro passa-baixas (frequência de corte e
+    largura de transição) foram críticos para recuperar fielmente o sinal
+    mensagem? O que aconteceu quando o corte foi muito baixo ou muito alto?
+
+  \item Compare o sinal mensagem original com o sinal recuperado (com corte
+    e fase ideais): houve distorções? Qual é o fator de escala esperado na
+    saída do demodulador coerente?
+
+\end{enumerate}
+
+% ======================================================
+\section{Entregáveis}
+
+\begin{itemize}
+  \item Relatório em PDF (\texttt{relatorio\_pratica\_02.tex}).
+  \item Captura do espectro do sinal modulado (identificando as bandas laterais
+    e confirmando ausência da portadora).
+  \item Captura do sinal demodulado com fase 0° e com fase 90°.
+  \item Tabelas de registro preenchidas.
+  \item Respostas às 5 questões.
+\end{itemize}
+
+\begin{atencao}[Atenção -- erro de fase]
+No GNU Radio, o \textit{Phase Offset} do \texttt{Signal Source} é especificado
+em \textbf{radianos}.  Certifique-se de converter graus para radianos na
+variável \texttt{phase\_rad}.
+\end{atencao}
+
+\end{document}

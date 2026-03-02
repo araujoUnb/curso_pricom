@@ -1,0 +1,315 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Enunciado -- Prática 01}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+% ---- Cabeçalho da prática ----
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Prática 01}}\\[0.15cm]
+  {\Large\textbf{FFT e Análise Espectral}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Duração:} 50 minutos \hfill
+\textbf{Software:} GNU Radio Companion (GRC) $\geq$ 3.10 \hfill
+\textbf{Semestre:} 2026/1
+
+\bigskip
+
+% ======================================================
+\section{Objetivos}
+
+Ao final desta prática o aluno deverá ser capaz de:
+\begin{itemize}
+  \item Construir um \textit{flowgraph} no GNU Radio para gerar e visualizar
+    sinais senoidais no domínio do tempo e da frequência.
+  \item Relacionar a frequência de uma senoide com a posição do pico no
+    espectro de magnitude da FFT.
+  \item Analisar o efeito do tamanho da FFT (\textit{FFT size}) na resolução
+    espectral.
+  \item Observar o impacto do ruído gaussiano na identificação de componentes
+    espectrais de baixa amplitude.
+  \item Comparar o vazamento espectral gerado por diferentes funções de janela.
+\end{itemize}
+
+% ======================================================
+\section{Fundamentos teóricos (síntese)}
+
+A \textbf{Transformada Discreta de Fourier (DFT)} de um sinal $x[n]$ com
+$N$ amostras é:
+\begin{equation}
+  X[k] = \sum_{n=0}^{N-1} x[n]\,e^{-j2\pi kn/N}, \quad k = 0, 1, \ldots, N-1.
+\end{equation}
+Cada bin $k$ corresponde à frequência analógica:
+\begin{equation}
+  f_k = \frac{k \cdot f_s}{N},
+\end{equation}
+onde $f_s$ é a taxa de amostragem.  A \textbf{resolução espectral} é:
+\begin{equation}
+  \Delta f = \frac{f_s}{N}.
+\end{equation}
+Aumentar $N$ (FFT size) melhora $\Delta f$ mas exige mais amostras.
+
+Um sinal com ruído aditivo branco gaussiano $w[n] \sim \mathcal{N}(0,\sigma^2)$
+eleva o \textbf{piso de ruído} espectral de forma uniforme, dificultando a
+identificação de componentes fracas.
+
+A \textbf{função de janela} (retangular, Hann, Hamming, Blackman) atenua
+os lóbulos laterais causados pela descontinuidade do sinal na borda do buffer,
+reduzindo o \textbf{vazamento espectral}.
+
+% ======================================================
+\section{Materiais e blocos GNU Radio}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l l}
+    \toprule
+    \textbf{Bloco GRC} & \textbf{Localização no GRC} & \textbf{Função} \\
+    \midrule
+    \texttt{Variable}          & Miscellaneous       & Define \texttt{samp\_rate} \\
+    \texttt{Signal Source}     & Waveform Generators & Gera senoide de teste \\
+    \texttt{Noise Source}      & Waveform Generators & Ruído gaussiano branco \\
+    \texttt{Add}               & Math Operators      & Soma de dois sinais \\
+    \texttt{Throttle}          & Misc Operators      & Limita CPU em simulação \\
+    \texttt{QT GUI Time Sink}  & Instrumentation     & Osciloscópio virtual \\
+    \texttt{QT GUI Freq Sink}  & Instrumentation     & Analisador de espectro \\
+    \texttt{QT GUI Range}      & GUI Widgets         & Controle deslizante \\
+    \bottomrule
+  \end{tabular}
+  \caption{Blocos utilizados na Prática 01.}
+\end{table}
+
+% ======================================================
+\section{Roteiro de montagem e execução (50 min)}
+
+\subsection*{Etapa 1 -- Configuração inicial (0--8 min)}
+
+\begin{instrucao}[Passo a passo: criando o flowgraph base]
+\begin{enumerate}[label=\arabic*.]
+  \item Abra o \textbf{GNU Radio Companion} e crie um novo arquivo
+    (\texttt{File > New}).
+  \item Dê um duplo clique no bloco \texttt{Options} (canto superior esquerdo)
+    e defina:
+    \begin{itemize}
+      \item \textit{Output Language:} Python
+      \item \textit{Generate Options:} QT GUI
+    \end{itemize}
+  \item Adicione um bloco \texttt{Variable} e defina
+    \texttt{samp\_rate = 32000}.
+  \item Adicione um \texttt{Signal Source}. Configure:
+    \begin{itemize}
+      \item \textit{Output Type:} Float
+      \item \textit{Waveform:} Cosine
+      \item \textit{Frequency:} \texttt{1000} (Hz)
+      \item \textit{Amplitude:} \texttt{1.0}
+      \item \textit{Sample Rate:} \texttt{samp\_rate}
+    \end{itemize}
+  \item Adicione um \texttt{Throttle} (Output Type: Float,
+    Sample Rate: \texttt{samp\_rate}).
+  \item Adicione um \texttt{QT GUI Time Sink} (Type: Float, Number of Points:
+    1024).
+  \item Adicione um \texttt{QT GUI Freq Sink} (Type: Float, FFT Size: 1024).
+  \item Conecte: \texttt{Signal Source} $\to$ \texttt{Throttle} $\to$
+    \texttt{QT GUI Time Sink} \emph{e} $\to$ \texttt{QT GUI Freq Sink}.
+  \item Execute (\texttt{F6}) e verifique se o osciloscópio mostra uma
+    senoide de 1\,kHz.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 2 -- Tom único: variação de frequência (8--18 min)}
+
+\begin{instrucao}[Atividade 2.1 -- Variar frequência]
+\begin{enumerate}[label=\arabic*.]
+  \item Adicione um bloco \texttt{QT GUI Range} configurado como variável
+    \texttt{freq1} com mínimo 200, máximo 8000, passo 100 e valor padrão 1000.
+  \item Altere o campo \textit{Frequency} do \texttt{Signal Source} para
+    \texttt{freq1}.
+  \item Execute. Use o controle deslizante para variar \texttt{freq1}.
+  \item \textbf{Registre} a posição do pico no espectro para 500, 1000,
+    2000 e 4000\,Hz.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 3 -- Sinal multitonal: dois tons (18--28 min)}
+
+\begin{instrucao}[Atividade 3.1 -- Segundo tom e bloco Add]
+\begin{enumerate}[label=\arabic*.]
+  \item Adicione um segundo \texttt{Signal Source} com frequência
+    \texttt{freq2 = 2500} (crie a variável \texttt{freq2} como
+    \texttt{QT GUI Range}).  Amplitude: 0.5.
+  \item Adicione um bloco \texttt{Add} (Float). Conecte os dois
+    \texttt{Signal Source} às suas entradas.
+  \item Desconecte o primeiro \texttt{Signal Source} do \texttt{Throttle}
+    e conecte a saída do \texttt{Add} ao \texttt{Throttle}.
+  \item Execute. \textbf{Identifique} os dois picos no espectro. Relacione
+    cada pico com seu \texttt{Signal Source}.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 4 -- Resolução espectral: efeito do FFT size (28--36 min)}
+
+\begin{instrucao}[Atividade 4.1 -- Variar FFT size]
+\begin{enumerate}[label=\arabic*.]
+  \item Dê duplo clique no \texttt{QT GUI Freq Sink}. Teste os seguintes
+    valores de \textit{FFT Size}: 256, 512, 1024, 2048 e 4096.
+  \item Para cada valor, calcule a resolução espectral $\Delta f = f_s/N$
+    e preencha a Tabela~\ref{tab:fftsizes}.
+  \item Observe: frequências próximas (ex.: 1000 e 1200\,Hz) se separam
+    melhor com FFT maior?
+\end{enumerate}
+\end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \textbf{FFT Size ($N$)} & \textbf{$\Delta f$ calculado (Hz)} &
+      \textbf{Picos bem separados? (S/N)} \\
+    \midrule
+    256   &  &  \\
+    512   &  &  \\
+    1024  &  &  \\
+    2048  &  &  \\
+    4096  &  &  \\
+    \bottomrule
+  \end{tabular}
+  \caption{Resolução espectral vs.\ tamanho da FFT.}
+  \label{tab:fftsizes}
+\end{table}
+
+\subsection*{Etapa 5 -- Efeito do ruído (36--44 min)}
+
+\begin{instrucao}[Atividade 5.1 -- Adicionar ruído gaussiano]
+\begin{enumerate}[label=\arabic*.]
+  \item Adicione um \texttt{Noise Source} (Type: Float, Noise Type: Gaussian,
+    Amplitude: \texttt{noise\_amp}).
+  \item Crie uma variável \texttt{noise\_amp} como \texttt{QT GUI Range}
+    (min: 0, max: 1, passo: 0.05, padrão: 0).
+  \item Adicione um segundo \texttt{Add} para somar o sinal com o ruído.
+    Conecte o sinal multitonal e o \texttt{Noise Source} a este Add.
+  \item Aumente gradualmente \texttt{noise\_amp} e observe quando cada um
+    dos dois tons deixa de ser visível.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 6 -- Funções de janela e vazamento espectral (44--50 min)}
+
+\begin{instrucao}[Atividade 6.1 -- Comparar janelas]
+\begin{enumerate}[label=\arabic*.]
+  \item No \texttt{QT GUI Freq Sink}, abra a aba \textit{Config}
+    (clique com botão direito $\to$ \textit{Properties}) e altere a janela:
+    teste \textbf{Rectangular}, \textbf{Hann}, \textbf{Hamming} e
+    \textbf{Blackman-Harris}.
+  \item Observe a largura dos picos e a altura dos lóbulos laterais.
+  \item Registre capturas de tela para pelo menos 2 janelas.
+\end{enumerate}
+\end{instrucao}
+
+% ======================================================
+\section{Tabela de registro de parâmetros}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l c c c}
+    \toprule
+    \textbf{Parâmetro} & \textbf{Cenário A} & \textbf{Cenário B} &
+      \textbf{Cenário C} \\
+    \midrule
+    Tom único $f_1$ (Hz)      &  &  &  \\
+    Tom único $f_2$ (Hz)      & --  &  &  \\
+    Amplitude $A_1$            &  &  &  \\
+    Amplitude $A_2$            & --  &  &  \\
+    \texttt{samp\_rate} (Hz)  & 32000 & 32000 & 32000 \\
+    FFT Size                   &  &  &  \\
+    Nível de ruído             & 0 & 0 &  \\
+    Janela utilizada           &  &  &  \\
+    \bottomrule
+  \end{tabular}
+  \caption{Parâmetros registrados nos três cenários.}
+\end{table}
+
+% ======================================================
+\section{Perguntas para o relatório}
+
+Responda as seguintes questões no seu relatório, apoiando as respostas
+com figuras e a tabela de parâmetros.
+
+\begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
+
+  \item Qual foi a relação observada entre a frequência configurada no
+    \texttt{Signal Source} e a posição do pico no espectro de magnitude?
+    Como a relação $f_k = k\,f_s/N$ explica esse comportamento?
+
+  \item Como a escolha do \texttt{FFT size} afetou a resolução espectral
+    $\Delta f$? Para separar dois tons com diferença de 100\,Hz usando
+    \texttt{samp\_rate = 32000}, qual é o menor \texttt{FFT size} necessário?
+
+  \item O que mudou no espectro ao adicionar a segunda senoide? O espectro
+    resultante é simplesmente a soma dos dois espectros individuais? Justifique.
+
+  \item Qual foi o efeito do aumento de \texttt{noise\_amp} na identificação
+    dos componentes espectrais? Qual é o critério mínimo de SNR que permitiu
+    visualizar o tom de menor amplitude?
+
+  \item Como a função de janela influenciou o \textbf{vazamento espectral}?
+    Compare janela retangular e Hann: qual delas preserva melhor a amplitude
+    do pico e qual reduz melhor os lóbulos laterais?
+
+\end{enumerate}
+
+% ======================================================
+\section{Entregáveis}
+
+\begin{itemize}
+  \item Relatório em PDF usando o template oficial (\texttt{relatorio\_pratica\_01.tex}).
+  \item Capturas de tela: (a) tom único, (b) dois tons, (c) dois tons com
+    ruído -- todas no espectro e no tempo.
+  \item Tabela de resolução espectral (Tabela~2 deste enunciado) preenchida.
+  \item Respostas às 5 questões obrigatórias com justificativa técnica.
+\end{itemize}
+
+\begin{atencao}[Dica de execução]
+Se o GNU Radio travar ou a CPU chegar a 100\%, reduza o \texttt{FFT size}
+ou aumente o valor do \texttt{Throttle} (\textit{Ignore Ratio}).  Sempre
+salve o flowgraph (\texttt{.grc}) antes de fechar.
+\end{atencao}
+
+\end{document}
