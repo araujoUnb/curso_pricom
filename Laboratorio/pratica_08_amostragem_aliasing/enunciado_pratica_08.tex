@@ -1,0 +1,292 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Enunciado -- Prática 08}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Prática 08}}\\[0.15cm]
+  {\Large\textbf{Amostragem e Aliasing: Teorema de Nyquist-Shannon}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Duração:} 50 minutos \hfill
+\textbf{Software:} GNU Radio Companion $\geq$ 3.10 \hfill
+\textbf{Semestre:} 2026/1
+
+\bigskip
+
+% ======================================================
+\section{Objetivos}
+
+\begin{itemize}
+  \item Verificar experimentalmente o \textbf{Teorema de Nyquist-Shannon}:
+    para reconstrução sem distorção, a taxa de amostragem deve satisfazer
+    $f_s \geq 2 f_\text{max}$.
+  \item Observar o fenômeno de \textbf{aliasing} quando a condição de
+    Nyquist é violada, identificando a frequência aparente do sinal subamostrado.
+  \item Demonstrar a eficácia de um filtro anti-aliasing (AA) aplicado
+    antes da decimação.
+  \item Distinguir entre a frequência real do sinal e a frequência aparente
+    após subamostragem.
+\end{itemize}
+
+% ======================================================
+\section{Fundamentos teóricos (síntese)}
+
+O Teorema de Nyquist-Shannon afirma que um sinal de banda limitada com
+frequência máxima $f_\text{max}$ pode ser reconstruído perfeitamente se amostrado
+com frequência $f_s \geq 2 f_\text{max}$ (frequência de Nyquist $f_N = 2f_\text{max}$).
+
+Quando $f_s < 2 f_\text{max}$, ocorre \textbf{aliasing}: o espectro do sinal se
+dobra (\textit{folding}) em torno de $f_s/2$.  Para um sinal de frequência
+$f_0$, a frequência aparente após subamostragem é:
+\begin{equation}
+  f_\text{alias} = \left|f_0 - n f_s\right|, \quad n = \left\lfloor\frac{f_0 + f_s/2}{f_s}\right\rfloor,
+  \label{eq:alias}
+\end{equation}
+ou, de forma equivalente, $f_\text{alias}$ é o reflexo de $f_0$ na
+frequência de Nyquist $f_s/2$.
+
+O \textbf{filtro anti-aliasing} (AA) é um LPF aplicado \emph{antes} da
+decimação com frequência de corte $\leq f_s/2$ para eliminar componentes
+que causariam aliasing.
+
+No GNU Radio, a subamostragem é implementada pelo bloco
+\texttt{Keep 1 in N} (mantém 1 amostra a cada $N$, equivalente a
+decimar por $N$).
+
+% ======================================================
+\section{Materiais e blocos GNU Radio}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l l}
+    \toprule
+    \textbf{Bloco GRC} & \textbf{Localização} & \textbf{Função} \\
+    \midrule
+    \texttt{Variable}          & Miscellaneous        & Parâmetros globais \\
+    \texttt{Signal Source}     & Waveform Generators  & Sinal a ser amostrado \\
+    \texttt{Keep 1 in N}       & Stream Operators     & Decimação (subamostragem) \\
+    \texttt{Low Pass Filter}   & Filters              & Filtro anti-aliasing \\
+    \texttt{Throttle}          & Misc Operators       & Controle de CPU \\
+    \texttt{QT GUI Time Sink}  & Instrumentation      & Formas de onda \\
+    \texttt{QT GUI Freq Sink}  & Instrumentation      & Espectros \\
+    \texttt{QT GUI Range}      & GUI Widgets          & Controles deslizantes \\
+    \bottomrule
+  \end{tabular}
+  \caption{Blocos utilizados na Prática 08.}
+\end{table}
+
+% ======================================================
+\section{Roteiro de montagem e execução (50 min)}
+
+\subsection*{Parâmetros iniciais}
+
+\begin{center}
+\begin{tabular}{l l}
+  \texttt{samp\_rate} = 48\,000\,Hz & Fator de decimação: variável \\
+  Frequência do sinal: variável & \\
+\end{tabular}
+\end{center}
+
+\subsection*{Etapa 1 -- Flowgraph base com decimação (0--12 min)}
+
+\begin{instrucao}[Construção do flowgraph com Keep 1 in N]
+\begin{enumerate}[label=\arabic*.]
+  \item Crie variável \texttt{samp\_rate = 48000}.
+  \item Crie variável \texttt{decim} como \texttt{QT GUI Range}
+    (min: 1, max: 20, passo: 1, padrão: 4, tipo: Int).
+    O fator de decimação simula uma taxa de amostragem efetiva de
+    $f_{s,\text{ef}} = f_s / \texttt{decim}$.
+  \item Crie variável \texttt{f\_sinal} como \texttt{QT GUI Range}
+    (min: 500, max: 20000, passo: 500, padrão: 1000).
+  \item Adicione \textbf{Signal Source}: Float, Cosine, freq = \texttt{f\_sinal},
+    amplitude = 1.0, samp\_rate = \texttt{samp\_rate}.
+  \item Adicione \texttt{Keep 1 in N}: N = \texttt{decim}.
+  \item Adicione \texttt{Throttle} (samp\_rate = \texttt{samp\_rate / decim}).
+  \item Adicione \texttt{QT GUI Time Sink} e \texttt{QT GUI Freq Sink}.
+  \item Adicione um segundo caminho \textbf{sem decimação} (sinal original)
+    para comparação.
+  \item Execute com \texttt{f\_sinal = 1000}, \texttt{decim = 4}
+    ($f_{s,\text{ef}} = 12\,000$\,Hz). Nyquist: $f_s/2 = 6000$\,Hz $> f_\text{sinal}$.
+    O sinal deve ser recuperado corretamente.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 2 -- Verificação do Teorema de Nyquist (12--22 min)}
+
+\begin{instrucao}[Cenários com e sem violação de Nyquist]
+Preencha a Tabela~\ref{tab:nyquist} testando os cenários abaixo.
+Para cada um, registre a frequência aparente observada e se o teorema
+foi satisfeito.
+
+\begin{center}
+\begin{tabular}{c c c c}
+  \toprule
+  Cenário & $f_\text{sinal}$ (Hz) & \texttt{decim} &
+    $f_{s,\text{ef}}$ (Hz) \\
+  \midrule
+  A & 1\,000 & 4  & 12\,000 \\
+  B & 5\,000 & 4  & 12\,000 \\
+  C & 7\,000 & 4  & 12\,000 \\
+  D & 1\,000 & 10 & 4\,800  \\
+  E & 2\,500 & 10 & 4\,800  \\
+  F & 3\,500 & 10 & 4\,800  \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+Para cada cenário, observe o espectro do sinal decimado e registre a
+frequência do pico principal observado.
+\end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c c c c}
+    \toprule
+    Cenário & $f_\text{sinal}$ & $f_{s,\text{ef}}$ & $f_s/2$ &
+      Nyquist ok? & $f_\text{aparente}$ obs. & $f_\text{alias}$ calc. \\
+    \midrule
+    A & 1\,000 & 12\,000 & 6\,000 & & &  \\
+    B & 5\,000 & 12\,000 & 6\,000 & & &  \\
+    C & 7\,000 & 12\,000 & 6\,000 & & &  \\
+    D & 1\,000 & 4\,800  & 2\,400 & & &  \\
+    E & 2\,500 & 4\,800  & 2\,400 & & &  \\
+    F & 3\,500 & 4\,800  & 2\,400 & & &  \\
+    \bottomrule
+  \end{tabular}
+  \caption{Verificação do Teorema de Nyquist e cálculo do aliasing.}
+  \label{tab:nyquist}
+\end{table}
+
+\subsection*{Etapa 3 -- Cálculo da frequência de aliasing (22--32 min)}
+
+\begin{instrucao}[Prever e confirmar aliasing]
+\begin{enumerate}[label=\arabic*.]
+  \item Para os cenários C, E e F (violação de Nyquist), calcule a
+    frequência de aliasing pela Eq.~\eqref{eq:alias}.
+    Exemplo para C: $f_0 = 7000$, $f_s = 12000$.
+    $f_\text{alias} = |7000 - 1 \times 12000| = 5000$\,Hz.
+  \item Compare o valor calculado com o pico observado no espectro.
+    Preencha a última coluna da Tabela~\ref{tab:nyquist}.
+  \item No domínio do tempo, confirme que o sinal aparenta ter a
+    frequência \textit{alias} e não a frequência original.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 4 -- Filtro anti-aliasing (32--44 min)}
+
+\begin{instrucao}[Prevenção de aliasing com LPF]
+\begin{enumerate}[label=\arabic*.]
+  \item Para o cenário C ($f_\text{sinal} = 7000$, $f_{s,\text{ef}} = 12000$):
+    \begin{itemize}
+      \item Insira um \texttt{Low Pass Filter} \textbf{antes} do
+        \texttt{Keep 1 in N}:
+        Cutoff Freq = $f_{s,\text{ef}}/2 = 6000$\,Hz,
+        Transition Width = 500\,Hz.
+    \end{itemize}
+  \item Execute. O pico aliasado desapareceu? O sinal foi atenudo?
+  \item Repita para o cenário E ($f_\text{sinal} = 2500$, $f_{s,\text{ef}} = 4800$).
+    O LPF deve preservar o sinal (2500 < 2400? Não! O que acontece?).
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 5 -- Sinal multitonal e aliasing seletivo (44--50 min)}
+
+\begin{instrucao}[Aliasing com dois tons]
+\begin{enumerate}[label=\arabic*.]
+  \item Gere um sinal com \textbf{dois tons}: $f_1 = 1000$\,Hz e
+    $f_2 = 7000$\,Hz (usando dois Signal Sources + Add).
+  \item Aplique decimação com \texttt{decim = 4} ($f_{s,\text{ef}} = 12000$).
+  \item Observe: o tom de 1000\,Hz é preservado; o de 7000\,Hz aparece
+    como aliasing. Onde está o aliasing no espectro?
+  \item Aplique o filtro AA e veja o resultado.
+\end{enumerate}
+\end{instrucao}
+
+% ======================================================
+\section{Perguntas para o relatório}
+
+\begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
+
+  \item Para cada cenário da Tabela~\ref{tab:nyquist}, verifique se o
+    Teorema de Nyquist foi satisfeito. Para os casos de aliasing,
+    calcule a frequência aparente pela Eq.~\eqref{eq:alias} e confirme
+    com a observação.
+
+  \item Como o aliasing se manifesta no domínio do tempo? No cenário C,
+    o sinal de 7000\,Hz pareceu ter qual frequência? Como isso confirma
+    a natureza periódica do aliasing?
+
+  \item Qual é a diferença entre a \textbf{frequência real} do sinal e
+    a \textbf{frequência aparente} após subamostragem? Por que um receptor
+    sem informação prévia não consegue distinguir os dois?
+
+  \item O filtro anti-aliasing funcionou como esperado no cenário C?
+    E no cenário E? Por que no cenário E o LPF não conseguiu preservar
+    o sinal mesmo sendo necessário?
+
+  \item Quais são as limitações práticas da simulação de aliasing no GNU
+    Radio com o bloco \texttt{Keep 1 in N}? Como isso difere de um sistema
+    de aquisição real com conversor A/D?
+
+\end{enumerate}
+
+% ======================================================
+\section{Entregáveis}
+
+\begin{itemize}
+  \item Relatório em PDF (\texttt{relatorio\_pratica\_08.tex}).
+  \item Capturas do espectro para cenários A (Nyquist ok) e C (aliasing).
+  \item Captura antes/depois do filtro anti-aliasing (cenário C).
+  \item Tabela de Nyquist preenchida com frequências calculadas e observadas.
+  \item Respostas às 5 questões.
+\end{itemize}
+
+\begin{atencao}[Dica -- taxas no Throttle]
+Quando o sinal for decimado, o bloco \texttt{Throttle} deve usar a taxa
+efetiva após decimação (\texttt{samp\_rate / decim}). Caso contrário, a
+simulação rodará mais rápido do que o real e o \texttt{QT GUI Freq Sink}
+mostrará frequências incorretas.  Alternativamente, posicione o
+\texttt{Throttle} \textbf{antes} do \texttt{Keep 1 in N} e use a taxa
+original.
+\end{atencao}
+
+\end{document}

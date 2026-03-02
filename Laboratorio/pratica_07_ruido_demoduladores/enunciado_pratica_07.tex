@@ -1,0 +1,274 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Enunciado -- Prática 07}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Prática 07}}\\[0.15cm]
+  {\Large\textbf{Ruído em Demoduladores AM e FM}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Duração:} 50 minutos \hfill
+\textbf{Software:} GNU Radio Companion $\geq$ 3.10 \hfill
+\textbf{Semestre:} 2026/1
+
+\bigskip
+
+% ======================================================
+\section{Objetivos}
+
+\begin{itemize}
+  \item Construir cadeias completas de modulação-canal-demodulação para
+    AM (DSB-SC) e FM com canal AWGN no GNU Radio.
+  \item Variar o nível de ruído no canal e observar a degradação da
+    qualidade do sinal recuperado.
+  \item Comparar a robustez ao ruído dos demoduladores AM e FM para as
+    mesmas condições de SNR de entrada.
+  \item Identificar o \textbf{limiar de FM} (\textit{FM threshold}):
+    abaixo do qual a vantagem do FM é perdida.
+  \item Discutir a metodologia de comparação justa entre AM e FM.
+\end{itemize}
+
+% ======================================================
+\section{Fundamentos teóricos (síntese)}
+
+Para um canal AWGN com densidade espectral de potência $N_0/2$, as
+relações SNR de saída para os demoduladores são:
+
+\textbf{AM DSB-SC (coerente):}
+\begin{equation}
+  \text{SNR}_{o,\text{AM}} = \text{SNR}_c = \frac{S_T}{N_0 W},
+\end{equation}
+onde $W$ é a largura de banda da mensagem e $S_T$ é a potência do sinal
+transmitido.
+
+\textbf{FM (WBFM):}
+\begin{equation}
+  \text{SNR}_{o,\text{FM}} = 3\beta^2(\beta + 1)\,\text{SNR}_c \gg \text{SNR}_{o,\text{AM}},
+  \quad \text{para } \beta \gg 1,
+\end{equation}
+mostrando que o FM compra ganho de SNR à custa de maior largura de banda.
+
+O \textbf{limiar de FM} ocorre quando o SNR de entrada cai abaixo de
+$\approx 10$\,dB; abaixo deste ponto, o demodulador FM gera ruído de
+impulsivo (cliques) e a vantagem é destruída.
+
+% ======================================================
+\section{Materiais e blocos GNU Radio}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l l}
+    \toprule
+    \textbf{Bloco GRC} & \textbf{Localização} & \textbf{Função} \\
+    \midrule
+    \texttt{Variable}              & Miscellaneous        & Parâmetros globais \\
+    \texttt{Signal Source}         & Waveform Generators  & Sinal mensagem \\
+    \texttt{Signal Source} (2×)    & Waveform Generators  & Portadoras AM \\
+    \texttt{WBFM Transmit}         & Modulators           & Modulador FM \\
+    \texttt{WBFM Receive}          & Modulators           & Demodulador FM \\
+    \texttt{Multiply}              & Math Operators       & Modulação AM \\
+    \texttt{Low Pass Filter}       & Filters              & Demodulador AM \\
+    \texttt{Noise Source}          & Waveform Generators  & Canal AWGN \\
+    \texttt{Add}                   & Math Operators       & Inserir ruído \\
+    \texttt{RMS}                   & Math Operators       & Medir potência RMS \\
+    \texttt{QT GUI Number Sink}    & Instrumentation      & Mostrar valor numérico \\
+    \texttt{QT GUI Time Sink}      & Instrumentation      & Formas de onda \\
+    \bottomrule
+  \end{tabular}
+  \caption{Blocos utilizados na Prática 07.}
+\end{table}
+
+% ======================================================
+\section{Roteiro de montagem e execução (50 min)}
+
+\subsection*{Parâmetros iniciais}
+
+\begin{center}
+\begin{tabular}{l l}
+  \texttt{samp\_rate} = 480\,000\,Hz & \texttt{audio\_rate} = 48\,000\,Hz \\
+  $f_m$ = 1\,000\,Hz & $f_c$ = 10\,000\,Hz \\
+  $\Delta f$ (FM) = 10\,000\,Hz & \\
+\end{tabular}
+\end{center}
+
+\subsection*{Etapa 1 -- Cadeia AM com canal AWGN (0--15 min)}
+
+\begin{instrucao}[Modulador e demodulador AM com ruído]
+\begin{enumerate}[label=\arabic*.]
+  \item Crie variáveis: \texttt{samp\_rate = 48000}, \texttt{fc = 10000},
+    \texttt{fm = 1000}.
+  \item Crie \texttt{noise\_sigma} como \texttt{QT GUI Range}
+    (min: 0, max: 1.0, passo: 0.05, padrão: 0).
+  \item \textbf{Modulador AM (DSB-SC):}
+    \begin{itemize}
+      \item Signal Source (msg, Cosine, fm) $\times$ Signal Source
+        (portadora, Cosine, fc) = sinal modulado $s_\text{AM}(t)$.
+    \end{itemize}
+  \item \textbf{Canal AWGN:}
+    Adicione Noise Source (Float, Gaussian, amplitude = \texttt{noise\_sigma})
+    e \texttt{Add} para somar ao sinal AM.
+  \item \textbf{Demodulador AM coerente:}
+    \begin{itemize}
+      \item Multiply: sinal recebido $\times$ portadora local.
+      \item Low Pass Filter: cutoff = $1.5 \times f_m$.
+    \end{itemize}
+  \item Adicione \texttt{Throttle} e \texttt{QT GUI Time Sink} com 3 canais:
+    mensagem original, sinal AM com ruído, mensagem recuperada.
+  \item Execute. Com \texttt{noise\_sigma = 0}, verifique a recuperação fiel.
+  \item Aumente gradualmente \texttt{noise\_sigma}: observe a degradação.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 2 -- Cadeia FM com canal AWGN (15--28 min)}
+
+\begin{instrucao}[Modulador e demodulador FM com ruído]
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Modulador FM:}
+    \begin{itemize}
+      \item Use a mesma mensagem (Signal Source, \texttt{fm = 1000}).
+      \item Adicione \texttt{WBFM Transmit} (samp\_rate = 480000,
+        audio\_rate = 48000, max\_dev = 10000).
+    \end{itemize}
+  \item \textbf{Canal AWGN:}
+    Adicione Noise Source (Complex, Gaussian, amplitude = \texttt{noise\_sigma\_fm})
+    e \texttt{Add}.
+  \item \textbf{Demodulador FM:}
+    \texttt{WBFM Receive} (decimação = 10).
+  \item Conecte ao \texttt{QT GUI Time Sink}: mensagem original e
+    mensagem FM recuperada.
+  \item Execute. Compare o comportamento com o da cadeia AM.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 3 -- Comparação AM vs FM (28--42 min)}
+
+\begin{instrucao}[Medições comparativas]
+\begin{enumerate}[label=\arabic*.]
+  \item Para garantir comparação justa, mantenha a mesma potência de
+    sinal transmitido para AM e FM ($A_c = 1.0$).
+  \item Preencha a Tabela~\ref{tab:snr} variando \texttt{noise\_sigma}:
+    \begin{itemize}
+      \item Para cada nível, qualifique visualmente a saída:
+        (0) sem ruído, (1) ruído leve, (2) degradação moderada,
+        (3) sinal irreconhecível.
+    \end{itemize}
+  \item \textbf{Limiar de FM:} identifique o valor de \texttt{noise\_sigma}
+    acima do qual a vantagem de FM desaparece e o FM degrada mais do que o AM.
+\end{enumerate}
+\end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c c}
+    \toprule
+    \texttt{noise\_sigma} & \textbf{Qualidade AM} & \textbf{Qualidade FM}
+      & \textbf{Qual é melhor?} & \textbf{FM acima limiar?} \\
+    \midrule
+    0.00 & & & & \\
+    0.05 & & & & \\
+    0.10 & & & & \\
+    0.20 & & & & \\
+    0.40 & & & & \\
+    0.70 & & & & \\
+    1.00 & & & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Qualidade de recuperação AM vs.\ FM por nível de ruído.}
+  \label{tab:snr}
+\end{table}
+
+\subsection*{Etapa 4 -- Impacto do índice de modulação FM (42--50 min)}
+
+\begin{instrucao}[Testar FM com $\beta$ baixo e alto]
+\begin{enumerate}[label=\arabic*.]
+  \item Repita o experimento com \texttt{max\_dev = 2000} ($\beta = 2$) e
+    \texttt{max\_dev = 25000} ($\beta = 25$).
+  \item Observe: qual $\beta$ tolera mais ruído? Confirme a previsão teórica.
+  \item Capture a tela com ruído moderado para os dois casos.
+\end{enumerate}
+\end{instrucao}
+
+% ======================================================
+\section{Perguntas para o relatório}
+
+\begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
+
+  \item Como você mediu ou estimou o SNR de entrada e de saída no GNU Radio?
+    Descreva o procedimento utilizado (medição visual de amplitude, uso do
+    bloco \texttt{RMS}, etc.).
+
+  \item Como o demodulador AM DSB-SC se degradou com o aumento do ruído?
+    A relação entre qualidade de saída e nível de ruído foi linear?
+
+  \item Como o demodulador FM se degradou com o ruído? Você observou o
+    fenômeno de ``cliques'' de ruído próximo ao limiar? Descreva.
+
+  \item Com base na Tabela~\ref{tab:snr}, para qual nível de ruído o FM
+    demonstrou vantagem sobre o AM? Por que o FM tem essa vantagem e qual
+    é o custo?
+
+  \item Para garantir uma comparação justa entre AM e FM, quais grandezas
+    devem ser mantidas iguais? Que cuidados você tomou neste experimento?
+
+\end{enumerate}
+
+% ======================================================
+\section{Entregáveis}
+
+\begin{itemize}
+  \item Relatório em PDF (\texttt{relatorio\_pratica\_07.tex}).
+  \item Capturas comparando AM e FM com mesmo nível de ruído (mínimo 3
+    níveis: baixo, médio, alto).
+  \item Tabela de qualidade preenchida.
+  \item Evidência do limiar de FM.
+  \item Respostas às 5 questões.
+\end{itemize}
+
+\begin{atencao}[Dica -- comparação justa]
+Para comparar AM e FM, certifique-se de usar a mesma amplitude de mensagem
+e o mesmo \texttt{noise\_sigma} em ambas as cadeias.  Note que a cadeia FM
+opera em \texttt{samp\_rate = 480000} enquanto a AM pode operar em
+48\,000\,Hz; ajuste o \texttt{noise\_sigma} para refletir a mesma
+densidade espectral de potência de ruído ($N_0$).
+\end{atencao}
+
+\end{document}

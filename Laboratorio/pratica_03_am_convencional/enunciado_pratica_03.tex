@@ -1,0 +1,280 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Enunciado -- Prática 03}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Prática 03}}\\[0.15cm]
+  {\Large\textbf{AM Convencional com Portadora (DSB+C)}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Duração:} 50 minutos \hfill
+\textbf{Software:} GNU Radio Companion $\geq$ 3.10 \hfill
+\textbf{Semestre:} 2026/1
+
+\bigskip
+
+% ======================================================
+\section{Objetivos}
+
+\begin{itemize}
+  \item Implementar o modulador AM convencional (DSB+C) e identificar a
+    componente da portadora no espectro.
+  \item Calcular e controlar o índice de modulação $\mu$ usando o controle
+    deslizante do GNU Radio.
+  \item Observar os regimes de submodulação ($\mu < 1$), modulação plena
+    ($\mu = 1$) e sobremodulação ($\mu > 1$), analisando as consequências
+    para o sinal no tempo e no espectro.
+  \item Implementar a detecção de envoltória e verificar as condições para
+    sua operação sem distorção.
+\end{itemize}
+
+% ======================================================
+\section{Fundamentos teóricos (síntese)}
+
+O sinal AM convencional é:
+\begin{equation}
+  s(t) = A_c\bigl[1 + \mu\,m_n(t)\bigr]\cos(2\pi f_c t),
+  \label{eq:am}
+\end{equation}
+onde $m_n(t)$ é a mensagem normalizada ($\max|m_n| = 1$) e $\mu \in [0, 1]$
+é o \textbf{índice de modulação}.  Para $m_n(t) = \cos(2\pi f_m t)$:
+\begin{equation}
+  s(t) = A_c\cos(2\pi f_c t)
+       + \frac{\mu A_c}{2}\cos(2\pi(f_c - f_m)t)
+       + \frac{\mu A_c}{2}\cos(2\pi(f_c + f_m)t).
+\end{equation}
+O espectro tem \textbf{três picos}: portadora ($f_c$) e bandas laterais
+($f_c \pm f_m$). A relação de amplitudes é portadora:BL = $1:\mu/2$.
+
+Para $\mu > 1$ (sobremodulação), a envoltória cruza zero e o detector de
+envoltória simples introduz distorção. A \textbf{eficiência} de modulação é:
+\begin{equation}
+  \eta = \frac{\mu^2/2}{1 + \mu^2/2},
+  \quad\text{para mensagem senoidal.}
+\end{equation}
+
+% ======================================================
+\section{Materiais e blocos GNU Radio}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l l}
+    \toprule
+    \textbf{Bloco GRC} & \textbf{Localização} & \textbf{Função} \\
+    \midrule
+    \texttt{Variable}           & Miscellaneous        & Parâmetros globais \\
+    \texttt{Signal Source} (2×) & Waveform Generators  & Mensagem e portadora \\
+    \texttt{Multiply Const}     & Math Operators       & Escalar por $\mu$ \\
+    \texttt{Add Const}          & Math Operators       & Somar DC = 1.0 \\
+    \texttt{Multiply}           & Math Operators       & Produto com portadora \\
+    \texttt{Envelope Detector}  & Level Controls       & Detecção de envoltória \\
+    \texttt{DC Blocker}         & Filters              & Remove DC da saída \\
+    \texttt{Throttle}           & Misc Operators       & Controle de CPU \\
+    \texttt{QT GUI Time Sink}   & Instrumentation      & Formas de onda \\
+    \texttt{QT GUI Freq Sink}   & Instrumentation      & Espectros \\
+    \texttt{QT GUI Range}       & GUI Widgets          & Controle de $\mu$ \\
+    \bottomrule
+  \end{tabular}
+  \caption{Blocos utilizados na Prática 03.}
+\end{table}
+
+% ======================================================
+\section{Roteiro de montagem e execução (50 min)}
+
+\subsection*{Parâmetros iniciais}
+
+\begin{center}
+\begin{tabular}{l l}
+  \texttt{samp\_rate} = 48\,000\,Hz & $f_m$ = 1\,000\,Hz \\
+  $f_c$ = 10\,000\,Hz & $A_c$ = 1.0 \\
+  $\mu$ (variável via slider) & \\
+\end{tabular}
+\end{center}
+
+\subsection*{Etapa 1 -- Modulador AM convencional (0--15 min)}
+
+\begin{instrucao}[Construção do modulador DSB+C]
+\begin{enumerate}[label=\arabic*.]
+  \item Crie variáveis: \texttt{samp\_rate = 48000}, \texttt{fc = 10000},
+    \texttt{fm = 1000}.
+  \item Crie variável \texttt{mu} como \texttt{QT GUI Range}
+    (min: 0.0, max: 2.0, passo: 0.05, padrão: 0.5). Esta é o índice de
+    modulação.
+  \item Adicione \textbf{Signal Source 1} (mensagem): Cosine, freq = \texttt{fm},
+    amplitude = 1.0.
+  \item Adicione \texttt{Multiply Const} para escalar a mensagem:
+    constante = \texttt{mu}.
+  \item Adicione \texttt{Add Const}: constante = 1.0.
+    Isso forma $[1 + \mu\,m_n(t)]$.
+  \item Adicione \textbf{Signal Source 2} (portadora): Cosine, freq = \texttt{fc},
+    amplitude = 1.0.
+  \item Adicione \texttt{Multiply} (2 entradas).
+    Conecte a saída do \texttt{Add Const} e a portadora.
+  \item Adicione \texttt{Throttle} e as sinks (Time + Freq).
+  \item Conexão: Msg $\to$ Multiply Const $\to$ Add Const $\to$ Multiply
+    $\leftarrow$ Portadora \\
+    Multiply $\to$ Throttle $\to$ Time Sink e Freq Sink.
+  \item Execute. Defina $\mu = 0.5$ e verifique:
+    \begin{itemize}
+      \item No tempo: envoltória nunca negativa, forma ``AM clássica''.
+      \item No espectro: portadora proeminente + duas bandas laterais menores.
+    \end{itemize}
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 2 -- Variação do índice de modulação (15--28 min)}
+
+\begin{instrucao}[Observar sub, plena e sobremodulação]
+\begin{enumerate}[label=\arabic*.]
+  \item Com o flowgraph em execução, ajuste o slider para cada valor abaixo e
+    \textbf{registre as observações} no tempo e no espectro:
+
+    \begin{center}
+    \begin{tabular}{c l}
+      \toprule
+      $\mu$ & Regime esperado \\
+      \midrule
+      0.3 & Submodulação (envoltória acima do zero) \\
+      0.5 & Submodulação moderada \\
+      1.0 & Modulação plena (envoltória toca zero) \\
+      1.3 & Sobremodulação (envoltória cruza zero) \\
+      1.8 & Sobremodulação severa \\
+      \bottomrule
+    \end{tabular}
+    \end{center}
+
+  \item \textbf{Registre} as amplitudes do pico da portadora e das bandas
+    laterais para $\mu = 0.5$, 1.0 e 1.3. Calcule a eficiência $\eta$.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 3 -- Detecção de envoltória (28--42 min)}
+
+\begin{instrucao}[Construção do detector de envoltória]
+\begin{enumerate}[label=\arabic*.]
+  \item Localize o bloco \texttt{Envelope Detector} (em \textit{Level Controls}).
+    Configure: Bandwidth = 0.05 (taxa de decaimento da envoltória).
+  \item Conecte a saída do \texttt{Throttle} ao \texttt{Envelope Detector}.
+  \item Adicione \texttt{DC Blocker} após o \texttt{Envelope Detector}
+    para remover a componente DC.
+  \item Conecte ao terceiro canal do \texttt{QT GUI Time Sink}:
+    canal 1 = mensagem original, canal 2 = sinal AM, canal 3 = envoltória
+    detectada.
+  \item Execute e compare os três sinais para $\mu = 0.5$, $1.0$ e $1.3$.
+    \textbf{Observe} quando a detecção de envoltória começa a distorcer.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 4 -- Medições e capturas (42--50 min)}
+
+\begin{enumerate}[label=\arabic*.]
+  \item Capture o espectro para $\mu = 0.5$, $1.0$ e $1.3$.
+  \item Anote amplitudes de portadora e bandas laterais.
+  \item Compare a mensagem original com a detectada em cada cenário.
+\end{enumerate}
+
+% ======================================================
+\section{Tabela de registro}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c c c}
+    \toprule
+    $\mu$ & Amp.\ portadora & Amp.\ BL & $\eta$ calculado &
+      Envoltória cruzou zero? & Distorção? \\
+    \midrule
+    0.3 & & & & &  \\
+    0.5 & & & & &  \\
+    1.0 & & & & &  \\
+    1.3 & & & & &  \\
+    1.8 & & & & &  \\
+    \bottomrule
+  \end{tabular}
+  \caption{Medições para diferentes índices de modulação.}
+\end{table}
+
+% ======================================================
+\section{Perguntas para o relatório}
+
+\begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
+
+  \item Como você calculou o índice de modulação $\mu$ a partir do espectro?
+    Relacione as amplitudes da portadora e das bandas laterais com a
+    equação~\eqref{eq:am}.
+
+  \item Qual é a diferença visual -- no domínio do tempo -- entre os regimes
+    de submodulação, modulação plena e sobremodulação? Por que a envoltória
+    cruzar o zero é crítico para o detector de envoltória?
+
+  \item Por que o detector de envoltória falha no caso de sobremodulação
+    ($\mu > 1$)? O que ocorre fisicamente com a envoltória detectada?
+
+  \item Compare o AM convencional (DSB+C) com o DSB-SC em termos de eficiência
+    de potência. Para $\mu = 0.5$, quanto da potência total é transmitida
+    nas bandas laterais (informação útil)?
+
+  \item Qual é a relação entre as amplitudes da portadora e das bandas
+    laterais no espectro? Como essa relação muda com $\mu$ e o que isso
+    implica para o receptor?
+
+\end{enumerate}
+
+% ======================================================
+\section{Entregáveis}
+
+\begin{itemize}
+  \item Relatório em PDF (\texttt{relatorio\_pratica\_03.tex}).
+  \item Capturas do espectro para $\mu = 0.5$, $1.0$ e $1.3$.
+  \item Capturas no tempo mostrando o detector de envoltória para os
+    mesmos três casos.
+  \item Tabela de registro preenchida com cálculo de $\eta$.
+  \item Respostas às 5 questões.
+\end{itemize}
+
+\begin{atencao}[Dica -- Envelope Detector]
+Se o bloco \texttt{Envelope Detector} não estiver disponível na sua versão,
+implemente manualmente: use \texttt{Complex to Mag} (após converter para
+complexo) ou calcule $|x|$ usando um bloco \texttt{Transcendental} com
+função \texttt{abs}, seguido de um \texttt{Low Pass Filter} para suavizar.
+\end{atencao}
+
+\end{document}

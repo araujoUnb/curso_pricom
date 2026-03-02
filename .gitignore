@@ -62,6 +62,17 @@
 *.synctex.gz
 *.synctex.gz(busy)
 *.pdfsync
+*.loa
+*.lol
+*.thm
+*.brf
+*.mw
+*.maf
+*.mtc
+*.mtc*
+*.ptc
+*.xmpdata
+*.xmpi
 
 # Arquivos do pythontex
 *.pytxcode
@@ -133,6 +144,10 @@ Thumbs.db
 Modulo1/Latex-slides/figures/**/*.png
 Modulo2/Latex-slides/figures/**/*.png
 Modulo3/Latex-slides/figures/**/*.png
+
+# Ignorar figuras geradas para gabaritos em LaTeX (Laboratório)
+Laboratorio/gabaritos_professor/**/grafico_esperado.png
+Laboratorio/**/figuras/**/*.png
 
 # Ignorar todos os PDFs
 *.pdf

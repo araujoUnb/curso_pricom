@@ -1,0 +1,98 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{hyperref}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.7cm,bottom=2.5cm}
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0.25em}
+\onehalfspacing
+
+% ===== Dados a preencher pelo aluno =====
+\newcommand{\disciplina}{FGA0092 -- Princípios de Comunicação para Engenharia}
+\newcommand{\pratica}{Prática X -- Título da prática}
+\newcommand{\aluno}{Nome do(a) aluno(a)}
+\newcommand{\matricula}{Matrícula}
+\newcommand{\turma}{Turma}
+\newcommand{\professor}{Prof. Daniel Costa Araújo}
+\newcommand{\semestre}{2026/1}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+
+    \includegraphics[width=0.22\textwidth]{../../figures_global/unb.png}\\[1.0cm]
+
+    {\Large \textbf{Universidade de Brasília}}\\[0.2cm]
+    {\normalsize Faculdade de Ciências e Tecnologias em Engenharia}\\[1.0cm]
+
+    {\Large \textbf{\disciplina}}\\[0.4cm]
+    {\large Relatório de Laboratório}\\[0.4cm]
+    {\Large \textbf{\pratica}}\\[1.2cm]
+
+    \begin{tabular}{ll}
+        \textbf{Aluno(a):} & \aluno \\
+        \textbf{Matrícula:} & \matricula \\
+        \textbf{Turma:} & \turma \\
+        \textbf{Professor:} & \professor \\
+        \textbf{Semestre:} & \semestre \\
+    \end{tabular}
+
+    \vfill
+    Brasília -- DF\\
+    \the\year
+\end{titlepage}
+
+\section{Introdução}
+Apresente o contexto da prática, a motivação do experimento e os objetivos principais.
+
+\section{Metodologia}
+Descreva como o experimento foi realizado:
+\begin{itemize}
+    \item ferramentas e blocos utilizados no GNU Radio;
+    \item parâmetros adotados (frequências, taxas, ganhos, ruído etc.);
+    \item passo a passo resumido da execução.
+\end{itemize}
+
+\section{Resultados}
+Apresente os resultados obtidos (figuras, tabelas e análises).
+
+\subsection*{Sugestão de organização}
+\begin{itemize}
+    \item Resultado 1: descrição + figura
+    \item Resultado 2: comparação entre cenários
+    \item Resultado 3: discussão dos efeitos observados
+\end{itemize}
+
+\section{Conclusão}
+Retome os objetivos e sintetize os principais aprendizados da prática. Indique limitações e possíveis melhorias.
+
+\section{Referências}
+\begin{thebibliography}{9}
+
+\bibitem{proakis}
+John G. Proakis,
+\textit{Digital Communications},
+5th ed., McGraw-Hill, 2008.
+
+\bibitem{lathi}
+B. P. Lathi and Zhi Ding,
+\textit{Modern Digital and Analog Communication Systems},
+4th ed., Oxford University Press, 2009.
+
+\bibitem{gnuradio}
+GNU Radio Foundation,
+\textit{GNU Radio Documentation}.
+Disponível em: \url{https://wiki.gnuradio.org/}.
+Acesso em: 02 mar. 2026.
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,269 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Enunciado -- Prática 05}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Prática 05}}\\[0.15cm]
+  {\Large\textbf{Modulação FM: Desvio, Índice e Regra de Carson}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Duração:} 50 minutos \hfill
+\textbf{Software:} GNU Radio Companion $\geq$ 3.10 \hfill
+\textbf{Semestre:} 2026/1
+
+\bigskip
+
+% ======================================================
+\section{Objetivos}
+
+\begin{itemize}
+  \item Gerar e demodular sinais FM de faixa estreita (NBFM) e larga
+    (WBFM) usando os blocos \texttt{WBFM Transmit} e \texttt{WBFM Receive}.
+  \item Medir a largura de banda do sinal FM no espectro para diferentes
+    desvios de frequência $\Delta f$ e frequências de mensagem $f_m$.
+  \item Verificar experimentalmente a \textbf{Regra de Carson}:
+    $B_T \approx 2(\Delta f + f_m)$.
+  \item Comparar a qualidade do sinal recuperado para NBFM ($\beta < 1$) e
+    WBFM ($\beta \gg 1$) com a adição de ruído.
+\end{itemize}
+
+% ======================================================
+\section{Fundamentos teóricos (síntese)}
+
+O sinal FM para mensagem senoidal $m(t) = A_m\cos(2\pi f_m t)$ é:
+\begin{equation}
+  s(t) = A_c\cos\!\left[2\pi f_c t + \frac{\Delta f}{f_m}\sin(2\pi f_m t)\right],
+\end{equation}
+onde o \textbf{índice de modulação} é $\beta = \Delta f / f_m$.
+
+A \textbf{Regra de Carson} fornece a largura de banda prática:
+\begin{equation}
+  B_T \approx 2(\beta + 1)f_m = 2(\Delta f + f_m).
+  \label{eq:carson}
+\end{equation}
+
+O espectro da FM é composto por linhas em $f_c \pm n f_m$ ponderadas pelas
+funções de Bessel de primeiro tipo $J_n(\beta)$.  Para $\beta \ll 1$
+(NBFM), predominam os termos $n = 0, \pm1$ e o espectro se assemelha ao AM.
+Para $\beta \gg 1$ (WBFM), muitos termos contribuem e a largura de banda
+cresce com $\beta$.
+
+A \textbf{vantagem de FM sobre AM} para relação sinal-ruído é
+$\text{SNR}_{o,\text{FM}} \approx 3\beta^2(\beta+1)\,\text{SNR}_i$,
+proporcional ao cubo do índice para WBFM.
+
+% ======================================================
+\section{Materiais e blocos GNU Radio}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l l}
+    \toprule
+    \textbf{Bloco GRC} & \textbf{Localização} & \textbf{Função} \\
+    \midrule
+    \texttt{Variable}          & Miscellaneous        & Parâmetros globais \\
+    \texttt{Signal Source}     & Waveform Generators  & Sinal mensagem \\
+    \texttt{WBFM Transmit}     & Modulators           & Modulador FM \\
+    \texttt{WBFM Receive}      & Modulators           & Demodulador FM \\
+    \texttt{Noise Source}      & Waveform Generators  & Ruído gaussiano \\
+    \texttt{Add}               & Math Operators       & Inserir ruído \\
+    \texttt{Throttle}          & Misc Operators       & Controle de CPU \\
+    \texttt{QT GUI Freq Sink}  & Instrumentation      & Analisador de espectro \\
+    \texttt{QT GUI Time Sink}  & Instrumentation      & Formas de onda \\
+    \texttt{QT GUI Range}      & GUI Widgets          & Controles deslizantes \\
+    \bottomrule
+  \end{tabular}
+  \caption{Blocos utilizados na Prática 05.}
+\end{table}
+
+% ======================================================
+\section{Roteiro de montagem e execução (50 min)}
+
+\subsection*{Parâmetros iniciais}
+
+\begin{center}
+\begin{tabular}{l l}
+  \texttt{samp\_rate} = 480\,000\,Hz & \texttt{audio\_rate} = 48\,000\,Hz \\
+  $f_m$ = 2\,000\,Hz (variável) & $\Delta f$ = 5\,000\,Hz (variável) \\
+  Amplitude mensagem = 1.0 & \\
+\end{tabular}
+\end{center}
+
+\atencao{Atenção -- taxa de amostragem}{O bloco \texttt{WBFM Transmit} opera
+com taxa de saída $=$ \texttt{samp\_rate}, enquanto \texttt{WBFM Receive}
+decimated para \texttt{audio\_rate}.  Use \texttt{samp\_rate = 480000} e
+\texttt{audio\_rate = 48000} (fator de decimação = 10).}
+
+\subsection*{Etapa 1 -- Modulador FM e espectro básico (0--14 min)}
+
+\begin{instrucao}[Geração e visualização do sinal FM]
+\begin{enumerate}[label=\arabic*.]
+  \item Crie variáveis:
+    \begin{itemize}
+      \item \texttt{samp\_rate = 480000}
+      \item \texttt{audio\_rate = 48000}
+      \item \texttt{max\_dev = 5000} (desvio máximo em Hz)
+    \end{itemize}
+  \item Crie \texttt{fm\_freq} como \texttt{QT GUI Range}
+    (min: 500, max: 10000, passo: 500, padrão: 2000).
+  \item Adicione \textbf{Signal Source}: Cosine, freq = \texttt{fm\_freq},
+    amplitude = 1.0, samp\_rate = \texttt{audio\_rate}.
+  \item Adicione \texttt{WBFM Transmit}:
+    \begin{itemize}
+      \item Interpolation = \texttt{samp\_rate / audio\_rate} = 10
+      \item Max Deviation = \texttt{max\_dev}
+    \end{itemize}
+  \item Adicione \texttt{Throttle} (samp\_rate = \texttt{samp\_rate}) e
+    \texttt{QT GUI Freq Sink} (FFT Size = 4096, samp\_rate = \texttt{samp\_rate}).
+  \item Execute. Observe o espectro FM em torno de $f_c = 0$ (banda base).
+  \item Meça a largura de banda visual para $f_m = 2000$\,Hz,
+    $\Delta f = 5000$\,Hz ($\beta = 2.5$).
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 2 -- Verificação da Regra de Carson (14--28 min)}
+
+\begin{instrucao}[Medir largura de banda para diferentes $f_m$ e $\Delta f$]
+\begin{enumerate}[label=\arabic*.]
+  \item Crie variável \texttt{max\_dev} como \texttt{QT GUI Range}
+    (min: 1000, max: 20000, passo: 1000, padrão: 5000).
+  \item Preencha a Tabela~\ref{tab:carson} variando $f_m$ e $\Delta f$:
+    \begin{itemize}
+      \item Para cada combinação, registre a $B_T$ medida no espectro.
+      \item Calcule $B_T$ pela Regra de Carson (Eq.~\eqref{eq:carson})
+        e compare.
+    \end{itemize}
+\end{enumerate}
+\end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c c c}
+    \toprule
+    $f_m$ (Hz) & $\Delta f$ (Hz) & $\beta = \Delta f/f_m$ &
+      $B_T^\text{Carson}$ & $B_T^\text{medida}$ & Erro (\%) \\
+    \midrule
+    1\,000 & 2\,000 & 2.0 & & &  \\
+    1\,000 & 5\,000 & 5.0 & & &  \\
+    2\,000 & 2\,000 & 1.0 & & &  \\
+    2\,000 & 10\,000 & 5.0 & & &  \\
+    4\,000 & 4\,000 & 1.0 & & &  \\
+    4\,000 & 20\,000 & 5.0 & & &  \\
+    \bottomrule
+  \end{tabular}
+  \caption{Verificação da Regra de Carson.}
+  \label{tab:carson}
+\end{table}
+
+\subsection*{Etapa 3 -- Demodulação FM (28--40 min)}
+
+\begin{instrucao}[Construção do demodulador WBFM]
+\begin{enumerate}[label=\arabic*.]
+  \item Adicione \texttt{WBFM Receive}:
+    \begin{itemize}
+      \item Decimation = 10
+      \item Deemphasis = 0 (desligar deênfase por enquanto)
+    \end{itemize}
+  \item Conecte: WBFM Transmit $\to$ Throttle $\to$ WBFM Receive
+    $\to$ QT GUI Time Sink.
+  \item Adicione um segundo canal no Time Sink para a mensagem original.
+  \item Execute. Compare a mensagem original com a demodulada. A forma de
+    onda deve ser praticamente idêntica.
+  \item Mude $f_m$ e $\Delta f$ com os sliders: a recuperação continua fiel?
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 4 -- Efeito do ruído: NBFM vs WBFM (40--50 min)}
+
+\begin{instrucao}[Inserir ruído e comparar NBFM e WBFM]
+\begin{enumerate}[label=\arabic*.]
+  \item Adicione \texttt{Noise Source} (tipo: Gaussian) e \texttt{Add}
+    entre o WBFM Transmit e o WBFM Receive.
+  \item Crie variável \texttt{noise\_amp} como \texttt{QT GUI Range}
+    (min: 0, max: 0.5, passo: 0.01, padrão: 0).
+  \item Defina $\Delta f = 2000$\,Hz, $f_m = 2000$\,Hz ($\beta = 1$,
+    \textbf{NBFM}). Aumente o ruído até a demodulação degradar. Registre
+    o valor de \texttt{noise\_amp} limite.
+  \item Repita com $\Delta f = 20000$\,Hz ($\beta = 10$, \textbf{WBFM}).
+    Anote diferença na robustez ao ruído.
+\end{enumerate}
+\end{instrucao}
+
+% ======================================================
+\section{Perguntas para o relatório}
+
+\begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
+
+  \item Qual é a relação entre o desvio de frequência $\Delta f$ e o
+    comportamento do sinal FM no domínio do tempo? O que muda visualmente
+    quando $\Delta f$ aumenta?
+
+  \item Com base na Tabela~\ref{tab:carson}, a Regra de Carson se confirma
+    experimentalmente? Discuta as fontes de erro entre $B_T^\text{Carson}$
+    e $B_T^\text{medida}$.
+
+  \item Qual é a diferença entre FM de faixa estreita (NBFM, $\beta < 1$)
+    e de faixa larga (WBFM, $\beta \gg 1$) em termos de espectro e
+    complexidade de implementação?
+
+  \item Por que o FM é mais robusto ao ruído do que o AM, especialmente para
+    índices de modulação altos? Qual é o custo desta robustez?
+
+  \item Qual foi o valor mínimo de \texttt{noise\_amp} que degradou
+    visivelmente a demodulação para NBFM e para WBFM? Que conclusão você
+    tira sobre a relação entre $\beta$ e resistência ao ruído?
+
+\end{enumerate}
+
+% ======================================================
+\section{Entregáveis}
+
+\begin{itemize}
+  \item Relatório em PDF (\texttt{relatorio\_pratica\_05.tex}).
+  \item Espectro para pelo menos 3 combinações ($f_m$, $\Delta f$) com
+    medição de $B_T$.
+  \item Tabela de Carson preenchida com cálculo de erro.
+  \item Comparação NBFM vs WBFM com ruído (capturas de tela).
+  \item Respostas às 5 questões.
+\end{itemize}
+
+\end{document}

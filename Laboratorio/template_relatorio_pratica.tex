@@ -1,0 +1,278 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xcolor}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.7cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\onehalfspacing
+
+% ---------------------------------------------------------------
+% DADOS DA DISCIPLINA (não altere)
+% ---------------------------------------------------------------
+\newcommand{\disciplina}{FGA0092 -- Princípios de Comunicação para Engenharia}
+\newcommand{\semestre}{2026/1}
+\newcommand{\professor}{Prof. Daniel Costa Araújo}
+
+% ---------------------------------------------------------------
+% DADOS DA PRÁTICA (professor preenche ao criar o arquivo)
+% ---------------------------------------------------------------
+\newcommand{\praticaNumero}{X}
+\newcommand{\praticaTitulo}{TÍTULO DA PRÁTICA}
+
+% ---------------------------------------------------------------
+% DADOS DO ALUNO (aluno preenche)
+% ---------------------------------------------------------------
+\newcommand{\alunoNome}{NOME COMPLETO DO(A) ALUNO(A)}
+\newcommand{\matricula}{MATRÍCULA}
+\newcommand{\turma}{TURMA}
+\newcommand{\dataRealizacao}{DD/MM/AAAA}
+\newcommand{\dataEntrega}{DD/MM/AAAA}
+
+% ---------------------------------------------------------------
+% Cabeçalho e rodapé
+% ---------------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{\disciplina}}
+\fancyhead[R]{\small Prática \praticaNumero\ -- Relatório}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ---------------------------------------------------------------
+% Caixa de destaque para dicas
+% ---------------------------------------------------------------
+\newcommand{\dica}[1]{%
+  \par\vspace{0.3em}%
+  \noindent\colorbox{gray!15}{\parbox{0.97\linewidth}{\small\textbf{Orientação:} #1}}%
+  \par\vspace{0.3em}%
+}
+
+\begin{document}
+
+% ==============================================================
+% CAPA
+% ==============================================================
+\begin{titlepage}
+  \centering
+  \vspace*{0.4cm}
+
+  \includegraphics[width=0.22\textwidth]{../figures_global/unb.png}\\[1.0cm]
+
+  {\large \textbf{Universidade de Brasília (UnB)}}\\[0.15cm]
+  {\normalsize Faculdade de Ciências e Tecnologias em Engenharia (FCTE)}\\[0.8cm]
+
+  \rule{13cm}{0.8pt}\\[0.5cm]
+  {\Large \textbf{\disciplina}}\\[0.5cm]
+  {\large Relatório de Laboratório -- GNU Radio}\\[0.5cm]
+  \rule{13cm}{0.8pt}\\[0.8cm]
+
+  {\Large \textbf{Prática \praticaNumero}}\\[0.3cm]
+  {\LARGE \textbf{\praticaTitulo}}\\[1.2cm]
+
+  \begin{tabular}{>{\bfseries}p{4.2cm} p{9.0cm}}
+    \toprule
+    Aluno(a):         & \alunoNome \\[0.25cm]
+    Matrícula:        & \matricula \\[0.25cm]
+    Turma:            & \turma \\[0.25cm]
+    Professor:        & \professor \\[0.25cm]
+    Semestre:         & \semestre \\[0.25cm]
+    Data da prática:  & \dataRealizacao \\[0.25cm]
+    Data de entrega:  & \dataEntrega \\
+    \bottomrule
+  \end{tabular}
+
+  \vfill
+  {\large Brasília -- DF}\\
+  {\large \the\year}
+\end{titlepage}
+
+% ==============================================================
+\section{Objetivos}
+% ==============================================================
+\dica{Descreva em 3--5 linhas o que a prática se propõe a demonstrar.
+Responda: \textit{O que foi verificado experimentalmente? Quais grandezas foram
+medidas ou comparadas?}}
+
+% Espaço para o aluno:
+\vspace{4cm}
+
+% ==============================================================
+\section{Fundamentação teórica}
+% ==============================================================
+\dica{Apresente os conceitos essenciais: definições, equações e hipóteses
+relevantes ao experimento. Seja conciso -- máximo 1 página. Equações devem
+ser numeradas.}
+
+% Espaço para o aluno:
+\vspace{7cm}
+
+% ==============================================================
+\section{Configuração do experimento (GNU Radio)}
+% ==============================================================
+
+\subsection{Blocos utilizados}
+\dica{Liste cada bloco GNU Radio empregado e explique brevemente sua função
+no \textit{flowgraph}.}
+
+\begin{itemize}
+  \item \texttt{BLOCO 1} -- função no experimento.
+  \item \texttt{BLOCO 2} -- função no experimento.
+  \item \texttt{BLOCO 3} -- função no experimento.
+\end{itemize}
+
+\subsection{Parâmetros principais}
+\dica{Preencha a tabela com os valores que você configurou. Adicione linhas
+se necessário.}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l c c}
+    \toprule
+    \textbf{Parâmetro} & \textbf{Caso A} & \textbf{Caso B} \\
+    \midrule
+    Taxa de amostragem (\texttt{samp\_rate})  &  &  \\
+    Frequência da mensagem ($f_m$)            &  &  \\
+    Frequência da portadora ($f_c$)           &  &  \\
+    Amplitude do sinal                        &  &  \\
+    Nível de ruído / $\sigma^2$               &  &  \\
+    Outros parâmetros específicos             &  &  \\
+    \bottomrule
+  \end{tabular}
+  \caption{Parâmetros configurados no flowgraph para cada cenário.}
+\end{table}
+
+% ==============================================================
+\section{Procedimento}
+% ==============================================================
+\dica{Descreva passo a passo o que foi executado durante o laboratório,
+incluindo a sequência de montagem dos blocos e as variações de parâmetros
+realizadas. Use linguagem técnica e sequencial.}
+
+\vspace{6cm}
+
+% ==============================================================
+\section{Resultados e discussão}
+% ==============================================================
+
+\subsection{Capturas do GNU Radio}
+\dica{Insira aqui as capturas de tela obtidas (domínio do tempo e da
+frequência). Numere e legendas todas as figuras. Use
+\texttt{\textbackslash includegraphics} descomentando a linha indicada.}
+
+\begin{figure}[H]
+  \centering
+  % \includegraphics[width=0.85\textwidth]{figuras/figura1.png}
+  \fbox{\parbox[c][5cm][c]{0.85\textwidth}{\centering
+    Inserir captura de tela do GNU Radio aqui \\[0.3cm]
+    (domínio do tempo -- Caso A)}}
+  \caption{[Descreva: sinal, blocos ativados, parâmetros e condição do
+  experimento.]}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  % \includegraphics[width=0.85\textwidth]{figuras/figura2.png}
+  \fbox{\parbox[c][5cm][c]{0.85\textwidth}{\centering
+    Inserir segunda captura de tela do GNU Radio aqui \\[0.3cm]
+    (domínio da frequência -- espectro)}}
+  \caption{[Segundo resultado -- descreva condições distintas do primeiro.]}
+\end{figure}
+
+\subsection{Análise dos resultados}
+\dica{Interprete cada captura. Relacione o observado com a teoria: o
+comportamento corresponde ao esperado? Houve discrepâncias? Por quê?}
+
+\vspace{5cm}
+
+% ==============================================================
+\section{Perguntas obrigatórias}
+% ==============================================================
+\dica{Responda diretamente após cada pergunta. Respostas muito curtas (uma
+linha) sem justificativa técnica não serão aceitas. Cite figuras ou tabelas
+quando pertinente.}
+
+\begin{enumerate}[leftmargin=*, label=\textbf{Q\arabic*.}]
+
+  \item \textbf{[Pergunta 1 -- substituída no arquivo específico]}
+  \begin{quote}\textit{Resposta:}\end{quote}
+  \vspace{1.8cm}
+
+  \item \textbf{[Pergunta 2]}
+  \begin{quote}\textit{Resposta:}\end{quote}
+  \vspace{1.8cm}
+
+  \item \textbf{[Pergunta 3]}
+  \begin{quote}\textit{Resposta:}\end{quote}
+  \vspace{1.8cm}
+
+  \item \textbf{[Pergunta 4]}
+  \begin{quote}\textit{Resposta:}\end{quote}
+  \vspace{1.8cm}
+
+  \item \textbf{[Pergunta 5]}
+  \begin{quote}\textit{Resposta:}\end{quote}
+  \vspace{1.8cm}
+
+\end{enumerate}
+
+% ==============================================================
+\section{Conclusão}
+% ==============================================================
+\dica{Em 4 a 7 linhas: relacione os resultados com os objetivos e a teoria.
+Mencione eventuais limitações do setup simulado e o que poderia ser
+melhorado.}
+
+\vspace{4cm}
+
+% ==============================================================
+\section*{Referências}
+% ==============================================================
+\begin{thebibliography}{9}
+  \bibitem{lathi}
+    LATHI, B.\,P.; DING, Z\@.
+    \textit{Modern Digital and Analog Communication Systems}.
+    4.~ed. Oxford University Press, 2009.
+
+  \bibitem{proakis}
+    PROAKIS, J.\,G.; SALEHI, M\@.
+    \textit{Communication Systems Engineering}.
+    2.~ed. Prentice Hall, 2002.
+
+  \bibitem{gnuradio}
+    GNU Radio Foundation.
+    \textit{GNU Radio Documentation}.
+    Disponível em: \url{https://wiki.gnuradio.org/}.
+    Acesso em: \dataEntrega.
+\end{thebibliography}
+
+% ==============================================================
+\section*{Checklist de entrega}
+% ==============================================================
+\begin{itemize}[leftmargin=2em]
+  \item[$\square$] Capa com dados completos (nome, matrícula, turma, datas).
+  \item[$\square$] Seção de objetivos preenchida (não genérica).
+  \item[$\square$] Fundamentação teórica com equações relevantes.
+  \item[$\square$] Tabela de parâmetros completamente preenchida.
+  \item[$\square$] Ao menos \textbf{2 capturas de tela} legíveis e legendadas.
+  \item[$\square$] Análise dos resultados conectando observações e teoria.
+  \item[$\square$] \textbf{Todas as 5 perguntas obrigatórias} respondidas com
+    justificativa.
+  \item[$\square$] Conclusão presente e coerente com os resultados.
+\end{itemize}
+
+\end{document}
