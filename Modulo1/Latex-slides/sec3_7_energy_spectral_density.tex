@@ -24,7 +24,7 @@ Sinais podem ser classificados em duas categorias:
    \end{itemize}
 \end{enumerate}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Nota:} Alguns sinais (como $t$ ou $e^t$) não se enquadram em nenhuma categoria: energia e potência infinitas.
 
@@ -50,7 +50,7 @@ E = \int_{-\infty}^{\infty} |f(t)|^2 dt
 \item Integral acumula energia total ao longo do tempo
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Unidades:}
 
@@ -59,7 +59,7 @@ E = \int_{-\infty}^{\infty} |f(t)|^2 dt
 \item Se $f(t)$ é normalizado: energia adimensional
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Para sinais complexos:} $|f(t)|^2 = f(t) \cdot f^*(t)$ onde $f^*(t)$ é o conjugado complexo.
 
@@ -127,7 +127,7 @@ E = \int_{-\infty}^{\infty} |f(t)|^2 dt = \frac{1}{2\pi} \int_{-\infty}^{\infty}
 \item $|F(\omega)|^2/(2\pi)$ representa densidade de energia por unidade de frequência
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Analogia:} Como a energia total de um sistema físico permanece constante em diferentes sistemas de coordenadas.
 
@@ -135,7 +135,7 @@ E = \int_{-\infty}^{\infty} |f(t)|^2 dt = \frac{1}{2\pi} \int_{-\infty}^{\infty}
 
 % ============================================
 
-\begin{frame}{Demonstração do Teorema de Parseval (revisão)}
+\begin{frame}{Demonstração do Teorema de Parseval (1/2)}
 
 Começamos com a definição de energia:
 
@@ -146,11 +146,16 @@ E = \int_{-\infty}^{\infty} |f(t)|^2 dt = \int_{-\infty}^{\infty} f(t) f^*(t) dt
 Substituindo a transformada inversa para $f^*(t)$:
 
 \[
-f^*(t) = \left[\frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) e^{j\omega t} d\omega\right]^* = \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) e^{-j\omega t} d\omega
+f^*(t) = \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) e^{-j\omega t} d\omega
 \]
 
-Portanto:
+\end{frame}
 
+% ============================================
+
+\begin{frame}{Demonstração do Teorema de Parseval (2/2)}
+
+Portanto:
 \[
 E = \int_{-\infty}^{\infty} f(t) \left[\frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) e^{-j\omega t} d\omega\right] dt
 \]
@@ -158,7 +163,7 @@ E = \int_{-\infty}^{\infty} f(t) \left[\frac{1}{2\pi} \int_{-\infty}^{\infty} F^
 Trocando a ordem de integração:
 
 \[
-E = \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) \left[\int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt\right] d\omega
+E = \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) \underbrace{\left[\int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt\right]}_{F(\omega)} d\omega
 \]
 
 \end{frame}
@@ -333,7 +338,7 @@ A \textbf{largura de banda} de um sinal quantifica a faixa de frequências que c
 
 onde $\alpha$ é a fração desejada (ex: 0.90 para 90\%, 0.99 para 99\%).
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Exemplo: Pulso retangular}
 
@@ -413,7 +418,7 @@ Para este sinal:
 \item Usada em comunicações ópticas e rádio
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Todos os outros sinais:} $\Delta t \cdot \Delta \omega > 1/2$
 
@@ -455,21 +460,20 @@ E_y = \frac{1}{2\pi} \int_{-\infty}^{\infty} |Y(\omega)|^2 d\omega = \frac{1}{2\
 
 \begin{frame}{Exemplo: Pulso através de Filtro RC}
 
-\textbf{Entrada:} Pulso $x(t) = \delta(t)$ (impulso unitário)
+\textbf{Entrada:} Pulso $x(t) = \delta(t)$ (impulso unitário), $X(\omega) = 1$, $\Psi_x(\omega) = 1$
 
-$X(\omega) = 1$, $\Psi_x(\omega) = 1$
-
-\textbf{Sistema:} Filtro RC passa-baixas
-
-\[
-H(\omega) = \frac{1}{1 + j\omega RC}
-\]
+\textbf{Sistema:} Filtro RC passa-baixas com $H(\omega) = \frac{1}{1 + j\omega RC}$
 
 \textbf{DEE da saída:}
-
 \[
 \Psi_y(\omega) = |H(\omega)|^2 = \frac{1}{1 + (\omega RC)^2}
 \]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Energia na Saída do Filtro RC}
 
 \textbf{Energia da saída:}
 
@@ -482,6 +486,8 @@ Com $\omega_c = 1/(RC)$:
 \[
 E_y = \frac{1}{2\pi} \cdot \frac{2\pi}{\omega_c \cdot 2} = \frac{1}{2\omega_c} = \frac{RC}{2}
 \]
+
+\textbf{Conclusão:} A energia de saída é proporcional a $RC$ (inversamente proporcional à largura de banda).
 
 \end{frame}
 
@@ -505,7 +511,7 @@ E_{pass} = \frac{1}{2\pi} \int_{-W}^{W} \Psi_x(\omega) d\omega
 \eta = \frac{E_{pass}}{E_{total}} = \frac{\int_{-W}^{W} \Psi_x(\omega) d\omega}{\int_{-\infty}^{\infty} \Psi_x(\omega) d\omega}
 \]
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Exemplo: Exponencial} $e^{-a|t|}$ com $\Psi(\omega) = 4a^2/(a^2+\omega^2)^2$
 
@@ -536,7 +542,7 @@ R(\tau) = \int_{-\infty}^{\infty} f(t) f^*(t - \tau) dt
 \item $|R(\tau)| \leq R(0) = E$
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Interpretação:} Mede similaridade do sinal com versão deslocada de si mesmo.
 
@@ -562,7 +568,7 @@ A autocorrelação e a DEE são pares de Fourier!
 \item \textbf{Teorema de Parseval:} Energia conservada entre domínios
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Densidade Espectral de Energia:}
 
@@ -572,7 +578,7 @@ A autocorrelação e a DEE são pares de Fourier!
 \item Em sistemas LTI: $\Psi_y(\omega) = |H(\omega)|^2 \Psi_x(\omega)$
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Princípios importantes:}
 

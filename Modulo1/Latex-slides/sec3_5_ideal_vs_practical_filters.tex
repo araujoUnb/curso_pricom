@@ -124,7 +124,7 @@ H_{BS}(\omega) = \begin{cases}
 \item \textbf{Seletividade perfeita:} Separa exatamente as frequências desejadas
 \end{itemize}
 
-\vspace{0.5cm}
+\vspace{0.2cm}
 
 \textbf{Aplicações teóricas:}
 \begin{itemize}
@@ -133,7 +133,7 @@ H_{BS}(\omega) = \begin{cases}
 \item Referência para comparação com filtros reais
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Problema:} Filtros ideais são \textbf{fisicamente irrealizáveis}!
 
@@ -160,7 +160,7 @@ h_{LP}(t) = \frac{\omega_c}{\pi} \sinc\left(\frac{\omega_c t}{\pi}\right) = \fra
 \item Decai como $1/t$ (lentamente)
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Problema crítico:}
 
@@ -194,7 +194,7 @@ Um filtro com função de transferência $H(\omega)$ é causalmente realizável 
 \item $|H(\omega)|$ não pode cair a zero "rápido demais"
 \end{enumerate}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Para filtro ideal passa-baixas:}
 
@@ -230,7 +230,7 @@ Como filtros ideais são irrealizáveis, usamos \textbf{aproximações causais}:
    Alguma distorção de fase aceitável
 \end{enumerate}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Compromissos inevitáveis:}
 
@@ -266,7 +266,7 @@ Um filtro prático passa-baixas é especificado por:
   \end{itemize}
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Parâmetros de projeto:}
 \begin{itemize}
@@ -301,7 +301,7 @@ onde $n$ é a ordem do filtro e $\omega_c$ é a frequência de corte de 3 dB.
 \item Sem ondulação na banda passante ou de rejeição
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Características de fase:}
 \begin{itemize}
@@ -327,7 +327,7 @@ onde $n$ é a ordem do filtro e $\omega_c$ é a frequência de corte de 3 dB.
 \item \textbf{$n \to \infty$:} Aproxima-se do filtro ideal (mas sempre causal)
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Relação ordem-transição:}
 
@@ -337,7 +337,7 @@ Para especificações dadas ($\omega_p$, $\omega_s$, $\delta_1$, $\delta_2$), a 
 n \geq \frac{\log\left[\frac{(1/\delta_2)^2 - 1}{(1/\delta_1)^2 - 1}\right]}{2\log(\omega_s/\omega_p)}
 \]
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Compromisso:} Maior ordem $\rightarrow$ melhor seletividade, mas maior complexidade e atraso.
 
@@ -389,7 +389,7 @@ O \textbf{filtro de Chebyshev Tipo II} permite ondulação na banda de rejeiçã
 \item Zeros de transmissão na banda de rejeição
 \end{itemize}
 
-\vspace{0.5cm}
+\vspace{0.2cm}
 
 \textbf{Comparação dos tipos:}
 
@@ -427,7 +427,7 @@ O \textbf{filtro de Bessel} maximiza a linearidade da fase.
 \item Preserva melhor a forma de pulsos
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Desvantagem:}
 
@@ -437,7 +437,7 @@ O \textbf{filtro de Bessel} maximiza a linearidade da fase.
 \item Banda de transição mais larga
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Aplicação ideal:} Transmissão de dados digitais onde preservar formato do pulso é crítico.
 
@@ -458,7 +458,7 @@ O \textbf{filtro elíptico} permite ondulação tanto na banda passante quanto n
 \item Zeros de transmissão na banda de rejeição e no eixo $j\omega$
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Função de transferência:}
 
@@ -468,7 +468,7 @@ O \textbf{filtro elíptico} permite ondulação tanto na banda passante quanto n
 
 onde $R_n$ é uma função racional (razão de polinômios).
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Aplicação:} Quando a ordem mínima é crítica (custo, consumo de energia).
 
@@ -516,7 +516,7 @@ Complexidade & Média & Média & Baixa & Alta \\
 \end{tabular}
 \end{center}
 
-\vspace{0.5cm}
+\vspace{0.2cm}
 
 \textbf{Escolha do filtro depende da aplicação:}
 
@@ -553,7 +553,7 @@ n = \left\lceil \frac{\log\left[\frac{(1/\delta_2)^2 - 1}{(1/\delta_1)^2 - 1}\ri
 
 onde $\lceil \cdot \rceil$ é a função teto (arredondamento para cima).
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Simplificação prática:} Para $\delta_1, \delta_2 \ll 1$:
 
@@ -616,7 +616,7 @@ n = \left\lceil \frac{\log[(1/0.0316)^2 - 1] - \log[(1/0.891)^2 - 1]}{2\log(3000
    \end{itemize}
 \end{enumerate}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Estruturas de implementação:}
 
@@ -640,7 +640,7 @@ n = \left\lceil \frac{\log[(1/0.0316)^2 - 1] - \log[(1/0.891)^2 - 1]}{2\log(3000
 \item Servem como referência teórica
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Filtros práticos (aproximações causais):}
 
@@ -651,7 +651,7 @@ n = \left\lceil \frac{\log[(1/0.0316)^2 - 1] - \log[(1/0.891)^2 - 1]}{2\log(3000
 \item \textbf{Elíptico:} Ordem mínima, máxima seletividade
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Compromissos inevitáveis:}
 

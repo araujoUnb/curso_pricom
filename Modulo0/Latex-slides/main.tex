@@ -156,7 +156,7 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}[shrink=10]{O sistema de comunicac\~{a}o: vis\~{a}o geral}
+\begin{frame}{O sistema de comunicac\~{a}o: vis\~{a}o geral}
 \begin{center}
 \begin{tikzpicture}[scale=0.9,
   block/.style={rectangle, rounded corners=4pt, draw=unbprimary, fill=unbprimary!15,
@@ -197,52 +197,51 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}[shrink=10]{Claude Shannon e o limite te\'{o}rico}
+\begin{frame}{Os tr\^{e}s desafios fundamentais}
+
+Todo sistema de comunicac\~{a}o enfrenta tr\^{e}s quest\~{o}es:
+
+\vspace{0.1cm}
+
 \begin{columns}
-\begin{column}{0.55\textwidth}
-  \textbf{O teorema do canal com ru\'{\i}do (1948) \cite{shannon1948mathematical}:}
-  \vspace{0.3cm}
-  \begin{block}{Capacidade de Shannon}
-  \[
-    C = B \log_2\!\left(1 + \frac{S}{N}\right) \quad \text{[bit/s]}
-  \]
-  \end{block}
-  \vspace{0.3cm}
-  \begin{itemize}
-    \item $B$ = largura de banda do canal [Hz]
-    \item $S/N$ = relac\~{a}o sinal-ru\'{\i}do (SNR)
-    \item $C$ = m\'{a}xima taxa de informac\~{a}o sem erro
-  \end{itemize}
-  \vspace{0.3cm}
-  \alert{Nenhum sistema pode superar o limite de Shannon.}
+\begin{column}{0.32\textwidth}
+\begin{center}
+\textbf{\textcolor{cBlue}{\Large 1. Espectro}}\\[0.3cm]
+\normalsize
+Qual largura de banda $B$ o sinal ocupa?\\[0.2cm]
+\small R\'{a}dio AM: 10 kHz\\
+R\'{a}dio FM: 200 kHz\\
+TV: 6 MHz
+\end{center}
 \end{column}
-\begin{column}{0.42\textwidth}
-  \begin{tikzpicture}[scale=0.85]
-  \begin{axis}[
-    xlabel={SNR (dB)}, ylabel={$C/B$ (bit/s/Hz)},
-    xmin=0, xmax=30, ymin=0, ymax=10,
-    grid=both, grid style={gray!30},
-    width=6.5cm, height=5.2cm,
-    tick label style={font=\tiny},
-    label style={font=\small},
-    title style={font=\small\bfseries},
-    title={Capacidade de Shannon},
-  ]
-  \addplot[thick, color=unbprimary, domain=0:30, samples=50]
-    { ln(1 + 10^(x/10)) / ln(2) };
-  \addplot[only marks, mark=*, color=orange, mark size=2pt]
-    coordinates {(20, 6.66)};
-  \node[font=\tiny, text=orange!80!black] at (axis cs:24,7.0) {Wi-Fi};
-  \addplot[only marks, mark=*, color=red!70!black, mark size=2pt]
-    coordinates {(25, 8.3)};
-  \node[font=\tiny, text=red!70!black] at (axis cs:27.5,8.7) {5G};
-  \end{axis}
-  \end{tikzpicture}
+\begin{column}{0.32\textwidth}
+\begin{center}
+\textbf{\textcolor{cOrange}{\Large 2. Ru\'{\i}do}}\\[0.3cm]
+\normalsize
+Como o ru\'{\i}do degrada o sinal recebido?\\[0.2cm]
+\small SNR = $P_{\text{sinal}}/P_{\text{ru\'{i}do}}$\\
+Quanto maior, melhor!
+\end{center}
+\end{column}
+\begin{column}{0.32\textwidth}
+\begin{center}
+\textbf{\textcolor{cTeal}{\Large 3. Modulac\~{a}o}}\\[0.3cm]
+\normalsize
+Como adaptar o sinal ao canal?\\[0.2cm]
+\small AM, FM, PM\\
+Cada uma com suas vantagens
+\end{center}
 \end{column}
 \end{columns}
+
+\vspace{0.2cm}
+
+\begin{center}
+\alert{Esta disciplina ensina a analisar e projetar sistemas que resolvem esses desafios.}
+\end{center}
 \end{frame}
 
-\begin{frame}[shrink=20]{Evoluc\~{a}o dos sistemas de comunicac\~{a}o}
+\begin{frame}{Evoluc\~{a}o dos sistemas de comunicac\~{a}o}
 \begin{tikzpicture}[scale=0.9]
   % Linha do tempo principal
   \draw[very thick, -{Stealth}, gray!60] (-0.3, 0) -- (14.5, 0);
@@ -276,7 +275,7 @@
   \draw[-{Stealth}, thick, color=unbprimary] (12.5,-0.15) -- (12.5,-1.0);
   \node[below,font=\tiny,align=center,color=unbprimary] at (12.5,-1.05) {Mod.\\digital};
 \end{tikzpicture}
-\vspace{0.3cm}
+\vspace{0.1cm}
 \begin{columns}
 \begin{column}{0.5\textwidth}
   \textbf{Por que ainda estudar anal\'{o}gico?}
@@ -296,6 +295,52 @@
 \end{columns}
 \end{frame}
 
+\begin{frame}{O espectro eletromagn\'{e}tico nas comunicac\~{o}es}
+\begin{center}
+\begin{tikzpicture}[scale=0.85]
+  % Barra do espectro
+  \fill[blue!30] (0,0) rectangle (2,0.8);
+  \fill[teal!40] (2,0) rectangle (4,0.8);
+  \fill[green!40] (4,0) rectangle (6,0.8);
+  \fill[orange!40] (6,0) rectangle (8.5,0.8);
+  \fill[red!30] (8.5,0) rectangle (10.5,0.8);
+  \fill[purple!30] (10.5,0) rectangle (13,0.8);
+  % Labels de faixa
+  \node[font=\tiny\bfseries, text=blue!70!black] at (1,0.4) {LF/MF};
+  \node[font=\tiny\bfseries, text=teal!70!black] at (3,0.4) {HF};
+  \node[font=\tiny\bfseries, text=green!50!black] at (5,0.4) {VHF};
+  \node[font=\tiny\bfseries, text=orange!70!black] at (7.25,0.4) {UHF/SHF};
+  \node[font=\tiny\bfseries, text=red!60!black] at (9.5,0.4) {mmWave};
+  \node[font=\tiny\bfseries, text=purple!60!black] at (11.75,0.4) {\'{O}ptico};
+  % Frequências
+  \node[font=\tiny, gray] at (0,-0.2) {30 kHz};
+  \node[font=\tiny, gray] at (2,-0.2) {3 MHz};
+  \node[font=\tiny, gray] at (4,-0.2) {30 MHz};
+  \node[font=\tiny, gray] at (6,-0.2) {300 MHz};
+  \node[font=\tiny, gray] at (8.5,-0.2) {30 GHz};
+  \node[font=\tiny, gray] at (10.5,-0.2) {300 GHz};
+  \node[font=\tiny, gray] at (13,-0.2) {THz};
+  % Aplicações (setas para baixo)
+  \draw[->, thick, blue!60] (1,-0.4) -- (1,-1.2);
+  \node[below, font=\tiny, align=center, text=blue!60!black] at (1,-1.2) {R\'{a}dio\\AM};
+  \draw[->, thick, green!50!black] (5,-0.4) -- (5,-1.2);
+  \node[below, font=\tiny, align=center, text=green!50!black] at (5,-1.2) {R\'{a}dio\\FM};
+  \draw[->, thick, orange!70!black] (6.8,-0.4) -- (6.8,-1.2);
+  \node[below, font=\tiny, align=center, text=orange!70!black] at (6.8,-1.2) {Wi-Fi\\Celular};
+  \draw[->, thick, orange!70!black] (7.8,-0.4) -- (7.8,-1.2);
+  \node[below, font=\tiny, align=center, text=orange!70!black] at (7.8,-1.2) {GPS\\Sat\'{e}lite};
+  \draw[->, thick, red!60!black] (9.5,-0.4) -- (9.5,-1.2);
+  \node[below, font=\tiny, align=center, text=red!60!black] at (9.5,-1.2) {5G\\mmWave};
+  \draw[->, thick, purple!60!black] (11.75,-0.4) -- (11.75,-1.2);
+  \node[below, font=\tiny, align=center, text=purple!60!black] at (11.75,-1.2) {Fibra\\\'{o}ptica};
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.2cm}
+
+\textbf{Nesta disciplina:} aprenderemos a analisar sinais e sistemas em qualquer faixa de frequ\^{e}ncia. Os \textbf{mesmos princ\'{\i}pios} (Fourier, modulac\~{a}o, filtragem) se aplicam do r\'{a}dio AM ao 5G.
+\end{frame}
+
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Roteiro da Disciplina}
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -313,7 +358,7 @@
 \end{frame}
 }
 
-\begin{frame}[shrink=20]{Vis\~{a}o geral do semestre --- 2026/1}
+\begin{frame}{Vis\~{a}o geral do semestre --- 2026/1}
 \begin{tikzpicture}[scale=0.88]
   \draw[very thick, -{Stealth}, gray!50] (0, 0) -- (14, 0)
     node[right, font=\small, gray] {semestre};
@@ -360,7 +405,7 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}[shrink=15]{M\'{o}dulo 1 --- Espectro e Sinais}
+\begin{frame}{M\'{o}dulo 1 --- Espectro e Sinais}
 \begin{columns}
 \begin{column}{0.47\textwidth}
   \textbf{Conte\'{u}do:}
@@ -372,7 +417,7 @@
     \item Densidade Espectral de Pot\^{e}ncia (DEP)
     \item Sinais passa-banda e representac\~{a}o complexa
   \end{itemize}
-  \vspace{0.3cm}
+  \vspace{0.1cm}
   \textbf{Livro-texto:}~\cite{lathi2019modern, oppenheim2010signals}
 \end{column}
 \begin{column}{0.50\textwidth}
@@ -398,7 +443,7 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}[shrink=15]{M\'{o}dulo 2 --- Modulac\~{o}es Anal\'{o}gicas}
+\begin{frame}{M\'{o}dulo 2 --- Modulac\~{o}es Anal\'{o}gicas}
 \begin{columns}
 \begin{column}{0.47\textwidth}
   \textbf{Conte\'{u}do:}
@@ -410,7 +455,7 @@
     \item Ru\'{\i}do em sistemas anal\'{o}gicos
     \item RSR nos demoduladores AM e FM
   \end{itemize}
-  \vspace{0.3cm}
+  \vspace{0.1cm}
   \textbf{Livro-texto:}~\cite{lathi2019modern, haykin2009communication}
 \end{column}
 \begin{column}{0.50\textwidth}
@@ -434,7 +479,7 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}[shrink=15]{M\'{o}dulo 3 --- ADC e Comunicac\~{a}o Digital}
+\begin{frame}{M\'{o}dulo 3 --- ADC e Comunicac\~{a}o Digital}
 \begin{columns}
 \begin{column}{0.47\textwidth}
   \textbf{Conte\'{u}do:}
@@ -446,7 +491,7 @@
     \item Taxa de Erro de Bit (TEB) e func\~{a}o $Q$
     \item Noc\~{o}es de protocolos de rede
   \end{itemize}
-  \vspace{0.3cm}
+  \vspace{0.1cm}
   \textbf{Livro-texto:}~\cite{proakis2007fundamentals, lathi2019modern}
 \end{column}
 \begin{column}{0.50\textwidth}
@@ -473,7 +518,7 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}[shrink=10]{Laborat\'{o}rio PRICOM --- GNU Radio}
+\begin{frame}{Laborat\'{o}rio PRICOM --- GNU Radio}
 \begin{columns}
 \begin{column}{0.48\textwidth}
   \textbf{8 pr\'{a}ticas experimentais:}
@@ -505,11 +550,11 @@
     \draw[->, gray!70] (lpf) -- (snk);
     \node[gray, below, font=\tiny] at (3.3, 0.2) {GNU Radio: DSB-SC};
   \end{tikzpicture}
-  \vspace{0.3cm}
+  \vspace{0.1cm}
   \small Relat\'{o}rio individual por pr\'{a}tica.\\
   $N_L$ = m\'{e}dia dos 8 relat\'{o}rios.
   \vspace{0.2cm}\\
-  \alert{Presenc\~{a}s m\'{\i}nimas: 75\% nas pr\'{a}ticas}
+  \alert{Presenças m\'{\i}nimas: 75\% nas pr\'{a}ticas}
 \end{column}
 \end{columns}
 \end{frame}
@@ -531,7 +576,7 @@
 \end{frame}
 }
 
-\begin{frame}[shrink=15]{R\'{a}dio AM e FM --- o cl\'{a}ssico que ainda funciona}
+\begin{frame}{R\'{a}dio AM e FM --- o cl\'{a}ssico que ainda funciona}
 \begin{columns}
 \begin{column}{0.50\textwidth}
   \textbf{R\'{a}dio AM (540--1600 kHz):}
@@ -540,7 +585,7 @@
     \item Demodulac\~{a}o simples: detector de envolt\'{o}ria
     \item Alcance longo; \alert{problem:} suscet\'{\i}vel ao ru\'{\i}do
   \end{itemize}
-  \vspace{0.3cm}
+  \vspace{0.1cm}
   \textbf{R\'{a}dio FM (88--108 MHz):}
   \begin{itemize}
     \item Frequ\^{e}ncia varia: $f_i(t) = f_c + k_f m(t)$
@@ -576,7 +621,49 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}[shrink=25]{Telefonia Celular --- do anal\'{o}gico ao 5G}
+\begin{frame}{Largura de banda: o recurso mais precioso}
+\begin{columns}
+\begin{column}{0.55\textwidth}
+  \textbf{Cada sistema ocupa uma ``fatia'' do espectro:}
+
+  \vspace{0.2cm}
+
+  \begin{tikzpicture}[scale=0.9]
+    \draw[->, thick] (0,0) -- (8,0) node[right, font=\small] {$f$ (MHz)};
+    \draw[->, thick] (0,0) -- (0,3) node[above, font=\small] {Pot\^{e}ncia};
+    % AM
+    \fill[blue!30, rounded corners=1pt] (0.5,0) rectangle (1.2,2.2);
+    \node[font=\tiny, text=blue!70] at (0.85,2.5) {AM};
+    \node[font=\tiny, gray] at (0.85,-0.3) {10 kHz};
+    % FM
+    \fill[orange!30, rounded corners=1pt] (2.5,0) rectangle (4.0,1.8);
+    \node[font=\tiny, text=orange!70!black] at (3.25,2.1) {FM};
+    \node[font=\tiny, gray] at (3.25,-0.3) {200 kHz};
+    % WiFi
+    \fill[teal!30, rounded corners=1pt] (5.0,0) rectangle (7.5,1.5);
+    \node[font=\tiny, text=teal!70!black] at (6.25,1.8) {Wi-Fi};
+    \node[font=\tiny, gray] at (6.25,-0.3) {20 MHz};
+  \end{tikzpicture}
+\end{column}
+\begin{column}{0.42\textwidth}
+  \textbf{Por que importa?}
+  \begin{itemize}
+    \item Espectro \'{e} \textbf{finito} e regulado (Anatel)
+    \item Mais banda $\rightarrow$ mais informac\~{a}o
+    \item AM: 10 kHz (voz)
+    \item FM: 200 kHz (\'{a}udio hi-fi)
+    \item Wi-Fi: 20 MHz (dados)
+    \item 5G: at\'{e} 400 MHz!
+  \end{itemize}
+
+  \vspace{0.2cm}
+
+  \alert{Entender espectro \'{e} essencial!}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Do r\'{a}dio ao celular --- mesmos fundamentos}
 \begin{columns}
 \begin{column}{0.50\textwidth}
   \textbf{Evoluc\~{a}o das gerac\~{o}es:}
@@ -587,41 +674,41 @@
     \node[rounded corners, fill=blue!60, text=white, minimum width=1.5cm,
           minimum height=0.65cm, align=center, font=\tiny\bfseries] at (2,0) {2G\\GMSK};
     \node[rounded corners, fill=teal!60, text=white, minimum width=1.5cm,
-          minimum height=0.65cm, align=center, font=\tiny\bfseries] at (4,0) {3G\\WCDMA};
+          minimum height=0.65cm, align=center, font=\tiny\bfseries] at (4,0) {3G};
     \node[rounded corners, fill=orange!70, text=white, minimum width=1.5cm,
-          minimum height=0.65cm, align=center, font=\tiny\bfseries] at (6,0) {4G\\OFDM};
+          minimum height=0.65cm, align=center, font=\tiny\bfseries] at (6,0) {4G};
     \node[rounded corners, fill=red!60, text=white, minimum width=1.5cm,
-          minimum height=0.65cm, align=center, font=\tiny\bfseries] at (8,0) {5G\\mmWave};
+          minimum height=0.65cm, align=center, font=\tiny\bfseries] at (8,0) {5G};
     \draw[->, very thick, gray!40] (-1,0) -- (9.5,0);
   \end{tikzpicture}
-  \vspace{0.3cm}
-  \textbf{Conceitos desta disciplina em 4G/5G:}
+  \vspace{0.1cm}
+  \textbf{O que \'{e} comum a todas as gerac\~{o}es?}
   \begin{itemize}
-    \item Portadora + QAM/OFDM (M\'{o}dulos 2 e 3)
-    \item An\'{a}lise espectral (M\'{o}dulo 1)
-    \item Shannon: capacidade e limite te\'{o}rico
+    \item Portadora de r\'{a}dio-frequ\^{e}ncia
+    \item Modulac\~{a}o do sinal na portadora
+    \item An\'{a}lise de espectro e largura de banda
+    \item Combate ao ru\'{\i}do e distorc\~{a}o do canal
   \end{itemize}
 \end{column}
 \begin{column}{0.47\textwidth}
-  \begin{tikzpicture}[scale=0.75]
-  \begin{axis}[
-    xlabel={Subportadoras}, ylabel={Mag (dB)},
-    xmin=0, xmax=12, ymin=-5, ymax=3,
-    grid=both, grid style={gray!15},
-    width=6.5cm, height=4.5cm,
-    tick label style={font=\tiny}, label style={font=\small},
-    title style={font=\small\bfseries}, title={OFDM: m\'{u}ltiplas portadoras},
-    xtick={1,2,3,4,5,6,7,8,9,10,11}, xticklabels={},
-    ytick={-5,0},
-  ]
-  \addplot[ycomb, color=unbprimary, thick, mark=*, mark size=2.5pt,
-           mark options={fill=unbprimary}]
-    coordinates {(1,0)(2,0)(3,0)(4,0)(5,0)(6,0)
-                 (7,0)(8,0)(9,0)(10,0)(11,0)};
-  \end{axis}
-  \end{tikzpicture}
-  \small OFDM: cada subportadora usa QAM\\
-  (conceitos de M\'{o}dulos 1, 2 e 3!)
+  \textbf{O 1G era \alert{FM anal\'{o}gica} pura!}
+
+  \vspace{0.1cm}
+
+  O celular original (AMPS, 1983) usava exatamente a modulac\~{a}o FM que estudaremos no M\'{o}dulo 2.
+
+  \vspace{0.1cm}
+
+  \textbf{Conceitos desta disciplina:}
+  \begin{itemize}
+    \item \textbf{M\'{o}d. 1:} Espectro e filtros
+    \item \textbf{M\'{o}d. 2:} AM, FM --- a base de tudo
+    \item \textbf{M\'{o}d. 3:} Amostragem e digitalizac\~{a}o
+  \end{itemize}
+
+  \vspace{0.1cm}
+
+  \alert{Sem entender AM/FM, n\~{a}o se entende 4G/5G!}
 \end{column}
 \end{columns}
 \end{frame}
@@ -643,7 +730,7 @@
 \end{frame}
 }
 
-\begin{frame}[shrink=15]{Componentes da avaliac\~{a}o}
+\begin{frame}{Componentes da avaliac\~{a}o}
 \begin{columns}
 \begin{column}{0.52\textwidth}
   \begin{block}{Nota Te\'{o}rica ($N_T$)}
@@ -676,7 +763,7 @@
     N_F = 0{,}75\,N_T + 0{,}25\,N_L
   \]
   \end{block}
-  \vspace{0.3cm}
+  \vspace{0.1cm}
   \begin{tikzpicture}[scale=0.9]
     \fill[blue!50] (0,0) -- (1.4,0) arc (0:270:1.4) -- cycle;
     \fill[orange!70] (0,0) -- (0,-1.4) arc (270:360:1.4) -- cycle;
@@ -693,7 +780,7 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}[shrink=15]{Condic\~{o}es de aprovac\~{a}o e frequ\^{e}ncia}
+\begin{frame}{Condic\~{o}es de aprovac\~{a}o e frequ\^{e}ncia}
 \begin{columns}
 \begin{column}{0.50\textwidth}
   \begin{alertblock}{Condic\~{o}es obrigat\'{o}rias}
@@ -705,7 +792,7 @@
     \item \alert{Obrigat\'{o}rio realizar P3}
   \end{enumerate}
   \end{alertblock}
-  \vspace{0.4cm}
+  \vspace{0.2cm}
   \begin{exampleblock}{Dica}
   Alunos que fazem \textbf{todas as pr\'{a}ticas} com boa qualidade
   garantem $N_L$ alta e aliviam a press\~{a}o nas provas!
@@ -713,7 +800,7 @@
 \end{column}
 \begin{column}{0.47\textwidth}
   \textbf{Cronograma 2026/1:}
-  \vspace{0.3cm}
+  \vspace{0.1cm}
   \begin{tabular}{ll}
     \hline
     \textbf{Evento} & \textbf{Data aprox.} \\
@@ -725,7 +812,7 @@
     Fim do semestre    & 18/07/2026 \\
     \hline
   \end{tabular}
-  \vspace{0.5cm}\\
+  \vspace{0.2cm}\\
   \textbf{Contato:}\\
   \href{mailto:\autorEmail}{\autorEmail}\\
   Microsoft Teams / SIGAA
@@ -750,7 +837,7 @@
 \end{frame}
 }
 
-\begin{frame}[shrink=30]{Por que o Radioconda?}
+\begin{frame}{Por que o Radioconda?}
 \begin{columns}
 \begin{column}{0.55\textwidth}
   \textbf{O que \'{e} o Radioconda?}
@@ -761,16 +848,24 @@
     \item Mesma experi\^{e}ncia no Windows, Linux e macOS
     \item Inclui: GNU Radio, gr-osmosdr, SoapySDR, UHD\ldots
   \end{itemize}
-  \vspace{0.3cm}
+  \vspace{0.1cm}
   \textbf{Reposit\'{o}rio oficial:}\\
   {\footnotesize\url{https://github.com/radioconda/radioconda-installer}}
-  \vspace{0.3cm}
-  \begin{alertblock}{Aten\c{c}\~{a}o --- laborat\'{o}rio presencial}
-  Se os computadores \textbf{n\~{a}o tiverem} o GNU Radio instalado,
-  baixe o instalador Windows \textbf{antes da aula} e leve num pen-drive!
-  \end{alertblock}
 \end{column}
 \begin{column}{0.42\textwidth}
+  \textbf{Vantagens:}
+  \begin{itemize}
+    \item Instalac\~{a}o simples e r\'{a}pida
+    \item Multiplataforma
+    \item Todas as depend\^{e}ncias inclusas
+  \end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Radioconda: componentes}
+\begin{columns}
+\begin{column}{0.55\textwidth}
   \begin{tikzpicture}[scale=0.82, every node/.style={font=\tiny}]
     \tikzset{pkg/.style={rectangle, rounded corners=4pt, draw=gray!60,
                          fill=blue!10, minimum width=3.0cm, minimum height=0.6cm,
@@ -785,10 +880,16 @@
       \draw[->, gray!60] (\a) -- (\b);
   \end{tikzpicture}
 \end{column}
+\begin{column}{0.42\textwidth}
+  \begin{alertblock}{Aten\c{c}\~{a}o --- laborat\'{o}rio presencial}
+  Se os computadores \textbf{n\~{a}o tiverem} o GNU Radio instalado,
+  baixe o instalador Windows \textbf{antes da aula} e leve num pen-drive!
+  \end{alertblock}
+\end{column}
 \end{columns}
 \end{frame}
 
-\begin{frame}[shrink=40]{Download do Radioconda}
+\begin{frame}{Download do Radioconda --- Linux/macOS}
 \begin{columns}
 \begin{column}{0.50\textwidth}
   \textbf{Linux / macOS:}
@@ -798,7 +899,20 @@
     \item Baixe o instalador para seu sistema
     \item Siga as instru\c{c}\~{o}es do README
   \end{enumerate}
-  \vspace{0.4cm}
+\end{column}
+\begin{column}{0.47\textwidth}
+  \begin{exampleblock}{Dica: baixe antes da aula}
+  O arquivo de instalac\~{a}o tem $\sim$1--2 GB.\\
+  Baixe em casa e leve num pen-drive para n\~{a}o depender
+  da internet do laborat\'{o}rio.
+  \end{exampleblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Download do Radioconda --- Windows}
+\begin{columns}
+\begin{column}{0.50\textwidth}
   \textbf{Windows (para o laborat\'{o}rio):}
   \begin{enumerate}
     \item Baixe o instalador \texttt{.exe} diretamente pelo link:\\
@@ -809,12 +923,6 @@
   \end{enumerate}
 \end{column}
 \begin{column}{0.47\textwidth}
-  \begin{exampleblock}{Dica: baixe antes da aula}
-  O arquivo de instalac\~{a}o tem $\sim$1--2 GB.\\
-  Baixe em casa e leve num pen-drive para n\~{a}o depender
-  da internet do laborat\'{o}rio.
-  \end{exampleblock}
-  \vspace{0.4cm}
   \begin{tikzpicture}[scale=0.82, every node/.style={font=\tiny}]
     \tikzset{flowstep/.style={rectangle, rounded corners=3pt, draw=unbprimary,
                           fill=unbprimary!10, minimum width=3.5cm,
@@ -831,7 +939,7 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}[shrink=35]{Usando o Radioconda no Windows --- passo a passo}
+\begin{frame}{Usando o Radioconda no Windows --- passo a passo}
 \begin{columns}
 \begin{column}{0.50\textwidth}
   \textbf{Ap\'{o}s a instalac\~{a}o:}
@@ -841,7 +949,7 @@
     \item Clique em \textbf{``radioconda Prompt''}
     \item No terminal aberto, execute:
   \end{enumerate}
-  \vspace{0.3cm}
+  \vspace{0.1cm}
   \begin{block}{Comandos \'{u}teis no radioconda Prompt}
   \begin{itemize}
     \item Abrir GNU Radio Companion:\\
@@ -881,26 +989,32 @@
 \end{columns}
 \end{frame}
 
-\begin{frame}[shrink=40]{Verificando a instalac\~{a}o}
+\begin{frame}{Verificando a instalac\~{a}o}
 \begin{columns}
 \begin{column}{0.50\textwidth}
   \textbf{Teste r\'{a}pido no radioconda Prompt:}
-  \vspace{0.3cm}
+  \vspace{0.1cm}
   \begin{block}{Verificar vers\~{a}o do GNU Radio}
   {\small\texttt{python -c "import gnuradio;}\\\texttt{print(gnuradio.version())"}}
   \end{block}
-  \vspace{0.3cm}
+  \vspace{0.1cm}
   \begin{block}{Verificar NumPy e SciPy}
   {\small\texttt{python -c "import numpy, scipy;}\\\texttt{print('OK')"}}
   \end{block}
-  \vspace{0.3cm}
+\end{column}
+\begin{column}{0.47\textwidth}
   \begin{exampleblock}{Sucesso!}
   Se aparecer a vers\~{a}o e ``OK'':\\
   Tudo instalado corretamente.\\
   Voc\^{e} est\'{a} pronto para as pr\'{a}ticas!
   \end{exampleblock}
 \end{column}
-\begin{column}{0.47\textwidth}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Problemas comuns na instalac\~{a}o}
+\begin{columns}
+\begin{column}{0.50\textwidth}
   \textbf{Problemas comuns:}
   \begin{itemize}
     \item \textbf{``command not found''}:\\
@@ -913,7 +1027,8 @@
     \item \textbf{Espac\~{a}o insuficiente}:\\
       A instalac\~{a}o requer $\geq 5$ GB livres
   \end{itemize}
-  \vspace{0.3cm}
+\end{column}
+\begin{column}{0.47\textwidth}
   \begin{alertblock}{Suporte}
   Em caso de d\'{u}vida, consulte o professor
   antes da aula de laborat\'{o}rio.
@@ -938,7 +1053,7 @@
 \end{frame}
 }
 
-\begin{frame}[shrink=25]{Pr\'{e}-requisitos e por que esta disciplina importa}
+\begin{frame}{Pr\'{e}-requisitos e por que esta disciplina importa}
 \begin{columns}
 \begin{column}{0.48\textwidth}
   \begin{block}{Pr\'{e}-requisitos}
@@ -955,9 +1070,9 @@
     \item Osciladores e filtros b\'{a}sicos
   \end{itemize}
   \end{block}
-  \vspace{0.3cm}
-  \alert{N\~{a}o se preocupe se n\~{a}o recorda tudo ---
-  revisaremos os fundamentos no in\'{\i}cio do M\'{o}dulo 1!}
+  \vspace{0.1cm}
+  %\alert{N\~{a}o se preocupe se n\~{a}o recorda tudo ---
+  %revisaremos os fundamentos no in\'{\i}cio do M\'{o}dulo 1!}
 \end{column}
 \begin{column}{0.48\textwidth}
   \textbf{Portas que a PRICOM abre:}
@@ -968,7 +1083,7 @@
     \item SDR / HackRF / USRP
     \item IoT, Sistemas Embarcados
   \end{itemize}
-  \vspace{0.3cm}
+  \vspace{0.1cm}
   \textbf{Na ind\'{u}stria, voc\^{e} vai usar:}
   \begin{itemize}
     \item An\'{a}lise de espectro em telemetria
@@ -983,7 +1098,7 @@
 % ============================================
 % ENCERRAMENTO
 % ============================================
-\begin{frame}[shrink=20]{Bem-vindos \`{a} disciplina!}
+\begin{frame}{Bem-vindos \`{a} disciplina!}
 \begin{center}
 \Large \textbf{Princ\'{\i}pios de Comunicac\~{a}o para Engenharia}\\
 \large FGA0092 --- 2026/1
@@ -992,7 +1107,7 @@
 \normalsize
 \textbf{Prof.} \autorNome\\
 \href{mailto:\autorEmail}{\autorEmail}
-\vspace{0.5cm}
+\vspace{0.2cm}
 
 \textbf{\laboratorioFinal}\\
 \universidadeFinal

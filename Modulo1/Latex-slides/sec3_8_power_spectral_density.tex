@@ -20,7 +20,7 @@ P = \lim_{T \to \infty} \frac{1}{T} \int_{-T/2}^{T/2} |f(t)|^2 dt
 \item Sinais aleatórios estacionários: ruído branco, processos ergódicos
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Diferença fundamental:}
 
@@ -57,7 +57,7 @@ Usando $\cos^2(\theta) = (1 + \cos(2\theta))/2$ e integrando sobre período inte
 P = A^2 \cdot \frac{1}{2} = \frac{A^2}{2}
 \]
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Exemplo 2: Constante}
 
@@ -67,7 +67,7 @@ $f(t) = A$
 P = \lim_{T \to \infty} \frac{1}{T} \int_{-T/2}^{T/2} A^2 dt = A^2
 \]
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Exemplo 3: Onda quadrada periódica}
 
@@ -91,13 +91,13 @@ Para $f(t) = A\cos(\omega_0 t)$:
 
 Não satisfaz condição de Dirichlet.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Solução:} Usar funções generalizadas (distribuições) ou definir potência no domínio da frequência através da \textbf{Densidade Espectral de Potência (PSD)}.
 
 \textbf{PSD} $S(\omega)$ indica como a potência está distribuída em frequência.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Relação fundamental:}
 
@@ -175,33 +175,20 @@ S(\omega) = 2\pi \sum_{n=-\infty}^{\infty} |c_n|^2 \delta(\omega - n\omega_0)
 
 \begin{frame}{Exemplo: PSD de Senoide}
 
-\textbf{Sinal:} $f(t) = A\cos(\omega_0 t)$
-
-Escrevendo em forma exponencial:
-
-\[
-f(t) = \frac{A}{2} e^{j\omega_0 t} + \frac{A}{2} e^{-j\omega_0 t}
-\]
+\textbf{Sinal:} $f(t) = A\cos(\omega_0 t) = \frac{A}{2} e^{j\omega_0 t} + \frac{A}{2} e^{-j\omega_0 t}$
 
 Coeficientes: $c_1 = c_{-1} = A/2$, $c_n = 0$ para $n \neq \pm 1$
 
 \textbf{PSD:}
-
 \[
 S(\omega) = 2\pi \left[\left|\frac{A}{2}\right|^2 \delta(\omega - \omega_0) + \left|\frac{A}{2}\right|^2 \delta(\omega + \omega_0)\right]
-\]
-
-\[
 = \frac{\pi A^2}{2} [\delta(\omega - \omega_0) + \delta(\omega + \omega_0)]
 \]
 
 \textbf{Potência total:}
-
 \[
-P = \frac{1}{2\pi} \cdot \frac{\pi A^2}{2} \cdot 2 = \frac{A^2}{2}
+P = \frac{1}{2\pi} \cdot \frac{\pi A^2}{2} \cdot 2 = \frac{A^2}{2} \quad \checkmark
 \]
-
-Confirma cálculo no tempo!
 
 \end{frame}
 
@@ -226,7 +213,7 @@ R(\tau) = \lim_{T \to \infty} \frac{1}{T} \int_{-T/2}^{T/2} f(t) f^*(t - \tau) d
 \item $|R(\tau)| \leq R(0) = P$
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Interpretação física:}
 
@@ -270,7 +257,7 @@ R(\tau) = \frac{1}{2\pi} \int_{-\infty}^{\infty} S(\omega) e^{j\omega\tau} d\ome
 
 % ============================================
 
-\begin{frame}{Demonstração do Teorema (esboço)}
+\begin{frame}{Demonstração do Teorema (esboço --- 1/2)}
 
 Começando com a definição de PSD:
 
@@ -290,49 +277,63 @@ Combinando as integrais e mudando variável $\tau = t - t'$:
 |F_T(\omega)|^2 = \int \int f_T(t) f_T^*(t') e^{-j\omega(t-t')} dt' dt
 \]
 
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demonstração do Teorema (esboço --- 2/2)}
+
 Após manipulação e tomando limite $T \to \infty$:
 
 \[
-S(\omega) = \int_{-\infty}^{\infty} \left[\lim_{T \to \infty} \frac{1}{T} \int f(t) f^*(t-\tau) dt\right] e^{-j\omega\tau} d\tau
+S(\omega) = \int_{-\infty}^{\infty} \underbrace{\left[\lim_{T \to \infty} \frac{1}{T} \int f(t) f^*(t-\tau) dt\right]}_{R(\tau)} e^{-j\omega\tau} d\tau
 \]
 
 \[
-= \int_{-\infty}^{\infty} R(\tau) e^{-j\omega\tau} d\tau
+= \int_{-\infty}^{\infty} R(\tau) e^{-j\omega\tau} d\tau = \ft\{R(\tau)\}
+\]
+
+\begin{block}{Teorema de Wiener-Khinchin}
+\[
+S(\omega) = \ft\{R(\tau)\} \quad \blacksquare
+\]
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Autocorrelação de Senoide (1/2)}
+
+\textbf{Sinal:} $f(t) = A\cos(\omega_0 t)$
+
+\textbf{Autocorrelação:}
+\[
+R(\tau) = \lim_{T \to \infty} \frac{1}{T} \int_{-T/2}^{T/2} A\cos(\omega_0 t) \cdot A\cos(\omega_0(t-\tau)) dt
+\]
+
+Usando identidade $\cos(a)\cos(b) = \frac{1}{2}[\cos(a-b) + \cos(a+b)]$:
+\[
+R(\tau) = \lim_{T \to \infty} \frac{A^2}{2T} \int_{-T/2}^{T/2} [\cos(\omega_0 \tau) + \cos(2\omega_0 t - \omega_0\tau)] dt
 \]
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Exemplo: Autocorrelação de Senoide}
-
-\textbf{Sinal:} $f(t) = A\cos(\omega_0 t)$
-
-\textbf{Autocorrelação:}
-
-\[
-R(\tau) = \lim_{T \to \infty} \frac{1}{T} \int_{-T/2}^{T/2} A\cos(\omega_0 t) \cdot A\cos(\omega_0(t-\tau)) dt
-\]
-
-Usando identidade $\cos(a)\cos(b) = \frac{1}{2}[\cos(a-b) + \cos(a+b)]$:
-
-\[
-R(\tau) = \lim_{T \to \infty} \frac{A^2}{2T} \int_{-T/2}^{T/2} [\cos(\omega_0 \tau) + \cos(2\omega_0 t - \omega_0\tau)] dt
-\]
+\begin{frame}{Exemplo: Autocorrelação de Senoide (2/2)}
 
 O segundo termo integra a zero sobre período completo:
-
 \[
 R(\tau) = \frac{A^2}{2} \cos(\omega_0 \tau)
 \]
 
 \textbf{Transformada:}
-
 \[
 S(\omega) = \frac{A^2}{2} \FT{\cos(\omega_0 \tau)} = \frac{\pi A^2}{2}[\delta(\omega - \omega_0) + \delta(\omega + \omega_0)]
 \]
 
-Confirma resultado anterior!
+Confirma resultado obtido via coeficientes da série de Fourier!
 
 \end{frame}
 
@@ -394,7 +395,7 @@ P_y = \frac{1}{2\pi} \int_{-\infty}^{\infty} |H(\omega)|^2 S_x(\omega) d\omega
 \item Frequências atenuadas contribuem menos
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Aplicação importante:} Análise de ruído em sistemas de comunicação.
 
@@ -416,7 +417,7 @@ S_n(\omega) = \frac{N_0}{2} \quad \text{para todo} \quad \omega
 
 onde $N_0$ é a densidade espectral de potência bilateral.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Características:}
 
@@ -434,6 +435,18 @@ R_n(\tau) = \frac{N_0}{2} \delta(\tau)
 \]
 
 Amostras em tempos diferentes são completamente descorrelacionadas!
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Ruído Branco e Filtrado}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/psd_noise}
+\end{center}
+
+Ruído branco tem PSD plana. Após filtragem, a PSD assume forma de $|H(\omega)|^2$.
 
 \end{frame}
 
@@ -519,7 +532,7 @@ Em decibéis:
 \text{SNR}_{dB} = 10\log_{10}\left(\frac{P_{\text{sinal}}}{P_{\text{ruído}}}\right)
 \]
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Importância:}
 
@@ -530,7 +543,7 @@ Em decibéis:
 \item SNR baixa: erros frequentes, degradação
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Valores típicos:}
 
@@ -612,6 +625,31 @@ Potência do ruído: $P_{n,out} = N_0 B$ (banda bilateral $2B$, mas simetria)
 
 % ============================================
 
+\begin{frame}{Exemplo Prático: Link de Comunicação Wi-Fi}
+
+\textbf{Parâmetros típicos Wi-Fi (802.11n):}
+
+\begin{itemize}
+\item Potência transmitida: $P_t = 20$ dBm (100 mW)
+\item Banda: $B = 20$ MHz
+\item Ruído térmico: $N_0/2$ com $N_0 = kT = 4 \times 10^{-21}$ W/Hz
+\end{itemize}
+
+\textbf{Potência de ruído na banda:}
+\[
+P_n = N_0 B = 4 \times 10^{-21} \times 20 \times 10^6 = 8 \times 10^{-14} \text{ W} = -101 \text{ dBm}
+\]
+
+\textbf{Se atenuação do canal é 60 dB} (distância $\sim$10 m):
+
+$P_r = 20 - 60 = -40$ dBm
+
+$\text{SNR} = -40 - (-101) = 61$ dB $\Rightarrow$ excelente qualidade!
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Resumo da Seção 3.8}
 
 \textbf{Conceitos de potência:}
@@ -621,7 +659,7 @@ Potência do ruído: $P_{n,out} = N_0 B$ (banda bilateral $2B$, mas simetria)
 \item Para sinais periódicos: $P = \sum |c_n|^2$
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Densidade Espectral de Potência (PSD):}
 
@@ -631,15 +669,15 @@ Potência do ruído: $P_{n,out} = N_0 B$ (banda bilateral $2B$, mas simetria)
 \item Sinais periódicos: espectro discreto (impulsos)
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Teorema de Wiener-Khinchin:} $R(\tau) \xleftrightarrow{\ft} S(\omega)$
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Sistemas LTI:} $S_y(\omega) = |H(\omega)|^2 S_x(\omega)$
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Ruído branco:}
 

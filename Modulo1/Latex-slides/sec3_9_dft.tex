@@ -20,7 +20,7 @@ F(\omega) = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt
 \item \textbf{Frequência contínua:} Impossível calcular para todo $\omega$
 \end{enumerate}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Solução:} \textbf{Transformada Discreta de Fourier (DFT)}
 
@@ -56,7 +56,7 @@ f_s \geq 2f_{max}
 \item \textbf{Amostras:} $f[n] = f(nT_s)$ para $n = 0, 1, 2, ..., N-1$
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Consequência:} Se $f_s < 2f_{max}$, ocorre \textbf{aliasing} (distorção espectral).
 
@@ -78,7 +78,7 @@ f_{alias} = |f_{sinal} - kf_s|
 
 para algum inteiro $k$ que minimiza $f_{alias}$.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Exemplo clássico:} Rodas de carroça em filmes aparecem girando para trás.
 
@@ -95,6 +95,18 @@ para algum inteiro $k$ que minimiza $f_{alias}$.
 \end{enumerate}
 
 \textbf{Prática comum:} $f_s = (2.5 \text{ a } 4) \times 2f_{max}$
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Amostragem e Aliasing}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/sampling_aliasing}
+\end{center}
+
+Subamostragem ($f_s < 2f_{max}$) causa sobreposição espectral (aliasing).
 
 \end{frame}
 
@@ -155,7 +167,7 @@ ou em frequência angular:
 
 onde $T_{obs} = NT_s$ é o tempo total de observação.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Conclusões importantes:}
 
@@ -179,7 +191,7 @@ X[k + N] = X[k], \quad x[n + N] = x[n]
 
 A DFT assume sinais periódicos com período $N$.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Simetria (para sinais reais):}
 
@@ -193,7 +205,7 @@ Logo, $|X[N-k]| = |X[k]|$ (espectro de magnitude simétrico).
 
 Basta calcular $k = 0, 1, ..., N/2$ (metade dos pontos).
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Linearidade:}
 
@@ -217,7 +229,7 @@ X[k] \approx T_s F(\omega_k)
 
 onde $\omega_k = 2\pi k/(NT_s)$.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Derivação intuitiva:}
 
@@ -259,13 +271,13 @@ Para todos os $N$ valores de $k$:
 
 \textbf{Complexidade: $O(N^2)$}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Exemplo:} Para $N = 1024$:
 
 DFT direta: $\approx 1.048.576$ operações
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Problema:} Proibitivo para $N$ grande (análise em tempo real, processamento de imagens, etc.).
 
@@ -290,13 +302,13 @@ Dividir DFT de tamanho $N$ em:
 
 \textbf{Complexidade FFT: $O(N\log_2 N)$}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Requisito:} $N$ deve ser potência de 2 (para FFT radix-2).
 
 $N = 2^m$ para algum inteiro $m$.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Ganho de velocidade:}
 
@@ -308,15 +320,13 @@ FFT: $\approx 10.240$ operações (100× mais rápido!)
 
 % ============================================
 
-\begin{frame}{Algoritmo FFT (esboço)}
+\begin{frame}{Algoritmo FFT --- Decomposição}
 
 \textbf{Decomposição butterfly (radix-2):}
 
 \[
-X[k] = \sum_{n=0}^{N-1} x[n] W_N^{kn}
+X[k] = \sum_{n=0}^{N-1} x[n] W_N^{kn}, \quad \text{onde } W_N = e^{-j2\pi/N}
 \]
-
-onde $W_N = e^{-j2\pi/N}$ (twiddle factor).
 
 Separando índices pares e ímpares:
 
@@ -324,17 +334,23 @@ Separando índices pares e ímpares:
 X[k] = \sum_{r=0}^{N/2-1} x[2r] W_N^{k(2r)} + \sum_{r=0}^{N/2-1} x[2r+1] W_N^{k(2r+1)}
 \]
 
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Algoritmo FFT --- Resultado}
+
+Usando $W_N^2 = W_{N/2}$:
+
 \[
-= \sum_{r=0}^{N/2-1} x[2r] W_{N/2}^{kr} + W_N^k \sum_{r=0}^{N/2-1} x[2r+1] W_{N/2}^{kr}
+X[k] = \underbrace{\sum_{r=0}^{N/2-1} x[2r] W_{N/2}^{kr}}_{X_{even}[k]} + W_N^k \underbrace{\sum_{r=0}^{N/2-1} x[2r+1] W_{N/2}^{kr}}_{X_{odd}[k]}
 \]
 
 \[
 = X_{even}[k] + W_N^k \cdot X_{odd}[k]
 \]
 
-Duas DFTs de tamanho $N/2$!
-
-\textbf{Continua recursivamente até DFTs de tamanho 2 (triviais).}
+Duas DFTs de tamanho $N/2$! Continua recursivamente até DFTs de tamanho 2 (triviais).
 
 \end{frame}
 
@@ -402,7 +418,7 @@ Se o sinal não é periódico em $N$ ou não contém número inteiro de ciclos:
 
 \textbf{Vazamento espectral:} Energia de uma frequência "vaza" para outras.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Causa:}
 
@@ -412,7 +428,7 @@ No domínio da frequência: convolução com sinc.
 
 Lóbulos laterais do sinc espalham energia.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Consequências:}
 
@@ -488,11 +504,11 @@ Se componente espectral cai entre dois bins de frequência:
 
 \textbf{Efeito:} Amplitude subestimada, distribuída entre bins adjacentes.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Analogia:} Ver paisagem através de cerca — perde informação entre ripas.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Soluções:}
 
@@ -522,7 +538,7 @@ Sequência original: $x[0], ..., x[N-1]$
 
 Após zero-padding: $x[0], ..., x[N-1], 0, ..., 0$ (total $M > N$ pontos)
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Efeito:}
 
@@ -533,7 +549,7 @@ Após zero-padding: $x[0], ..., x[N-1], 0, ..., 0$ (total $M > N$ pontos)
 \item \textbf{Não adiciona informação nova!} (apenas interpola)
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Uso:}
 
@@ -631,6 +647,12 @@ Próximo de 440 Hz (Lá4).
 \item Visualizar como imagem (cor = magnitude)
 \end{enumerate}
 
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Espectrograma: Parâmetros e Aplicações}
+
 \textbf{Parâmetros típicos:}
 
 \begin{itemize}
@@ -679,7 +701,7 @@ Próximo de 440 Hz (Lá4).
    Retangular: apenas se sinal já é periódico em $N$
 \end{enumerate}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Regra prática:} Para análise espectral, zero-pad para $N \geq 4-8$ vezes o número de amostras reais.
 
@@ -697,7 +719,7 @@ Próximo de 440 Hz (Lá4).
 \item \textbf{FFT:} Algoritmo rápido, $O(N\log N)$ vs. $O(N^2)$
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Parâmetros importantes:}
 
@@ -706,7 +728,7 @@ Próximo de 440 Hz (Lá4).
 \item Faixa: $0$ a $f_s/2$ (Nyquist)
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Fenômenos práticos:}
 
@@ -716,7 +738,7 @@ Próximo de 440 Hz (Lá4).
 \item \textbf{Efeito cerca:} Frequências entre bins subestimadas
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Soluções:}
 

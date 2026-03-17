@@ -16,7 +16,7 @@ Um \textbf{sistema} transforma um sinal de entrada $x(t)$ em um sinal de saída 
 \end{tikzpicture}
 \end{center}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 Um sistema é \textbf{Linear e Invariante no Tempo (LTI)} se possui duas propriedades:
 
@@ -156,7 +156,7 @@ onde:
 \item Frequência permanece $\omega_0$
 \end{itemize}
 
-\vspace{0.5cm}
+\vspace{0.2cm}
 
 \textbf{Demonstração:}
 
@@ -182,14 +182,14 @@ h(t) = 0 \quad \text{para} \quad t < 0
 
 \textbf{Significado físico:} Sistemas físicos reais são sempre causais (não podem "ver o futuro").
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 Para sistemas causais:
 \[
 y(t) = \int_{0}^{\infty} h(\tau) x(t - \tau) d\tau = \int_{-\infty}^{t} h(t - \tau) x(\tau) d\tau
 \]
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Consequência na frequência:} A função de transferência $H(\omega)$ de um sistema causal satisfaz certas condições (critério de Paley-Wiener):
 
@@ -250,7 +250,7 @@ y(t) = K x(t - t_d)
 
 onde $K$ é um ganho constante e $t_d$ é um atraso fixo.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Condição na frequência:}
 
@@ -325,7 +325,7 @@ Quando $H(\omega) \neq K e^{-j\omega t_d}$, ocorre distorção:
    \end{itemize}
 \end{enumerate}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Ambos os tipos degradam o sinal!}
 
@@ -432,23 +432,15 @@ Circuito RC série com saída no capacitor:
 RC\frac{dy(t)}{dt} + y(t) = x(t)
 \]
 
-\textbf{Transformada de Fourier:}
-\[
-RC \cdot j\omega Y(\omega) + Y(\omega) = X(\omega)
-\]
-
-\[
-Y(\omega)[1 + j\omega RC] = X(\omega)
-\]
-
 \end{frame}
 
 % ============================================
 
 \begin{frame}{Exemplo 1: Função de Transferência do Filtro RC}
 
+\textbf{Transformada de Fourier} da equação $RC\,y'(t) + y(t) = x(t)$:
 \[
-H(\omega) = \frac{Y(\omega)}{X(\omega)} = \frac{1}{1 + j\omega RC}
+Y(\omega)[1 + j\omega RC] = X(\omega) \quad \Rightarrow \quad H(\omega) = \frac{Y(\omega)}{X(\omega)} = \frac{1}{1 + j\omega RC}
 \]
 
 Definindo a \textbf{frequência de corte}: $\omega_c = 1/(RC)$
@@ -456,6 +448,12 @@ Definindo a \textbf{frequência de corte}: $\omega_c = 1/(RC)$
 \[
 H(\omega) = \frac{1}{1 + j\omega/\omega_c} = \frac{\omega_c}{\omega_c + j\omega}
 \]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 1: Magnitude e Fase do Filtro RC}
 
 \textbf{Magnitude:}
 \[
@@ -489,6 +487,18 @@ H(\omega) = \frac{1}{1 + j\omega/\omega_c} = \frac{\omega_c}{\omega_c + j\omega}
 \item A magnitude $|H(\omega)|$ é uma Lorentziana: máxima em DC, cai $-3\,\text{dB}$ em $\omega_c$
 \item A fase $\phi(\omega) = -\arctan(\omega/\omega_c)$ é \textbf{não-linear} $\Rightarrow$ distorção de fase
 \end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Filtragem de Sinal por Sistema LTI}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/lti_system_response}
+\end{center}
+
+O filtro passa-baixas remove as componentes de alta frequência do espectro.
 
 \end{frame}
 
@@ -584,6 +594,29 @@ h(t) = \frac{\sin(\omega_c t)}{\pi t}
 
 % ============================================
 
+\begin{frame}{Exemplo Prático: Equalização de Canal de Áudio}
+
+\textbf{Problema:} Um cabo de áudio de 50 m atenua altas frequências.
+
+Modelo do cabo: $H_c(\omega) = \frac{1}{1 + j\omega/\omega_c}$ com $f_c = 15$ kHz
+
+\textbf{Efeito:} Sons agudos ($f > 15$ kHz) são atenuados $\Rightarrow$ áudio ``abafado''
+
+\textbf{Solução --- Equalizador:}
+\[
+H_{eq}(\omega) = 1 + j\omega/\omega_c \quad \Rightarrow \quad H_{eq} \cdot H_c = 1
+\]
+
+Na prática: um filtro que \textbf{amplifica} altas frequências para compensar.
+
+\vspace{0.2cm}
+
+\textbf{É exatamente o que um equalizador de áudio faz:} ajusta ganhos em diferentes faixas de frequência para compensar as características do canal!
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Resumo da Seção 3.4}
 
 \textbf{Conceitos fundamentais de sistemas LTI:}
@@ -594,7 +627,7 @@ h(t) = \frac{\sin(\omega_c t)}{\pi t}
 \item Análise na frequência simplifica cálculos!
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Propriedades importantes:}
 
@@ -604,7 +637,7 @@ h(t) = \frac{\sin(\omega_c t)}{\pi t}
 \item Transmissão sem distorção: $H(\omega) = Ke^{-j\omega t_d}$
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Tipos de distorção:}
 
