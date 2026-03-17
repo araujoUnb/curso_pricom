@@ -56,7 +56,7 @@ c_n = \frac{1}{T_0} \int_{-T_0/2}^{T_0/2} f(t) e^{-jn\omega_0 t} dt
 
 % ============================================
 
-\begin{frame}{De Série para Transformada: Passo 1}
+\begin{frame}{De Série para Transformada: Passo 1a}
 
 Substituindo $c_n$ na série de Fourier:
 
@@ -64,17 +64,31 @@ Substituindo $c_n$ na série de Fourier:
 f(t) = \sum_{n=-\infty}^{\infty} \left[ \frac{1}{T_0} \int_{-T_0/2}^{T_0/2} f(\tau) e^{-jn\omega_0 \tau} d\tau \right] e^{jn\omega_0 t}
 \]
 
-Reorganizando:
+Reorganizando (separando $1/T_0$ do coeficiente):
 
 \[
 f(t) = \sum_{n=-\infty}^{\infty} \left[ \int_{-T_0/2}^{T_0/2} f(\tau) e^{-jn\omega_0 \tau} d\tau \right] \frac{e^{jn\omega_0 t}}{T_0}
 \]
 
-Como $\omega_0 = 2\pi/T_0$, temos $1/T_0 = \omega_0/(2\pi)$:
+\end{frame}
+
+% ============================================
+
+\begin{frame}{De Série para Transformada: Passo 1b}
+
+Como $\omega_0 = 2\pi/T_0$, temos $1/T_0 = \omega_0/(2\pi)$. Substituindo:
 
 \[
 f(t) = \sum_{n=-\infty}^{\infty} \left[ \int_{-T_0/2}^{T_0/2} f(\tau) e^{-jn\omega_0 \tau} d\tau \right] \frac{\omega_0}{2\pi} e^{jn\omega_0 t}
 \]
+
+\vspace{0.3cm}
+
+\textbf{Observação:} o termo entre colchetes é uma função de $n\omega_0$ --- é o ``espectro'' do sinal periódico avaliado na frequência $n\omega_0$.
+
+\vspace{0.3cm}
+
+\alert{Próximo passo:} o que acontece quando $T_0 \to \infty$?
 
 \end{frame}
 
@@ -305,13 +319,28 @@ Racionalizando (multiplicando por conjugado):
 F(\omega) = \frac{1}{a+j\omega} \cdot \frac{a-j\omega}{a-j\omega} = \frac{a-j\omega}{a^2+\omega^2}
 \]
 
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 2: Resultado Final}
+
+Separando parte real e imaginária:
+
 \[
 \boxed{F(\omega) = \frac{a}{a^2+\omega^2} - j\frac{\omega}{a^2+\omega^2}}
 \]
 
+\vspace{0.3cm}
+
 \textbf{Espectro de magnitude:}
 \[
 |F(\omega)| = \frac{1}{\sqrt{a^2+\omega^2}}
+\]
+
+\textbf{Espectro de fase:}
+\[
+\phi(\omega) = -\arctan\!\left(\frac{\omega}{a}\right)
 \]
 
 \end{frame}
@@ -368,18 +397,36 @@ f(t) = e^{-a|t|}, \quad a > 0
 
 Este sinal pode ser decomposto em:
 \[
-f(t) = e^{-at}u(t) + e^{at}u(-t) = e^{-at}u(t) + e^{-a(-t)}u(-t)
+f(t) = e^{-at}u(t) + e^{at}u(-t)
 \]
 
-\textbf{Cálculo:}
+Cada parcela já tem transformada conhecida (Exemplo 2)!
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 3: Cálculo da Transformada}
+
+\textbf{Separando a integral em dois intervalos:}
 
 \[
-F(\omega) = \int_{-\infty}^{0} e^{at} e^{-j\omega t} dt + \int_{0}^{\infty} e^{-at} e^{-j\omega t} dt
+F(\omega) = \underbrace{\int_{-\infty}^{0} e^{at} e^{-j\omega t} dt}_{t < 0} + \underbrace{\int_{0}^{\infty} e^{-at} e^{-j\omega t} dt}_{t > 0}
 \]
 
-Para $t < 0$: $\int_{-\infty}^{0} e^{(a-j\omega)t} dt = \frac{1}{a-j\omega}$
+\vspace{0.3cm}
 
-Para $t > 0$: $\int_{0}^{\infty} e^{-(a+j\omega)t} dt = \frac{1}{a+j\omega}$
+Resolvendo cada integral:
+
+\vspace{0.2cm}
+
+\begin{itemize}
+\item Para $t < 0$: \; $\displaystyle\int_{-\infty}^{0} e^{(a-j\omega)t} dt = \frac{1}{a-j\omega}$
+
+\vspace{0.2cm}
+
+\item Para $t > 0$: \; $\displaystyle\int_{0}^{\infty} e^{-(a+j\omega)t} dt = \frac{1}{a+j\omega}$
+\end{itemize}
 
 \end{frame}
 
@@ -392,20 +439,17 @@ F(\omega) = \frac{1}{a-j\omega} + \frac{1}{a+j\omega} = \frac{(a+j\omega) + (a-j
 \]
 
 \[
-= \frac{2a}{a^2+\omega^2}
+\boxed{F(\omega) = \frac{2a}{a^2+\omega^2}}
 \]
 
-\[
-\boxed{f(t) = e^{-a|t|} \quad \xleftrightarrow{\ft} \quad F(\omega) = \frac{2a}{a^2+\omega^2}}
-\]
+\vspace{0.3cm}
 
 \textbf{Observações:}
 
 \begin{itemize}
 \item $F(\omega)$ é \textbf{real} (fase zero) porque $f(t)$ é par
 \item Espectro Lorentziano centrado em $\omega = 0$
-\item $F(0) = 2/a$, $F(\pm a) = 1/a$
-\item Forma mais concentrada no tempo que o exponencial unilateral
+\item $F(0) = 2/a$, \; $F(\pm a) = 1/a$
 \end{itemize}
 
 \end{frame}
@@ -470,25 +514,29 @@ onde $\Delta t$ é a duração efetiva e $\Delta \omega$ é a largura de banda e
 
 \vspace{0.3cm}
 
-\textbf{Consequências práticas:}
+\end{frame}
 
+% ============================================
+
+\begin{frame}{Incerteza Tempo-Frequência: Consequências}
+
+\begin{columns}
+\begin{column}{0.55\textwidth}
+\includegraphics[width=\linewidth, keepaspectratio]{figures/cap3/gaussian_fourier}
+\end{column}
+\begin{column}{0.42\textwidth}
+\textbf{Consequências práticas:}
 \begin{itemize}
 \item Pulsos curtos requerem grande largura de banda
 \item Sinais de banda estreita devem ter longa duração
 \item Compromisso fundamental em sistemas de comunicação
 \end{itemize}
 
-\end{frame}
+\vspace{0.3cm}
 
-% ============================================
-
-\begin{frame}{Visualização: Incerteza Tempo-Frequência}
-
-\begin{center}
-\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/gaussian_fourier}
-\end{center}
-
-A Gaussiana atinge o limite mínimo $\Delta t \cdot \Delta\omega = 1/2$.
+A \textbf{Gaussiana} atinge o limite mínimo $\Delta t \cdot \Delta\omega = \frac{1}{2}$.
+\end{column}
+\end{columns}
 
 \end{frame}
 

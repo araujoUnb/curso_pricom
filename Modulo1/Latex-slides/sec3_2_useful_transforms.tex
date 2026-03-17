@@ -128,8 +128,6 @@ dualidade ($F(t) \xleftrightarrow{\ft} 2\pi f(-\omega)$) implica diretamente:
 
 Considere $f(t) = e^{j\omega_0 t}$ (senoidal complexa na frequência $\omega_0$).
 
-Usando deslocamento em frequência (propriedade que veremos depois) ou dualidade:
-
 \[
 F(\omega) = \int_{-\infty}^{\infty} e^{j\omega_0 t} e^{-j\omega t} dt = \int_{-\infty}^{\infty} e^{-j(\omega - \omega_0) t} dt
 \]
@@ -142,9 +140,39 @@ Esta integral é $2\pi\delta(\omega - \omega_0)$:
 \]
 \end{block}
 
-\textbf{Interpretação:} Uma senoidal de frequência $\omega_0$ tem espectro com um único impulso em $\omega = \omega_0$.
+\end{frame}
 
-\textbf{Significado físico:} Sinal monocromático puro.
+% ============================================
+
+\begin{frame}{Interpretação: Exponencial Complexa no Espectro}
+
+\textbf{Significado:} Uma senoidal complexa de frequência $\omega_0$ tem espectro com um \textbf{único impulso} em $\omega = \omega_0$. É um sinal \textbf{monocromático} puro.
+
+\vspace{0.3cm}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.9]
+  % Eixo do tempo
+  \begin{scope}[xshift=-4.5cm]
+    \draw[->, thick] (-0.3,0) -- (3.5,0) node[right, font=\small] {$t$};
+    \draw[->, thick] (0,-1.3) -- (0,1.5) node[above, font=\small] {$f(t)$};
+    \draw[unbprimary, thick, domain=0:3.2, samples=80] plot (\x, {cos(deg(3*\x))});
+    \draw[unbprimary!50, thick, dashed, domain=0:3.2, samples=80] plot (\x, {sin(deg(3*\x))});
+    \node[font=\small, below] at (1.75,-1.5) {$e^{j\omega_0 t} = \cos\omega_0 t + j\sin\omega_0 t$};
+  \end{scope}
+  % Seta
+  \draw[->, very thick, gray] (0,0.3) -- (1.2,0.3) node[midway, above, font=\small] {$\mathcal{F}$};
+  % Eixo da frequência
+  \begin{scope}[xshift=2cm]
+    \draw[->, thick] (-1.5,0) -- (3.5,0) node[right, font=\small] {$\omega$};
+    \draw[->, thick] (0,-0.3) -- (0,1.8) node[above, font=\small] {$F(\omega)$};
+    \draw[red!70!black, very thick, ->] (2,0) -- (2,1.5);
+    \node[font=\small, red!70!black, above] at (2,1.5) {$2\pi$};
+    \node[font=\small, below] at (2,-0.2) {$\omega_0$};
+    \node[font=\small, below] at (0,-0.2) {$0$};
+  \end{scope}
+\end{tikzpicture}
+\end{center}
 
 \end{frame}
 
@@ -191,9 +219,16 @@ u(t) = \begin{cases}
 \end{cases}
 \]
 
-\textbf{Relação com a função sinal:}
+\textbf{Relação com a função sinal:} $\;\sgn(t) = 2u(t) - 1$, ou seja $u(t) = \frac{1 + \sgn(t)}{2}$
 
-A função sinal é definida como:
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Função Sinal (sgn)}
+
+\begin{columns}
+\begin{column}{0.45\textwidth}
 \[
 \sgn(t) = \begin{cases}
 1 & t > 0 \\
@@ -202,33 +237,65 @@ A função sinal é definida como:
 \end{cases}
 \]
 
-Observe que: $u(t) = \frac{1 + \sgn(t)}{2}$ e $\sgn(t) = 2u(t) - 1$
+\vspace{0.3cm}
+
+Usaremos $\sgn(t)$ como passo intermediário para obter $\mathcal{F}\{u(t)\}$.
+\end{column}
+\begin{column}{0.50\textwidth}
+\begin{center}
+\begin{tikzpicture}[scale=0.85]
+  \draw[->, thick] (-2.5,0) -- (2.8,0) node[right] {$t$};
+  \draw[->, thick] (0,-1.5) -- (0,1.8) node[above] {$\sgn(t)$};
+  \draw[unbprimary, very thick] (-2.2,-1) -- (0,-1);
+  \draw[unbprimary, very thick] (0,1) -- (2.2,1);
+  \filldraw[unbprimary] (0,0) circle (2pt);
+  \draw[unbprimary, fill=white] (0,1) circle (2pt);
+  \draw[unbprimary, fill=white] (0,-1) circle (2pt);
+  \node[right, font=\small] at (0.2,1) {$1$};
+  \node[right, font=\small] at (0.2,-1) {$-1$};
+\end{tikzpicture}
+\end{center}
+\end{column}
+\end{columns}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Transformada da Função Sinal}
+\begin{frame}{Transformada da Função Sinal: Método}
 
-Para encontrar $\FT{u(t)}$, calculamos primeiro $\FT{\sgn(t)}$ via limite regulador.
-Usando $e^{-at}u(t)\xleftrightarrow{\ft}\frac{1}{a+j\omega}$ e $e^{at}u(-t)\xleftrightarrow{\ft}\frac{1}{a-j\omega}$:
+Usamos um \textbf{limite regulador}. Sabemos que:
+
+\[
+e^{-at}u(t)\xleftrightarrow{\ft}\frac{1}{a+j\omega} \qquad e^{at}u(-t)\xleftrightarrow{\ft}\frac{1}{a-j\omega}
+\]
+
+Escrevemos $\sgn(t)$ como limite:
 
 \[
 \sgn(t) = \lim_{a\to 0^+}\!\bigl[e^{-at}u(t)-e^{at}u(-t)\bigr]
 \]
 
-\begin{align*}
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Transformada da Função Sinal: Resultado}
+
+\[
 \FT{\sgn(t)}
-  &= \lim_{a\to 0^+}\!\left[\frac{1}{a+j\omega}-\frac{1}{a-j\omega}\right]
-   = \lim_{a\to 0^+}\frac{-2j\omega}{a^2+\omega^2} \\[4pt]
-  &\xrightarrow{a\to 0^+} \frac{2}{j\omega} \qquad (\omega\neq 0)
-\end{align*}
+  = \lim_{a\to 0^+}\!\left[\frac{1}{a+j\omega}-\frac{1}{a-j\omega}\right]
+   = \lim_{a\to 0^+}\frac{-2j\omega}{a^2+\omega^2}
+  = \frac{2}{j\omega} \quad (\omega\neq 0)
+\]
 
 \begin{block}{Transformada da Função Sinal}
 \[
-\sgn(t) \xleftrightarrow{\ft} \frac{2}{j\omega}
+\boxed{\sgn(t) \xleftrightarrow{\ft} \frac{2}{j\omega}}
 \]
 \end{block}
+
+\textbf{Observação:} $\frac{2}{j\omega} = \frac{-2j}{\omega}$ — espectro puramente imaginário (sinal ímpar $\Rightarrow$ transformada imaginária).
 
 \end{frame}
 
@@ -265,8 +332,6 @@ u(t) \xleftrightarrow{\ft} \pi\delta(\omega) + \frac{1}{j\omega}
 
 \begin{frame}{Pulso Retangular}
 
-Já derivamos anteriormente:
-
 \[
 \rect(t/\tau) = \begin{cases}
 1 & |t| \leq \tau/2 \\
@@ -282,12 +347,35 @@ Já derivamos anteriormente:
 
 onde $\sinc(x) = \frac{\sin(\pi x)}{\pi x}$.
 
-\textbf{Propriedades:}
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Propriedades do Espectro do Pulso Retangular}
+
 \begin{itemize}
-\item Lóbulo principal: $-2\pi/\tau < \omega < 2\pi/\tau$
-\item Zeros em $\omega = \pm 2\pi n/\tau$, $n = 1, 2, 3, ...$
+\item Lóbulo principal: $-2\pi/\tau < \omega < 2\pi/\tau$ (largura $= 4\pi/\tau$)
+\item Zeros em $\omega = \pm 2\pi n/\tau$, $n = 1, 2, 3, \ldots$
 \item Amplitude decresce como $1/\omega$
+\item Pulso mais estreito ($\tau$ menor) $\Rightarrow$ espectro mais largo
 \end{itemize}
+
+\vspace{0.3cm}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.75]
+  \draw[->, thick] (-4,0) -- (4,0) node[right, font=\small] {$\omega$};
+  \draw[->, thick] (0,-0.5) -- (0,2.5) node[above, font=\small] {$F(\omega)$};
+  % sinc function
+  \draw[unbprimary, very thick, domain=-3.8:3.8, samples=200]
+    plot (\x, {2*abs(sin(deg(pi*\x))/(pi*\x + 0.001))});
+  \node[font=\small, above, unbprimary] at (0,2.2) {$\tau$};
+  \node[font=\tiny, below] at (1,-0.15) {$\frac{2\pi}{\tau}$};
+  \node[font=\tiny, below] at (-1,-0.15) {$-\frac{2\pi}{\tau}$};
+  \node[font=\tiny, below] at (2,-0.15) {$\frac{4\pi}{\tau}$};
+  \node[font=\tiny, below] at (-2,-0.15) {$-\frac{4\pi}{\tau}$};
+\end{tikzpicture}
+\end{center}
 
 \end{frame}
 
@@ -318,19 +406,32 @@ A \textbf{função triangular}:
 
 \textbf{Observação:} $\tri(t/\tau) = \rect(t/\tau) \conv \rect(t/\tau)$ (convolução de retângulo consigo mesmo).
 
-Pela propriedade de convolução (que veremos na próxima seção):
-
-\[
-\FT{\tri(t/\tau)} = \FT{\rect(t/\tau)} \cdot \FT{\rect(t/\tau)} = \left[\tau \sinc\left(\frac{\omega\tau}{2\pi}\right)\right]^2
-\]
-
 \begin{block}{Transformada}
 \[
-\boxed{\tri(t/\tau) \xleftrightarrow{\ft} \tau \sinc^2\left(\frac{\omega\tau}{2\pi}\right)}
+\boxed{\tri(t/\tau) \xleftrightarrow{\ft} \tau \sinc^2\!\left(\frac{\omega\tau}{2\pi}\right)}
 \]
 \end{block}
 
-\textbf{Nota:} O espectro decai mais rápido ($\propto 1/\omega^2$) que o retângulo.
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Função Triangular: Justificativa}
+
+Pela propriedade de convolução (que veremos na próxima seção):
+
+\[
+\FT{\tri(t/\tau)} = \FT{\rect(t/\tau)} \cdot \FT{\rect(t/\tau)} = \left[\tau \sinc\!\left(\frac{\omega\tau}{2\pi}\right)\right]^2
+\]
+
+\vspace{0.3cm}
+
+\textbf{Comparação com o pulso retangular:}
+\begin{itemize}
+\item Retângulo: espectro $\propto \sinc$ --- decai como $1/\omega$
+\item Triângulo: espectro $\propto \sinc^2$ --- decai como $1/\omega^2$ (mais rápido)
+\item Sinal mais ``suave'' no tempo $\Rightarrow$ espectro decai mais rápido
+\end{itemize}
 
 \end{frame}
 
@@ -368,13 +469,17 @@ Fatorando a exponencial:
 F(\omega) = e^{-\omega^2/(4\alpha)} \int_{-\infty}^{\infty} e^{-\alpha\left(t + \frac{j\omega}{2\alpha}\right)^2} dt
 \]
 
-Com $u = t + j\omega/(2\alpha)$, $du = dt$, e a integral gaussiana $\int e^{-\alpha u^2}du = \sqrt{\pi/\alpha}$:
+Com $u = t + j\omega/(2\alpha)$ e a integral gaussiana $\int e^{-\alpha u^2}du = \sqrt{\pi/\alpha}$:
 
-\begin{align*}
-F(\omega)
-  &= e^{-\omega^2/(4\alpha)} \int_{-\infty}^{\infty} e^{-\alpha u^2}\,du
-   = e^{-\omega^2/(4\alpha)}\cdot\sqrt{\tfrac{\pi}{\alpha}}
-\end{align*}
+\[
+F(\omega) = e^{-\omega^2/(4\alpha)}\cdot\sqrt{\tfrac{\pi}{\alpha}}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Pulso Gaussiano: Resultado}
 
 \begin{block}{Transformada da Gaussiana}
 \[
@@ -382,9 +487,13 @@ e^{-\alpha t^2} \xleftrightarrow{\ft} \sqrt{\frac{\pi}{\alpha}}\,e^{-\omega^2/(4
 \]
 \end{block}
 
-\textbf{Propriedade notável:} Uma Gaussiana transforma-se em outra Gaussiana!
+\vspace{0.3cm}
 
-\textbf{Princípio de incerteza:} A Gaussiana é o sinal com mínimo produto $\Delta t \cdot \Delta\omega = 1/2$.
+\begin{itemize}
+\item \textbf{Propriedade notável:} Uma Gaussiana transforma-se em outra Gaussiana!
+\item \textbf{Princípio de incerteza:} A Gaussiana é o sinal com mínimo produto $\Delta t \cdot \Delta\omega = 1/2$.
+\item $\alpha$ grande $\Rightarrow$ pulso estreito no tempo, espectro largo na frequência
+\end{itemize}
 
 \end{frame}
 
@@ -400,13 +509,9 @@ Um \textbf{trem de impulsos} (impulse train) com período $T$:
 f(t) = \sum_{n=-\infty}^{\infty} \delta(t - nT)
 \]
 
-Este sinal é periódico ($\omega_0 = 2\pi/T$) e expande em série de Fourier. Os coeficientes valem
+Este sinal é periódico ($\omega_0 = 2\pi/T$). Os coeficientes de Fourier valem:
 \[
 c_n = \frac{1}{T}\!\int_{-T/2}^{T/2}\!\delta(t)\,e^{-jn\omega_0 t}\,dt = \frac{1}{T}
-\]
-logo:
-\[
-f(t) = \frac{1}{T} \sum_{n=-\infty}^{\infty} e^{jn\omega_0 t}
 \]
 
 \textbf{Interpretação:} Todos os harmônicos têm a mesma amplitude $1/T$ — espectro plano!
@@ -420,8 +525,7 @@ f(t) = \frac{1}{T} \sum_{n=-\infty}^{\infty} e^{jn\omega_0 t}
 Usando a linearidade e $e^{jn\omega_0 t} \xleftrightarrow{\ft} 2\pi\delta(\omega - n\omega_0)$:
 
 \[
-F(\omega) = \frac{1}{T}\sum_{n} 2\pi\delta(\omega - n\omega_0)
-           = \frac{2\pi}{T}\sum_{n=-\infty}^{\infty}\delta(\omega - n\omega_0)
+F(\omega) = \frac{2\pi}{T}\sum_{n=-\infty}^{\infty}\delta(\omega - n\omega_0)
 \]
 
 \begin{block}{Par de Transformadas: Trem de Impulsos}
@@ -432,11 +536,46 @@ F(\omega) = \frac{1}{T}\sum_{n} 2\pi\delta(\omega - n\omega_0)
 \]
 \end{block}
 
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Trem de Impulsos: Interpretação}
+
 \begin{itemize}
 \item \textbf{Simetria perfeita:} impulsos periódicos no tempo $\leftrightarrow$ impulsos periódicos na frequência
 \item \textbf{Separação espectral:} $\Delta\omega = 2\pi/T$ (inversamente proporcional a $T$)
 \item \textbf{Aplicação fundamental:} base matemática do teorema de amostragem
 \end{itemize}
+
+\vspace{0.3cm}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.75]
+  % Tempo
+  \begin{scope}[xshift=-4.5cm]
+    \draw[->, thick] (-2.5,0) -- (2.8,0) node[right, font=\small] {$t$};
+    \draw[->, thick] (0,-0.3) -- (0,2) node[above, font=\small] {};
+    \foreach \n in {-2,-1,0,1,2}
+      \draw[unbprimary, very thick, ->] (\n,0) -- (\n,1.5);
+    \node[font=\small, below] at (1,-0.15) {$T$};
+    \node[font=\small, below] at (-1,-0.15) {$-T$};
+    \node[font=\small, above] at (0,1.6) {$\delta(t\!-\!nT)$};
+  \end{scope}
+  % Seta
+  \draw[->, very thick, gray] (-0.8,0.8) -- (0.8,0.8) node[midway, above, font=\small] {$\mathcal{F}$};
+  % Frequência
+  \begin{scope}[xshift=4.5cm]
+    \draw[->, thick] (-2.5,0) -- (2.8,0) node[right, font=\small] {$\omega$};
+    \draw[->, thick] (0,-0.3) -- (0,2) node[above, font=\small] {};
+    \foreach \n in {-2,-1,0,1,2}
+      \draw[red!70!black, very thick, ->] (\n,0) -- (\n,1.5);
+    \node[font=\small, below] at (1,-0.15) {$\omega_0$};
+    \node[font=\small, below] at (-1,-0.15) {$-\omega_0$};
+    \node[font=\small, above, red!70!black] at (0,1.6) {$\frac{2\pi}{T}\delta(\omega\!-\!n\omega_0)$};
+  \end{scope}
+\end{tikzpicture}
+\end{center}
 
 \end{frame}
 
