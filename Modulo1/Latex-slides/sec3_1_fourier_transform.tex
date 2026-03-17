@@ -119,23 +119,47 @@ F(\omega) = \lim_{T_0 \to \infty} \int_{-T_0/2}^{T_0/2} f(t) e^{-j\omega t} dt =
 
 \begin{frame}{Par de Transformadas de Fourier}
 
-\begin{block}{Definições}
-\textbf{Transformada de Fourier (direta):}
+\begin{block}{Transformada de Fourier (direta)}
 \[
 F(\omega) = \FT{f(t)} = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt
 \]
+\end{block}
 
-\textbf{Transformada Inversa de Fourier:}
+\begin{block}{Transformada Inversa de Fourier}
 \[
 f(t) = \IFT{F(\omega)} = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) e^{j\omega t} d\omega
 \]
+\end{block}
 
 Notação: $f(t) \xleftrightarrow{\ft} F(\omega)$
-\end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Interpretação da Transformada de Fourier}
+
+$F(\omega)$ representa a ``quantidade'' de cada frequência $\omega$ presente no sinal $f(t)$.
 
 \vspace{0.3cm}
 
-\textbf{Interpretação:} $F(\omega)$ representa a "quantidade" de cada frequência $\omega$ presente no sinal $f(t)$.
+\begin{itemize}
+\item $F(\omega)$ é em geral \textbf{complexa}: $F(\omega) = |F(\omega)|\,e^{j\phi(\omega)}$
+\item $|F(\omega)|$ --- \textbf{espectro de magnitude} (amplitude de cada frequência)
+\item $\phi(\omega)$ --- \textbf{espectro de fase} (fase relativa de cada frequência)
+\end{itemize}
+
+\vspace{0.3cm}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.8]
+  \draw[->, thick] (-3,0) -- (3,0) node[right, font=\small] {$\omega$};
+  \draw[->, thick] (0,-0.3) -- (0,2.2) node[above, font=\small] {$|F(\omega)|$};
+  \draw[unbprimary, very thick, smooth, domain=-2.8:2.8, samples=100]
+    plot (\x, {1.8*exp(-\x*\x/1.5)});
+  \node[font=\small, unbprimary] at (2,1.5) {espectro};
+\end{tikzpicture}
+\end{center}
 
 \end{frame}
 

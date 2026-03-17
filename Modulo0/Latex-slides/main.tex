@@ -27,7 +27,7 @@
 \newcommand{\autorNome}{Prof. Daniel Costa Araujo}
 \newcommand{\autorEmail}{daniel.araujo@unb.br}
 \newcommand{\tituloApresentacao}{Principios de Comunicacao para Engenharia}
-\newcommand{\subtituloApresentacao}{Modulo 0: Apresentacao da Disciplina}
+\newcommand{\subtituloApresentacao}{Apresentacao da Disciplina}
 \newcommand{\idioma}{pt}
 \newcommand{\universidadePT}{Universidade de Brasilia}
 \newcommand{\departamentoPT}{Faculdade de Ciencias e Tecnologia em Engenharias}
@@ -35,7 +35,7 @@
 \newcommand{\universidadeEN}{University of Brasilia}
 \newcommand{\departamentoEN}{Faculty of Sciences and Technology in Engineering}
 \newcommand{\laboratorioEN}{Telecommunications Laboratory}
-\newcommand{\dataApresentacao}{Marco de 2026}
+\newcommand{\dataApresentacao}{17 de Março de 2026}
 
 \newcommand{\institutoFinal}{%
     \ifthenelse{\equal{\idioma}{pt}}{\universidadePT \\ \laboratorioPT}%
@@ -242,6 +242,7 @@ Cada uma com suas vantagens
 \end{frame}
 
 \begin{frame}{Evoluc\~{a}o dos sistemas de comunicac\~{a}o}
+\begin{center}
 \begin{tikzpicture}[scale=0.9]
   % Linha do tempo principal
   \draw[very thick, -{Stealth}, gray!60] (-0.3, 0) -- (14.5, 0);
@@ -267,7 +268,7 @@ Cada uma com suas vantagens
   \draw[thick, color=unbprimary] (12.5,-0.05)--(12.5,0.7);
   \node[above,align=center,font=\tiny\bfseries,color=unbprimary] at (12.5,0.9) {5G e\\al\'{e}m};
   \node[below,font=\tiny,color=gray] at (12.5,-0.2) {2020s};
-  % Setas e r\'{o}tulos inferiores (sem node inline)
+  % Setas e r\'{o}tulos inferiores
   \draw[-{Stealth}, thick, color=cOrange] (0.5,-0.15) -- (0.5,-1.0);
   \node[below,font=\tiny,align=center,color=cOrange] at (0.5,-1.05) {Mod.\\anal\'{o}gica};
   \draw[-{Stealth}, thick, color=cRed] (6.5,-0.15) -- (6.5,-1.0);
@@ -275,17 +276,21 @@ Cada uma com suas vantagens
   \draw[-{Stealth}, thick, color=unbprimary] (12.5,-0.15) -- (12.5,-1.0);
   \node[below,font=\tiny,align=center,color=unbprimary] at (12.5,-1.05) {Mod.\\digital};
 \end{tikzpicture}
-\vspace{0.1cm}
+\end{center}
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Por que ainda estudar anal\'{o}gico?}
 \begin{columns}
-\begin{column}{0.5\textwidth}
-  \textbf{Por que ainda estudar anal\'{o}gico?}
+\begin{column}{0.48\textwidth}
   \begin{itemize}
-    \item Fundamentos de espectro/modulac\~{a}o s\~{a}o universais
+    \item Fundamentos de espectro e modulac\~{a}o s\~{a}o \textbf{universais}
     \item R\'{a}dio AM/FM ainda opera em todo o mundo
     \item Entender AM/FM abre a porta para 4G/5G/WiFi
   \end{itemize}
 \end{column}
-\begin{column}{0.5\textwidth}
+\begin{column}{0.48\textwidth}
   \begin{itemize}
     \item O digital usa portadora, banda, SNR, BW
     \item Fourier, filtros, canal com ru\'{\i}do
@@ -379,11 +384,8 @@ Cada uma com suas vantagens
   \node[text=white, font=\small\bfseries] at (6.85, -0.73)
     {Lab PRICOM (GNU Radio) --- 8 pr\'{a}ticas ao longo do semestre};
   \draw[very thick, blue!70] (4.2, -0.05) -- (4.2, -1.15);
-  \node[above, font=\tiny\bfseries, text=blue!70] at (4.2, 1.25) {P1};
   \draw[very thick, teal!60] (9.0, -0.05) -- (9.0, -1.15);
-  \node[above, font=\tiny\bfseries, text=teal!60] at (9.0, 1.25) {P2};
   \draw[very thick, purple!70] (13.5, -0.05) -- (13.5, -1.15);
-  \node[above, font=\tiny\bfseries, text=purple!70] at (13.5, 1.25) {P3};
   \node[font=\tiny, gray, below] at (0.2,-1.15)  {mar/26};
   \node[font=\tiny, gray, below] at (6.85,-1.15) {mai/26};
   \node[font=\tiny, gray, below] at (13.5,-1.15) {jul/26};
@@ -664,11 +666,10 @@ Cada uma com suas vantagens
 \end{frame}
 
 \begin{frame}{Do r\'{a}dio ao celular --- mesmos fundamentos}
-\begin{columns}
-\begin{column}{0.50\textwidth}
-  \textbf{Evoluc\~{a}o das gerac\~{o}es:}
-  \vspace{0.2cm}
-  \begin{tikzpicture}[scale=0.82]
+
+\begin{center}
+\begin{tikzpicture}[scale=0.85]
+    \draw[->, very thick, gray!40] (-1.2,0) -- (9.5,0);
     \node[rounded corners, fill=gray, text=white, minimum width=1.5cm,
           minimum height=0.65cm, align=center, font=\tiny\bfseries] at (0,0) {1G\\FM};
     \node[rounded corners, fill=blue!60, text=white, minimum width=1.5cm,
@@ -679,38 +680,46 @@ Cada uma com suas vantagens
           minimum height=0.65cm, align=center, font=\tiny\bfseries] at (6,0) {4G};
     \node[rounded corners, fill=red!60, text=white, minimum width=1.5cm,
           minimum height=0.65cm, align=center, font=\tiny\bfseries] at (8,0) {5G};
-    \draw[->, very thick, gray!40] (-1,0) -- (9.5,0);
-  \end{tikzpicture}
-  \vspace{0.1cm}
-  \textbf{O que \'{e} comum a todas as gerac\~{o}es?}
+\end{tikzpicture}
+\end{center}
+
+\textbf{O que \'{e} comum a todas as gerac\~{o}es?}
+\begin{columns}
+\begin{column}{0.48\textwidth}
   \begin{itemize}
     \item Portadora de r\'{a}dio-frequ\^{e}ncia
     \item Modulac\~{a}o do sinal na portadora
+  \end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+  \begin{itemize}
     \item An\'{a}lise de espectro e largura de banda
     \item Combate ao ru\'{\i}do e distorc\~{a}o do canal
   \end{itemize}
 \end{column}
-\begin{column}{0.47\textwidth}
-  \textbf{O 1G era \alert{FM anal\'{o}gica} pura!}
-
-  \vspace{0.1cm}
-
-  O celular original (AMPS, 1983) usava exatamente a modulac\~{a}o FM que estudaremos no M\'{o}dulo 2.
-
-  \vspace{0.1cm}
-
-  \textbf{Conceitos desta disciplina:}
-  \begin{itemize}
-    \item \textbf{M\'{o}d. 1:} Espectro e filtros
-    \item \textbf{M\'{o}d. 2:} AM, FM --- a base de tudo
-    \item \textbf{M\'{o}d. 3:} Amostragem e digitalizac\~{a}o
-  \end{itemize}
-
-  \vspace{0.1cm}
-
-  \alert{Sem entender AM/FM, n\~{a}o se entende 4G/5G!}
-\end{column}
 \end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{O 1G era FM anal\'{o}gica pura!}
+
+O celular original (\textbf{AMPS}, 1983) usava exatamente a modulac\~{a}o FM que estudaremos no M\'{o}dulo 2.
+
+\vspace{0.3cm}
+
+\textbf{Conceitos desta disciplina aplicados a celular:}
+\begin{itemize}
+  \item \textbf{M\'{o}d. 1:} Espectro e filtros --- como o sinal ocupa a banda
+  \item \textbf{M\'{o}d. 2:} AM, FM --- a base de toda comunicac\~{a}o sem fio
+  \item \textbf{M\'{o}d. 3:} Amostragem e digitalizac\~{a}o --- a transic\~{a}o para 2G em diante
+\end{itemize}
+
+\vspace{0.3cm}
+
+\alert{Sem entender AM/FM, n\~{a}o se entende 4G/5G!}
+
 \end{frame}
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -793,22 +802,22 @@ Cada uma com suas vantagens
   \end{enumerate}
   \end{alertblock}
   \vspace{0.2cm}
-  \begin{exampleblock}{Dica}
-  Alunos que fazem \textbf{todas as pr\'{a}ticas} com boa qualidade
-  garantem $N_L$ alta e aliviam a press\~{a}o nas provas!
-  \end{exampleblock}
+ %\begin{exampleblock}{Dica}
+ %Alunos que fazem \textbf{todas as pr\'{a}ticas} com boa qualidade
+ %garantem $N_L$ alta e aliviam a press\~{a}o nas provas!
+ %\end{exampleblock}
 \end{column}
 \begin{column}{0.47\textwidth}
   \textbf{Cronograma 2026/1:}
   \vspace{0.1cm}
   \begin{tabular}{ll}
     \hline
-    \textbf{Evento} & \textbf{Data aprox.} \\
+    \textbf{Evento} & \textbf{Data} \\
     \hline
     In\'{\i}cio das aulas  & 16/03/2026 \\
-    Prova 1 (P1)       & abr/2026   \\
-    Prova 2 (P2)       & mai-jun/26 \\
-    Prova 3 (P3)       & jul/2026   \\
+    Prova 1 (P1)       & Semana de 20/04 \\
+    Prova 2 (P2)       & Semana de 08/06 \\
+    Prova 3 (P3)       & Semana de 13/07 \\
     Fim do semestre    & 18/07/2026 \\
     \hline
   \end{tabular}
