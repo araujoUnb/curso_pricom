@@ -15,7 +15,7 @@ As propriedades da Transformada de Fourier permitem:
 \item Analisar sistemas e operações sobre sinais
 \end{itemize}
 
-\vspace{0.5cm}
+\vspace{0.2cm}
 
 \textbf{Propriedades principais a serem estudadas:}
 
@@ -149,6 +149,18 @@ Um pulso atrasado tem o mesmo espectro de magnitude, mas fase alterada.
 
 % ============================================
 
+\begin{frame}{Visualização: Deslocamento Temporal}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/time_shift_property}
+\end{center}
+
+Deslocamento no tempo não altera a magnitude do espectro, apenas a fase.
+
+\end{frame}
+
+% ============================================
+
 \subsection{Deslocamento em Frequência}
 
 \begin{frame}{Propriedade de Deslocamento em Frequência (Modulação)}
@@ -199,6 +211,43 @@ f(t) \cos(\omega_0 t) \xleftrightarrow{\ft} \frac{1}{2}\bigl[F(\omega - \omega_0
 \item Cada cópia deslocada para $+\omega_0$ e $-\omega_0$
 \item Base da \textbf{modulação AM}: portadora na frequência $\omega_0$
 \end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Modulação AM}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/modulation_property}
+\end{center}
+
+A modulação desloca o espectro do sinal para $\pm\omega_0$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo Prático: Rádio AM}
+
+\textbf{Cenário:} Transmissão de áudio (voz) via rádio AM.
+
+\textbf{Sinal de áudio:} $m(t)$ com banda $B_m = 5$ kHz (0 a 5 kHz)
+
+\textbf{Portadora:} $\cos(2\pi f_c t)$ com $f_c = 1$ MHz (estação AM)
+
+\textbf{Sinal transmitido:}
+\[
+s(t) = m(t) \cos(2\pi f_c t) \xleftrightarrow{\ft} \tfrac{1}{2}[M(\omega - \omega_c) + M(\omega + \omega_c)]
+\]
+
+\textbf{Espectro ocupa:} $f_c \pm B_m = $ 995 kHz a 1005 kHz (largura = 10 kHz)
+
+\textbf{Múltiplas estações:} Cada uma usa $f_c$ diferente $\Rightarrow$ espectros não se sobrepõem!
+
+\vspace{0.2cm}
+
+\textbf{Este é o princípio da multiplexação por divisão em frequência (FDM).}
 
 \end{frame}
 
@@ -318,7 +367,7 @@ y(t) = x(t) \conv h(t) \quad \Rightarrow \quad Y(\omega) = X(\omega) H(\omega)
 
 % ============================================
 
-\begin{frame}{Demonstração: Convolução no Tempo}
+\begin{frame}{Demonstração: Convolução no Tempo (1/2)}
 
 Queremos mostrar que $\FT{f_1(t) \conv f_2(t)} = F_1(\omega) \cdot F_2(\omega)$.
 
@@ -338,11 +387,29 @@ A integral interna é a transformada de $f_2(t - \tau)$. Pela propriedade de des
 \int_{-\infty}^{\infty} f_2(t - \tau) e^{-j\omega t} dt = F_2(\omega) e^{-j\omega\tau}
 \]
 
-Portanto:
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demonstração: Convolução no Tempo (2/2)}
+
+Substituindo o resultado anterior:
 
 \[
-= \int_{-\infty}^{\infty} f_1(\tau) F_2(\omega) e^{-j\omega\tau} d\tau = F_2(\omega) \int_{-\infty}^{\infty} f_1(\tau) e^{-j\omega\tau} d\tau = F_2(\omega) F_1(\omega)
+\FT{f_1 \conv f_2} = \int_{-\infty}^{\infty} f_1(\tau) F_2(\omega) e^{-j\omega\tau} d\tau
 \]
+
+Como $F_2(\omega)$ não depende de $\tau$:
+
+\[
+= F_2(\omega) \int_{-\infty}^{\infty} f_1(\tau) e^{-j\omega\tau} d\tau = F_2(\omega) \cdot F_1(\omega)
+\]
+
+\begin{block}{Resultado}
+\[
+\FT{f_1(t) \conv f_2(t)} = F_1(\omega) \cdot F_2(\omega) \quad \blacksquare
+\]
+\end{block}
 
 \end{frame}
 
@@ -358,6 +425,18 @@ Portanto:
 \begin{block}{Resultado}
 Calcular via convolução no tempo \textbf{ou} multiplicação na frequência dá o mesmo resultado.
 \end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Convolução: Tempo vs. Frequência}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/convolution_time_freq}
+\end{center}
+
+Convolução no tempo equivale a multiplicação na frequência.
 
 \end{frame}
 
@@ -485,13 +564,14 @@ Se $F(0) \neq 0$:
 \textbf{Solução:} Use a propriedade de derivação na frequência (dual da derivação no tempo):
 
 \[
-(-jt) f(t) \xleftrightarrow{\ft} \frac{dF(\omega)}{d\omega}
+(-jt) f(t) \xleftrightarrow{\ft} \frac{dF(\omega)}{d\omega} \quad \Rightarrow \quad t f(t) \xleftrightarrow{\ft} j \frac{dF(\omega)}{d\omega}
 \]
 
-Portanto:
-\[
-t f(t) \xleftrightarrow{\ft} j \frac{dF(\omega)}{d\omega}
-\]
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Derivação e Integração (continuação)}
 
 Com $f(t) = e^{-at}u(t)$ e $F(\omega) = \frac{1}{a+j\omega}$:
 
@@ -502,6 +582,8 @@ Com $f(t) = e^{-at}u(t)$ e $F(\omega) = \frac{1}{a+j\omega}$:
 \[
 \FT{te^{-at}u(t)} = j \cdot \frac{-j}{(a+j\omega)^2} = \frac{1}{(a+j\omega)^2}
 \]
+
+\textbf{Sem linearidade:} Teríamos que calcular integrais complexas!
 
 \end{frame}
 
@@ -548,15 +630,18 @@ A dualidade permite obter novos pares de transformadas:
 \delta(t) \xleftrightarrow{\ft} 1 \quad \Rightarrow \quad 1 \xleftrightarrow{\ft} 2\pi\delta(-\omega) = 2\pi\delta(\omega)
 \]
 
-\textbf{Exemplo 2:}
-\[
-\rect(t/\tau) \xleftrightarrow{\ft} \tau\sinc(\omega\tau/2\pi)
-\]
+\textbf{Exemplo 2:} Partindo de $\rect(t/\tau) \xleftrightarrow{\ft} \tau\sinc(\omega\tau/2\pi)$
 
 Pela dualidade:
 \[
 \tau\sinc(t\tau/2\pi) \xleftrightarrow{\ft} 2\pi\rect(-\omega/\tau) = 2\pi\rect(\omega/\tau)
 \]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplos de Dualidade (continuação)}
 
 Simplificando com $\tau = 2\pi/W$:
 \[
@@ -564,6 +649,10 @@ Simplificando com $\tau = 2\pi/W$:
 \]
 
 \textbf{Conclusão:} Função sinc no tempo $\leftrightarrow$ retângulo na frequência (banda limitada!)
+
+\vspace{0.5cm}
+
+\textbf{Significado prático:} Um sinal perfeitamente banda-limitado em $[-W, W]$ tem extensão infinita no tempo (função sinc).
 
 \end{frame}
 
@@ -609,7 +698,7 @@ F(\omega) = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt = \int_{-\infty}^{\in
 
 A componente imaginária se cancela, então $F(\omega)$ é \textbf{real e par}.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Se} $f(t)$ \textbf{é real e ímpar} ($f(-t) = -f(t)$):
 
@@ -619,7 +708,7 @@ F(\omega) = -j \int_{-\infty}^{\infty} f(t) \sin(\omega t) dt
 
 A componente real se cancela, então $F(\omega)$ é \textbf{imaginário puro e ímpar}.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Tabela resumo:}
 
@@ -656,7 +745,7 @@ Se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
 \item A energia é conservada entre os dois domínios!
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Generalização (Teorema de Rayleigh):}
 \[
@@ -667,7 +756,7 @@ Se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
 
 % ============================================
 
-\begin{frame}{Demonstração do Teorema de Parseval}
+\begin{frame}{Demonstração do Teorema de Parseval (1/2)}
 
 Começamos com:
 \[
@@ -684,14 +773,38 @@ Então:
 \int_{-\infty}^{\infty} |f(t)|^2 dt = \int_{-\infty}^{\infty} f(t) \left[\frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) e^{-j\omega t} d\omega\right] dt
 \]
 
-Trocando a ordem:
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demonstração do Teorema de Parseval (2/2)}
+
+Trocando a ordem de integração:
 \[
-= \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) \left[\int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt\right] d\omega = \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) F(\omega) d\omega
+\int_{-\infty}^{\infty} |f(t)|^2 dt = \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) \underbrace{\left[\int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt\right]}_{F(\omega)} d\omega
 \]
 
 \[
-= \frac{1}{2\pi} \int_{-\infty}^{\infty} |F(\omega)|^2 d\omega
+= \frac{1}{2\pi} \int_{-\infty}^{\infty} F^*(\omega) F(\omega) d\omega = \frac{1}{2\pi} \int_{-\infty}^{\infty} |F(\omega)|^2 d\omega
 \]
+
+\begin{block}{Teorema de Parseval}
+\[
+\int_{-\infty}^{\infty} |f(t)|^2 dt = \frac{1}{2\pi} \int_{-\infty}^{\infty} |F(\omega)|^2 d\omega \quad \blacksquare
+\]
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Teorema de Parseval}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/parseval_energy}
+\end{center}
+
+A energia (área sombreada) é a mesma nos dois domínios.
 
 \end{frame}
 
@@ -763,7 +876,7 @@ Parseval & $\displaystyle\int |f(t)|^2\,dt = \dfrac{1}{2\pi}\int |F(\omega)|^2\,
 \item \textbf{Parseval:} Conserva energia entre domínios
 \end{itemize}
 
-\vspace{0.5cm}
+\vspace{0.2cm}
 
 \textbf{Dominando estas propriedades, você pode:}
 \begin{itemize}

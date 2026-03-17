@@ -412,6 +412,18 @@ F(\omega) = \frac{1}{a-j\omega} + \frac{1}{a+j\omega} = \frac{(a+j\omega) + (a-j
 
 % ============================================
 
+\begin{frame}{Exemplo 3: Visualização do Espectro}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/bilateral_exponential}
+\end{center}
+
+Decaimento rápido ($a$ grande) $\Rightarrow$ espectro mais largo. Espectro é real e par pois $f(t)$ é par.
+
+\end{frame}
+
+% ============================================
+
 \subsection{Interpretação Física}
 
 \begin{frame}{Interpretação Física da Transformada de Fourier}
@@ -470,6 +482,42 @@ onde $\Delta t$ é a duração efetiva e $\Delta \omega$ é a largura de banda e
 
 % ============================================
 
+\begin{frame}{Visualização: Incerteza Tempo-Frequência}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/gaussian_fourier}
+\end{center}
+
+A Gaussiana atinge o limite mínimo $\Delta t \cdot \Delta\omega = 1/2$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo Prático: Largura de Banda em Comunicações}
+
+\textbf{Problema:} Um sistema transmite pulsos retangulares de duração $\tau = 1\,\mu$s para enviar dados binários (1 bit por pulso).
+
+\textbf{Taxa de dados:} $R_b = 1/\tau = 1$ Mbps
+
+\textbf{Largura de banda necessária:}
+
+O primeiro zero do espectro $\sinc$ está em $f = 1/\tau = 1$ MHz.
+
+$\Rightarrow$ Banda mínima $B \approx 1/\tau = 1$ MHz
+
+\textbf{Para aumentar a taxa para 10 Mbps:}
+
+$\tau = 0.1\,\mu$s $\Rightarrow$ $B \approx 10$ MHz (10$\times$ mais banda!)
+
+\vspace{0.2cm}
+
+\textbf{Conclusão:} Taxa de dados e largura de banda são diretamente proporcionais --- compromisso fundamental em telecomunicações.
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Resumo da Seção 3.1}
 
 \textbf{Conceitos fundamentais:}
@@ -480,7 +528,7 @@ onde $\Delta t$ é a duração efetiva e $\Delta \omega$ é a largura de banda e
 \item Espectro: magnitude e fase descrevem conteúdo em frequência
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Pares importantes derivados:}
 
@@ -490,7 +538,7 @@ onde $\Delta t$ é a duração efetiva e $\Delta \omega$ é a largura de banda e
 \item $e^{-a|t|} \xleftrightarrow{\ft} 2a/(a^2+\omega^2)$
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Princípio fundamental:}
 \begin{center}

@@ -22,7 +22,7 @@ No tempo: $y(t) = x(t) \conv h_c(t)$
 
 Na frequência: $Y(\omega) = H_c(\omega) X(\omega)$
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Canal ideal:}
 \[
@@ -31,7 +31,7 @@ H_c(\omega) = K e^{-j\omega t_d}
 
 Apenas amplifica e atrasa o sinal, sem alterar sua forma.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Canal real:} $H_c(\omega)$ tem $|H_c(\omega)|$ e $\phi_c(\omega)$ variáveis, causando distorção.
 
@@ -116,7 +116,7 @@ Pulso quadrado contém harmônicas ímpares: $\omega_0, 3\omega_0, 5\omega_0, ..
 
 Todas as frequências sofrem o mesmo atraso temporal $t_d$.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Fase não-linear:}
 
@@ -151,7 +151,7 @@ O \textbf{atraso de grupo} mede o atraso de envelopes de sinais:
 \item Para $\tau_g(\omega)$ variável: dispersão temporal das componentes
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Efeito em sinais modulados:}
 
@@ -159,7 +159,7 @@ Sinal modulado: $x(t) = m(t)\cos(\omega_c t)$
 
 Se $\tau_g$ varia na banda de $m(t)$, o envelope $m(t)$ é distorcido.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Especificação de canal:}
 
@@ -185,7 +185,7 @@ y(t) = \cos[\omega_1(t - t_d)] + \cos[\omega_2(t - t_d)]
 
 Ambas componentes atrasadas igualmente $\rightarrow$ forma preservada.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Canal com fase não-linear:}
 
@@ -225,9 +225,21 @@ Componentes atrasadas diferentemente $\rightarrow$ interferência construtiva/de
    \end{itemize}
 \end{enumerate}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Foco desta seção:} Distorção linear (mais comum e tratável).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Distorção de Sinal}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/signal_distortion}
+\end{center}
+
+Magnitude não-uniforme e fase não-linear alteram a forma do sinal transmitido.
 
 \end{frame}
 
@@ -239,9 +251,7 @@ Componentes atrasadas diferentemente $\rightarrow$ interferência construtiva/de
 
 \textbf{Objetivo:} Compensar a distorção introduzida pelo canal.
 
-\textbf{Princípio:}
-
-Inserir um \textbf{filtro equalizador} $H_{eq}(\omega)$ no receptor que "inverte" o efeito do canal.
+\textbf{Princípio:} Inserir um \textbf{filtro equalizador} $H_{eq}(\omega)$ no receptor que "inverte" o efeito do canal.
 
 \begin{center}
 \begin{tikzpicture}[>=latex, scale=0.9]
@@ -254,18 +264,22 @@ Inserir um \textbf{filtro equalizador} $H_{eq}(\omega)$ no receptor que "inverte
 \end{center}
 
 \textbf{Função de transferência total:}
-
 \[
 Z(\omega) = H_{eq}(\omega) \cdot H_c(\omega) \cdot X(\omega)
 \]
 
-\textbf{Condição ideal:}
+\end{frame}
 
+% ============================================
+
+\begin{frame}{Condição de Equalização Ideal}
+
+\textbf{Condição para transmissão sem distorção:}
 \[
 H_{eq}(\omega) \cdot H_c(\omega) = K e^{-j\omega t_d}
 \]
 
-Portanto:
+Portanto, o equalizador ideal é:
 \[
 H_{eq}(\omega) = \frac{K e^{-j\omega t_d}}{H_c(\omega)}
 \]
@@ -298,7 +312,7 @@ H_{eq}(\omega) = \frac{1}{H_c(\omega)} = \frac{1}{|H_c(\omega)|} e^{-j\phi_c(\om
   \end{itemize}
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Limitações práticas:}
 
@@ -313,7 +327,7 @@ H_{eq}(\omega) = \frac{1}{H_c(\omega)} = \frac{1}{|H_c(\omega)|} e^{-j\phi_c(\om
 
 % ============================================
 
-\begin{frame}{Tipos de Equalizadores}
+\begin{frame}{Tipos de Equalizadores (1/2)}
 
 \begin{enumerate}
 \item \textbf{Equalizador Fixo:}
@@ -332,7 +346,16 @@ H_{eq}(\omega) = \frac{1}{H_c(\omega)} = \frac{1}{|H_c(\omega)|} e^{-j\phi_c(\om
    \item Algoritmos: LMS, RLS, CMA
    \item Aplicação: canais móveis, fibra óptica
    \end{itemize}
+\end{enumerate}
 
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Tipos de Equalizadores (2/2)}
+
+\begin{enumerate}
+\setcounter{enumi}{2}
 \item \textbf{Equalizador de Decisão Realimentada (DFE):}
    \begin{itemize}
    \item Usa decisões passadas para cancelar ISI
@@ -340,6 +363,15 @@ H_{eq}(\omega) = \frac{1}{H_c(\omega)} = \frac{1}{|H_c(\omega)|} e^{-j\phi_c(\om
    \item Mais eficiente em canais com zeros espectrais
    \end{itemize}
 \end{enumerate}
+
+\vspace{0.2cm}
+
+\textbf{Comparação:}
+\begin{itemize}
+\item \textbf{Fixo:} simples, para canais estáticos
+\item \textbf{Adaptativo:} versátil, para canais variantes no tempo
+\item \textbf{DFE:} melhor desempenho em canais com nulos espectrais
+\end{itemize}
 
 \end{frame}
 
@@ -358,7 +390,7 @@ H_{eq}(\omega) = \frac{1}{H_c(\omega)} = \frac{1}{|H_c(\omega)|} e^{-j\phi_c(\om
 \item Atraso de grupo: variação de até 2 ms na banda
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Modelo simplificado:}
 
@@ -368,7 +400,7 @@ H_{eq}(\omega) = \frac{1}{H_c(\omega)} = \frac{1}{|H_c(\omega)|} e^{-j\phi_c(\om
 
 com $\alpha$ dependendo do comprimento do cabo.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Equalização:}
 
@@ -392,7 +424,7 @@ Modems de linha discada (V.32, V.34, V.90) usam equalizadores adaptativos comple
 \item Dispersão: mínima em frequências mais baixas
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Exemplo numérico:} RG-59 a 100 MHz e 1 km
 
@@ -469,7 +501,7 @@ Se $|H_c(\omega_0)| \approx 0$ (null espectral):
 \item SNR deteriora drasticamente
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Solução:} Equalização de mínimo erro quadrático médio (MMSE) que balanceia distorção residual vs. amplificação de ruído.
 
@@ -487,13 +519,13 @@ Se $|H_c(\omega_0)| \approx 0$ (null espectral):
 \item Ambas alteram formato do sinal
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Atraso de grupo:} $\tau_g(\omega) = -d\phi_c/d\omega$
 
 Deve ser constante para evitar distorção de fase.
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Equalização:}
 
@@ -503,7 +535,7 @@ Deve ser constante para evitar distorção de fase.
 \item Compromisso: correção vs. amplificação de ruído
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
 \textbf{Aplicações práticas:} Telefonia, TV a cabo, comunicação sem fio.
 

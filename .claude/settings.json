@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(latexmk -pdf -interaction=nonstopmode main.tex)",
+      "Bash(grep -c \"shrink=\" sec3_*.tex)",
+      "Bash(grep -v \":0$\")",
+      "Bash(grep -n \"shrink=15\\\\|shrink=20\" sec3_*.tex)",
+      "Bash(grep -rn \"shrink=\" sec3_*.tex)",
+      "Bash(grep -rn \"includegraphics\" /home/daniel/Documentos/UnB/Aulas/curso_pricom/Modulo1/Latex-slides/sec3_*.tex)",
+      "Bash(python3 generate_figures.py)",
+      "Bash(ls -la /home/daniel/Documentos/UnB/Aulas/curso_pricom/Modulo1/Latex-slides/figures/cap3/*.pdf)",
+      "Read(//home/daniel/Documentos/UnB/Aulas/curso_pricom/Modulo1/Latex-slides/**)",
+      "Bash(xargs -I{} basename {})",
+      "Bash(grep -c \"includegraphics\" sec3_*.tex)",
+      "Bash(latexmk -f -pdf -interaction=nonstopmode main.tex)",
+      "Bash(python3 -c \":*)",
+      "Bash(python3 -c \"import json; nb = json.load\\(open\\(''/home/daniel/Documentos/UnB/Aulas/curso_pricom/Modulo1/notebook_modulo1.ipynb''\\)\\); print\\(f''Cells: {len\\(nb[\"\"cells\"\"]\\)}''\\); print\\(f''Markdown: {sum\\(1 for c in nb[\"\"cells\"\"] if c[\"\"cell_type\"\"]==\"\"markdown\"\"\\)}''\\); print\\(f''Code: {sum\\(1 for c in nb[\"\"cells\"\"] if c[\"\"cell_type\"\"]==\"\"code\"\"\\)}''\\)\")"
+    ]
+  }
+}

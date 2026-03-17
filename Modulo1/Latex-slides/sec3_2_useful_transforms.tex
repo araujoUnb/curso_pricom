@@ -16,7 +16,7 @@ Certas funções aparecem frequentemente na análise de sinais e sistemas:
 \item \textbf{Gaussiana:} ruído, pulsos em fibras ópticas
 \end{itemize}
 
-\vspace{0.5cm}
+\vspace{0.2cm}
 
 Conhecer as transformadas dessas funções permite:
 \begin{itemize}
@@ -79,6 +79,18 @@ Usando a propriedade de amostragem com $f(t) = e^{-j\omega t}$ e $t_0 = 0$:
 \textbf{Interpretação:} Um impulso no tempo contém \textbf{todas as frequências} com amplitude igual.
 
 \textbf{Delta deslocada:} $\delta(t - t_0) \xleftrightarrow{\ft} e^{-j\omega t_0}$
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Dualidade Delta e Constante}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/delta_and_constant}
+\end{center}
+
+Impulso no tempo $\leftrightarrow$ constante na frequência (e vice-versa).
 
 \end{frame}
 
@@ -281,6 +293,18 @@ onde $\sinc(x) = \frac{\sin(\pi x)}{\pi x}$.
 
 % ============================================
 
+\begin{frame}{Visualização: Dualidade Rect-Sinc}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/sinc_rect_duality}
+\end{center}
+
+Pulso mais estreito no tempo $\Rightarrow$ espectro mais largo na frequência.
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Função Triangular}
 
 A \textbf{função triangular}:
@@ -333,15 +357,16 @@ Completando o quadrado no expoente:
 -\alpha t^2 - j\omega t = -\alpha\left(t + \frac{j\omega}{2\alpha}\right)^2 - \frac{\omega^2}{4\alpha}
 \]
 
-\[
-F(\omega) = e^{-\omega^2/(4\alpha)} \int_{-\infty}^{\infty} e^{-\alpha\left(t + \frac{j\omega}{2\alpha}\right)^2} dt
-\]
-
 \end{frame}
 
 % ============================================
 
 \begin{frame}{Pulso Gaussiano (continuação)}
+
+Fatorando a exponencial:
+\[
+F(\omega) = e^{-\omega^2/(4\alpha)} \int_{-\infty}^{\infty} e^{-\alpha\left(t + \frac{j\omega}{2\alpha}\right)^2} dt
+\]
 
 Com $u = t + j\omega/(2\alpha)$, $du = dt$, e a integral gaussiana $\int e^{-\alpha u^2}du = \sqrt{\pi/\alpha}$:
 
