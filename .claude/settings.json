@@ -14,7 +14,14 @@
       "Bash(grep -c \"includegraphics\" sec3_*.tex)",
       "Bash(latexmk -f -pdf -interaction=nonstopmode main.tex)",
       "Bash(python3 -c \":*)",
-      "Bash(python3 -c \"import json; nb = json.load\\(open\\(''/home/daniel/Documentos/UnB/Aulas/curso_pricom/Modulo1/notebook_modulo1.ipynb''\\)\\); print\\(f''Cells: {len\\(nb[\"\"cells\"\"]\\)}''\\); print\\(f''Markdown: {sum\\(1 for c in nb[\"\"cells\"\"] if c[\"\"cell_type\"\"]==\"\"markdown\"\"\\)}''\\); print\\(f''Code: {sum\\(1 for c in nb[\"\"cells\"\"] if c[\"\"cell_type\"\"]==\"\"code\"\"\\)}''\\)\")"
+      "Bash(python3 -c \"import json; nb = json.load\\(open\\(''/home/daniel/Documentos/UnB/Aulas/curso_pricom/Modulo1/notebook_modulo1.ipynb''\\)\\); print\\(f''Cells: {len\\(nb[\"\"cells\"\"]\\)}''\\); print\\(f''Markdown: {sum\\(1 for c in nb[\"\"cells\"\"] if c[\"\"cell_type\"\"]==\"\"markdown\"\"\\)}''\\); print\\(f''Code: {sum\\(1 for c in nb[\"\"cells\"\"] if c[\"\"cell_type\"\"]==\"\"code\"\"\\)}''\\)\")",
+      "Bash(grep -r \"flowgraph\\\\|Bloco\\\\|samp_rate\\\\|gnu\" /home/daniel/Documentos/UnB/Aulas/curso_pricom/Laboratorio/*.tex)",
+      "Bash(ln -sf ../../../figures_global ../../figures_global)",
+      "Read(//home/daniel/.claude/projects/-home-daniel-Documentos-UnB-Aulas-curso-pricom/memory/**)",
+      "Bash(grcc exemplo_01_senoide.grc)",
+      "Bash(grcc exemplo_02_slider.grc)",
+      "Bash(grcc exemplo_03_soma_sinais.grc)",
+      "Read(//usr/share/gnuradio/grc/blocks/**)"
     ]
   }
 }
