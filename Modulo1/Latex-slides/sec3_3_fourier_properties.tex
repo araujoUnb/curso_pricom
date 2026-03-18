@@ -240,26 +240,95 @@ A modulação desloca o espectro do sinal para $\pm\omega_0$.
 
 % ============================================
 
-\begin{frame}{Exemplo Prático: Rádio AM}
+\begin{frame}{Exemplo Prático: Rádio AM --- Espectro}
 
-\textbf{Cenário:} Transmissão de áudio (voz) via rádio AM.
-
-\textbf{Sinal de áudio:} $m(t)$ com banda $B_m = 5$ kHz (0 a 5 kHz)
-
-\textbf{Portadora:} $\cos(2\pi f_c t)$ com $f_c = 1$ MHz (estação AM)
-
-\textbf{Sinal transmitido:}
+\textbf{Sinal de áudio} $m(t)$ com banda $B_m = 5$ kHz, \textbf{portadora} $\cos(2\pi f_c t)$, $f_c = 1$ MHz:
+\vspace{-2mm}
 \[
 s(t) = m(t) \cos(2\pi f_c t) \xleftrightarrow{\ft} \tfrac{1}{2}[M(\omega - \omega_c) + M(\omega + \omega_c)]
 \]
+\vspace{-4mm}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.72]
+  % Sinal banda base
+  \begin{scope}[yshift=1.8cm]
+    \node[font=\small, left] at (-1.2,0.8) {\textbf{Banda base:}};
+    \draw[->, thick] (-1,0) -- (6,0) node[right, font=\small] {$f$};
+    \draw[->, thick] (0,-0.1) -- (0,1.3) node[above, font=\small] {$|M(f)|$};
+    \fill[unbprimary!30] (0,0) -- (0,1) -- (1.5,0.6) -- (2,0) -- cycle;
+    \draw[unbprimary, thick] (0,1) -- (1.5,0.6) -- (2,0);
+    \node[font=\tiny, below] at (2,-0.1) {$B_m$};
+    \node[font=\tiny, below] at (0,-0.1) {$0$};
+  \end{scope}
+  % Sinal modulado
+  \begin{scope}[yshift=-1.2cm]
+    \node[font=\small, left] at (-1.2,0.8) {\textbf{Modulado:}};
+    \draw[->, thick] (-1,0) -- (10,0) node[right, font=\small] {$f$};
+    \draw[->, thick] (0,-0.1) -- (0,1.3) node[above, font=\small] {$|S(f)|$};
+    % Espectro em -fc (simplificado, mostrar só +fc)
+    % Espectro em +fc
+    \fill[red!20] (4,0) -- (4,0.5) -- (5.5,0.3) -- (6,0) -- cycle;
+    \fill[red!20] (4,0) -- (4,0.5) -- (2.5,0.3) -- (2,0) -- cycle;
+    \draw[red!70!black, thick] (2,0) -- (2.5,0.3) -- (4,0.5) -- (5.5,0.3) -- (6,0);
+    \node[font=\tiny, below] at (4,-0.1) {$f_c$};
+    \node[font=\tiny, below] at (2,-0.1) {\scriptsize $f_c\!-\!B_m$};
+    \node[font=\tiny, below] at (6,-0.1) {\scriptsize $f_c\!+\!B_m$};
+    \draw[<->, thin, gray] (2,0.7) -- (6,0.7);
+    \node[font=\tiny, gray, above] at (4,0.7) {10 kHz};
+    % Espectro em -fc
+    \fill[red!20] (-0.2,0) -- (-0.2,0.5) -- (-0.7,0.3) -- (-0.8,0) -- cycle;
+    \node[font=\tiny] at (-0.5,0.7) {$-f_c$};
+  \end{scope}
+\end{tikzpicture}
+\end{center}
 
 \textbf{Espectro ocupa:} $f_c \pm B_m = $ 995 kHz a 1005 kHz (largura = 10 kHz)
 
-\textbf{Múltiplas estações:} Cada uma usa $f_c$ diferente $\Rightarrow$ espectros não se sobrepõem!
+\end{frame}
 
-\vspace{0.2cm}
+% ============================================
 
-\textbf{Este é o princípio da multiplexação por divisão em frequência (FDM).}
+\begin{frame}{Exemplo Prático: Rádio AM --- FDM e Sintonia}
+
+\textbf{Múltiplas estações AM}, cada uma com $f_c$ diferente (FDM):
+
+\begin{center}
+\begin{tikzpicture}[scale=0.78]
+  \draw[->, thick] (-0.5,0) -- (11,0) node[right, font=\small] {$f$ (kHz)};
+  \draw[->, thick] (0,-0.2) -- (0,2.8) node[above, font=\small] {$|S(f)|$};
+  % Estação 1 - 800 kHz
+  \fill[blue!20] (1.5,0) -- (1.5,1.5) -- (2,1.2) -- (2.5,0) -- cycle;
+  \fill[blue!20] (1.5,0) -- (1.5,1.5) -- (1,1.2) -- (0.5,0) -- cycle;
+  \draw[blue!70!black, thick] (0.5,0) -- (1,1.2) -- (1.5,1.5) -- (2,1.2) -- (2.5,0);
+  \node[font=\tiny, below, blue!70!black] at (1.5,-0.15) {800};
+  % Estação 2 - 1000 kHz
+  \fill[red!20] (4.5,0) -- (4.5,1.8) -- (5,1.4) -- (5.5,0) -- cycle;
+  \fill[red!20] (4.5,0) -- (4.5,1.8) -- (4,1.4) -- (3.5,0) -- cycle;
+  \draw[red!70!black, thick] (3.5,0) -- (4,1.4) -- (4.5,1.8) -- (5,1.4) -- (5.5,0);
+  \node[font=\tiny, below, red!70!black] at (4.5,-0.15) {1000};
+  % Estação 3 - 1200 kHz
+  \fill[green!20] (7.5,0) -- (7.5,1.3) -- (8,1) -- (8.5,0) -- cycle;
+  \fill[green!20] (7.5,0) -- (7.5,1.3) -- (7,1) -- (6.5,0) -- cycle;
+  \draw[green!50!black, thick] (6.5,0) -- (7,1) -- (7.5,1.3) -- (8,1) -- (8.5,0);
+  \node[font=\tiny, below, green!50!black] at (7.5,-0.15) {1200};
+  % Filtro de sintonia (BPF)
+  \draw[orange, very thick, dashed] (3.3,0) -- (3.3,2.4) -- (5.7,2.4) -- (5.7,0);
+  \node[font=\small, orange, above] at (4.5,2.4) {Filtro de sintonia};
+  \draw[->, orange, thick] (4.5,2.4) -- (4.5,2.0);
+  % Labels das estações
+  \node[font=\tiny, blue!70!black, above] at (1.5,1.6) {Estação 1};
+  \node[font=\tiny, red!70!black, above] at (4.5,1.9) {Estação 2};
+  \node[font=\tiny, green!50!black, above] at (7.5,1.4) {Estação 3};
+\end{tikzpicture}
+\end{center}
+
+\textbf{Sintonia do rádio} = ajustar a frequência central do filtro passa-faixa (BPF):
+\begin{itemize}
+\item O filtro seleciona apenas a banda de uma estação
+\item Girar o dial do rádio = deslocar $f_c$ do filtro
+\item Após filtragem, demodula-se para recuperar o áudio $m(t)$
+\end{itemize}
 
 \end{frame}
 
@@ -347,6 +416,121 @@ Como $F(\omega) = \sinc(\omega/2\pi)$:
 \]
 
 \textbf{Verificação:} Pulso 5× mais largo $\rightarrow$ espectro 5× mais estreito e 5× mais alto.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo Prático: Efeito Doppler em Comunicações via Satélite}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.78]
+  % Terra
+  \fill[green!8] (-5,-0.2) rectangle (5,0);
+  \draw[thick, green!40!black] (-5,0) -- (5,0);
+
+  % --- Estação terrena (esquerda) ---
+  \fill[gray!50] (-3.15,0) rectangle (-2.85,0.5);
+  \draw[gray!70, thick] (-3,0.5) -- (-3,0.85);
+  \draw[gray!80, very thick] (-3.6,1.3) parabola bend (-3,0.8) (-2.4,1.3);
+  \fill[gray!25] (-3.6,1.3) parabola bend (-3,0.8) (-2.4,1.3) -- cycle;
+  \node[font=\footnotesize, anchor=north] at (-3,-0.1) {\textbf{Estação terrena}};
+  \node[font=\tiny, anchor=north] at (-3,-0.45) {(transmite em $f_0$)};
+
+  % --- Receptor (direita) ---
+  \fill[gray!50] (2.85,0) rectangle (3.15,0.5);
+  \draw[gray!70, thick] (3,0.5) -- (3,0.85);
+  \draw[gray!80, very thick] (2.4,1.3) parabola bend (3,0.8) (3.6,1.3);
+  \fill[gray!25] (2.4,1.3) parabola bend (3,0.8) (3.6,1.3) -- cycle;
+  \node[font=\footnotesize, anchor=north] at (3,-0.1) {\textbf{Receptor}};
+  \node[font=\tiny, anchor=north] at (3,-0.45) {(recebe em $f_0 + \Delta f$)};
+
+  % --- Satélite LEO ---
+  \fill[gray!40] (-0.3,3.4) rectangle (0.3,3.85);
+  \draw[thick] (-0.3,3.4) rectangle (0.3,3.85);
+  % Painéis solares
+  \fill[blue!35] (-1.5,3.45) rectangle (-0.3,3.75);
+  \fill[blue!35] (0.3,3.45) rectangle (1.5,3.75);
+  \draw[thick] (-1.5,3.45) rectangle (-0.3,3.75);
+  \draw[thick] (0.3,3.45) rectangle (1.5,3.75);
+  \foreach \x in {-1.2,-0.9,-0.6} \draw[blue!50, thin] (\x,3.45) -- (\x,3.75);
+  \foreach \x in {0.6,0.9,1.2} \draw[blue!50, thin] (\x,3.45) -- (\x,3.75);
+  % Antena do satélite
+  \draw[thick] (0,3.4) -- (0,3.15);
+  \fill[gray] (0,3.15) circle (0.05);
+  \node[font=\small, above] at (0,3.95) {\textbf{Satélite LEO}};
+
+  % Velocidade
+  \draw[->, very thick, red!70!black] (1.8,3.6) -- (3.2,3.6)
+    node[midway, above, font=\small] {$\vec{v}$};
+
+  % Órbita
+  \draw[gray!40, dotted, thick] (-4.5,3.6) -- (4.5,3.6);
+  \node[font=\tiny, gray] at (4.2,3.85) {órbita};
+
+  % Enlace de subida
+  \draw[->, thick, orange!80!black, decorate, decoration={snake, amplitude=1.2, segment length=5}]
+    (-2.8,1.4) -- (-0.2,3.1);
+  \node[font=\scriptsize, orange!80!black, rotate=33, anchor=south] at (-1.8,2.0) {uplink ($f_0$)};
+
+  % Enlace de descida
+  \draw[->, thick, red!60!black, decorate, decoration={snake, amplitude=1.2, segment length=5}]
+    (0.2,3.1) -- (2.8,1.4);
+  \node[font=\scriptsize, red!60!black, rotate=-33, anchor=south] at (1.8,2.0) {downlink ($f_0\!+\!\Delta f$)};
+
+\end{tikzpicture}
+\end{center}
+\vspace{-2mm}
+
+Satélite LEO ($v \approx 7{,}5$ km/s): o sinal recebido sofre \textbf{compressão/expansão temporal} conforme o satélite se aproxima ou se afasta.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Doppler Satelital: Escala Temporal (1/2)}
+
+Se o satélite transmite $s(t)$ com portadora $f_0$ e se move com velocidade radial $v_r$:
+\[
+s_r(t) = s(at), \quad a = \frac{1}{1 - v_r/c}
+\]
+
+Pela escala temporal:
+$s(at) \xleftrightarrow{\ft} \tfrac{1}{|a|}S\!\left(\tfrac{\omega}{a}\right)$
+
+\vspace{0.3cm}
+
+Se $S(\omega)$ tem um impulso em $\omega_0$, então $S(\omega/a)$ tem impulso onde:
+\[
+\frac{\omega}{a} = \omega_0 \quad \Rightarrow \quad \omega = a\omega_0
+\]
+
+A frequência recebida é \textbf{multiplicada} por $a$:
+\[
+f_{\text{rec}} = af_0 = \frac{f_0}{1 - v_r/c}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Doppler Satelital: Escala Temporal (2/2)}
+
+Para $v_r \ll c$, aproximamos $a \approx 1 + v_r/c$, logo o \textbf{desvio Doppler} é:
+\[
+\boxed{\Delta f = af_0 - f_0 \approx f_0 \cdot \frac{v_r}{c}}
+\]
+
+\textbf{Exemplo} (satélite LEO, banda Ku, $f_0 = 12$ GHz, $v = 7{,}5$ km/s):
+\[
+\Delta f_{\max} = 12 \times 10^9 \times \frac{7{,}5 \times 10^3}{3 \times 10^8} \approx 300 \text{ kHz}
+\]
+
+O desvio varia de $+300$ kHz (aproximando) a $-300$ kHz (afastando) durante a passagem.
+
+\vspace{0.3cm}
+
+O receptor deve \textbf{compensar} esse desvio variável para demodular corretamente --- isso é feito com malhas de rastreamento de frequência (PLL/AFC).
 
 \end{frame}
 
@@ -703,28 +887,27 @@ F(-\omega) = F^*(\omega)
 \begin{frame}{Simetrias para Sinais Pares e Ímpares}
 
 \textbf{Se} $f(t)$ \textbf{é real e par} ($f(-t) = f(t)$):
-
+\vspace{-2mm}
 \[
 F(\omega) = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt = \int_{-\infty}^{\infty} f(t) \cos(\omega t) dt
 \]
+\vspace{-5mm}
 
 A componente imaginária se cancela, então $F(\omega)$ é \textbf{real e par}.
 
-\vspace{0.1cm}
-
 \textbf{Se} $f(t)$ \textbf{é real e ímpar} ($f(-t) = -f(t)$):
-
+\vspace{-2mm}
 \[
 F(\omega) = -j \int_{-\infty}^{\infty} f(t) \sin(\omega t) dt
 \]
+\vspace{-5mm}
 
 A componente real se cancela, então $F(\omega)$ é \textbf{imaginário puro e ímpar}.
 
-\vspace{0.1cm}
-
-\textbf{Tabela resumo:}
+\vspace{1mm}
 
 \begin{center}
+\small
 \begin{tabular}{|c|c|}
 \hline
 $f(t)$ & $F(\omega)$ \\
