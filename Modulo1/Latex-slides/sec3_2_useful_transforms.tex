@@ -59,26 +59,56 @@ A \textbf{função delta de Dirac} $\delta(t)$ não é uma função no sentido c
 \begin{frame}{Transformada da Delta de Dirac}
 
 \textbf{Cálculo:}
-
+\vspace{-2mm}
 \[
 \FT{\delta(t)} = \int_{-\infty}^{\infty} \delta(t) e^{-j\omega t} dt
 \]
+\vspace{-4mm}
 
 Usando a propriedade de amostragem com $f(t) = e^{-j\omega t}$ e $t_0 = 0$:
-
+\vspace{-2mm}
 \[
 \FT{\delta(t)} = e^{-j\omega \cdot 0} = 1
 \]
+\vspace{-4mm}
 
 \begin{block}{Par de Transformadas}
+\vspace{-2mm}
 \[
 \boxed{\delta(t) \xleftrightarrow{\ft} 1}
 \]
+\vspace{-2mm}
 \end{block}
 
 \textbf{Interpretação:} Um impulso no tempo contém \textbf{todas as frequências} com amplitude igual.
 
 \textbf{Delta deslocada:} $\delta(t - t_0) \xleftrightarrow{\ft} e^{-j\omega t_0}$
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Resposta ao Impulso de um Canal}
+
+\textbf{Cenário:} Um canal de comunicação tem resposta ao impulso
+\[
+h(t) = \alpha_1\,\delta(t - \tau_1) + \alpha_2\,\delta(t - \tau_2)
+\]
+(dois caminhos com atrasos $\tau_1$, $\tau_2$ e ganhos $\alpha_1$, $\alpha_2$)
+
+\vspace{0.2cm}
+
+\textbf{Resposta em frequência:}
+\[
+H(\omega) = \alpha_1 e^{-j\omega\tau_1} + \alpha_2 e^{-j\omega\tau_2}
+\]
+
+\textbf{Consequência prática:}
+\begin{itemize}
+\item $|H(\omega)|$ varia com $\omega$ $\Rightarrow$ \textbf{desvanecimento seletivo em frequência}
+\item Certas frequências são atenuadas (interferência destrutiva entre caminhos)
+\item Este é o modelo básico de \textbf{multipercurso} em canais sem fio
+\end{itemize}
 
 \end{frame}
 
@@ -381,6 +411,31 @@ onde $\sinc(x) = \frac{\sin(\pi x)}{\pi x}$.
 
 % ============================================
 
+\begin{frame}{Exemplo: Transmissão de Bits com Pulsos Retangulares}
+
+\textbf{Cenário:} Em transmissão digital NRZ (Non-Return-to-Zero), cada bit é representado por um pulso retangular de duração $T_b$:
+
+\[
+s(t) = \sum_k a_k \, \rect\!\left(\frac{t - kT_b}{T_b}\right), \quad a_k \in \{+1, -1\}
+\]
+
+\textbf{Espectro de cada pulso:}
+$\rect(t/T_b) \xleftrightarrow{\ft} T_b \sinc(\omega T_b / 2\pi)$
+
+\vspace{0.2cm}
+
+\textbf{Consequências:}
+\begin{itemize}
+\item A largura de banda ocupada é $\approx 1/T_b$ Hz (lóbulo principal da sinc)
+\item Taxa de bits mais alta ($T_b$ menor) $\Rightarrow$ maior largura de banda
+\item Lóbulos laterais causam \textbf{interferência em canais adjacentes}
+\item Por isso, na prática usa-se formatação de pulso (ex: cosseno levantado)
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Visualização: Dualidade Rect-Sinc}
 
 \begin{center}
@@ -432,6 +487,41 @@ Pela propriedade de convolução (que veremos na próxima seção):
 \item Triângulo: espectro $\propto \sinc^2$ --- decai como $1/\omega^2$ (mais rápido)
 \item Sinal mais ``suave'' no tempo $\Rightarrow$ espectro decai mais rápido
 \end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Rect vs.\ Tri na Formatação de Pulso}
+
+\textbf{Cenário:} Comparando pulsos retangulares e triangulares para transmissão digital.
+
+\vspace{0.2cm}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Pulso retangular:}
+\begin{itemize}
+\item Espectro: $\sinc(\omega)$
+\item Decai como $1/\omega$
+\item Lóbulos laterais significativos
+\item Mais interferência entre canais
+\end{itemize}
+\end{column}
+\begin{column}{0.48\textwidth}
+\textbf{Pulso triangular:}
+\begin{itemize}
+\item Espectro: $\sinc^2(\omega)$
+\item Decai como $1/\omega^2$
+\item Lóbulos laterais menores
+\item Menos interferência entre canais
+\end{itemize}
+\end{column}
+\end{columns}
+
+\vspace{0.3cm}
+
+\textbf{Trade-off:} O pulso triangular tem lóbulos laterais menores (menos interferência fora da banda), porém seu lóbulo principal é mais largo --- ou seja, ocupa mais largura de banda para transmitir na mesma taxa.
 
 \end{frame}
 
@@ -494,6 +584,31 @@ e^{-\alpha t^2} \xleftrightarrow{\ft} \sqrt{\frac{\pi}{\alpha}}\,e^{-\omega^2/(4
 \item \textbf{Princípio de incerteza:} A Gaussiana é o sinal com mínimo produto $\Delta t \cdot \Delta\omega = 1/2$.
 \item $\alpha$ grande $\Rightarrow$ pulso estreito no tempo, espectro largo na frequência
 \end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Pulsos Gaussianos em Fibra Óptica}
+
+\textbf{Cenário:} Em sistemas de comunicação por fibra óptica, os pulsos de luz são bem aproximados por gaussianas.
+
+\vspace{0.2cm}
+
+Um pulso óptico $p(t) = e^{-t^2/(2\sigma^2)}$ ao se propagar sofre \textbf{dispersão cromática}, que alarga o pulso no tempo.
+
+\vspace{0.2cm}
+
+\textbf{Por que gaussianas?}
+\begin{itemize}
+\item Transformada de uma gaussiana é outra gaussiana --- a \textbf{forma se preserva} durante a propagação
+\item O princípio de incerteza garante: $\Delta t \cdot \Delta \omega \geq 1/2$, com igualdade para gaussianas
+\item Pulsos gaussianos são os mais ``eficientes'' em ocupação tempo-frequência
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{Na prática:} A taxa máxima de transmissão em fibra depende diretamente da largura $\sigma$ dos pulsos --- pulsos que se alargam demais causam \textbf{interferência intersimbólica} (ISI).
 
 \end{frame}
 
