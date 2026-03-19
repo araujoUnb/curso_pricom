@@ -291,31 +291,19 @@ H_{eq}(\omega) = \frac{K e^{-j\omega t_d}}{H_c(\omega)}
 \begin{frame}{Equalização Ideal}
 
 \textbf{Equalizador ideal:}
-
+\vspace{-2mm}
 \[
 H_{eq}(\omega) = \frac{1}{H_c(\omega)} = \frac{1}{|H_c(\omega)|} e^{-j\phi_c(\omega)}
 \]
+\vspace{-4mm}
 
 \textbf{Efeitos:}
-
 \begin{itemize}
-\item \textbf{Equalização de magnitude:} $|H_{eq}(\omega)| = 1/|H_c(\omega)|$
-  \begin{itemize}
-  \item Frequências atenuadas pelo canal são amplificadas
-  \item Frequências amplificadas pelo canal são atenuadas
-  \end{itemize}
-
-\item \textbf{Equalização de fase:} $\phi_{eq}(\omega) = -\phi_c(\omega)$
-  \begin{itemize}
-  \item Cancela a fase não-linear do canal
-  \item Restaura relações de fase corretas
-  \end{itemize}
+\item \textbf{Magnitude:} $|H_{eq}(\omega)| = 1/|H_c(\omega)|$ --- compensa atenuação do canal
+\item \textbf{Fase:} $\phi_{eq}(\omega) = -\phi_c(\omega)$ --- cancela fase não-linear
 \end{itemize}
 
-\vspace{0.1cm}
-
 \textbf{Limitações práticas:}
-
 \begin{itemize}
 \item $H_c(\omega)$ deve ser conhecido (estimação de canal)
 \item Não pode ser zero em nenhuma frequência (divisão por zero)
@@ -446,32 +434,30 @@ Compensa a atenuação crescente do cabo.
 
 \begin{frame}{Exemplo 3: Canal sem Fio com Multipercurso}
 
-\textbf{Efeito multipercurso:}
-
-Sinal chega ao receptor por múltiplos caminhos com diferentes atrasos e atenuações.
+\textbf{Efeito multipercurso:} Sinal chega ao receptor por múltiplos caminhos com diferentes atrasos e atenuações.
 
 \textbf{Modelo de canal:}
-
+\vspace{-2mm}
 \[
 h_c(t) = \sum_{i=1}^{N} a_i \delta(t - \tau_i)
 \]
+\vspace{-4mm}
 
 \textbf{Resposta em frequência:}
-
+\vspace{-2mm}
 \[
 H_c(\omega) = \sum_{i=1}^{N} a_i e^{-j\omega\tau_i}
 \]
+\vspace{-4mm}
 
 \textbf{Características:}
-
 \begin{itemize}
-\item \textbf{Desvanecimento seletivo em frequência:} $|H_c(\omega)|$ varia rapidamente
-\item Frequências onde há interferência destrutiva: $|H_c(\omega)| \approx 0$ (nulls)
-\item Atraso de grupo altamente variável
+\item \textbf{Desvanecimento seletivo:} $|H_c(\omega)|$ varia rapidamente
+\item Interferência destrutiva em certas frequências: $|H_c(\omega)| \approx 0$
 \item Canal varia com tempo (movimento)
 \end{itemize}
 
-\textbf{Equalização:} Adaptativa complexa, OFDM para contornar desvanecimento.
+\textbf{Equalização:} Adaptativa complexa; OFDM para contornar desvanecimento.
 
 \end{frame}
 

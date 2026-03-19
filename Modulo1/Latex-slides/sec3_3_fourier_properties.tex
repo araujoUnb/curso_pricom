@@ -730,24 +730,26 @@ Solução: $Y(\omega) = \frac{X(\omega)}{j\omega + a}$
 
 \begin{block}{Propriedade 8: Integração no Tempo}
 Se $f(t) \xleftrightarrow{\ft} F(\omega)$ e $F(0) = 0$, então:
+\vspace{-2mm}
 \[
 \int_{-\infty}^{t} f(\tau) d\tau \xleftrightarrow{\ft} \frac{F(\omega)}{j\omega}
 \]
+\vspace{-5mm}
 
 Se $F(0) \neq 0$:
+\vspace{-2mm}
 \[
 \int_{-\infty}^{t} f(\tau) d\tau \xleftrightarrow{\ft} \frac{F(\omega)}{j\omega} + \pi F(0) \delta(\omega)
 \]
+\vspace{-3mm}
 \end{block}
 
 \textbf{Interpretação:}
 \begin{itemize}
 \item Integrar no tempo = dividir por $j\omega$ na frequência
-\item Componentes de baixa frequência são enfatizadas (proporcional a $1/\omega$)
-\item Pode adicionar componente DC se a área sob $f(t)$ for não-zero
+\item Baixas frequências são enfatizadas ($\propto 1/\omega$)
+\item Componente DC aparece se a área sob $f(t)$ for não-zero
 \end{itemize}
-
-\textbf{Relação com derivação:} Operações inversas no tempo $\leftrightarrow$ operações inversas na frequência.
 
 \end{frame}
 
@@ -791,24 +793,29 @@ Com $f(t) = e^{-at}u(t)$ e $F(\omega) = \frac{1}{a+j\omega}$:
 
 \begin{block}{Propriedade 9: Dualidade}
 Se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
+\vspace{-2mm}
 \[
 F(t) \xleftrightarrow{\ft} 2\pi f(-\omega)
 \]
+\vspace{-3mm}
 \end{block}
 
-\textbf{Demonstração:}
-
-Começamos com a transformada inversa:
+\textbf{Demonstração:} Começamos com a transformada inversa:
+\vspace{-2mm}
 \[
 f(t) = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) e^{j\omega t} d\omega
 \]
+\vspace{-5mm}
 
 Trocando $t$ e $\omega$:
+\vspace{-2mm}
 \[
 f(\omega) = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(t) e^{j\omega t} dt
 \]
+\vspace{-5mm}
 
 Multiplicando por $2\pi$ e substituindo $\omega \to -\omega$:
+\vspace{-2mm}
 \[
 2\pi f(-\omega) = \int_{-\infty}^{\infty} F(t) e^{-j\omega t} dt = \FT{F(t)}
 \]
@@ -928,9 +935,11 @@ Real e ímpar & Imaginário puro e ímpar \\
 
 \begin{block}{Teorema de Parseval}
 Se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
+\vspace{-2mm}
 \[
 \int_{-\infty}^{\infty} |f(t)|^2 dt = \frac{1}{2\pi} \int_{-\infty}^{\infty} |F(\omega)|^2 d\omega
 \]
+\vspace{-3mm}
 \end{block}
 
 \textbf{Interpretação:}
@@ -940,9 +949,8 @@ Se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
 \item A energia é conservada entre os dois domínios!
 \end{itemize}
 
-\vspace{0.1cm}
-
 \textbf{Generalização (Teorema de Rayleigh):}
+\vspace{-2mm}
 \[
 \int_{-\infty}^{\infty} f_1(t) f_2^*(t) dt = \frac{1}{2\pi} \int_{-\infty}^{\infty} F_1(\omega) F_2^*(\omega) d\omega
 \]

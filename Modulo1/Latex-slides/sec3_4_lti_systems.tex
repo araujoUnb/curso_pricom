@@ -43,30 +43,36 @@ x(t - t_0) \quad \Rightarrow \quad y(t - t_0)
 \begin{frame}{Resposta ao Impulso}
 
 A \textbf{resposta ao impulso} $h(t)$ é a saída do sistema quando a entrada é $\delta(t)$:
-
+\vspace{-2mm}
 \[
 \delta(t) \quad \xrightarrow{\text{Sistema LTI}} \quad h(t)
 \]
+\vspace{-4mm}
 
 \textbf{Por que é importante?}
-
 Qualquer sinal pode ser representado como soma de impulsos deslocados:
+\vspace{-2mm}
 \[
 x(t) = \int_{-\infty}^{\infty} x(\tau) \delta(t - \tau) d\tau
 \]
+\vspace{-4mm}
 
 Pela linearidade e invariância no tempo:
+\vspace{-2mm}
 \[
 y(t) = \int_{-\infty}^{\infty} x(\tau) h(t - \tau) d\tau = x(t) \conv h(t)
 \]
+\vspace{-4mm}
 
 \begin{block}{Relação Entrada-Saída no Tempo}
+\vspace{-2mm}
 \[
 \boxed{y(t) = x(t) \conv h(t)}
 \]
+\vspace{-2mm}
 \end{block}
 
-\textbf{A resposta ao impulso caracteriza completamente um sistema LTI!}
+A resposta ao impulso \textbf{caracteriza completamente} um sistema LTI!
 
 \end{frame}
 
@@ -77,28 +83,30 @@ y(t) = \int_{-\infty}^{\infty} x(\tau) h(t - \tau) d\tau = x(t) \conv h(t)
 \begin{frame}{Função de Transferência (Resposta em Frequência)}
 
 Aplicando a transformada de Fourier na relação $y(t) = x(t) \conv h(t)$:
-
+\vspace{-2mm}
 \[
 Y(\omega) = \FT{y(t)} = \FT{x(t) \conv h(t)}
 \]
+\vspace{-4mm}
 
 Pela propriedade de convolução:
-
+\vspace{-2mm}
 \[
 Y(\omega) = X(\omega) \cdot H(\omega)
 \]
+\vspace{-4mm}
 
 onde $H(\omega) = \FT{h(t)}$ é a \textbf{função de transferência} ou \textbf{resposta em frequência}.
 
 \begin{block}{Relação Entrada-Saída na Frequência}
+\vspace{-2mm}
 \[
 \boxed{Y(\omega) = H(\omega) \cdot X(\omega)}
 \]
+\vspace{-2mm}
 \end{block}
 
 \textbf{Vantagem:} Convolução no tempo $\rightarrow$ multiplicação na frequência!
-
-A análise na frequência é muito mais simples.
 
 \end{frame}
 
@@ -106,32 +114,25 @@ A análise na frequência é muito mais simples.
 
 \begin{frame}{Interpretação da Função de Transferência}
 
-\[
-Y(\omega) = H(\omega) \cdot X(\omega)
-\]
-
-A função de transferência $H(\omega)$ é geralmente complexa:
-
+$Y(\omega) = H(\omega) \cdot X(\omega)$, onde $H(\omega)$ é geralmente complexa:
 \[
 H(\omega) = |H(\omega)| e^{j\phi(\omega)}
 \]
 
-onde:
 \begin{itemize}
 \item $|H(\omega)|$: \textbf{ganho de magnitude} em cada frequência
 \item $\phi(\omega) = \arg[H(\omega)]$: \textbf{mudança de fase} em cada frequência
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.2cm}
 
 \textbf{Efeito do sistema:}
-
 \begin{itemize}
 \item Cada componente de frequência de $X(\omega)$ é multiplicada por $|H(\omega)|$
 \item A fase de cada componente é alterada por $\phi(\omega)$
 \end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.2cm}
 
 \textbf{Aplicações:} Filtros selecionam/rejeitam certas frequências ajustando $|H(\omega)|$.
 
@@ -141,30 +142,26 @@ onde:
 
 \begin{frame}{Entrada Senoidal em Sistema LTI}
 
-\textbf{Propriedade importante:} A resposta de um sistema LTI a uma entrada senoidal é também senoidal na mesma frequência.
-
-Se $x(t) = A\cos(\omega_0 t + \theta)$, então:
-
+A resposta de um sistema LTI a uma entrada senoidal é também senoidal na mesma frequência. Se $x(t) = A\cos(\omega_0 t + \theta)$, então:
+\vspace{-2mm}
 \[
 y(t) = A|H(\omega_0)| \cos(\omega_0 t + \theta + \phi(\omega_0))
 \]
+\vspace{-4mm}
 
-onde:
 \begin{itemize}
 \item Amplitude multiplicada por $|H(\omega_0)|$
 \item Fase aumentada em $\phi(\omega_0)$
 \item Frequência permanece $\omega_0$
 \end{itemize}
 
-\vspace{0.2cm}
-
 \textbf{Demonstração:}
-
-$x(t) = \Real\{Ae^{j(\omega_0 t + \theta)}\} = \Real\{Ae^{j\theta}e^{j\omega_0 t}\}$
-
+$x(t) = \Real\{Ae^{j\theta}e^{j\omega_0 t}\}$.
 Como $e^{j\omega_0 t} \xleftrightarrow{\ft} 2\pi\delta(\omega - \omega_0)$:
-
-$y(t) = \Real\{Ae^{j\theta}H(\omega_0)e^{j\omega_0 t}\} = A|H(\omega_0)|\cos(\omega_0 t + \theta + \phi(\omega_0))$
+\vspace{-2mm}
+\[
+y(t) = \Real\{Ae^{j\theta}H(\omega_0)e^{j\omega_0 t}\} = A|H(\omega_0)|\cos(\omega_0 t + \theta + \phi(\omega_0))
+\]
 
 \end{frame}
 
@@ -175,27 +172,27 @@ $y(t) = \Real\{Ae^{j\theta}H(\omega_0)e^{j\omega_0 t}\} = A|H(\omega_0)|\cos(\om
 \begin{frame}{Causalidade}
 
 Um sistema é \textbf{causal} se a saída não depende de valores futuros da entrada:
-
+\vspace{-2mm}
 \[
 h(t) = 0 \quad \text{para} \quad t < 0
 \]
+\vspace{-4mm}
 
-\textbf{Significado físico:} Sistemas físicos reais são sempre causais (não podem "ver o futuro").
-
-\vspace{0.1cm}
+\textbf{Significado físico:} Sistemas físicos reais são sempre causais (não podem ``ver o futuro'').
 
 Para sistemas causais:
+\vspace{-2mm}
 \[
 y(t) = \int_{0}^{\infty} h(\tau) x(t - \tau) d\tau = \int_{-\infty}^{t} h(t - \tau) x(\tau) d\tau
 \]
+\vspace{-4mm}
 
-\vspace{0.1cm}
-
-\textbf{Consequência na frequência:} A função de transferência $H(\omega)$ de um sistema causal satisfaz certas condições (critério de Paley-Wiener):
-
+\textbf{Consequência na frequência:} $H(\omega)$ de um sistema causal satisfaz o critério de Paley-Wiener:
+\vspace{-2mm}
 \[
 \int_{-\infty}^{\infty} \frac{|\ln|H(\omega)||}{1 + \omega^2} d\omega < \infty
 \]
+\vspace{-4mm}
 
 Isso limita a rapidez com que $|H(\omega)|$ pode cair a zero.
 
@@ -215,17 +212,12 @@ Um sistema é \textbf{BIBO estável} (Bounded Input, Bounded Output) se toda ent
 
 A resposta ao impulso deve ser absolutamente integrável.
 
-\vspace{0.3cm}
-
-\textbf{Na frequência:}
-
-Para estabilidade BIBO, $H(\omega)$ deve existir e ser limitada:
-
+\textbf{Na frequência:} Para estabilidade BIBO, $H(\omega)$ deve existir e ser limitada:
+\vspace{-2mm}
 \[
 |H(\omega)| < \infty \quad \text{para todo} \quad \omega
 \]
-
-\vspace{0.3cm}
+\vspace{-3mm}
 
 \textbf{Exemplos:}
 \begin{itemize}
@@ -295,8 +287,6 @@ Isto significa:
 \item A forma de onda é preservada
 \end{itemize}
 
-\vspace{0.3cm}
-
 \textbf{Problema:} Sistemas reais não podem ter $|H(\omega)|$ constante para todo $\omega$ e serem causais simultaneamente!
 
 \end{frame}
@@ -350,15 +340,12 @@ O \textbf{atraso de grupo} quantifica o atraso de um "envelope" do sinal:
 \item Causa distorção de fase
 \end{itemize}
 
-\vspace{0.3cm}
-
 \textbf{Para transmissão sem distorção de fase:}
-
+\vspace{-2mm}
 \[
 \tau_g(\omega) = \text{constante}
 \]
-
-\vspace{0.3cm}
+\vspace{-3mm}
 
 \textbf{Aplicação:} Importante em sinais modulados e pulsos digitais, onde o envelope carrega informação.
 
@@ -585,8 +572,6 @@ h(t) = \frac{\sin(\omega_c t)}{\pi t}
    \item Impossível implementar exatamente
    \end{itemize}
 \end{enumerate}
-
-\vspace{0.3cm}
 
 \textbf{Solução prática:} Usar filtros aproximados (Butterworth, Chebyshev) que são causais e aproximam o comportamento ideal.
 
