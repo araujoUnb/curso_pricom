@@ -1,0 +1,7 @@
+cenario,f_sinal_Hz,decim,fs_eff_Hz,nyquist_Hz,nyquist_ok,f_esperada_Hz,f_observada_Hz,erro_Hz
+A,1000,4,12000,6000,Sim,1000,999,1
+B,5000,4,12000,6000,Sim,5000,5001,1
+C,7000,4,12000,6000,Nao (alias),5000,5001,1
+D,1000,10,4800,2400,Sim,1000,1000,0
+E,2500,10,4800,2400,Nao (alias),2300,2300,0
+F,3500,10,4800,2400,Nao (alias),1300,1300,0

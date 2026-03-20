@@ -1,0 +1,141 @@
+=================================================================
+PRATICA 08 -- AMOSTRAGEM E ALIASING (NYQUIST-SHANNON)
+GABARITO DO PROFESSOR
+Data: 2026-03-20 08:06
+GNU Radio: 3.10.12.0
+Sample Rate: 48000 Hz | Amostras: 48000
+Saida: /home/daniel/Documentos/UnB/Aulas/curso_pricom/Laboratorio/Codigos/pratica_08_gabarito
+=================================================================
+
+=================================================================
+ETAPA 1: Flowgraph base com decimacao
+=================================================================
+  f_sinal = 1000 Hz, decim = 4
+  fs_eff = 12000 Hz, Nyquist = 6000 Hz
+  1000 Hz < 6000 Hz (Nyquist) -> SEM aliasing
+  Pico no sinal decimado: 999 Hz @ -12.7 dB
+  Resultado: OK
+  -> etapa1_decimacao_base.png
+
+=================================================================
+ETAPA 2: Verificacao de Nyquist - 6 cenarios
+=================================================================
+  Cen | f_sinal | decim | fs_eff | Nyquist | Nyquist? | f_esperada | f_observada |   Erro
+  ----+---------+-------+--------+---------+----------+------------+-------------+-------
+    A |    1000 |     4 |  12000 |    6000 |      Sim |       1000 |         999 |      1
+    B |    5000 |     4 |  12000 |    6000 |      Sim |       5000 |        5001 |      1
+    C |    7000 |     4 |  12000 |    6000 | Nao (alias) |       5000 |        5001 |      1
+    D |    1000 |    10 |   4800 |    2400 |      Sim |       1000 |        1000 |      0
+    E |    2500 |    10 |   4800 |    2400 | Nao (alias) |       2300 |        2300 |      0
+    F |    3500 |    10 |   4800 |    2400 | Nao (alias) |       1300 |        1300 |      0
+
+  -> etapa2_nyquist_cenarios.png
+  -> dados/etapa2_nyquist_verificacao.csv
+  -> etapa2_cenario_A.png
+  -> etapa2_cenario_B.png
+  -> etapa2_cenario_C.png
+  -> etapa2_cenario_D.png
+  -> etapa2_cenario_E.png
+  -> etapa2_cenario_F.png
+
+=================================================================
+ETAPA 3: Calculo da frequencia de alias
+=================================================================
+
+  Cenarios com aliasing:
+  Cen | f_sinal | fs_eff | Nyquist | f_alias (calc) | f_alias (obs)
+  ----+---------+--------+---------+----------------+--------------
+    C |    7000 |  12000 |    6000 |           5000 |          5001
+    E |    2500 |   4800 |    2400 |           2300 |          2300
+    F |    3500 |   4800 |    2400 |           1300 |          1300
+
+  Calculo analitico:
+    C: f=7000, fs_eff=12000. f_alias = fs_eff - f = 12000 - 7000 = 5000 Hz
+    E: f=2500, fs_eff=4800.  f_alias = fs_eff - f = 4800 - 2500  = 2300 Hz
+    F: f=3500, fs_eff=4800.  f_alias = fs_eff - f = 4800 - 3500  = 1300 Hz
+
+  -> etapa3_alias_frequencias.png
+  -> dados/etapa3_alias_frequencias.csv
+
+=================================================================
+ETAPA 4: Filtro anti-aliasing (LPF antes da decimacao)
+=================================================================
+
+  Cenario C: f=7000 Hz, decim=4, fs_eff=12000 Hz
+    LPF cutoff = 5400 Hz (0.9 x Nyquist = 0.9 x 6000)
+    Sem filtro: pico em 5001 Hz
+    Com filtro: pico em 5001 Hz @ -84.3 dB
+    Interpretacao: f=7000 Hz atenuado pelo LPF (fc=5400 Hz). Alias eliminado.
+
+  Cenario E: f=2500 Hz, decim=10, fs_eff=4800 Hz
+    LPF cutoff = 2160 Hz (0.9 x Nyquist = 0.9 x 2400)
+    Sem filtro: pico em 2300 Hz
+    Com filtro: pico em 2300 Hz @ -71.9 dB
+    Interpretacao: f=2500 Hz ~ Nyquist (2400 Hz). LPF atenua o proprio sinal!
+
+  -> etapa4_filtro_anti_aliasing.png
+
+  Resposta Q4:
+    Cenario C (f=7000, fs_eff=12000): o LPF com fc=5400 Hz
+    atenua o sinal em 7000 Hz antes da decimacao, eliminando
+    o alias em 5000 Hz.
+    Cenario E (f=2500, fs_eff=4800): o LPF com fc=2160 Hz
+    atenua o proprio sinal em 2500 Hz, pois ele esta acima
+    do cutoff. O sinal desaparece (ou fica muito atenuado).
+
+=================================================================
+ETAPA 5: Aliasing com multiplos tons
+=================================================================
+  Dois tons: f1=1000 Hz + f2=7000 Hz
+  decim=4, fs_eff=12000 Hz, Nyquist=6000 Hz
+  f1=1000 Hz < 6000 Hz -> preservado
+  f2=7000 Hz > 6000 Hz -> alias em 5000 Hz
+
+  SEM filtro AA:
+    Pico em 5001 Hz @ -12.7 dB
+    Pico em 999 Hz @ -12.7 dB
+
+  COM filtro AA (cutoff = 5400 Hz):
+    Pico em 999 Hz @ -12.7 dB
+
+  -> etapa5_multiplos_tons.png
+
+  Resultado:
+    Sem filtro: ambos os tons aparecem no espectro decimado.
+    f1=1000 Hz preservado, f2=7000 Hz aparece como alias em 5000 Hz.
+    Os dois picos sao indistinguiveis de dois tons reais.
+    Com filtro AA: f2=7000 Hz eh atenuado pelo LPF antes da
+    decimacao. Apenas f1=1000 Hz aparece no espectro.
+
+=================================================================
+RESPOSTAS ESPERADAS
+=================================================================
+
+  Q1: Cenarios A, B, D satisfazem Nyquist (f < fs/2).
+      Cenarios C, E, F violam. As frequencias de alias
+      observadas correspondem ao calculo analitico:
+      f_alias = fs_eff - f_sinal (quando f_sinal < fs_eff).
+
+  Q2: No dominio do tempo, o sinal com alias aparece como
+      uma frequencia mais baixa. Um sinal de 7000 Hz
+      amostrado a 12000 Hz parece um sinal de 5000 Hz.
+      As amostras sao identicas nos dois casos.
+
+  Q3: Apos a subamostragem, um sinal real em f1 e um
+      alias em f1 sao indistinguiveis. Sem conhecimento
+      previo do sinal original, nao ha como diferencia-los.
+
+  Q4: O filtro anti-aliasing funciona para o cenario C
+      (atenua 7000 Hz antes da decimacao por 4).
+      Para o cenario E, o sinal em 2500 Hz esta muito
+      proximo do Nyquist (2400 Hz), e o LPF atenua o
+      proprio sinal.
+
+  Q5: Keep 1 in N simplesmente descarta amostras (sem
+      filtragem analogica). Um ADC real tem sample-and-hold.
+      Na pratica, um filtro anti-aliasing analogico eh
+      necessario antes do ADC para evitar aliasing.
+
+=================================================================
+GABARITO COMPLETO GERADO COM SUCESSO
+=================================================================

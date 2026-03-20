@@ -1,0 +1,4 @@
+cenario,f_sinal_Hz,fs_eff_Hz,f_alias_calculada_Hz,f_alias_observada_Hz
+C,7000,12000,5000,5001
+E,2500,4800,2300,2300
+F,3500,4800,1300,1300

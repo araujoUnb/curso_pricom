@@ -47,7 +47,7 @@ except ImportError:
 # CONFIGURACAO
 # =====================================================================
 SAMP_RATE_AM = 48000    # taxa de amostragem para cadeia AM
-SAMP_RATE_FM = 48000    # taxa de amostragem para cadeia FM (simplificada)
+SAMP_RATE_FM = 480000   # taxa de amostragem para cadeia FM (wideband: 10x audio)
 AUDIO_RATE = 48000
 FM_MSG = 1000           # frequencia da mensagem (Hz)
 FC = 10000              # frequencia da portadora AM (Hz)
@@ -79,38 +79,54 @@ def log(msg=""):
 # =====================================================================
 def compute_snr(original, recovered, samp_rate, fm):
     """
-    Calcula SNR de saida comparando sinal recuperado com o original.
-    Pula o transiente inicial e normaliza antes de comparar.
+    Calcula SNR de saida no dominio da frequencia.
+    Mede potencia do sinal na frequencia fm e potencia do ruido
+    no restante do espectro. Robusto a atrasos de filtro.
     """
-    skip = int(samp_rate * 0.05)  # pular 50 ms de transiente
-    orig = original[skip:]
+    skip = int(samp_rate * 0.2)  # pular 200 ms de transiente
     rec = recovered[skip:]
 
-    # Igualar comprimentos
-    min_len = min(len(orig), len(rec))
-    orig = orig[:min_len]
-    rec = rec[:min_len]
-
-    if len(orig) == 0 or np.std(rec) < 1e-12:
+    if len(rec) < 1024 or np.std(rec) < 1e-12:
         return -np.inf
 
-    # Normalizar recuperado para mesma escala do original
-    rec = rec * (np.std(orig) / (np.std(rec) + 1e-12))
+    # FFT do sinal recuperado
+    N = len(rec)
+    fft_size = min(N, 8192)
+    # Usar media de segmentos para melhor estimativa
+    n_segs = max(1, N // fft_size)
+    psd_acc = np.zeros(fft_size // 2 + 1)
+    w = np.hanning(fft_size)
+    w_power = np.sum(w ** 2)
 
-    # Alinhar por correlacao cruzada (compensar atraso do filtro)
-    corr = np.correlate(orig, rec, mode='full')
-    lag = np.argmax(np.abs(corr)) - (len(rec) - 1)
-    if abs(lag) < len(orig) // 4:
-        if lag > 0:
-            orig = orig[lag:]
-            rec = rec[:len(orig)]
-        elif lag < 0:
-            rec = rec[-lag:]
-            orig = orig[:len(rec)]
+    for i in range(n_segs):
+        start = i * fft_size
+        if start + fft_size > N:
+            break
+        seg = rec[start:start + fft_size] * w
+        X = np.fft.rfft(seg)
+        psd_acc += np.abs(X) ** 2 / w_power
 
-    # Calcular SNR
-    noise = orig - rec
-    snr = 10 * np.log10(np.var(orig) / (np.var(noise) + 1e-12))
+    psd = psd_acc / n_segs
+    freqs = np.fft.rfftfreq(fft_size, 1.0 / samp_rate)
+
+    # Potencia do sinal: bins proximos a fm
+    df = freqs[1] - freqs[0]
+    signal_band = 0.5 * fm  # +/- 0.5*fm ao redor de fm
+    signal_mask = (freqs >= fm - signal_band) & (freqs <= fm + signal_band)
+    noise_mask = ~signal_mask & (freqs > df)  # excluir DC
+
+    P_signal = np.sum(psd[signal_mask])
+    P_noise = np.sum(psd[noise_mask])
+
+    if P_noise < 1e-30:
+        return np.inf
+
+    # Normalizar pela largura de banda da mensagem
+    bw_signal = np.sum(signal_mask) * df
+    bw_noise = np.sum(noise_mask) * df
+    # SNR = (P_signal/bw_signal) / (P_noise/bw_noise) * bw_signal/bw_noise
+    # Simplificado: SNR proporcional a P_signal/P_noise
+    snr = 10 * np.log10(P_signal / (P_noise + 1e-30))
     return snr
 
 
@@ -241,21 +257,24 @@ def capture_am(noise_sigma, n_samples=N_SAMPLES):
 class FMFlowgraph(gr.top_block):
     """
     Cadeia FM completa:
-      msg(t) --> FM_mod --> + noise_complexo --> FM_demod --> sink
+      msg(t) --> FM_mod --> + noise_complexo --> FM_demod --> LPF --> sink
 
     FM modulador: frequency_modulator_fc
-    FM demodulador: quadrature_demod_cf
+    FM demodulador: quadrature_demod_cf + LPF pos-demodulacao
+    Tudo opera em samp_rate; decimacao para audio_rate via numpy.
     """
 
     def __init__(self, noise_sigma=0.0, max_dev=MAX_DEV,
                  samp_rate=SAMP_RATE_FM, fm=FM_MSG,
-                 n_samples=N_SAMPLES):
+                 n_samples_audio=N_SAMPLES):
         gr.top_block.__init__(self, "FM_AWGN")
 
         sensitivity = 2 * np.pi * max_dev / samp_rate
+        interp = max(1, int(samp_rate / AUDIO_RATE))
+        n_hi = n_samples_audio * interp
 
         # --- Modulador FM ---
-        # Mensagem: cos(2*pi*fm*t)
+        # Mensagem diretamente em samp_rate
         self.src_msg = analog.sig_source_f(
             samp_rate, analog.GR_COS_WAVE, fm, 1.0, 0)
 
@@ -272,12 +291,16 @@ class FMFlowgraph(gr.top_block):
         demod_gain = samp_rate / (2 * np.pi * max_dev)
         self.fm_demod = analog.quadrature_demod_cf(demod_gain)
 
-        # Sink
-        self.head = blocks.head(gr.sizeof_float, n_samples)
+        # LPF pos-demodulacao (limitar ao bandwidth da mensagem)
+        lpf_taps = firdes.low_pass(1, samp_rate, int(1.5 * fm), 500)
+        self.lpf = gr_filter.fir_filter_fff(1, lpf_taps)
+
+        # Sink (opera em samp_rate; decimacao sera feita em numpy)
+        self.head = blocks.head(gr.sizeof_float, n_hi)
         self.sink = blocks.vector_sink_f()
 
-        # Referencia
-        self.head_ref = blocks.head(gr.sizeof_float, n_samples)
+        # Referencia (em samp_rate)
+        self.head_ref = blocks.head(gr.sizeof_float, n_hi)
         self.sink_ref = blocks.vector_sink_f()
 
         # --- Conexoes ---
@@ -290,7 +313,8 @@ class FMFlowgraph(gr.top_block):
         else:
             channel_out = self.fm_mod
 
-        self.connect(channel_out, self.fm_demod, self.head, self.sink)
+        self.connect(channel_out, self.fm_demod, self.lpf,
+                     self.head, self.sink)
 
         # Referencia
         self.connect(self.src_msg, self.head_ref, self.sink_ref)
@@ -299,13 +323,25 @@ class FMFlowgraph(gr.top_block):
 def capture_fm(noise_sigma, max_dev=MAX_DEV, n_samples=N_SAMPLES):
     """
     Captura sinal FM demodulado e referencia.
-    Retorna (demodulado, referencia).
+    Retorna sinais decimados para audio_rate via numpy.
     """
+    samp_rate = SAMP_RATE_FM
+    # Ajustar samp_rate se necessario para betas altos
+    bw_fm = 2 * (max_dev / FM_MSG + 1) * FM_MSG
+    if bw_fm > samp_rate / 2:
+        samp_rate = int(np.ceil(2.5 * bw_fm / AUDIO_RATE)) * AUDIO_RATE
+
     tb = FMFlowgraph(noise_sigma=noise_sigma, max_dev=max_dev,
-                     n_samples=n_samples)
+                     samp_rate=samp_rate, n_samples_audio=n_samples)
     tb.run()
-    demod = np.array(tb.sink.data())
-    ref = np.array(tb.sink_ref.data())
+
+    demod_hi = np.array(tb.sink.data())
+    ref_hi = np.array(tb.sink_ref.data())
+
+    # Decimar para audio_rate via numpy
+    interp = max(1, int(samp_rate / AUDIO_RATE))
+    demod = demod_hi[::interp]
+    ref = ref_hi[::interp]
     return demod, ref
 
 
@@ -408,7 +444,8 @@ def etapa2():
     log("=" * 65)
     log(f"  Parametros: fm={FM_MSG} Hz, max_dev={MAX_DEV} Hz, "
         f"beta={MAX_DEV/FM_MSG:.0f}")
-    log(f"  samp_rate={SAMP_RATE_FM} Hz")
+    log(f"  samp_rate_fm={SAMP_RATE_FM} Hz (canal), "
+        f"audio_rate={AUDIO_RATE} Hz (demod)")
     log(f"  Niveis de ruido (sigma): {NOISE_SIGMAS}")
 
     fig, axes = plt.subplots(len(NOISE_SIGMAS), 2, figsize=(16, 4 * len(NOISE_SIGMAS)))
@@ -424,7 +461,7 @@ def etapa2():
         if sigma == 0:
             snr_out = np.inf
         else:
-            snr_out = compute_snr(ref, demod, SAMP_RATE_FM, FM_MSG)
+            snr_out = compute_snr(ref, demod, AUDIO_RATE, FM_MSG)
 
         # Classificar qualidade
         if snr_out == np.inf or snr_out > 30:
@@ -443,8 +480,8 @@ def etapa2():
         csv_rows.append([sigma, snr_str, qualidade])
 
         # --- Subplot: tempo ---
-        n_pts = int(4 * SAMP_RATE_FM / FM_MSG)
-        t_ms = np.arange(n_pts) / SAMP_RATE_FM * 1000
+        n_pts = int(4 * AUDIO_RATE / FM_MSG)
+        t_ms = np.arange(n_pts) / AUDIO_RATE * 1000
 
         ax_t = axes[i, 0]
         ax_t.plot(t_ms, ref[:n_pts], 'g-', linewidth=1.0, alpha=0.7,
@@ -458,7 +495,7 @@ def etapa2():
 
         # --- Subplot: espectro do sinal demodulado ---
         ax_f = axes[i, 1]
-        freqs, mag = spectrum(demod, SAMP_RATE_FM)
+        freqs, mag = spectrum(demod, AUDIO_RATE)
         ax_f.plot(freqs, mag, linewidth=0.6, color='#1f77b4')
         ax_f.axvline(FM_MSG, color='r', ls='--', alpha=0.5,
                      label=f'{FM_MSG} Hz')
@@ -512,7 +549,7 @@ def etapa3():
             snr_fm = np.inf
         else:
             snr_am = compute_snr(ref_am, demod_am, SAMP_RATE_AM, FM_MSG)
-            snr_fm = compute_snr(ref_fm, demod_fm, SAMP_RATE_FM, FM_MSG)
+            snr_fm = compute_snr(ref_fm, demod_fm, AUDIO_RATE, FM_MSG)
 
         snr_am_list.append(snr_am)
         snr_fm_list.append(snr_fm)
@@ -619,7 +656,7 @@ def etapa4():
     csv_rows = []
 
     log(f"\n  Comparacao de desempenho FM para diferentes beta:")
-    log(f"  (fm={FM_MSG} Hz, samp_rate={SAMP_RATE_FM} Hz)")
+    log(f"  (fm={FM_MSG} Hz, audio_rate={AUDIO_RATE} Hz)")
     header_line = f"  {'sigma':>7}"
     for beta, md in betas:
         header_line += f" | SNR b={beta:<2} (dB)"
@@ -632,21 +669,22 @@ def etapa4():
         row = [sigma]
         line = f"  {sigma:>7.2f}"
         for beta, max_dev in betas:
-            # Ajustar samp_rate se necessario (Nyquist para FM)
+            # Ajustar samp_rate do canal se necessario (Nyquist para FM)
             # B_FM = 2*(beta+1)*fm
             bw_fm = 2 * (beta + 1) * FM_MSG
             sr = max(SAMP_RATE_FM, int(2.5 * bw_fm))
             # Arredondar para multiplo de audio_rate
-            sr = max(sr, AUDIO_RATE)
+            sr = int(np.ceil(sr / AUDIO_RATE)) * AUDIO_RATE
 
             if sigma == 0:
                 snr_out = np.inf
             else:
                 try:
                     demod, ref = capture_fm(sigma, max_dev=max_dev,
-                                            n_samples=int(sr * 2))
-                    snr_out = compute_snr(ref, demod, sr, FM_MSG)
-                except Exception:
+                                            n_samples=N_SAMPLES)
+                    snr_out = compute_snr(ref, demod, AUDIO_RATE, FM_MSG)
+                except Exception as e:
+                    log(f"    [ERRO beta={beta}, sigma={sigma}: {e}]")
                     snr_out = -np.inf
 
             snr_data[beta].append(snr_out)
@@ -697,20 +735,18 @@ def etapa4():
 
     for idx, (beta, max_dev) in enumerate(betas):
         bw_fm = 2 * (beta + 1) * FM_MSG
-        sr = max(SAMP_RATE_FM, int(2.5 * bw_fm))
-        sr = max(sr, AUDIO_RATE)
 
         try:
             demod, ref = capture_fm(sigma_demo, max_dev=max_dev,
-                                    n_samples=int(sr * 2))
-            snr = compute_snr(ref, demod, sr, FM_MSG)
+                                    n_samples=N_SAMPLES)
+            snr = compute_snr(ref, demod, AUDIO_RATE, FM_MSG)
         except Exception:
-            demod = np.zeros(int(sr * 2))
-            ref = np.zeros(int(sr * 2))
+            demod = np.zeros(N_SAMPLES)
+            ref = np.zeros(N_SAMPLES)
             snr = -np.inf
 
-        n_pts = int(4 * sr / FM_MSG)
-        t_ms = np.arange(n_pts) / sr * 1000
+        n_pts = int(4 * AUDIO_RATE / FM_MSG)
+        t_ms = np.arange(n_pts) / AUDIO_RATE * 1000
 
         ax = axes[idx]
         ax.plot(t_ms, ref[:n_pts], 'g-', linewidth=1.5, alpha=0.5,

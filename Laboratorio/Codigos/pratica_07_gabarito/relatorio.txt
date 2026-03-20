@@ -1,0 +1,115 @@
+=================================================================
+PRATICA 07 -- RUIDO EM DEMODULADORES AM E FM
+GABARITO DO PROFESSOR
+Data: 2026-03-20 08:42
+GNU Radio: 3.10.12.0
+AM: samp_rate=48000 Hz | fc=10000 Hz | fm=1000 Hz
+FM: samp_rate=480000 Hz | max_dev=10000 Hz | beta=10
+Niveis de ruido: [0, 0.05, 0.1, 0.2, 0.4, 0.7, 1.0]
+Amostras: 96000 (2.0 s)
+Saida: /home/daniel/Documentos/UnB/Aulas/curso_pricom/Laboratorio/Codigos/pratica_07_gabarito
+=================================================================
+
+=================================================================
+ETAPA 1: Cadeia AM DSB-SC com AWGN
+=================================================================
+  Parametros: fc=10000 Hz, fm=1000 Hz, samp_rate=48000 Hz
+  Demodulacao coerente: multiplicar por oscilador local + LPF
+  Niveis de ruido (sigma): [0, 0.05, 0.1, 0.2, 0.4, 0.7, 1.0]
+
+    sigma |  SNR_saida(dB) |      Qualidade
+  --------+----------------+---------------
+     0.00 |            inf |      Excelente
+     0.05 |           37.0 |      Excelente
+     0.10 |           31.0 |      Excelente
+     0.20 |           25.0 |            Bom
+     0.40 |           19.1 |       Razoavel
+     0.70 |           14.5 |       Razoavel
+     1.00 |           11.8 |       Razoavel
+
+  Resposta Q1: SNR de saida medido comparando o sinal
+    demodulado com a mensagem original. SNR = 10*log10(Ps/Pn)
+    onde Ps = variancia do sinal e Pn = variancia do erro.
+  Resposta Q2: AM degrada de forma aproximadamente linear
+    (graceful degradation): o ruido de saida cresce
+    proporcionalmente ao ruido de entrada.
+
+  -> etapa1_am_dsbsc_ruido.png
+  -> dados/etapa1_am_snr.csv
+
+=================================================================
+ETAPA 2: Cadeia FM com AWGN
+=================================================================
+  Parametros: fm=1000 Hz, max_dev=10000 Hz, beta=10
+  samp_rate_fm=480000 Hz (canal), audio_rate=48000 Hz (demod)
+  Niveis de ruido (sigma): [0, 0.05, 0.1, 0.2, 0.4, 0.7, 1.0]
+
+    sigma |  SNR_saida(dB) |      Qualidade
+  --------+----------------+---------------
+     0.00 |            inf |      Excelente
+     0.05 |           81.0 |      Excelente
+     0.10 |           75.0 |      Excelente
+     0.20 |           68.9 |      Excelente
+     0.40 |           40.5 |      Excelente
+     0.70 |           15.8 |       Razoavel
+     1.00 |            8.1 |           Ruim
+
+  Resposta Q3: FM degrada lentamente acima do limiar,
+    mas abaixo do limiar a degradacao e catastrofica
+    (aparecem 'clicks' de ruido impulsivo).
+
+  -> etapa2_fm_ruido.png
+  -> dados/etapa2_fm_snr.csv
+
+=================================================================
+ETAPA 3: Comparacao AM vs FM
+=================================================================
+
+    sigma |  SNR_AM(dB) |  SNR_FM(dB) |  Vantagem FM(dB) |   Melhor
+  --------+-------------+-------------+------------------+---------
+     0.00 |         inf |         inf |              --- |      ---
+     0.05 |        37.0 |        81.0 |             44.0 |       FM
+     0.10 |        31.0 |        75.0 |             44.0 |       FM
+     0.20 |        25.0 |        68.9 |             43.9 |       FM
+     0.40 |        19.1 |        40.5 |             21.4 |       FM
+     0.70 |        14.5 |        15.8 |              1.3 |       FM
+     1.00 |        11.8 |         8.1 |             -3.7 |       AM
+
+  Resposta Q4: FM apresenta vantagem sobre AM acima do
+    limiar (threshold). O custo e largura de banda:
+    B_FM = 2*(beta+1)*fm >> B_AM = 2*fm.
+    Para beta=10: B_FM = 22 kHz vs B_AM = 2 kHz.
+  Resposta Q5: Para comparacao justa, deve-se usar mesma
+    potencia transmitida, mesma mensagem e mesmo N0.
+
+  -> etapa3_comparacao_am_fm.png
+  -> dados/etapa3_comparacao_am_fm.csv
+
+=================================================================
+ETAPA 4: FM com diferentes valores de beta
+=================================================================
+
+  Comparacao de desempenho FM para diferentes beta:
+  (fm=1000 Hz, audio_rate=48000 Hz)
+    sigma | SNR b=2  (dB) | SNR b=10 (dB) | SNR b=25 (dB)
+  --------+------------------+------------------+-----------------
+     0.00 |              inf |              inf |              inf
+     0.05 |             66.3 |             81.0 |             88.0
+     0.10 |             60.2 |             75.0 |             82.0
+     0.20 |             54.1 |             68.9 |             76.0
+     0.40 |             27.3 |             40.5 |             49.4
+     0.70 |              5.5 |             15.8 |             22.7
+     1.00 |              2.8 |              8.1 |             14.4
+
+  Analise: maior beta => maior ganho de SNR acima do limiar,
+    porem o limiar tambem se desloca (exige SNR de entrada
+    maior para operar). Tradeoff: ganho FM vs largura de banda.
+    B_FM = 2*(beta+1)*fm (regra de Carson).
+
+  -> etapa4_fm_betas.png
+  -> etapa4_fm_betas_tempo.png
+  -> dados/etapa4_fm_betas.csv
+
+=================================================================
+GABARITO COMPLETO GERADO COM SUCESSO
+=================================================================
