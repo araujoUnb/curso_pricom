@@ -1,0 +1,101 @@
+=================================================================
+PRATICA 02 -- MODULACAO AM DSB-SC
+GABARITO DO PROFESSOR
+Data: 2026-03-19 22:38
+GNU Radio: 3.10.12.0
+Sample Rate: 48000 Hz | Amostras: 48000
+Portadora: fc = 5000 Hz | Mensagem: fm = 500 Hz
+Saida: /home/daniel/Documentos/UnB/Aulas/curso_pricom/Laboratorio/Codigos/pratica_02_gabarito
+=================================================================
+
+=================================================================
+ETAPA 1: Modulador DSB-SC
+=================================================================
+  Banda lateral inferior (fc-fm = 4500 Hz): -18.1 dB
+  Banda lateral superior (fc+fm = 5500 Hz): -18.7 dB
+  Portadora (fc = 5000 Hz): -125.2 dB
+  Supressao da portadora: 107.1 dB
+  -> etapa1_dsbsc_modulador.png
+
+  Resposta Q1: Nao ha portadora no espectro DSB-SC.
+  A multiplicacao cos(fm)cos(fc) = (1/2)[cos(fc-fm) + cos(fc+fm)]
+  gera apenas as bandas laterais, sem componente em fc.
+
+=================================================================
+ETAPA 2: Variacao da frequencia da mensagem
+=================================================================
+
+   fm (Hz) |   LSB (Hz) |   USB (Hz) |   LSB (dB) |   USB (dB)
+  ---------+------------+------------+------------+-----------
+       200 |       4805 |       5203 |      -19.0 |      -18.5
+       500 |       4500 |       5496 |      -18.1 |      -18.7
+      1000 |       3996 |       6000 |      -18.7 |      -18.1
+      2000 |       3000 |       6996 |      -18.1 |      -18.7
+
+  -> etapa2_variacao_fm.png
+  -> dados/etapa2_bandas_laterais.csv
+
+  Resposta Q2: As bandas laterais aparecem em fc +/- fm.
+  Ao aumentar fm, as bandas se afastam simetricamente de fc.
+  A largura de banda do sinal DSB-SC e 2*fm.
+
+=================================================================
+ETAPA 3: Demodulacao coerente
+=================================================================
+  Atraso do filtro FIR: 289 amostras (6.02 ms)
+  Amplitude demodulada (regime permanente): 0.4999
+  Amplitude teorica: 0.5000 (identidade trigonometrica)
+  -> etapa3_demodulacao.png
+
+  Resposta Q5: A amplitude de saida e metade da original.
+  cos(2pi fm t) * cos(2pi fc t) * cos(2pi fc t)
+  = cos(2pi fm t) * (1/2)[1 + cos(2pi 2fc t)]
+  = (1/2)cos(2pi fm t) + (1/2)cos(2pi fm t)cos(2pi 2fc t)
+  Apos LPF: (1/2)cos(2pi fm t)
+
+=================================================================
+ETAPA 4: Erro de fase na demodulacao
+=================================================================
+
+    Fase (graus) |  Amp. medida |  Amp. teorica |   cos(phi) |   Erro (%)
+  ---------------+--------------+---------------+------------+-----------
+               0 |       0.4999 |        0.5000 |     1.0000 |       0.02
+              15 |       0.4829 |        0.4830 |     0.9659 |       0.02
+              30 |       0.4329 |        0.4330 |     0.8660 |       0.02
+              45 |       0.3535 |        0.3536 |     0.7071 |       0.02
+              60 |       0.2499 |        0.2500 |     0.5000 |       0.02
+              90 |       0.0000 |        0.0000 |     0.0000 |       0.00
+
+  -> etapa4_erro_fase.png
+  -> dados/etapa4_fase_vs_amplitude.csv
+
+  Resposta Q3: O erro de fase causa atenuacao por cos(phi).
+  A 90 graus, cos(90) = 0: nulo de quadratura (sinal zerado).
+  Isso demonstra a necessidade de sincronismo de fase no
+  receptor para demodulacao coerente DSB-SC.
+
+=================================================================
+ETAPA 5: Efeito do corte do filtro passa-baixa
+=================================================================
+
+       Corte |  fc_lpf (Hz) |   Amp. saida |    Qualidade
+  -----------+--------------+--------------+-------------
+       0.5xfm |          250 |       0.0001 |     Atenuado
+       1.0xfm |          500 |       0.2502 |       Limiar
+       1.5xfm |          750 |       0.4999 |          Bom
+       2.0xfm |         1000 |       0.4999 |          Bom
+       3.0xfm |         1500 |       0.5000 |          Bom
+
+  -> etapa5_lpf_cutoff.png
+  -> dados/etapa5_lpf_cutoff.csv
+
+  Resposta Q4: O corte do LPF deve ser > fm para passar
+  a mensagem, mas < 2fc - fm para rejeitar o termo de
+  frequencia dupla (em torno de 2fc).
+  Com corte < fm, a mensagem e atenuada/distorcida.
+  Com corte muito alto, componentes de alta frequencia
+  (produto da multiplicacao) vazam para a saida.
+
+=================================================================
+GABARITO COMPLETO GERADO COM SUCESSO
+=================================================================

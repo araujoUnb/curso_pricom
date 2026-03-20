@@ -1,0 +1,112 @@
+=================================================================
+PRATICA 05 -- MODULACAO FM E REGRA DE CARSON
+GABARITO DO PROFESSOR
+Data: 2026-03-19 22:40
+GNU Radio: 3.10.12.0
+Sample Rate: 480000 Hz | Audio Rate: 48000 Hz
+Saida: /home/daniel/Documentos/UnB/Aulas/curso_pricom/Laboratorio/Codigos/pratica_05_gabarito
+=================================================================
+
+=================================================================
+TABELA DE PARAMETROS DE REFERENCIA
+=================================================================
+  Parametro              |           Valor
+  -----------------------+----------------
+  samp_rate (Hz)         |          480000
+  audio_rate (Hz)        |           48000
+  Interpolacao           |              10
+  fm (Hz)                |            2000
+  Delta_f (Hz)           |            5000
+  Amplitude mensagem     |             1.0
+  beta                   |            2.50
+  B_Carson (Hz)          |           14000
+  N amostras audio       |           48000
+  N amostras FM          |          480000
+  FFT Size               |            8192
+
+=================================================================
+ETAPA 1: Modulador FM e espectro basico
+=================================================================
+  fm = 2000 Hz, Delta_f = 5000 Hz
+  beta = 2.50
+  Largura de Carson: B = 2*(Delta_f + fm) = 14000 Hz
+  Largura medida (-20 dB): 16055 Hz
+  -> etapa1_fm_basico.png
+
+  Resposta Q1: Quanto maior Delta_f, mais rapida a variacao
+  de fase instantanea, resultando em mais cruzamentos por zero
+  no dominio do tempo e um espectro mais largo.
+
+=================================================================
+ETAPA 2: Verificacao da Regra de Carson
+=================================================================
+
+   fm(Hz) |  Df(Hz) |   beta | B_Carson(Hz) |  B_med(Hz) |  Erro(%)
+  --------+---------+--------+--------------+------------+---------
+     1000 |    2000 |    2.0 |         6000 |       6094 |      1.6
+     1000 |    5000 |    5.0 |        12000 |      14062 |     17.2
+     2000 |    2000 |    1.0 |         8000 |       8086 |      1.1
+     2000 |   10000 |    5.0 |        24000 |      28008 |     16.7
+     4000 |    4000 |    1.0 |        16000 |      16055 |      0.3
+     4000 |   20000 |    5.0 |        48000 |      56016 |     16.7
+
+  -> etapa2_carson.png
+  -> dados/etapa2_carson.csv
+
+  Resposta Q2: A Regra de Carson e confirmada com erro tipico
+  de 10-20%. O erro vem do truncamento dos lobulos laterais de
+  Bessel: a regra considera ~98% da potencia, mas as bandas
+  laterais de ordem superior sao desprezadas.
+
+=================================================================
+ETAPA 3: Demodulacao FM
+=================================================================
+  Demodulacao sem ruido:
+  SNR da reconstrucao: 109.3 dB
+  -> etapa3_demodulacao.png
+
+  Resposta Q3: O espectro NBFM (beta < 1) e similar ao AM,
+  com poucas bandas laterais (tipicamente 1 par). O espectro
+  WBFM (beta >> 1) possui muitas bandas laterais (funcoes de
+  Bessel), ocupando largura de banda muito maior.
+
+=================================================================
+ETAPA 4: NBFM vs WBFM com ruido
+=================================================================
+
+    Config |  beta |   noise |   SNR(dB) |    Qualidade
+  ---------+-------+---------+-----------+-------------
+      NBFM |   1.0 |    0.00 |     104.0 |    Excelente
+      NBFM |   1.0 |    0.05 |       0.5 |    Inaudivel
+      NBFM |   1.0 |    0.10 |       0.1 |    Inaudivel
+      NBFM |   1.0 |    0.20 |      -0.1 |    Inaudivel
+      NBFM |   1.0 |    0.50 |      -0.2 |    Inaudivel
+      NBFM |   1.0 |    1.00 |      -1.0 |    Inaudivel
+      NBFM |   1.0 |    2.00 |      -1.8 |    Inaudivel
+      NBFM |   1.0 |    5.00 |      -2.1 |    Inaudivel
+      WBFM |  10.0 |    0.00 |     116.2 |    Excelente
+      WBFM |  10.0 |    0.05 |       6.3 |         Ruim
+      WBFM |  10.0 |    0.10 |       3.7 |         Ruim
+      WBFM |  10.0 |    0.20 |       1.7 |    Inaudivel
+      WBFM |  10.0 |    0.50 |       0.4 |    Inaudivel
+      WBFM |  10.0 |    1.00 |      -0.6 |    Inaudivel
+      WBFM |  10.0 |    2.00 |      -1.7 |    Inaudivel
+      WBFM |  10.0 |    5.00 |      -2.1 |    Inaudivel
+
+  -> etapa4_nbfm_vs_wbfm.png
+  -> etapa4_snr_comparacao.png
+  -> etapa4_espectros_nbfm_wbfm.png
+  -> dados/etapa4_nbfm_vs_wbfm.csv
+
+  Resposta Q4: FM troca largura de banda por SNR.
+  A SNR de saida e proporcional a beta^2*(beta+1)*SNR_in.
+  O custo e a largura de banda: B = 2*(Delta_f + fm).
+
+  Resposta Q5: WBFM tolera mais ruido que NBFM.
+  Quanto maior beta, melhor a imunidade ao ruido,
+  porem maior a largura de banda ocupada. Esse e o
+  tradeoff fundamental da modulacao FM.
+
+=================================================================
+GABARITO COMPLETO GERADO COM SUCESSO
+=================================================================

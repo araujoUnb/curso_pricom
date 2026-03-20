@@ -1,0 +1,6 @@
+Parametro,DSB-SC,SSB-USB,SSB-LSB
+Num. picos,2,1,1
+Frequencias (Hz),"4500, 5496",5496,4500
+Largura de banda (Hz),996,500,500
+Amplitudes (dB),"-18.1, -18.7",-18.7,-18.1
+B = W (teoria),2*fm = 1000,fm = 500,fm = 500

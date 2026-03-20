@@ -1,0 +1,760 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Pratica 08 -- Amostragem e Aliasing (Nyquist-Shannon): Gabarito do Professor
+=============================================================================
+Executa flowgraphs em modo headless (sem GUI), reproduzindo todas as etapas
+do enunciado e gerando:
+
+  1. Figuras PNG de referencia (tempo + espectro) para cada cenario
+  2. Dados numericos (frequencias esperadas vs observadas, alias)
+  3. Relatorio resumo em texto
+
+Execucao:
+    /usr/bin/python3 pratica_08_gabarito.py
+
+Saida:
+    ./pratica_08_gabarito/
+        figuras/          -- PNGs de referencia
+        dados/            -- CSVs com dados brutos
+        relatorio.txt     -- Relatorio completo
+"""
+
+import os
+import sys
+import csv
+import numpy as np
+from datetime import datetime
+
+try:
+    from gnuradio import gr, analog, blocks, filter
+    from gnuradio.filter import firdes
+except ImportError:
+    print("ERRO: GNU Radio nao encontrado.")
+    print("Execute com: /usr/bin/python3 pratica_08_gabarito.py")
+    sys.exit(1)
+
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+except ImportError:
+    print("ERRO: matplotlib nao encontrado.")
+    sys.exit(1)
+
+from scipy.signal import find_peaks
+
+# =====================================================================
+# CONFIGURACAO
+# =====================================================================
+SAMP_RATE = 48000
+N_SAMPLES = 48000  # 1 segundo de dados
+
+BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "pratica_08_gabarito")
+FIG_DIR = os.path.join(BASE_DIR, "figuras")
+DATA_DIR = os.path.join(BASE_DIR, "dados")
+
+for d in [BASE_DIR, FIG_DIR, DATA_DIR]:
+    os.makedirs(d, exist_ok=True)
+
+# Acumula linhas do relatorio
+relatorio = []
+
+
+def log(msg=""):
+    """Imprime e acumula no relatorio."""
+    print(msg)
+    relatorio.append(msg)
+
+
+# =====================================================================
+# FLOWGRAPHS HEADLESS
+# =====================================================================
+class DecimationFlowgraph(gr.top_block):
+    """Flowgraph: fonte cossenoidal -> [LPF] -> Keep 1 in N -> sink.
+    Tambem captura o sinal original (sem decimacao) para comparacao."""
+
+    def __init__(self, f_sinal, decim, use_filter=False,
+                 n_samples=N_SAMPLES, amplitudes=None):
+        gr.top_block.__init__(self, "Pratica08_Decimation")
+
+        # --- Fonte(s) de sinal ---
+        if amplitudes is None:
+            # Tom unico
+            self.src = analog.sig_source_f(
+                SAMP_RATE, analog.GR_COS_WAVE, f_sinal, 1.0, 0)
+            signal_out = self.src
+        else:
+            # Multiplos tons: f_sinal eh lista, amplitudes eh lista
+            self._sources = []
+            for f, a in zip(f_sinal, amplitudes):
+                src = analog.sig_source_f(
+                    SAMP_RATE, analog.GR_COS_WAVE, f, a, 0)
+                self._sources.append(src)
+            self.add_sig = blocks.add_ff()
+            for i, src in enumerate(self._sources):
+                self.connect(src, (self.add_sig, i))
+            signal_out = self.add_sig
+
+        # --- Captura do sinal original (sem decimacao) ---
+        n_orig = n_samples
+        self.head_orig = blocks.head(gr.sizeof_float, n_orig)
+        self.sink_orig = blocks.vector_sink_f()
+        self.connect(signal_out, self.head_orig, self.sink_orig)
+
+        # --- Caminho com decimacao ---
+        n_decim = n_samples // decim
+
+        if use_filter:
+            cutoff = (SAMP_RATE / decim) / 2.0 * 0.9
+            transition = min(200, cutoff * 0.2)
+            taps = firdes.low_pass(1, SAMP_RATE, cutoff, transition)
+            self.lpf = filter.fir_filter_fff(1, taps)
+            self.decim_block = blocks.keep_one_in_n(gr.sizeof_float, decim)
+            self.head_dec = blocks.head(gr.sizeof_float, n_decim)
+            self.sink_dec = blocks.vector_sink_f()
+            self.connect(signal_out, self.lpf, self.decim_block,
+                         self.head_dec, self.sink_dec)
+        else:
+            self.decim_block = blocks.keep_one_in_n(gr.sizeof_float, decim)
+            self.head_dec = blocks.head(gr.sizeof_float, n_decim)
+            self.sink_dec = blocks.vector_sink_f()
+            self.connect(signal_out, self.decim_block,
+                         self.head_dec, self.sink_dec)
+
+
+def capture_decimated(f_sinal, decim, use_filter=False,
+                      n_samples=N_SAMPLES, amplitudes=None):
+    """Captura sinal original e decimado. Retorna (orig, decimated, fs_eff)."""
+    tb = DecimationFlowgraph(f_sinal, decim, use_filter,
+                             n_samples, amplitudes)
+    tb.run()
+    orig = np.array(tb.sink_orig.data())
+    dec = np.array(tb.sink_dec.data())
+    fs_eff = SAMP_RATE / decim
+    return orig, dec, fs_eff
+
+
+# =====================================================================
+# FUNCOES DE ANALISE
+# =====================================================================
+def compute_spectrum(data, fs, fft_size=None, window='hann'):
+    """Retorna (freqs_hz, magnitude_dB) usando a taxa fs."""
+    if fft_size is None:
+        fft_size = min(len(data), 4096)
+    seg = data[-fft_size:]
+    if window == 'hann':
+        w = np.hanning(fft_size)
+    else:
+        w = np.ones(fft_size)
+    X = np.fft.rfft(seg * w)
+    mag = 20 * np.log10(np.abs(X) / fft_size + 1e-12)
+    freqs = np.fft.rfftfreq(fft_size, 1.0 / fs)
+    return freqs, mag
+
+
+def find_peak_freq(data, fs, fft_size=None):
+    """Encontra a frequencia do pico espectral dominante."""
+    freqs, mag = compute_spectrum(data, fs, fft_size)
+    # Ignorar DC (bin 0)
+    mag[0] = -200
+    peak_idx = np.argmax(mag)
+    return freqs[peak_idx], mag[peak_idx]
+
+
+def calc_alias_freq(f_sinal, fs_eff):
+    """Calcula a frequencia aparente apos amostragem a fs_eff.
+    Usa a formula de folding: f_alias = |f_sinal mod fs_eff|,
+    rebatido para [0, fs_eff/2]."""
+    f_mod = f_sinal % fs_eff
+    if f_mod > fs_eff / 2:
+        f_mod = fs_eff - f_mod
+    return f_mod
+
+
+def save_csv(filename, header, rows):
+    """Salva dados em CSV."""
+    path = os.path.join(DATA_DIR, filename)
+    with open(path, 'w', newline='') as f:
+        w = csv.writer(f)
+        w.writerow(header)
+        w.writerows(rows)
+    return path
+
+
+# =====================================================================
+# ESTILO DOS PLOTS
+# =====================================================================
+plt.rcParams.update({
+    'figure.facecolor': 'white',
+    'axes.grid': True,
+    'grid.alpha': 0.3,
+    'font.size': 10,
+})
+
+
+def plot_time_and_spectrum(orig, dec, fs_eff, f_sinal, decim, title,
+                           filename, t_ms=5, markers=None):
+    """Plota 4 subplots: tempo original, espectro original,
+    tempo decimado, espectro decimado."""
+    fig, axes = plt.subplots(2, 2, figsize=(15, 9))
+    ax_to, ax_fo, ax_td, ax_fd = axes.flat
+
+    # --- Sinal original: tempo ---
+    n_pts = int(t_ms * SAMP_RATE / 1000)
+    t_orig = np.arange(min(n_pts, len(orig))) / SAMP_RATE * 1000
+    ax_to.plot(t_orig, orig[:len(t_orig)], linewidth=0.8, color='#1f77b4')
+    ax_to.set_xlabel('Tempo (ms)')
+    ax_to.set_ylabel('Amplitude')
+    ax_to.set_title(f'Original (fs = {SAMP_RATE} Hz)')
+
+    # --- Sinal original: espectro ---
+    freqs_o, mag_o = compute_spectrum(orig, SAMP_RATE)
+    ax_fo.plot(freqs_o, mag_o, linewidth=0.8, color='#1f77b4')
+    ax_fo.set_xlabel(u'Frequencia (Hz)')
+    ax_fo.set_ylabel('Magnitude (dB)')
+    ax_fo.set_title(f'Espectro Original (fs = {SAMP_RATE} Hz)')
+    ax_fo.set_xlim([0, SAMP_RATE / 2])
+
+    # --- Sinal decimado: tempo ---
+    n_pts_d = int(t_ms * fs_eff / 1000)
+    t_dec = np.arange(min(n_pts_d, len(dec))) / fs_eff * 1000
+    ax_td.plot(t_dec, dec[:len(t_dec)], linewidth=0.8, color='#d62728',
+               marker='o', markersize=3)
+    ax_td.set_xlabel('Tempo (ms)')
+    ax_td.set_ylabel('Amplitude')
+    ax_td.set_title(f'Decimado (fs_eff = {fs_eff:.0f} Hz, decim = {decim})')
+
+    # --- Sinal decimado: espectro ---
+    freqs_d, mag_d = compute_spectrum(dec, fs_eff)
+    ax_fd.plot(freqs_d, mag_d, linewidth=0.8, color='#d62728')
+    ax_fd.set_xlabel(u'Frequencia (Hz)')
+    ax_fd.set_ylabel('Magnitude (dB)')
+    ax_fd.set_title(f'Espectro Decimado (fs_eff = {fs_eff:.0f} Hz)')
+    ax_fd.set_xlim([0, fs_eff / 2])
+
+    if markers:
+        colors = ['#2ca02c', '#ff7f0e', '#9467bd', '#8c564b']
+        for i, (mf, label) in enumerate(markers):
+            c = colors[i % len(colors)]
+            if mf <= SAMP_RATE / 2:
+                ax_fo.axvline(mf, color=c, ls='--', alpha=0.6, label=label)
+            alias_f = calc_alias_freq(mf, fs_eff)
+            if alias_f <= fs_eff / 2:
+                ax_fd.axvline(alias_f, color=c, ls='--', alpha=0.6,
+                              label=f'{label} (alias={alias_f:.0f} Hz)')
+        ax_fo.legend(fontsize=8)
+        ax_fd.legend(fontsize=8)
+
+    fig.suptitle(title, fontsize=13, fontweight='bold')
+    plt.tight_layout()
+    path = os.path.join(FIG_DIR, filename)
+    plt.savefig(path, dpi=150, bbox_inches='tight')
+    plt.close()
+    return path
+
+
+# =====================================================================
+# ETAPA 1: Flowgraph base com decimacao
+# =====================================================================
+def etapa1():
+    log("\n" + "=" * 65)
+    log("ETAPA 1: Flowgraph base com decimacao")
+    log("=" * 65)
+
+    f_sinal = 1000
+    decim = 4
+    fs_eff = SAMP_RATE / decim
+
+    log(f"  f_sinal = {f_sinal} Hz, decim = {decim}")
+    log(f"  fs_eff = {fs_eff:.0f} Hz, Nyquist = {fs_eff/2:.0f} Hz")
+    log(f"  {f_sinal} Hz < {fs_eff/2:.0f} Hz (Nyquist) -> SEM aliasing")
+
+    orig, dec, fs_eff = capture_decimated(f_sinal, decim)
+
+    # Verificar pico no sinal decimado
+    peak_f, peak_db = find_peak_freq(dec, fs_eff)
+    log(f"  Pico no sinal decimado: {peak_f:.0f} Hz @ {peak_db:.1f} dB")
+    log(f"  Resultado: {'OK' if abs(peak_f - f_sinal) < 50 else 'FALHA'}")
+
+    plot_time_and_spectrum(
+        orig, dec, fs_eff, f_sinal, decim,
+        f"Etapa 1: Decimacao basica (f={f_sinal} Hz, decim={decim},"
+        f" fs_eff={fs_eff:.0f} Hz)",
+        "etapa1_decimacao_base.png",
+        markers=[(f_sinal, f'{f_sinal} Hz')])
+
+    log(f"  -> etapa1_decimacao_base.png")
+
+
+# =====================================================================
+# ETAPA 2: Tabela de verificacao de Nyquist
+# =====================================================================
+def etapa2():
+    log("\n" + "=" * 65)
+    log("ETAPA 2: Verificacao de Nyquist - 6 cenarios")
+    log("=" * 65)
+
+    scenarios = [
+        ('A', 1000, 4),
+        ('B', 5000, 4),
+        ('C', 7000, 4),
+        ('D', 1000, 10),
+        ('E', 2500, 10),
+        ('F', 3500, 10),
+    ]
+
+    header_fmt = (f"  {'Cen':>3} | {'f_sinal':>7} | {'decim':>5} | "
+                  f"{'fs_eff':>6} | {'Nyquist':>7} | {'Nyquist?':>8} | "
+                  f"{'f_esperada':>10} | {'f_observada':>11} | {'Erro':>6}")
+    log(header_fmt)
+    log(f"  {'-'*3}-+-{'-'*7}-+-{'-'*5}-+-{'-'*6}-+-{'-'*7}-+-"
+        f"{'-'*8}-+-{'-'*10}-+-{'-'*11}-+-{'-'*6}")
+
+    csv_rows = []
+
+    fig, axes = plt.subplots(3, 2, figsize=(16, 14))
+
+    for idx, (name, f_sinal, decim) in enumerate(scenarios):
+        fs_eff = SAMP_RATE / decim
+        nyquist = fs_eff / 2
+        nyquist_ok = f_sinal < nyquist
+
+        # Frequencia esperada apos amostragem
+        f_esperada = calc_alias_freq(f_sinal, fs_eff)
+
+        orig, dec, fs_eff = capture_decimated(f_sinal, decim)
+        f_observada, peak_db = find_peak_freq(dec, fs_eff)
+        erro = abs(f_observada - f_esperada)
+
+        status = "Sim" if nyquist_ok else "Nao (alias)"
+        log(f"  {name:>3} | {f_sinal:>7} | {decim:>5} | "
+            f"{fs_eff:>6.0f} | {nyquist:>7.0f} | {status:>8} | "
+            f"{f_esperada:>10.0f} | {f_observada:>11.0f} | {erro:>6.0f}")
+
+        csv_rows.append([name, f_sinal, decim, f"{fs_eff:.0f}",
+                         f"{nyquist:.0f}", status,
+                         f"{f_esperada:.0f}", f"{f_observada:.0f}",
+                         f"{erro:.0f}"])
+
+        # Plot do espectro decimado
+        ax = axes.flat[idx]
+        freqs_d, mag_d = compute_spectrum(dec, fs_eff)
+        ax.plot(freqs_d, mag_d, linewidth=0.8)
+        ax.axvline(f_esperada, color='r', ls='--', alpha=0.6,
+                   label=f'f_esperada = {f_esperada:.0f} Hz')
+        ax.set_xlim([0, fs_eff / 2])
+        ax.set_xlabel(u'Frequencia (Hz)')
+        ax.set_ylabel('Magnitude (dB)')
+        alias_label = "" if nyquist_ok else " [ALIAS]"
+        ax.set_title(f'Cenario {name}: f={f_sinal} Hz, decim={decim}, '
+                     f'fs_eff={fs_eff:.0f} Hz{alias_label}')
+        ax.legend(fontsize=8)
+
+    plt.suptitle(u"Etapa 2: Verificacao de Nyquist - Espectros Decimados",
+                 fontsize=13, fontweight='bold')
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIG_DIR, "etapa2_nyquist_cenarios.png"),
+                dpi=150, bbox_inches='tight')
+    plt.close()
+
+    save_csv("etapa2_nyquist_verificacao.csv",
+             ["cenario", "f_sinal_Hz", "decim", "fs_eff_Hz",
+              "nyquist_Hz", "nyquist_ok", "f_esperada_Hz",
+              "f_observada_Hz", "erro_Hz"],
+             csv_rows)
+
+    log(f"\n  -> etapa2_nyquist_cenarios.png")
+    log(f"  -> dados/etapa2_nyquist_verificacao.csv")
+
+    # Gerar figuras individuais com tempo + espectro para cada cenario
+    for name, f_sinal, decim in scenarios:
+        fs_eff = SAMP_RATE / decim
+        orig, dec, fs_eff = capture_decimated(f_sinal, decim)
+        plot_time_and_spectrum(
+            orig, dec, fs_eff, f_sinal, decim,
+            f"Cenario {name}: f={f_sinal} Hz, decim={decim}, "
+            f"fs_eff={fs_eff:.0f} Hz",
+            f"etapa2_cenario_{name}.png",
+            markers=[(f_sinal, f'f = {f_sinal} Hz')])
+        log(f"  -> etapa2_cenario_{name}.png")
+
+
+# =====================================================================
+# ETAPA 3: Calculo da frequencia de alias
+# =====================================================================
+def etapa3():
+    log("\n" + "=" * 65)
+    log("ETAPA 3: Calculo da frequencia de alias")
+    log("=" * 65)
+
+    alias_scenarios = [
+        ('C', 7000, 4),
+        ('E', 2500, 10),
+        ('F', 3500, 10),
+    ]
+
+    log(f"\n  Cenarios com aliasing:")
+    log(f"  {'Cen':>3} | {'f_sinal':>7} | {'fs_eff':>6} | "
+        f"{'Nyquist':>7} | {'f_alias (calc)':>14} | {'f_alias (obs)':>13}")
+    log(f"  {'-'*3}-+-{'-'*7}-+-{'-'*6}-+-{'-'*7}-+-{'-'*14}-+-{'-'*13}")
+
+    csv_rows = []
+
+    fig, axes = plt.subplots(len(alias_scenarios), 2, figsize=(16, 12))
+
+    for idx, (name, f_sinal, decim) in enumerate(alias_scenarios):
+        fs_eff = SAMP_RATE / decim
+        nyquist = fs_eff / 2
+
+        # Calculo analitico do alias
+        f_alias_calc = calc_alias_freq(f_sinal, fs_eff)
+
+        orig, dec, fs_eff = capture_decimated(f_sinal, decim)
+        f_alias_obs, _ = find_peak_freq(dec, fs_eff)
+
+        log(f"  {name:>3} | {f_sinal:>7} | {fs_eff:>6.0f} | "
+            f"{nyquist:>7.0f} | {f_alias_calc:>14.0f} | "
+            f"{f_alias_obs:>13.0f}")
+
+        csv_rows.append([name, f_sinal, f"{fs_eff:.0f}",
+                         f"{f_alias_calc:.0f}", f"{f_alias_obs:.0f}"])
+
+        # Espectro original
+        ax_o = axes[idx, 0]
+        freqs_o, mag_o = compute_spectrum(orig, SAMP_RATE)
+        ax_o.plot(freqs_o, mag_o, linewidth=0.8, color='#1f77b4')
+        ax_o.axvline(f_sinal, color='r', ls='--', alpha=0.6,
+                     label=f'f = {f_sinal} Hz')
+        ax_o.axvline(nyquist, color='orange', ls=':', alpha=0.6,
+                     label=f'Nyquist = {nyquist:.0f} Hz')
+        ax_o.set_xlim([0, SAMP_RATE / 2])
+        ax_o.set_xlabel(u'Frequencia (Hz)')
+        ax_o.set_ylabel('Magnitude (dB)')
+        ax_o.set_title(f'Cenario {name} - Original (fs = {SAMP_RATE} Hz)')
+        ax_o.legend(fontsize=8)
+
+        # Espectro decimado
+        ax_d = axes[idx, 1]
+        freqs_d, mag_d = compute_spectrum(dec, fs_eff)
+        ax_d.plot(freqs_d, mag_d, linewidth=0.8, color='#d62728')
+        ax_d.axvline(f_alias_calc, color='g', ls='--', alpha=0.6,
+                     label=f'f_alias = {f_alias_calc:.0f} Hz')
+        ax_d.set_xlim([0, fs_eff / 2])
+        ax_d.set_xlabel(u'Frequencia (Hz)')
+        ax_d.set_ylabel('Magnitude (dB)')
+        ax_d.set_title(f'Cenario {name} - Decimado '
+                       f'(fs_eff = {fs_eff:.0f} Hz)')
+        ax_d.legend(fontsize=8)
+
+    plt.suptitle(u"Etapa 3: Frequencias de Alias - Antes e Depois da "
+                 u"Decimacao",
+                 fontsize=13, fontweight='bold')
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIG_DIR, "etapa3_alias_frequencias.png"),
+                dpi=150, bbox_inches='tight')
+    plt.close()
+
+    save_csv("etapa3_alias_frequencias.csv",
+             ["cenario", "f_sinal_Hz", "fs_eff_Hz",
+              "f_alias_calculada_Hz", "f_alias_observada_Hz"],
+             csv_rows)
+
+    log(f"\n  Calculo analitico:")
+    log(f"    C: f=7000, fs_eff=12000. f_alias = fs_eff - f = "
+        f"12000 - 7000 = 5000 Hz")
+    log(f"    E: f=2500, fs_eff=4800.  f_alias = fs_eff - f = "
+        f"4800 - 2500  = 2300 Hz")
+    log(f"    F: f=3500, fs_eff=4800.  f_alias = fs_eff - f = "
+        f"4800 - 3500  = 1300 Hz")
+    log(f"\n  -> etapa3_alias_frequencias.png")
+    log(f"  -> dados/etapa3_alias_frequencias.csv")
+
+
+# =====================================================================
+# ETAPA 4: Filtro anti-aliasing
+# =====================================================================
+def etapa4():
+    log("\n" + "=" * 65)
+    log("ETAPA 4: Filtro anti-aliasing (LPF antes da decimacao)")
+    log("=" * 65)
+
+    test_cases = [
+        ('C', 7000, 4,
+         "f=7000 Hz atenuado pelo LPF (fc=5400 Hz). Alias eliminado."),
+        ('E', 2500, 10,
+         "f=2500 Hz ~ Nyquist (2400 Hz). LPF atenua o proprio sinal!"),
+    ]
+
+    fig, axes = plt.subplots(len(test_cases), 3, figsize=(18, 10))
+
+    for idx, (name, f_sinal, decim, descr) in enumerate(test_cases):
+        fs_eff = SAMP_RATE / decim
+        nyquist = fs_eff / 2
+        cutoff = nyquist * 0.9
+
+        log(f"\n  Cenario {name}: f={f_sinal} Hz, decim={decim}, "
+            f"fs_eff={fs_eff:.0f} Hz")
+        log(f"    LPF cutoff = {cutoff:.0f} Hz "
+            f"(0.9 x Nyquist = 0.9 x {nyquist:.0f})")
+
+        # Sem filtro
+        _, dec_nofilt, _ = capture_decimated(f_sinal, decim,
+                                             use_filter=False)
+        f_peak_nofilt, _ = find_peak_freq(dec_nofilt, fs_eff)
+
+        # Com filtro
+        _, dec_filt, _ = capture_decimated(f_sinal, decim,
+                                           use_filter=True)
+        f_peak_filt, peak_db_filt = find_peak_freq(dec_filt, fs_eff)
+
+        log(f"    Sem filtro: pico em {f_peak_nofilt:.0f} Hz")
+        log(f"    Com filtro: pico em {f_peak_filt:.0f} Hz "
+            f"@ {peak_db_filt:.1f} dB")
+        log(f"    Interpretacao: {descr}")
+
+        # --- Plots ---
+        # Espectro original
+        orig, _, _ = capture_decimated(f_sinal, decim, use_filter=False)
+        freqs_o, mag_o = compute_spectrum(orig, SAMP_RATE)
+        ax0 = axes[idx, 0]
+        ax0.plot(freqs_o, mag_o, linewidth=0.8, color='#1f77b4')
+        ax0.axvline(f_sinal, color='r', ls='--', alpha=0.6,
+                    label=f'f = {f_sinal} Hz')
+        ax0.axvline(cutoff, color='orange', ls=':', alpha=0.6,
+                    label=f'LPF cutoff = {cutoff:.0f} Hz')
+        ax0.set_xlim([0, min(f_sinal * 2, SAMP_RATE / 2)])
+        ax0.set_title(f'Cen. {name} - Original')
+        ax0.set_xlabel(u'Frequencia (Hz)')
+        ax0.set_ylabel('dB')
+        ax0.legend(fontsize=8)
+
+        # Espectro decimado SEM filtro
+        freqs_d, mag_d = compute_spectrum(dec_nofilt, fs_eff)
+        ax1 = axes[idx, 1]
+        ax1.plot(freqs_d, mag_d, linewidth=0.8, color='#d62728')
+        ax1.set_xlim([0, fs_eff / 2])
+        ax1.set_title(f'Cen. {name} - Decimado SEM filtro')
+        ax1.set_xlabel(u'Frequencia (Hz)')
+        ax1.set_ylabel('dB')
+
+        # Espectro decimado COM filtro
+        freqs_df, mag_df = compute_spectrum(dec_filt, fs_eff)
+        ax2 = axes[idx, 2]
+        ax2.plot(freqs_df, mag_df, linewidth=0.8, color='#2ca02c')
+        ax2.set_xlim([0, fs_eff / 2])
+        ax2.set_title(f'Cen. {name} - Decimado COM filtro AA')
+        ax2.set_xlabel(u'Frequencia (Hz)')
+        ax2.set_ylabel('dB')
+
+    plt.suptitle(u"Etapa 4: Efeito do Filtro Anti-Aliasing",
+                 fontsize=13, fontweight='bold')
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIG_DIR, "etapa4_filtro_anti_aliasing.png"),
+                dpi=150, bbox_inches='tight')
+    plt.close()
+
+    log(f"\n  -> etapa4_filtro_anti_aliasing.png")
+    log(f"\n  Resposta Q4:")
+    log(f"    Cenario C (f=7000, fs_eff=12000): o LPF com fc=5400 Hz")
+    log(f"    atenua o sinal em 7000 Hz antes da decimacao, eliminando")
+    log(f"    o alias em 5000 Hz.")
+    log(f"    Cenario E (f=2500, fs_eff=4800): o LPF com fc=2160 Hz")
+    log(f"    atenua o proprio sinal em 2500 Hz, pois ele esta acima")
+    log(f"    do cutoff. O sinal desaparece (ou fica muito atenuado).")
+
+
+# =====================================================================
+# ETAPA 5: Aliasing com multiplos tons
+# =====================================================================
+def etapa5():
+    log("\n" + "=" * 65)
+    log("ETAPA 5: Aliasing com multiplos tons")
+    log("=" * 65)
+
+    f1, f2 = 1000, 7000
+    decim = 4
+    fs_eff = SAMP_RATE / decim
+    nyquist = fs_eff / 2
+
+    log(f"  Dois tons: f1={f1} Hz + f2={f2} Hz")
+    log(f"  decim={decim}, fs_eff={fs_eff:.0f} Hz, "
+        f"Nyquist={nyquist:.0f} Hz")
+    log(f"  f1={f1} Hz < {nyquist:.0f} Hz -> preservado")
+    log(f"  f2={f2} Hz > {nyquist:.0f} Hz -> alias em "
+        f"{calc_alias_freq(f2, fs_eff):.0f} Hz")
+
+    fig, axes = plt.subplots(2, 2, figsize=(16, 10))
+
+    # --- Sem filtro ---
+    orig_nf, dec_nf, _ = capture_decimated(
+        [f1, f2], decim, use_filter=False,
+        amplitudes=[1.0, 1.0])
+
+    # Espectro original
+    freqs_o, mag_o = compute_spectrum(orig_nf, SAMP_RATE)
+    axes[0, 0].plot(freqs_o, mag_o, linewidth=0.8, color='#1f77b4')
+    axes[0, 0].axvline(f1, color='r', ls='--', alpha=0.6,
+                       label=f'f1 = {f1} Hz')
+    axes[0, 0].axvline(f2, color='g', ls='--', alpha=0.6,
+                       label=f'f2 = {f2} Hz')
+    axes[0, 0].axvline(nyquist, color='orange', ls=':', alpha=0.6,
+                       label=f'Nyquist = {nyquist:.0f} Hz')
+    axes[0, 0].set_xlim([0, SAMP_RATE / 2])
+    axes[0, 0].set_title('Original (ambos os tons)')
+    axes[0, 0].set_xlabel(u'Frequencia (Hz)')
+    axes[0, 0].set_ylabel('dB')
+    axes[0, 0].legend(fontsize=8)
+
+    # Espectro decimado SEM filtro
+    freqs_d, mag_d = compute_spectrum(dec_nf, fs_eff)
+    f_alias_f2 = calc_alias_freq(f2, fs_eff)
+    axes[0, 1].plot(freqs_d, mag_d, linewidth=0.8, color='#d62728')
+    axes[0, 1].axvline(f1, color='r', ls='--', alpha=0.6,
+                       label=f'f1 = {f1} Hz (preservado)')
+    axes[0, 1].axvline(f_alias_f2, color='g', ls='--', alpha=0.6,
+                       label=f'f2 alias = {f_alias_f2:.0f} Hz')
+    axes[0, 1].set_xlim([0, fs_eff / 2])
+    axes[0, 1].set_title('Decimado SEM filtro AA')
+    axes[0, 1].set_xlabel(u'Frequencia (Hz)')
+    axes[0, 1].set_ylabel('dB')
+    axes[0, 1].legend(fontsize=8)
+
+    log(f"\n  SEM filtro AA:")
+    # Encontrar picos
+    freqs_d, mag_d = compute_spectrum(dec_nf, fs_eff)
+    mag_d_copy = mag_d.copy()
+    mag_d_copy[0] = -200
+    peaks_idx, _ = find_peaks(mag_d_copy, height=-30, distance=5)
+    peaks_sorted = sorted(peaks_idx, key=lambda i: mag_d_copy[i],
+                          reverse=True)
+    for pi in peaks_sorted[:4]:
+        log(f"    Pico em {freqs_d[pi]:.0f} Hz @ {mag_d[pi]:.1f} dB")
+
+    # --- Com filtro ---
+    orig_f, dec_f, _ = capture_decimated(
+        [f1, f2], decim, use_filter=True,
+        amplitudes=[1.0, 1.0])
+
+    # Espectro original com indicacao do filtro
+    cutoff = nyquist * 0.9
+    freqs_of, mag_of = compute_spectrum(orig_f, SAMP_RATE)
+    axes[1, 0].plot(freqs_of, mag_of, linewidth=0.8, color='#1f77b4')
+    axes[1, 0].axvline(f1, color='r', ls='--', alpha=0.6,
+                       label=f'f1 = {f1} Hz')
+    axes[1, 0].axvline(f2, color='g', ls='--', alpha=0.6,
+                       label=f'f2 = {f2} Hz')
+    axes[1, 0].axvline(cutoff, color='purple', ls=':', alpha=0.6,
+                       label=f'LPF cutoff = {cutoff:.0f} Hz')
+    axes[1, 0].set_xlim([0, SAMP_RATE / 2])
+    axes[1, 0].set_title('Original (com indicacao do LPF)')
+    axes[1, 0].set_xlabel(u'Frequencia (Hz)')
+    axes[1, 0].set_ylabel('dB')
+    axes[1, 0].legend(fontsize=8)
+
+    # Espectro decimado COM filtro
+    freqs_df, mag_df = compute_spectrum(dec_f, fs_eff)
+    axes[1, 1].plot(freqs_df, mag_df, linewidth=0.8, color='#2ca02c')
+    axes[1, 1].axvline(f1, color='r', ls='--', alpha=0.6,
+                       label=f'f1 = {f1} Hz (preservado)')
+    axes[1, 1].set_xlim([0, fs_eff / 2])
+    axes[1, 1].set_title('Decimado COM filtro AA')
+    axes[1, 1].set_xlabel(u'Frequencia (Hz)')
+    axes[1, 1].set_ylabel('dB')
+    axes[1, 1].legend(fontsize=8)
+
+    log(f"\n  COM filtro AA (cutoff = {cutoff:.0f} Hz):")
+    mag_df_copy = mag_df.copy()
+    mag_df_copy[0] = -200
+    peaks_idx_f, _ = find_peaks(mag_df_copy, height=-30, distance=5)
+    peaks_sorted_f = sorted(peaks_idx_f, key=lambda i: mag_df_copy[i],
+                            reverse=True)
+    for pi in peaks_sorted_f[:4]:
+        log(f"    Pico em {freqs_df[pi]:.0f} Hz @ {mag_df[pi]:.1f} dB")
+
+    if len(peaks_sorted_f) == 0:
+        log(f"    Apenas f1 = {f1} Hz preservado; f2 = {f2} Hz "
+            f"totalmente eliminado pelo LPF.")
+
+    plt.suptitle(u"Etapa 5: Aliasing com Multiplos Tons "
+                 u"(f1=1000 Hz + f2=7000 Hz, decim=4)",
+                 fontsize=13, fontweight='bold')
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIG_DIR, "etapa5_multiplos_tons.png"),
+                dpi=150, bbox_inches='tight')
+    plt.close()
+
+    log(f"\n  -> etapa5_multiplos_tons.png")
+    log(f"\n  Resultado:")
+    log(f"    Sem filtro: ambos os tons aparecem no espectro decimado.")
+    log(f"    f1=1000 Hz preservado, f2=7000 Hz aparece como alias "
+        f"em {f_alias_f2:.0f} Hz.")
+    log(f"    Os dois picos sao indistinguiveis de dois tons reais.")
+    log(f"    Com filtro AA: f2=7000 Hz eh atenuado pelo LPF antes da")
+    log(f"    decimacao. Apenas f1=1000 Hz aparece no espectro.")
+
+
+# =====================================================================
+# RESPOSTAS
+# =====================================================================
+def respostas():
+    log("\n" + "=" * 65)
+    log("RESPOSTAS ESPERADAS")
+    log("=" * 65)
+
+    log(f"\n  Q1: Cenarios A, B, D satisfazem Nyquist (f < fs/2).")
+    log(f"      Cenarios C, E, F violam. As frequencias de alias")
+    log(f"      observadas correspondem ao calculo analitico:")
+    log(f"      f_alias = fs_eff - f_sinal (quando f_sinal < fs_eff).")
+
+    log(f"\n  Q2: No dominio do tempo, o sinal com alias aparece como")
+    log(f"      uma frequencia mais baixa. Um sinal de 7000 Hz")
+    log(f"      amostrado a 12000 Hz parece um sinal de 5000 Hz.")
+    log(f"      As amostras sao identicas nos dois casos.")
+
+    log(f"\n  Q3: Apos a subamostragem, um sinal real em f1 e um")
+    log(f"      alias em f1 sao indistinguiveis. Sem conhecimento")
+    log(f"      previo do sinal original, nao ha como diferencia-los.")
+
+    log(f"\n  Q4: O filtro anti-aliasing funciona para o cenario C")
+    log(f"      (atenua 7000 Hz antes da decimacao por 4).")
+    log(f"      Para o cenario E, o sinal em 2500 Hz esta muito")
+    log(f"      proximo do Nyquist (2400 Hz), e o LPF atenua o")
+    log(f"      proprio sinal.")
+
+    log(f"\n  Q5: Keep 1 in N simplesmente descarta amostras (sem")
+    log(f"      filtragem analogica). Um ADC real tem sample-and-hold.")
+    log(f"      Na pratica, um filtro anti-aliasing analogico eh")
+    log(f"      necessario antes do ADC para evitar aliasing.")
+
+
+# =====================================================================
+# MAIN
+# =====================================================================
+if __name__ == '__main__':
+    log("=" * 65)
+    log(u"PRATICA 08 -- AMOSTRAGEM E ALIASING (NYQUIST-SHANNON)")
+    log("GABARITO DO PROFESSOR")
+    log(f"Data: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    log(f"GNU Radio: {gr.version()}")
+    log(f"Sample Rate: {SAMP_RATE} Hz | Amostras: {N_SAMPLES}")
+    log(f"Saida: {BASE_DIR}")
+    log("=" * 65)
+
+    etapa1()
+    etapa2()
+    etapa3()
+    etapa4()
+    etapa5()
+    respostas()
+
+    log("\n" + "=" * 65)
+    log("GABARITO COMPLETO GERADO COM SUCESSO")
+    log("=" * 65)
+
+    # Salvar relatorio em texto
+    report_path = os.path.join(BASE_DIR, "relatorio.txt")
+    with open(report_path, 'w') as f:
+        f.write('\n'.join(relatorio))
+    print(f"\nRelatorio salvo em: {report_path}")

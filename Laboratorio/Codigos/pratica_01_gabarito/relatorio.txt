@@ -1,0 +1,123 @@
+=================================================================
+PRÁTICA 01 — FFT E ANÁLISE ESPECTRAL
+GABARITO DO PROFESSOR
+Data: 2026-03-19 22:29
+GNU Radio: 3.10.12.0
+Sample Rate: 32000 Hz | Amostras: 32768
+Saída: /home/daniel/Documentos/UnB/Aulas/curso_pricom/Laboratorio/Codigos/pratica_01_gabarito
+=================================================================
+
+=================================================================
+ETAPA 1: Configuração inicial — Tom único 1 kHz
+=================================================================
+  Pico: 1000 Hz @ -12.0 dB
+  Resultado: OK
+  -> etapa1_tom_1kHz.png
+
+=================================================================
+ETAPA 2: Variação de frequência do tom único
+=================================================================
+  f=  500 Hz → pico=   500 Hz (bin k= 16) @ -12.0 dB
+  f= 1000 Hz → pico=  1000 Hz (bin k= 32) @ -12.0 dB
+  f= 2000 Hz → pico=  2000 Hz (bin k= 64) @ -12.0 dB
+  f= 4000 Hz → pico=  4000 Hz (bin k=128) @ -12.0 dB
+  -> etapa2_variacao_freq.png
+  -> dados/etapa2_freq_vs_bin.csv
+
+  Resposta Q1: f_k = k·f_s/N. Cada frequência aparece exatamente no bin correspondente.
+
+=================================================================
+ETAPA 3: Sinal com dois tons (1000 Hz + 2500 Hz)
+=================================================================
+  Tom 1 (1000 Hz, A=1.0): -12.0 dB
+  Tom 2 (2500 Hz, A=0.5): -18.1 dB
+  Diferença: 6.0 dB (esperado: ~6.0 dB)
+  -> etapa3_dois_tons.png
+
+  Resposta Q3: Sim, superposição linear. DFT é linear,
+  logo X[k] = X1[k] + X2[k]. Não há intermodulação.
+
+=================================================================
+ETAPA 4: Resolução espectral — efeito do FFT size
+=================================================================
+
+  Tons em 1000 Hz e 1200 Hz (Δ=200 Hz):
+       N |  Δf (Hz) |   Separados?
+  -------+----------+-------------
+     256 |    125.0 |          Não
+     512 |     62.5 |          Sim
+    1024 |     31.2 |          Sim
+    2048 |     15.6 |          Sim
+    4096 |      7.8 |          Sim
+
+  -> etapa4_resolucao_fft.png
+  -> dados/etapa4_resolucao.csv
+
+  Resposta Q2: Para separar tons com Δ=100 Hz:
+    Δf = f_s/N ≤ 100  →  N ≥ 32000/100 = 320
+    Menor potência de 2: N = 512 (Δf = 62.5 Hz)
+
+=================================================================
+ETAPA 5: Efeito do ruído gaussiano
+=================================================================
+
+    noise |  Piso(dB) |  SNR₁(dB)       Tom1 |  SNR₂(dB)       Tom2
+  --------+-----------+----------------------+---------------------
+      0.0 |     -80.0 |      68.0    visível |      61.9    visível
+      0.5 |     -42.2 |      30.0    visível |      23.1    visível
+      1.0 |     -36.2 |      23.9    visível |      16.0    visível
+      2.0 |     -30.1 |      17.7    visível |       7.6    visível
+      5.0 |     -22.2 |       9.2    visível |      -0.9  MASCARADO
+     10.0 |     -16.2 |       2.3  MASCARADO |       2.4  MASCARADO
+
+  -> etapa5_ruido.png
+  -> dados/etapa5_ruido.csv
+
+  Resposta Q4: O piso de ruído sobe uniformemente.
+  O tom de menor amplitude (A=0.5) é mascarado primeiro.
+  Critério mínimo: SNR ≈ 0-3 dB para detecção visual.
+
+=================================================================
+ETAPA 6: Funções de janela e vazamento espectral
+=================================================================
+
+  Tom em 1050 Hz (off-bin, maximiza vazamento):
+              Janela |  Pico(dB) |  Larg -3dB(Hz) |  Supressão(dB)
+  -------------------+-----------+----------------+---------------
+         Rectangular |      -8.4 |             31 |           27.3
+                Hann |     -13.0 |             62 |           68.2
+             Hamming |     -12.5 |             62 |           45.8
+     Blackman-Harris |     -14.3 |             62 |           76.3
+
+  -> etapa6_janelas.png
+  -> dados/etapa6_janelas.csv
+
+  Resposta Q5:
+  - Rectangular: pico mais alto, mas lóbulos laterais elevados (vazamento).
+  - Hann: pico ~6 dB menor, mas lóbulos laterais muito mais baixos.
+  - Blackman-Harris: maior supressão de lóbulos, pico ligeiramente menor.
+  Tradeoff: resolução em amplitude vs. vazamento espectral.
+
+=================================================================
+TABELA DE PARÂMETROS — 3 CENÁRIOS DE REFERÊNCIA
+=================================================================
+  Parâmetro              |    Cenário A |    Cenário B |    Cenário C
+  -----------------------+--------------+--------------+-------------
+  f₁ (Hz)                |         1000 |         1000 |         1000
+  f₂ (Hz)                |            — |         2500 |         2500
+  A₁                     |          1.0 |          1.0 |          1.0
+  A₂                     |            — |          0.5 |          0.5
+  samp_rate (Hz)         |        32000 |        32000 |        32000
+  FFT Size               |         1024 |         1024 |         1024
+  noise_amp              |            0 |            0 |          5.0
+  Janela                 |         Hann |         Hann |         Hann
+
+  -> cenario_A_tom_unico.png
+
+  -> cenario_B_dois_tons.png
+
+  -> cenario_C_dois_tons_ruido.png
+
+=================================================================
+GABARITO COMPLETO GERADO COM SUCESSO
+=================================================================

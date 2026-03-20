@@ -21,7 +21,25 @@
       "Bash(grcc exemplo_01_senoide.grc)",
       "Bash(grcc exemplo_02_slider.grc)",
       "Bash(grcc exemplo_03_soma_sinais.grc)",
-      "Read(//usr/share/gnuradio/grc/blocks/**)"
+      "Read(//usr/share/gnuradio/grc/blocks/**)",
+      "Bash(python3 -c \"import gnuradio; print\\(gnuradio.gr.version\\(\\)\\)\")",
+      "Bash(gnuradio-companion --version)",
+      "Bash(python3 -c \"from gnuradio import gr; print\\(gr.version\\(\\)\\)\")",
+      "Bash(dpkg -l)",
+      "Bash(pip3 list:*)",
+      "Bash(/usr/bin/python3 -c \"from gnuradio import gr; print\\(gr.version\\(\\)\\)\")",
+      "Bash(/usr/bin/python3 -c \"import scipy; print\\(scipy.__version__\\)\")",
+      "Bash(/usr/bin/python3 -c \"import matplotlib; print\\(matplotlib.__version__\\)\")",
+      "Bash(/usr/bin/python3 pratica_01_validacao.py)",
+      "Read(//home/daniel/**)",
+      "Read(//tmp/**)",
+      "Bash(/usr/bin/python3 pratica_01_gabarito.py)",
+      "Bash(/usr/bin/python3 pratica_02_gabarito.py)",
+      "Bash(/usr/bin/python3 -c \":*)",
+      "Bash(/usr/bin/python3 pratica_03_gabarito.py)",
+      "Bash(/usr/bin/python3 pratica_04_gabarito.py)",
+      "Bash(/usr/bin/python3 pratica_05_gabarito.py)",
+      "Bash(/usr/bin/python3 pratica_07_gabarito.py)"
     ]
   }
 }

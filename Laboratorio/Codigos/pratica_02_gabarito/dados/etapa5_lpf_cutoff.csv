@@ -1,0 +1,6 @@
+fator_corte,cutoff_Hz,amp_saida,qualidade
+0.5xfm,250.0,0.0001,Atenuado
+1.0xfm,500.0,0.2502,Limiar
+1.5xfm,750.0,0.4999,Bom
+2.0xfm,1000.0,0.4999,Bom
+3.0xfm,1500.0,0.5000,Bom

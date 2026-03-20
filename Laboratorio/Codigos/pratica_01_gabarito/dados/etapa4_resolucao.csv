@@ -1,0 +1,6 @@
+FFT_Size_N,Delta_f_Hz,Picos_Separados
+256,125.0,Não
+512,62.5,Sim
+1024,31.2,Sim
+2048,15.6,Sim
+4096,7.8,Sim

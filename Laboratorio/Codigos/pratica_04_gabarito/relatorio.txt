@@ -1,0 +1,124 @@
+=================================================================
+PRATICA 04 -- MODULACAO SSB (SINGLE SIDEBAND)
+GABARITO DO PROFESSOR
+Data: 2026-03-19 22:40
+GNU Radio: 3.10.12.0
+Sample Rate: 48000 Hz | Amostras: 48000
+Portadora: fc = 5000 Hz | Mensagem: fm = 500 Hz
+Saida: /home/daniel/Documentos/UnB/Aulas/curso_pricom/Laboratorio/Codigos/pratica_04_gabarito
+=================================================================
+
+=================================================================
+ETAPA 1: Geracao DSB-SC e identificacao das bandas laterais
+=================================================================
+  Portadora: fc = 5000 Hz
+  Mensagem:  fm = 500 Hz
+  USB esperada: fc + fm = 5500 Hz
+  LSB esperada: fc - fm = 4500 Hz
+
+  Picos encontrados:
+    4500 Hz @ -18.1 dB
+    5496 Hz @ -18.7 dB
+
+  USB (5500 Hz): -18.7 dB
+  LSB (4500 Hz): -18.1 dB
+
+  Resposta Q1: A USB aparece em fc+fm = 5500 Hz e a LSB em fc-fm = 4500 Hz.
+  Sao identificadas pela posicao relativa a portadora: acima (USB) ou abaixo (LSB).
+  -> etapa1_dsb_sc.png
+
+=================================================================
+ETAPA 2: Filtragem USB (SSB-USB)
+=================================================================
+  BPF: 5000 Hz - 6000 Hz (transicao = 200 Hz)
+
+  Picos encontrados apos filtragem USB:
+    5496 Hz @ -18.7 dB
+
+  USB (5500 Hz): -18.7 dB
+  LSB (4500 Hz): -81.1 dB (suprimida)
+  Supressao da LSB: 62.4 dB
+  -> etapa2_ssb_usb.png
+
+=================================================================
+ETAPA 3: Filtragem LSB (SSB-LSB)
+=================================================================
+  BPF: 4000 Hz - 5000 Hz (transicao = 200 Hz)
+
+  Picos encontrados apos filtragem LSB:
+    4500 Hz @ -18.1 dB
+
+  LSB (4500 Hz): -18.1 dB
+  USB (5500 Hz): -81.7 dB (suprimida)
+  Supressao da USB: 63.6 dB
+  -> etapa3_ssb_lsb.png
+
+=================================================================
+ETAPA 4: Demodulacao SSB coerente
+=================================================================
+
+  Demodulando SSB-USB: s(t) * 2cos(2*pi*fc*t) -> LPF
+  Demodulando SSB-LSB: s(t) * 2cos(2*pi*fc*t) -> LPF
+
+  Picos na demodulada USB:
+    504 Hz @ -18.8 dB
+
+  Picos na demodulada LSB:
+    504 Hz @ -18.8 dB
+
+  Correlacao USB vs original: 0.7075
+  Correlacao LSB vs original: 0.8664
+  -> etapa4_demodulacao.png
+
+=================================================================
+ETAPA 5: Tabela comparativa DSB-SC vs SSB-USB vs SSB-LSB
+=================================================================
+
+  Parametro              |         DSB-SC |        SSB-USB |        SSB-LSB
+  -----------------------+----------------+----------------+---------------
+  Num. picos             |              2 |              1 |              1
+  Frequencias (Hz)       |     4500, 5496 |           5496 |           4500
+  Largura de banda (Hz)  |            996 |            500 |            500
+  Amplitudes (dB)        |   -18.1, -18.7 |          -18.7 |          -18.1
+  B = W (teoria)         |    2*fm = 1000 |       fm = 500 |       fm = 500
+
+  Resposta Q2: B_SSB = W = fm = 500 Hz; B_DSB = 2W = 2*fm = 1000 Hz.
+  SSB reduz a largura de banda pela metade.
+
+  Resposta Q3:
+    Vantagens SSB: eficiencia de banda, economia de potencia.
+    Desvantagens: receptor mais complexo, necessita deteccao coerente.
+
+  Resposta Q4: SSB e menos sensivel a erros de fase que DSB-SC.
+    Em DSB-SC, erro de 90 graus anula completamente o sinal.
+    Em SSB, erro de fase causa apenas distorcao, nao anulamento.
+  -> dados/etapa5_comparacao.csv
+  -> etapa5_comparacao.png
+
+=================================================================
+ETAPA 6: Geracao SSB via transformada de Hilbert (opcional)
+=================================================================
+
+  Metodo Hilbert:
+    s_USB(t) = m(t)cos(2*pi*fc*t) - m_hat(t)sin(2*pi*fc*t)
+    m_hat(t) = Hilbert[m(t)] via scipy.signal.hilbert
+
+  Picos SSB-USB (Hilbert):
+    5496 Hz @ -12.7 dB
+
+  Picos SSB-USB (Filtro):
+    5496 Hz @ -18.7 dB
+
+  Supressao LSB (Hilbert): 126.8 dB
+  Supressao LSB (Filtro):  62.4 dB
+
+  Resposta Q5:
+    Metodo por filtro: mais simples de implementar, mas limitado pela seletividade do filtro.
+    Metodo por Hilbert: teoricamente exato (supressao total da banda indesejada),
+    mas computacionalmente mais pesado e requer processamento em bloco.
+  -> etapa6_hilbert_vs_filtro.png
+  -> etapa6_ssb_lsb_hilbert.png
+
+=================================================================
+GABARITO COMPLETO GERADO COM SUCESSO
+=================================================================

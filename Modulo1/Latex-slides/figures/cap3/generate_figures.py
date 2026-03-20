@@ -139,6 +139,67 @@ def fig_sinc_rect_duality():
 
 
 # ====================================================================
+# 2b. Comparação Rect vs Tri (tempo e frequência)
+# ====================================================================
+def fig_rect_vs_tri():
+    T = 1.0  # mesmo período de símbolo
+    t = np.linspace(-2, 2, 2000)
+    w = np.linspace(-40, 40, 4000)
+
+    # Pulso retangular de duração T
+    rect = np.where(np.abs(t) <= T / 2, 1.0, 0.0)
+    F_rect = T * np.sinc(w * T / (2 * np.pi))
+
+    # Pulso triangular de duração T (base T, τ = T/2)
+    tau_tri = T / 2
+    tri = np.where(np.abs(t) <= tau_tri, 1 - np.abs(t) / tau_tri, 0.0)
+    F_tri = tau_tri * np.sinc(w * tau_tri / (2 * np.pi))**2
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
+
+    # --- Domínio do tempo ---
+    axes[0].plot(t, rect, 'C0', lw=2.5, label=f'rect$(t/T)$, duração $T={T}$')
+    axes[0].plot(t, tri, 'C1', lw=2.5, label=f'tri$(t/\\tau)$, duração $T={T}$')
+    axes[0].set_xlabel('$t$')
+    axes[0].set_ylabel('$f(t)$')
+    axes[0].set_title('Domínio do Tempo')
+    axes[0].legend(fontsize=10)
+    axes[0].set_ylim(-0.15, 1.3)
+    axes[0].set_xlim(-1.5, 1.5)
+
+    # --- Domínio da frequência (dB) ---
+    eps = 1e-15
+    F_rect_dB = 20 * np.log10(np.abs(F_rect) + eps)
+    F_tri_dB = 20 * np.log10(np.abs(F_tri) + eps)
+
+    # Normalizar pelo máximo de cada um para comparar forma
+    F_rect_dB -= F_rect_dB.max()
+    F_tri_dB -= F_tri_dB.max()
+
+    axes[1].plot(w, F_rect_dB, 'C0', lw=2, label=r'$|F_{\mathrm{rect}}(\omega)|$')
+    axes[1].plot(w, F_tri_dB, 'C1', lw=2, label=r'$|F_{\mathrm{tri}}(\omega)|$')
+    axes[1].set_xlabel(r'$\omega$ (rad/s)')
+    axes[1].set_ylabel('Magnitude normalizada (dB)')
+    axes[1].set_title('Espectro de Magnitude')
+    axes[1].legend(fontsize=10)
+    axes[1].set_ylim(-60, 5)
+    axes[1].set_xlim(-40, 40)
+
+    # Marcar primeiros nulos
+    null_rect = 2 * np.pi / T
+    null_tri = 2 * np.pi / tau_tri
+    for ax_val, color, lbl in [(null_rect, 'C0', r'$2\pi/T$'),
+                                (null_tri, 'C1', r'$2\pi/\tau$')]:
+        axes[1].axvline(ax_val, color=color, ls='--', alpha=0.6, lw=1.2)
+        axes[1].axvline(-ax_val, color=color, ls='--', alpha=0.6, lw=1.2)
+
+    fig.suptitle(r'Comparação: Pulso Retangular vs. Triangular (mesma duração $T$)',
+                 fontsize=13, y=1.02)
+    fig.tight_layout()
+    save(fig, 'rect_vs_tri_comparison')
+
+
+# ====================================================================
 # 4. Propriedade do deslocamento no tempo
 # ====================================================================
 def fig_time_shift_property():
@@ -510,6 +571,7 @@ if __name__ == '__main__':
     fig_bilateral_exponential()
     fig_delta_and_constant()
     fig_sinc_rect_duality()
+    fig_rect_vs_tri()
     fig_time_shift_property()
     fig_modulation_property()
     fig_convolution_time_freq()

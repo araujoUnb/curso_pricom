@@ -1,0 +1,8 @@
+noise_sigma,SNR_saida_dB,qualidade
+0,inf,Excelente
+0.05,25.4,Bom
+0.1,19.3,Razoavel
+0.2,13.4,Razoavel
+0.4,7.4,Ruim
+0.7,2.1,Ruim
+1.0,-0.3,Ininteligivel

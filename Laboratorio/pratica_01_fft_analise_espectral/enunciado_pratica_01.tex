@@ -222,7 +222,7 @@ reduzindo o \textbf{vazamento espectral}.
   \item Adicione um \texttt{Noise Source} (Type: Float, Noise Type: Gaussian,
     Amplitude: \texttt{noise\_amp}).
   \item Crie uma variável \texttt{noise\_amp} como \texttt{QT GUI Range}
-    (min: 0, max: 1, passo: 0.05, padrão: 0).
+    (min: 0, max: 10, passo: 0.1, padrão: 0).
   \item Adicione um segundo \texttt{Add} para somar o sinal com o ruído.
     Conecte o sinal multitonal e o \texttt{Noise Source} a este Add.
   \item Aumente gradualmente \texttt{noise\_amp} e observe quando cada um
