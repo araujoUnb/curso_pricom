@@ -130,7 +130,11 @@ f(t - t_0) \xleftrightarrow{\ft} F(\omega)\, e^{-j\omega t_0}
 \item Atraso no tempo $\leftrightarrow$ fase linear na frequência
 \end{itemize}
 
-\textbf{Exemplo:} $\rect\!\left(\dfrac{t-t_0}{\tau}\right) \xleftrightarrow{\ft} \tau\sinc\!\left(\dfrac{\omega\tau}{2\pi}\right) e^{-j\omega t_0}$
+\textbf{Exemplo:}
+\vspace{-2mm}
+\[
+\rect\!\!\left(\frac{t-t_0}{\tau}\right) \xleftrightarrow{\ft} \tau\sinc\!\!\left(\frac{\omega\tau}{2\pi}\right) e^{-j\omega t_0}
+\]
 
 \end{frame}
 
@@ -228,6 +232,53 @@ f(t) \cos(\omega_0 t) \xleftrightarrow{\ft} \frac{1}{2}\bigl[F(\omega - \omega_0
 
 % ============================================
 
+\begin{frame}{Modulador AM: Diagrama de Blocos}
+
+\begin{center}
+\begin{tikzpicture}[
+  block/.style={draw, thick, minimum width=1.2cm, minimum height=1.2cm, inner sep=0pt},
+  label/.style={font=\small},
+  signal/.style={font=\small, text width=3cm, align=center},
+  >=stealth
+]
+
+  % Mensagem f(t)
+  \node[signal, left] (msg) at (-1.5, 0.8) {Mensagem\\$f(t)$};
+
+  % Mixer (círculo com X)
+  \node[draw, thick, circle, minimum size=1.2cm, inner sep=0pt] (mixer) at (2, 0.8) {};
+  \draw[thick] (mixer.north west) -- (mixer.south east);
+  \draw[thick] (mixer.south west) -- (mixer.north east);
+
+  % Oscilador (círculo com ~)
+  \node[draw, thick, circle, minimum size=1.2cm, inner sep=0pt, fill=blue!8] (osc) at (2, -1) {$\sim$};
+  \node[label, below=2pt] at (osc.south) {Oscilador local};
+  \node[label, right=3pt] at (osc.east) {$\cos(\omega_0 t)$};
+
+  % Saída
+  \node[signal, right] (out) at (5.5, 0.8) {Sinal modulado\\$f(t)\cos(\omega_0 t)$};
+
+  % Conexões
+  \draw[->, very thick] (msg.east) -- (mixer.west);
+  \draw[->, very thick] (osc.north) -- (mixer.south);
+  \draw[->, very thick] (mixer.east) -- (out.west);
+
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.3cm}
+
+\textbf{No domínio da frequência:}
+\[
+f(t)\cos(\omega_0 t) \xleftrightarrow{\ft} \frac{1}{2}\bigl[F(\omega - \omega_0) + F(\omega + \omega_0)\bigr]
+\]
+
+O multiplicador (mixer) desloca o espectro de $f(t)$ para $\pm\omega_0$.
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Visualização: Modulação AM}
 
 \begin{center}
@@ -276,9 +327,7 @@ s(t) = m(t) \cos(2\pi f_c t) \xleftrightarrow{\ft} \tfrac{1}{2}[M(\omega - \omeg
     \node[font=\tiny, below] at (6,-0.1) {\scriptsize $f_c\!+\!B_m$};
     \draw[<->, thin, gray] (2,0.7) -- (6,0.7);
     \node[font=\tiny, gray, above] at (4,0.7) {10 kHz};
-    % Espectro em -fc
-    \fill[red!20] (-0.2,0) -- (-0.2,0.5) -- (-0.7,0.3) -- (-0.8,0) -- cycle;
-    \node[font=\tiny] at (-0.5,0.7) {$-f_c$};
+    % Nota: parte negativa omitida (simétrica)
   \end{scope}
 \end{tikzpicture}
 \end{center}
@@ -471,7 +520,7 @@ Como $F(\omega) = \sinc(\omega/2\pi)$:
   % Enlace de subida
   \draw[->, thick, orange!80!black, decorate, decoration={snake, amplitude=1.2, segment length=5}]
     (-2.8,1.4) -- (-0.2,3.1);
-  \node[font=\scriptsize, orange!80!black, rotate=33, anchor=south] at (-1.8,2.0) {uplink ($f_0$)};
+  \node[font=\scriptsize, orange!80!black, rotate=33, anchor=south] at (-1.8,2.0) {uplink ($f_0\!+\!\Delta f'$)};
 
   % Enlace de descida
   \draw[->, thick, red!60!black, decorate, decoration={snake, amplitude=1.2, segment length=5}]
@@ -642,20 +691,24 @@ Convolução no tempo equivale a multiplicação na frequência.
 
 \begin{block}{Propriedade 6: Convolução em Frequência}
 Se $f_1(t) \xleftrightarrow{\ft} F_1(\omega)$ e $f_2(t) \xleftrightarrow{\ft} F_2(\omega)$, então:
+\vspace{-2mm}
 \[
 f_1(t) \cdot f_2(t) \xleftrightarrow{\ft} \frac{1}{2\pi} [F_1(\omega) \conv F_2(\omega)]
 \]
+\vspace{-4mm}
 \end{block}
 
 onde a convolução em frequência é:
+\vspace{-2mm}
 \[
 [F_1 \conv F_2](\omega) = \int_{-\infty}^{\infty} F_1(\lambda) F_2(\omega - \lambda) d\lambda
 \]
+\vspace{-4mm}
 
 \textbf{Demonstração:} Similar à anterior, usando a transformada inversa.
 
 \textbf{Dualidade com a propriedade anterior:}
-\begin{itemize}
+\begin{itemize}\itemsep0pt
 \item Tempo: convolução $\leftrightarrow$ Frequência: multiplicação
 \item Tempo: multiplicação $\leftrightarrow$ Frequência: convolução (com fator $1/2\pi$)
 \end{itemize}
@@ -670,27 +723,22 @@ onde a convolução em frequência é:
 
 \begin{block}{Propriedade 7: Derivação no Tempo}
 Se $f(t) \xleftrightarrow{\ft} F(\omega)$, então:
+\vspace{-2mm}
 \[
 \frac{df(t)}{dt} \xleftrightarrow{\ft} j\omega F(\omega)
 \]
+\vspace{-4mm}
 \end{block}
 
-\textbf{Demonstração:}
-
-Começamos com:
-\[
-f(t) = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) e^{j\omega t} d\omega
-\]
-
+\textbf{Demonstração:} Começamos com
+$f(t) = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) e^{j\omega t} d\omega$.
 Derivando ambos os lados em relação a $t$:
-
+\vspace{-2mm}
 \[
-\frac{df(t)}{dt} = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) \frac{d}{dt}[e^{j\omega t}] d\omega = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) \cdot j\omega e^{j\omega t} d\omega
-\]
-
-\[
+\frac{df(t)}{dt} = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) \cdot j\omega e^{j\omega t} d\omega
 = \frac{1}{2\pi} \int_{-\infty}^{\infty} [j\omega F(\omega)] e^{j\omega t} d\omega
 \]
+\vspace{-4mm}
 
 Portanto: $\FT{df/dt} = j\omega F(\omega)$
 
@@ -755,35 +803,35 @@ Se $F(0) \neq 0$:
 
 % ============================================
 
-\begin{frame}{Exemplo: Derivação e Integração}
-
-\textbf{Problema:} Sabendo que $e^{-at}u(t) \xleftrightarrow{\ft} \frac{1}{a+j\omega}$, encontre a transformada de $te^{-at}u(t)$.
-
-\textbf{Solução:} Use a propriedade de derivação na frequência (dual da derivação no tempo):
-
-\[
-(-jt) f(t) \xleftrightarrow{\ft} \frac{dF(\omega)}{d\omega} \quad \Rightarrow \quad t f(t) \xleftrightarrow{\ft} j \frac{dF(\omega)}{d\omega}
-\]
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo: Derivação e Integração (continuação)}
-
-Com $f(t) = e^{-at}u(t)$ e $F(\omega) = \frac{1}{a+j\omega}$:
-
-\[
-\frac{dF(\omega)}{d\omega} = \frac{d}{d\omega}\left[\frac{1}{a+j\omega}\right] = \frac{-j}{(a+j\omega)^2}
-\]
-
-\[
-\FT{te^{-at}u(t)} = j \cdot \frac{-j}{(a+j\omega)^2} = \frac{1}{(a+j\omega)^2}
-\]
-
-\textbf{Sem linearidade:} Teríamos que calcular integrais complexas!
-
-\end{frame}
+% \begin{frame}{Exemplo: Derivação e Integração}
+%
+% \textbf{Problema:} Sabendo que $e^{-at}u(t) \xleftrightarrow{\ft} \frac{1}{a+j\omega}$, encontre a transformada de $te^{-at}u(t)$.
+%
+% \textbf{Solução:} Use a propriedade de derivação na frequência (dual da derivação no tempo):
+%
+% \[
+% (-jt) f(t) \xleftrightarrow{\ft} \frac{dF(\omega)}{d\omega} \quad \Rightarrow \quad t f(t) \xleftrightarrow{\ft} j \frac{dF(\omega)}{d\omega}
+% \]
+%
+% \end{frame}
+%
+% % ============================================
+%
+% \begin{frame}{Exemplo: Derivação e Integração (continuação)}
+%
+% Com $f(t) = e^{-at}u(t)$ e $F(\omega) = \frac{1}{a+j\omega}$:
+%
+% \[
+% \frac{dF(\omega)}{d\omega} = \frac{d}{d\omega}\left[\frac{1}{a+j\omega}\right] = \frac{-j}{(a+j\omega)^2}
+% \]
+%
+% \[
+% \FT{te^{-at}u(t)} = j \cdot \frac{-j}{(a+j\omega)^2} = \frac{1}{(a+j\omega)^2}
+% \]
+%
+% \textbf{Sem linearidade:} Teríamos que calcular integrais complexas!
+%
+% \end{frame}
 
 % ============================================
 

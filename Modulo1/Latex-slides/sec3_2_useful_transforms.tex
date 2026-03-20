@@ -48,9 +48,6 @@ A \textbf{função delta de Dirac} $\delta(t)$ não é uma função no sentido c
 
 \textbf{Interpretação física:} Impulso infinitamente estreito com área unitária.
 
-\vspace{0.3cm}
-
-\textbf{Representação gráfica:} Seta vertical com altura indicando a "força" (área).
 
 \end{frame}
 
@@ -229,7 +226,7 @@ Analogamente, com $\sin\omega_0 t = \tfrac{e^{j\omega_0 t}-e^{-j\omega_0 t}}{2j}
 \]
 \end{block}
 
-\textbf{Interpretação:} Cada senoidal gera \textbf{dois impulsos} espectrais: em $+\omega_0$ e $-\omega_0$.
+\textbf{Interpretação:} Cada sinal gera \textbf{dois impulsos} espectrais: em $+\omega_0$ e $-\omega_0$.
 
 \end{frame}
 
@@ -527,6 +524,18 @@ Pela propriedade de convolução (que veremos na próxima seção):
 
 % ============================================
 
+\begin{frame}{Visualização: Rect vs.\ Tri na Frequência}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/rect_vs_tri_comparison}
+\end{center}
+
+Para a mesma duração $T$: o triangular tem lóbulo principal $2\times$ mais largo, porém lóbulos laterais muito menores (decaem como $1/\omega^2$ vs $1/\omega$).
+
+\end{frame}
+
+% ============================================
+
 \subsection{Função Gaussiana}
 
 \begin{frame}{Pulso Gaussiano}
@@ -635,9 +644,35 @@ c_n = \frac{1}{T}\!\int_{-T/2}^{T/2}\!\delta(t)\,e^{-jn\omega_0 t}\,dt = \frac{1
 
 % ============================================
 
+\begin{frame}{Trem de Impulsos: Expansão em Série de Fourier}
+
+Como $c_n = 1/T$ para todo $n$, a \textbf{série de Fourier} do trem de impulsos é:
+
+\[
+f(t) = \sum_{n=-\infty}^{\infty} c_n\, e^{jn\omega_0 t}
+     = \frac{1}{T}\sum_{n=-\infty}^{\infty} e^{jn\omega_0 t}
+\]
+
+Ou seja, o trem de impulsos é uma soma de exponenciais complexas de todas as frequências harmônicas $n\omega_0$, cada uma com peso $1/T$.
+
+\vspace{0.3cm}
+
+Agora basta aplicar a transformada de Fourier a cada exponencial separadamente (linearidade).
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Transformada do Trem de Impulsos}
 
-Usando a linearidade e $e^{jn\omega_0 t} \xleftrightarrow{\ft} 2\pi\delta(\omega - n\omega_0)$:
+Aplicando $\mathcal{F}$ termo a termo na série, e usando
+$e^{jn\omega_0 t} \xleftrightarrow{\ft} 2\pi\delta(\omega - n\omega_0)$:
+
+\[
+F(\omega)
+  = \FT{\frac{1}{T}\sum_{n=-\infty}^{\infty} e^{jn\omega_0 t}}
+  = \frac{1}{T}\sum_{n=-\infty}^{\infty} 2\pi\delta(\omega - n\omega_0)
+\]
 
 \[
 F(\omega) = \frac{2\pi}{T}\sum_{n=-\infty}^{\infty}\delta(\omega - n\omega_0)
