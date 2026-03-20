@@ -1,0 +1,595 @@
+options:
+  parameters:
+    author: 'Prof. Daniel Costa Araújo'
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: 'Prática 03 - Modulação AM Convencional (DSB+C)'
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: pratica_03_am_convencional
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: 'Prática 03 - Modulação AM Convencional (DSB+C)'
+    window_size: (1280,900)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+# ============================================
+# VARIÁVEIS
+# ============================================
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: 'Taxa de amostragem'
+    value: '48000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 160]
+    rotation: 0
+    state: enabled
+
+- name: fc
+  id: variable
+  parameters:
+    comment: 'Frequência da portadora'
+    value: '10000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 260]
+    rotation: 0
+    state: enabled
+
+- name: fm
+  id: variable
+  parameters:
+    comment: 'Frequência da mensagem'
+    value: '1000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 360]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# SLIDERS (QT GUI Range)
+# ============================================
+- name: mu
+  id: variable_qtgui_range
+  parameters:
+    comment: 'Índice de modulação'
+    gui_hint: 0,0,1,2
+    label: 'Índice de modulação μ'
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '0.0'
+    step: '0.05'
+    stop: '2.0'
+    value: '0.5'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 12]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# FONTES DE SINAL
+# ============================================
+# Mensagem: cos(2*pi*fm*t)
+- name: src_mensagem
+  id: analog_sig_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: '1.0'
+    comment: 'Sinal mensagem m(t)'
+    freq: fm
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: float
+    waveform: analog.GR_COS_WAVE
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [80, 260]
+    rotation: 0
+    state: enabled
+
+# Portadora: cos(2*pi*fc*t)
+- name: src_portadora
+  id: analog_sig_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: '1.0'
+    comment: 'Portadora c(t)'
+    freq: fc
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: float
+    waveform: analog.GR_COS_WAVE
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [80, 500]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# MODULADOR: Multiply Const (mu), Add Const (1.0), Multiply
+# ============================================
+# Escala a mensagem por mu
+- name: mult_const_mu
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Escala por μ: μ·m(t)'
+    const: mu
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [320, 300]
+    rotation: 0
+    state: enabled
+
+# Soma DC = 1.0: forma [1 + μ·m(t)]
+- name: add_const_dc
+  id: blocks_add_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Soma DC: 1 + μ·m(t)'
+    const: '1.0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [520, 300]
+    rotation: 0
+    state: enabled
+
+# Multiply: [1 + μ·m(t)] × cos(2πfc·t)
+- name: mult_mod
+  id: blocks_multiply_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Modulação AM: [1+μ·m(t)] × c(t)'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [720, 380]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# THROTTLE
+# ============================================
+- name: throttle
+  id: blocks_throttle2
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    limit: auto
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [880, 380]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# DEMODULADOR: Detecção de envoltória
+# ============================================
+# Valor absoluto do sinal AM
+- name: abs_envoltoria
+  id: blocks_abs_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Valor absoluto |s(t)|'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [520, 540]
+    rotation: 0
+    state: enabled
+
+# Filtro passa-baixas para suavizar a envoltória
+- name: lpf_envoltoria
+  id: low_pass_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    beta: '6.76'
+    comment: 'LPF para suavizar envoltória'
+    cutoff_freq: fm*2
+    decim: '1'
+    gain: '1'
+    interp: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate
+    type: fir_filter_fff
+    width: '300'
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [700, 520]
+    rotation: 0
+    state: enabled
+
+# DC Blocker para remover componente DC
+- name: dc_blocker
+  id: dc_blocker_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Remove DC da envoltória'
+    length: '32'
+    long_form: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: ff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [920, 540]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# VISUALIZAÇÃO: Osciloscópio (Time Sink)
+# ============================================
+- name: time_sink
+  id: qtgui_time_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'True'
+    axislabels: 'True'
+    color1: blue
+    color10: dark blue
+    color2: red
+    color3: green
+    color4: black
+    color5: cyan
+    color6: magenta
+    color7: yellow
+    color8: dark red
+    color9: dark green
+    comment: ''
+    ctrlpanel: 'False'
+    entags: 'True'
+    grid: 'True'
+    gui_hint: 2,0,1,1
+    label1: 'Mensagem original'
+    label10: Signal 10
+    label2: 'Sinal AM (DSB+C)'
+    label3: 'Envoltória detectada'
+    label4: Signal 4
+    label5: Signal 5
+    label6: Signal 6
+    label7: Signal 7
+    label8: Signal 8
+    label9: Signal 9
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: '"Domínio do Tempo"'
+    nconnections: '3'
+    size: '1024'
+    srate: samp_rate
+    stemplot: 'False'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    tr_chan: '0'
+    tr_delay: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    ylabel: Amplitude
+    ymax: '1.5'
+    ymin: '-1.5'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1100, 220]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# VISUALIZAÇÃO: Espectro do sinal modulado (Freq Sink)
+# ============================================
+- name: freq_sink_mod
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: ''
+    ctrlpanel: 'False'
+    fc: '0'
+    fftsize: '4096'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: 2,1,1,1
+    label: Relative Gain
+    label1: 'Sinal modulado'
+    label10: ''''''
+    label2: ''''''
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '"Espectro do Sinal Modulado"'
+    nconnections: '1'
+    norm_window: 'False'
+    showports: 'False'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: window.WIN_HANN
+    ymax: '10'
+    ymin: '-100'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1100, 480]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# VISUALIZAÇÃO: Espectro do sinal demodulado (Freq Sink)
+# ============================================
+- name: freq_sink_demod
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: ''
+    ctrlpanel: 'False'
+    fc: '0'
+    fftsize: '4096'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: 3,0,1,2
+    label: Relative Gain
+    label1: 'Sinal demodulado'
+    label10: ''''''
+    label2: ''''''
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '"Espectro do Sinal Demodulado"'
+    nconnections: '1'
+    norm_window: 'False'
+    showports: 'False'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: window.WIN_HANN
+    ymax: '10'
+    ymin: '-100'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1100, 660]
+    rotation: 0
+    state: enabled
+
+connections:
+# Modulador: mensagem → Multiply Const (mu) → Add Const (1.0) → Multiply ← portadora
+- [src_mensagem, '0', mult_const_mu, '0']
+- [mult_const_mu, '0', add_const_dc, '0']
+- [add_const_dc, '0', mult_mod, '0']
+- [src_portadora, '0', mult_mod, '1']
+# Throttle
+- [mult_mod, '0', throttle, '0']
+# Detecção de envoltória: |s(t)| → LPF → DC Blocker
+- [throttle, '0', abs_envoltoria, '0']
+- [abs_envoltoria, '0', lpf_envoltoria, '0']
+- [lpf_envoltoria, '0', dc_blocker, '0']
+# Visualização no tempo: 3 canais
+- [src_mensagem, '0', time_sink, '0']
+- [throttle, '0', time_sink, '1']
+- [dc_blocker, '0', time_sink, '2']
+# Espectro do sinal modulado
+- [throttle, '0', freq_sink_mod, '0']
+# Espectro do sinal demodulado
+- [dc_blocker, '0', freq_sink_demod, '0']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.12.0

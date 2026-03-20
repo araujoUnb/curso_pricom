@@ -39,7 +39,14 @@
       "Bash(/usr/bin/python3 pratica_03_gabarito.py)",
       "Bash(/usr/bin/python3 pratica_04_gabarito.py)",
       "Bash(/usr/bin/python3 pratica_05_gabarito.py)",
-      "Bash(/usr/bin/python3 pratica_07_gabarito.py)"
+      "Bash(/usr/bin/python3 pratica_07_gabarito.py)",
+      "Bash(/usr/bin/python3 pratica_06_gabarito.py)",
+      "Bash(/usr/bin/python3 pratica_08_gabarito.py)",
+      "Bash(for f:*)",
+      "Bash(do python3:*)",
+      "Bash(echo \"$f: OK\")",
+      "Bash(echo \"$f: ERRO\")",
+      "Bash(done)"
     ]
   }
 }
