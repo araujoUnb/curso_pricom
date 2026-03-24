@@ -187,15 +187,6 @@ y(t) = \int_{0}^{\infty} h(\tau) x(t - \tau) d\tau = \int_{-\infty}^{t} h(t - \t
 \]
 \vspace{-4mm}
 
-\textbf{Consequência na frequência:} $H(\omega)$ de um sistema causal satisfaz o critério de Paley-Wiener:
-\vspace{-2mm}
-\[
-\int_{-\infty}^{\infty} \frac{|\ln|H(\omega)||}{1 + \omega^2} d\omega < \infty
-\]
-\vspace{-4mm}
-
-Isso limita a rapidez com que $|H(\omega)|$ pode cair a zero.
-
 \end{frame}
 
 % ============================================
@@ -278,8 +269,6 @@ Isto significa:
 \item \textbf{Fase linear:} $\phi(\omega) = -\omega t_d$ (proporcional a $\omega$)
 \end{itemize}
 
-\vspace{0.3cm}
-
 \textbf{Interpretação física:}
 \begin{itemize}
 \item Todas as componentes de frequência têm mesmo ganho
@@ -287,7 +276,37 @@ Isto significa:
 \item A forma de onda é preservada
 \end{itemize}
 
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Função de Transferência Ideal -- Limitações}
+
+\begin{block}{Condição de Transmissão sem Distorção}
+\[
+H(\omega) = K e^{-j\omega t_d} \quad \Rightarrow \quad |H(\omega)| = K, \quad \phi(\omega) = -\omega t_d
+\]
+\end{block}
+
 \textbf{Problema:} Sistemas reais não podem ter $|H(\omega)|$ constante para todo $\omega$ e serem causais simultaneamente!
+
+\vspace{0.3cm}
+
+\textbf{Por quê?} Pelo critério de Paley-Wiener, a resposta em frequência de um sistema causal não pode ser zero em um intervalo contínuo de frequências. Um sistema com banda infinita e ganho perfeitamente constante é uma idealização irrealizável.
+
+\vspace{0.3cm}
+
+\textbf{Na prática:} busca-se aproximar a condição ideal na \textbf{banda de interesse} do sinal, aceitando distorção fora dessa banda.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Canal Ideal vs Canal com Distorção}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/gnuradio_canal_ideal_vs_distorcido}
+\end{center}
 
 \end{frame}
 
@@ -325,6 +344,26 @@ Em sistemas práticos, busca-se minimizar distorção na banda de interesse.
 
 % ============================================
 
+\begin{frame}{Distorção de Amplitude — Simulação}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/gnuradio_distorcao_amplitude}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Distorção de Fase — Simulação}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/gnuradio_distorcao_fase}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Atraso de Grupo}
 
 O \textbf{atraso de grupo} quantifica o atraso de um "envelope" do sinal:
@@ -348,6 +387,16 @@ O \textbf{atraso de grupo} quantifica o atraso de um "envelope" do sinal:
 \vspace{-3mm}
 
 \textbf{Aplicação:} Importante em sinais modulados e pulsos digitais, onde o envelope carrega informação.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Atraso de Grupo — Simulação}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/gnuradio_atraso_grupo}
+\end{center}
 
 \end{frame}
 
@@ -494,15 +543,11 @@ O filtro passa-baixas remove as componentes de alta frequência do espectro.
 \begin{frame}{Exemplo 1: Resposta ao Impulso do Filtro RC}
 
 A resposta ao impulso é a transformada inversa de $H(\omega)$:
-
 \[
 H(\omega) = \frac{\omega_c}{\omega_c + j\omega}
 \]
 
-Reconhecemos: $\frac{1}{a + j\omega} \xleftrightarrow{\ft} e^{-at}u(t)$
-
-Portanto:
-
+Reconhecemos: $\frac{1}{a + j\omega} \xleftrightarrow{\ft} e^{-at}u(t)$. Portanto:
 \[
 h(t) = \omega_c e^{-\omega_c t} u(t) = \frac{1}{RC} e^{-t/(RC)} u(t)
 \]
@@ -514,7 +559,7 @@ h(t) = \omega_c e^{-\omega_c t} u(t) = \frac{1}{RC} e^{-t/(RC)} u(t)
 \item Decai exponencialmente com constante de tempo $\tau = RC$
 \end{itemize}
 
-\textbf{Interpretação física:} O capacitor "suaviza" mudanças rápidas (altas frequências).
+\textbf{Interpretação física:} O capacitor ``suaviza'' mudanças rápidas (altas frequências).
 
 \end{frame}
 
