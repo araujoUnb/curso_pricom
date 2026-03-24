@@ -103,10 +103,8 @@ para algum inteiro $k$ que minimiza $f_{alias}$.
 \begin{frame}{Visualização: Amostragem e Aliasing}
 
 \begin{center}
-\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/sampling_aliasing}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/aliasing_demo}
 \end{center}
-
-Subamostragem ($f_s < 2f_{max}$) causa sobreposição espectral (aliasing).
 
 \end{frame}
 
@@ -483,14 +481,8 @@ x_w[n] = x[n] \cdot w[n]
 \begin{frame}{Efeito das Janelas no Espectro}
 
 \begin{center}
-\includegraphics[width=\figFull, height=0.72\textheight, keepaspectratio]{figures/cap3/dft_windowing}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/dft_janelamento}
 \end{center}
-
-\vspace{-0.3cm}
-\begin{block}{Compromisso fundamental}
-Janela com menor vazamento (Blackman) \textbf{alarga} o lóbulo principal.
-Janela retangular tem melhor resolução mas \textbf{pior} supressão de lóbulos laterais.
-\end{block}
 
 \end{frame}
 
