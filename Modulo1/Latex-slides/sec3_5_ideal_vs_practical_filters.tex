@@ -141,18 +141,26 @@ H_{BS}(\omega) = \begin{cases}
 
 % ============================================
 
+\begin{frame}{Filtro Ideal vs Butterworth — Simulação}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/filtro_ideal_vs_butterworth}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
 \subsection{Problema da Causalidade}
 
 \begin{frame}{Resposta ao Impulso do Filtro Passa-Baixas Ideal}
 
 Já vimos que para $H_{LP}(\omega) = \rect(\omega/2\omega_c)$:
-
 \[
 h_{LP}(t) = \frac{\omega_c}{\pi} \sinc\left(\frac{\omega_c t}{\pi}\right) = \frac{\sin(\omega_c t)}{\pi t}
 \]
 
 \textbf{Análise da resposta:}
-
 \begin{itemize}
 \item Máximo em $t = 0$: $h_{LP}(0) = \omega_c/\pi$
 \item Zeros em $t = \pm n\pi/\omega_c$ para $n = 1, 2, 3, ...$
@@ -160,10 +168,7 @@ h_{LP}(t) = \frac{\omega_c}{\pi} \sinc\left(\frac{\omega_c t}{\pi}\right) = \fra
 \item Decai como $1/t$ (lentamente)
 \end{itemize}
 
-\vspace{0.1cm}
-
 \textbf{Problema crítico:}
-
 \[
 h_{LP}(t) \neq 0 \quad \text{para} \quad t < 0
 \]
@@ -176,31 +181,11 @@ O filtro responde \textbf{antes} do impulso ser aplicado!
 
 % ============================================
 
-\begin{frame}{Critério de Paley-Wiener}
+\begin{frame}{Resposta ao Impulso — Ideal vs Prático}
 
-\textbf{Teorema (Paley-Wiener):}
-
-Um filtro com função de transferência $H(\omega)$ é causalmente realizável se e somente se:
-
-\[
-\int_{-\infty}^{\infty} \frac{|\ln |H(\omega)||}{1 + \omega^2} d\omega < \infty
-\]
-
-\textbf{Consequências práticas:}
-
-\begin{enumerate}
-\item $|H(\omega)|$ não pode ser zero em nenhuma banda finita de frequências
-\item A transição de banda passante para banda de rejeição deve ser gradual
-\item $|H(\omega)|$ não pode cair a zero "rápido demais"
-\end{enumerate}
-
-\vspace{0.1cm}
-
-\textbf{Para filtro ideal passa-baixas:}
-
-$H(\omega) = 0$ para $|\omega| > \omega_c$ $\rightarrow$ $\ln|H(\omega)| = -\infty$
-
-A integral diverge $\rightarrow$ \textbf{não satisfaz o critério} $\rightarrow$ não-causal.
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/resposta_impulso_ideal_vs_pratico}
+\end{center}
 
 \end{frame}
 
@@ -284,15 +269,12 @@ Um filtro prático passa-baixas é especificado por:
 O \textbf{filtro de Butterworth} maximiza a planura na banda passante.
 
 \textbf{Função de transferência:}
-
 \[
 |H(\omega)|^2 = \frac{1}{1 + (\omega/\omega_c)^{2n}}
 \]
-
 onde $n$ é a ordem do filtro e $\omega_c$ é a frequência de corte de 3 dB.
 
 \textbf{Propriedades:}
-
 \begin{itemize}
 \item Em $\omega = 0$: $|H(0)| = 1$ (ganho unitário em DC)
 \item Em $\omega = \omega_c$: $|H(\omega_c)| = 1/\sqrt{2} \approx 0.707$ (-3 dB)
@@ -301,12 +283,26 @@ onde $n$ é a ordem do filtro e $\omega_c$ é a frequência de corte de 3 dB.
 \item Sem ondulação na banda passante ou de rejeição
 \end{itemize}
 
-\vspace{0.1cm}
+\end{frame}
 
-\textbf{Características de fase:}
+% ============================================
+
+\begin{frame}{Butterworth: Características de Fase}
+
+\textbf{Fase do filtro de Butterworth:}
 \begin{itemize}
 \item Fase não-linear (especialmente próximo a $\omega_c$)
-\item Distorção de fase presente
+\item Distorção de fase presente, mas moderada
+\item Atraso de grupo não-constante: $\tau_g(\omega)$ varia com a frequência
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Compromisso do Butterworth:}
+\begin{itemize}
+\item Resposta em magnitude \textbf{maximalmente plana} na banda passante
+\item Fase não-linear $\rightarrow$ distorção de fase inevitável
+\item Para aplicações sensíveis à fase, considerar o filtro de Bessel
 \end{itemize}
 
 \end{frame}
@@ -345,24 +341,27 @@ n \geq \frac{\log\left[\frac{(1/\delta_2)^2 - 1}{(1/\delta_1)^2 - 1}\right]}{2\l
 
 % ============================================
 
+\begin{frame}{Butterworth: Efeito da Ordem — Simulação}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/butterworth_efeito_ordem}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Filtro de Chebyshev Tipo I}
 
 O \textbf{filtro de Chebyshev Tipo I} permite ondulação na banda passante para obter transição mais rápida.
 
 \textbf{Função de transferência:}
-
 \[
 |H(\omega)|^2 = \frac{1}{1 + \epsilon^2 T_n^2(\omega/\omega_c)}
 \]
-
-onde:
-\begin{itemize}
-\item $T_n(x)$ é o polinômio de Chebyshev de ordem $n$
-\item $\epsilon$ controla a ondulação na banda passante
-\end{itemize}
+onde $T_n(x)$ é o polinômio de Chebyshev de ordem $n$ e $\epsilon$ controla a ondulação.
 
 \textbf{Propriedades:}
-
 \begin{itemize}
 \item \textbf{Ondulação equi-ripple} na banda passante: oscila entre 1 e $1/\sqrt{1+\epsilon^2}$
 \item Banda de rejeição monótona (sem ondulação)
@@ -478,18 +477,17 @@ onde $R_n$ é uma função racional (razão de polinômios).
 
 % ============================================
 
-\begin{frame}{Comparação Visual: Filtros Práticos de Ordem 4}
+\begin{frame}{Comparação Completa: Magnitude, Fase e Atraso de Grupo}
 
 \begin{center}
-\includegraphics[width=\figFull, height=0.72\textheight, keepaspectratio]{figures/cap3/filters_comparison}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/comparacao_filtros_completa}
 \end{center}
 
-\vspace{-0.3cm}
-\begin{block}{Observação}
-Butterworth: passante plana, sem ondulação. \quad Chebyshev: transição mais rápida. \quad Bessel: fase mais linear.
-\end{block}
-
 \end{frame}
+
+% ============================================
+
+% Slide antigo filters_comparison removido — substituído por comparacao_filtros_completa acima
 
 % ============================================
 
@@ -531,6 +529,26 @@ Complexidade & Média & Média & Baixa & Alta \\
 
 % ============================================
 
+\begin{frame}{Sinal Filtrado — Comparação de Filtros Práticos}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/sinal_filtrado_comparacao}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resposta ao Degrau — Comparação de Filtros}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/resposta_degrau_filtros}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
 \subsection{Relação Ordem-Desempenho}
 
 \begin{frame}{Determinação da Ordem do Filtro}
@@ -546,17 +564,12 @@ Especificações:
 \end{itemize}
 
 A ordem necessária é:
-
 \[
 n = \left\lceil \frac{\log\left[\frac{(1/\delta_2)^2 - 1}{(1/\delta_1)^2 - 1}\right]}{2\log(\omega_s/\omega_p)} \right\rceil
 \]
-
 onde $\lceil \cdot \rceil$ é a função teto (arredondamento para cima).
 
-\vspace{0.1cm}
-
 \textbf{Simplificação prática:} Para $\delta_1, \delta_2 \ll 1$:
-
 \[
 n \approx \frac{\log(1/\delta_2) - \log(1/\delta_1)}{2\log(\omega_s/\omega_p)}
 \]
