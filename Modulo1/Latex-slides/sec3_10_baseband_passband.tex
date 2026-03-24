@@ -1,0 +1,387 @@
+% ============================================
+% SEÇÃO 3.10: SINAIS DE BANDA BÁSICA E BANDA PASSANTE
+% ============================================
+
+\subsection{Sinais de Banda Básica}
+
+\begin{frame}{O que é um Sinal de Banda Básica?}
+
+Um sinal de \textbf{banda básica} (baseband) tem energia concentrada em torno de $f = 0$:
+
+\[
+X(f) \approx 0 \quad \text{para} \quad |f| > W
+\]
+
+onde $W$ é a \textbf{largura de banda} do sinal.
+
+\vspace{0.2cm}
+
+\textbf{Exemplos:}
+\begin{itemize}
+\item Voz humana: $W \approx 4$ kHz
+\item Sinal de áudio: $W \approx 20$ kHz
+\item Dados digitais a 1 Mbps: $W \approx 500$ kHz
+\item Sinal de vídeo: $W \approx 6$ MHz
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{Característica principal:} O espectro está centrado na origem ($f = 0$).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{O que é um Sinal de Banda Passante?}
+
+Um sinal de \textbf{banda passante} (passband) tem energia concentrada em torno de uma frequência portadora $f_c \gg W$:
+
+\[
+S(f) \approx 0 \quad \text{para} \quad |f - f_c| > W \; \text{e} \; |f + f_c| > W
+\]
+
+\vspace{0.2cm}
+
+\textbf{Exemplos:}
+\begin{itemize}
+\item Rádio AM: $f_c \approx 1$ MHz, $W = 5$ kHz
+\item Rádio FM: $f_c \approx 100$ MHz, $W = 200$ kHz
+\item Wi-Fi: $f_c = 2.4$ GHz, $W = 20$ MHz
+\item 5G: $f_c = 3.5$ GHz, $W = 100$ MHz
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{Característica principal:} O espectro está centrado em $\pm f_c$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Banda Básica vs Banda Passante — Visualização}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/banda_basica_vs_passante}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Conversão entre Bandas}
+
+\begin{frame}{Upconversion: Banda Básica $\to$ Banda Passante}
+
+Para transmitir um sinal $m(t)$ por um canal de rádio, precisamos deslocar seu espectro para $f_c$:
+
+\[
+s(t) = m(t) \cdot \cos(2\pi f_c t)
+\]
+
+Pelo \textbf{teorema da modulação}:
+\[
+\boxed{S(f) = \frac{1}{2}\left[M(f - f_c) + M(f + f_c)\right]}
+\]
+
+\textbf{Efeito:} O espectro de $m(t)$ é \textbf{copiado} para $\pm f_c$.
+
+\vspace{0.2cm}
+
+\textbf{Na prática:}
+\begin{itemize}
+\item O multiplicador é um \textbf{mixer} (misturador)
+\item O cosseno $\cos(2\pi f_c t)$ é gerado por um \textbf{oscilador local} (LO)
+\item Esse processo é chamado de \textbf{modulação} ou \textbf{upconversion}
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Downconversion: Banda Passante $\to$ Banda Básica}
+
+Para recuperar $m(t)$ a partir de $s(t) = m(t)\cos(2\pi f_c t)$:
+
+\textbf{Passo 1: Multiplicar por} $\cos(2\pi f_c t)$:
+\[
+s(t) \cdot \cos(2\pi f_c t) = m(t)\cos^2(2\pi f_c t) = \frac{m(t)}{2} + \frac{m(t)}{2}\cos(4\pi f_c t)
+\]
+
+\textbf{Passo 2: Filtrar com passa-baixas} ($f_c^{\text{LP}} = W$):
+\[
+\boxed{y(t) = \frac{m(t)}{2}}
+\]
+
+O termo em $2f_c$ é eliminado pelo filtro!
+
+\vspace{0.2cm}
+
+\textbf{Este é o princípio do receptor super-heteródino.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Downconversion — Simulação}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/downconversion_basica}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Transformada de Hilbert e Sinal Analítico}
+
+\begin{frame}{Motivação: Por que Precisamos da Transformada de Hilbert?}
+
+\textbf{Problema:} Um sinal real $x(t)$ sempre tem espectro simétrico: $X(-f) = X^*(f)$.
+
+Isso significa que \textbf{metade do espectro é redundante}!
+
+\vspace{0.3cm}
+
+\textbf{Seria útil ter:}
+\begin{itemize}
+\item Uma representação com espectro \textbf{unilateral} (apenas $f > 0$)
+\item Uma forma de extrair o \textbf{envelope} de um sinal modulado
+\item Uma representação em \textbf{banda básica} de sinais passa-faixa
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Solução:} O \textbf{sinal analítico}, construído usando a \textbf{Transformada de Hilbert}.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Definição da Transformada de Hilbert}
+
+A \textbf{Transformada de Hilbert} de $x(t)$ é:
+
+\[
+\boxed{\hat{x}(t) = \frac{1}{\pi} \int_{-\infty}^{\infty} \frac{x(\tau)}{t - \tau} d\tau = x(t) \ast \frac{1}{\pi t}}
+\]
+
+\textbf{No domínio da frequência:}
+\[
+\hat{X}(f) = -j \cdot \sgn(f) \cdot X(f)
+\]
+
+onde $\sgn(f)$ é a função sinal ($+1$ para $f>0$, $-1$ para $f<0$).
+
+\vspace{0.2cm}
+
+\textbf{Interpretação:}
+\begin{itemize}
+\item Para $f > 0$: multiplica por $-j$ $\Rightarrow$ \textbf{atrasa 90°}
+\item Para $f < 0$: multiplica por $+j$ $\Rightarrow$ \textbf{adianta 90°}
+\item \textbf{Não altera a magnitude}: $|\hat{X}(f)| = |X(f)|$
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplos da Transformada de Hilbert}
+
+\textbf{Para senoides:}
+\begin{align*}
+\cos(2\pi f_0 t) &\xrightarrow{\text{Hilbert}} \sin(2\pi f_0 t) \\
+\sin(2\pi f_0 t) &\xrightarrow{\text{Hilbert}} -\cos(2\pi f_0 t)
+\end{align*}
+
+\vspace{0.3cm}
+
+\textbf{Regra simples:} A Transformada de Hilbert \textbf{atrasa cada componente de frequência em 90°}.
+
+\vspace{0.3cm}
+
+\textbf{Propriedades:}
+\begin{itemize}
+\item É linear: $\widehat{ax + by} = a\hat{x} + b\hat{y}$
+\item Aplicar duas vezes inverte o sinal: $\hat{\hat{x}}(t) = -x(t)$
+\item $x(t)$ e $\hat{x}(t)$ têm a \textbf{mesma energia}
+\item $x(t)$ e $\hat{x}(t)$ são \textbf{ortogonais}: $\int x(t)\hat{x}(t)dt = 0$
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{O Sinal Analítico}
+
+O \textbf{sinal analítico} de $x(t)$ é:
+
+\[
+\boxed{z(t) = x(t) + j\hat{x}(t)}
+\]
+
+\textbf{Espectro do sinal analítico:}
+\[
+Z(f) = \begin{cases}
+2X(f), & f > 0 \\
+X(0), & f = 0 \\
+0, & f < 0
+\end{cases}
+\]
+
+\textbf{O espectro é unilateral!} Apenas frequências positivas.
+
+\vspace{0.2cm}
+
+\textbf{Exemplo:} Para $x(t) = A\cos(2\pi f_0 t)$:
+\[
+z(t) = A\cos(2\pi f_0 t) + jA\sin(2\pi f_0 t) = Ae^{j2\pi f_0 t}
+\]
+
+O sinal analítico de um cosseno é uma \textbf{exponencial complexa}!
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Transformada de Hilbert — Visualização}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/hilbert_transform}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Envelope e Fase Instantânea}
+
+Do sinal analítico $z(t) = x(t) + j\hat{x}(t)$, extraímos:
+
+\textbf{Envelope (amplitude instantânea):}
+\[
+\boxed{a(t) = |z(t)| = \sqrt{x^2(t) + \hat{x}^2(t)}}
+\]
+
+\textbf{Fase instantânea:}
+\[
+\boxed{\theta(t) = \arg[z(t)] = \arctan\left(\frac{\hat{x}(t)}{x(t)}\right)}
+\]
+
+\textbf{Frequência instantânea:}
+\[
+\boxed{f_i(t) = \frac{1}{2\pi}\frac{d\theta(t)}{dt}}
+\]
+
+\vspace{0.2cm}
+
+\textbf{Aplicação prática:} Detecção de envelope em AM, demodulação FM, análise de vibrações.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aplicação: Extração de Envelope em AM}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/envelope_am}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Envelope Complexo (Representação em Banda Básica)}
+
+Para um sinal passa-faixa $s(t)$ centrado em $f_c$, o \textbf{envelope complexo} é:
+
+\[
+\boxed{\tilde{s}(t) = [s(t) + j\hat{s}(t)] \cdot e^{-j2\pi f_c t}}
+\]
+
+\textbf{Equivalentemente:}
+\[
+s(t) = \Real\{\tilde{s}(t) \cdot e^{j2\pi f_c t}\}
+\]
+
+\vspace{0.2cm}
+
+O envelope complexo $\tilde{s}(t)$ é um sinal de \textbf{banda básica} que contém toda a informação do sinal passa-faixa!
+
+\vspace{0.2cm}
+
+\textbf{Componentes I/Q:}
+\[
+\tilde{s}(t) = s_I(t) + js_Q(t)
+\]
+\begin{itemize}
+\item $s_I(t)$: componente \textbf{em fase} (In-phase)
+\item $s_Q(t)$: componente \textbf{em quadratura} (Quadrature)
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Representação I/Q — Diagrama}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.85]
+% Transmitter
+\node[draw, rounded corners, fill=blue!10, minimum width=2cm, minimum height=1cm] (msg) at (0,0) {$m(t)$};
+\node[draw, circle, fill=yellow!20, minimum size=0.8cm] (mix1) at (3,1.5) {$\times$};
+\node[draw, circle, fill=yellow!20, minimum size=0.8cm] (mix2) at (3,-1.5) {$\times$};
+\node[draw, rounded corners, fill=green!10] (cos) at (3,3) {$\cos(2\pi f_c t)$};
+\node[draw, rounded corners, fill=green!10] (sin) at (3,-3) {$-\sin(2\pi f_c t)$};
+\node[draw, circle, fill=red!10, minimum size=0.8cm] (sum) at (6,0) {$+$};
+\node[draw, rounded corners, fill=orange!10, minimum width=1.5cm] (out) at (8.5,0) {$s(t)$};
+
+% Connections
+\draw[->] (msg) -- node[above,font=\scriptsize]{$s_I(t)$} (mix1);
+\draw[->] (msg) -- node[below,font=\scriptsize]{$s_Q(t)$} (mix2);
+\draw[->] (cos) -- (mix1);
+\draw[->] (sin) -- (mix2);
+\draw[->] (mix1) -- (sum);
+\draw[->] (mix2) -- (sum);
+\draw[->] (sum) -- (out);
+
+% Label
+\node[font=\small, text=blue] at (4,-4.5) {$s(t) = s_I(t)\cos(2\pi f_c t) - s_Q(t)\sin(2\pi f_c t)$};
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.2cm}
+
+\textbf{Modulador I/Q:} Qualquer sinal passa-faixa pode ser representado por duas componentes de banda básica ($I$ e $Q$) modulando portadoras em quadratura.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resumo: Banda Básica, Passante e Hilbert}
+
+\begin{center}
+\small
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Conceito} & \textbf{Domínio do Tempo} & \textbf{Domínio da Frequência} \\
+\hline
+Banda básica & $m(t)$ & $M(f)$ centrado em $f=0$ \\
+\hline
+Banda passante & $s(t) = m(t)\cos(2\pi f_c t)$ & $S(f)$ centrado em $\pm f_c$ \\
+\hline
+Hilbert & $\hat{x}(t) = x(t) \ast \frac{1}{\pi t}$ & $-j\sgn(f) \cdot X(f)$ \\
+\hline
+Sinal analítico & $z(t) = x(t) + j\hat{x}(t)$ & Espectro unilateral \\
+\hline
+Envelope & $a(t) = |z(t)|$ & --- \\
+\hline
+Envelope complexo & $\tilde{s}(t) = z(t)e^{-j2\pi f_c t}$ & Versão banda básica \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.3cm}
+
+\textbf{Conexão fundamental:} A Transformada de Hilbert é a ponte entre sinais \textbf{reais} e \textbf{analíticos}, e entre representações de \textbf{banda passante} e \textbf{banda básica}.
+
+\end{frame}
