@@ -658,41 +658,38 @@ $\text{SNR} = -40 - (-101) = 61$ dB $\Rightarrow$ excelente qualidade!
 
 % ============================================
 
-\begin{frame}{Resumo da Seção 3.8}
+\begin{frame}{Resumo da Seção 3.8 (1/2)}
 
 \textbf{Conceitos de potência:}
-
 \begin{itemize}
 \item \textbf{Potência média:} $P = \lim_{T\to\infty} \frac{1}{T}\int |f(t)|^2 dt$
 \item Para sinais periódicos: $P = \sum |c_n|^2$
 \end{itemize}
 
-\vspace{0.1cm}
-
 \textbf{Densidade Espectral de Potência (PSD):}
-
 \begin{itemize}
 \item $S(\omega)$: distribuição de potência em frequência
-\item $P = \frac{1}{2\pi}\int S(\omega) d\omega$
+\item $P = \frac{1}{2\pi}\int S(\omega)\, d\omega$
 \item Sinais periódicos: espectro discreto (impulsos)
 \end{itemize}
 
-\vspace{0.1cm}
-
 \textbf{Teorema de Wiener-Khinchin:} $R(\tau) \xleftrightarrow{\ft} S(\omega)$
 
-\vspace{0.1cm}
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resumo da Seção 3.8 (2/2)}
 
 \textbf{Sistemas LTI:} $S_y(\omega) = |H(\omega)|^2 S_x(\omega)$
 
-\vspace{0.1cm}
+\vspace{0.3cm}
 
 \textbf{Ruído branco:}
-
 \begin{itemize}
 \item PSD constante: $S_n = N_0/2$
 \item Após filtragem: potência $\propto$ largura de banda
-\item SNR = $P_s/(N_0 B)$
+\item SNR $= P_s/(N_0 B)$
 \end{itemize}
 
 \end{frame}
