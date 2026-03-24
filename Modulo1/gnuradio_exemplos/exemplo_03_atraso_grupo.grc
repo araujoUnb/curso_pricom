@@ -212,7 +212,7 @@ blocks:
     rotation: 0
     state: enabled
 - name: iir_allpass_1
-  id: iir_filter_ffd
+  id: iir_filter_xxx
   parameters:
     affinity: ''
     alias: ''
@@ -221,7 +221,8 @@ blocks:
     fftaps: '[coef_a, 1]'
     maxoutbuf: '0'
     minoutbuf: '0'
-    oldstyle: 'False'
+    oldstyle: 'True'
+    type: ffd
   states:
     bus_sink: false
     bus_source: false
@@ -230,7 +231,7 @@ blocks:
     rotation: 0
     state: enabled
 - name: iir_allpass_2
-  id: iir_filter_ffd
+  id: iir_filter_xxx
   parameters:
     affinity: ''
     alias: ''
@@ -239,7 +240,8 @@ blocks:
     fftaps: '[coef_a, 1]'
     maxoutbuf: '0'
     minoutbuf: '0'
-    oldstyle: 'False'
+    oldstyle: 'True'
+    type: ffd
   states:
     bus_sink: false
     bus_source: false
@@ -248,7 +250,7 @@ blocks:
     rotation: 0
     state: enabled
 - name: iir_allpass_3
-  id: iir_filter_ffd
+  id: iir_filter_xxx
   parameters:
     affinity: ''
     alias: ''
@@ -257,7 +259,8 @@ blocks:
     fftaps: '[coef_a, 1]'
     maxoutbuf: '0'
     minoutbuf: '0'
-    oldstyle: 'False'
+    oldstyle: 'True'
+    type: ffd
   states:
     bus_sink: false
     bus_source: false
@@ -266,7 +269,7 @@ blocks:
     rotation: 0
     state: enabled
 - name: iir_allpass_4
-  id: iir_filter_ffd
+  id: iir_filter_xxx
   parameters:
     affinity: ''
     alias: ''
@@ -275,7 +278,8 @@ blocks:
     fftaps: '[coef_a, 1]'
     maxoutbuf: '0'
     minoutbuf: '0'
-    oldstyle: 'False'
+    oldstyle: 'True'
+    type: ffd
   states:
     bus_sink: false
     bus_source: false
