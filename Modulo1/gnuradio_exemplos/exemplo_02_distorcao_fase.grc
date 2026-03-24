@@ -1,0 +1,410 @@
+options:
+  parameters:
+    author: Curso PriCom - UnB
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: 'Exemplo 02 - Distorcao de Fase
+
+      Um sinal composto por duas senoides passa por um
+      filtro passa-tudo (all-pass) de primeira ordem.
+
+      O filtro NAO altera a magnitude |H(w)|, mas introduz
+      fase nao-linear, causando distorcao de fase.
+
+      Compare as formas de onda no dominio do tempo:
+      a magnitude do espectro e preservada,
+      mas a forma de onda muda!'
+    copyright: ''
+    description: Exemplo 02 - Distorcao de Fase em Canal LTI
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: exemplo_02_distorcao_fase
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: Exemplo 02 - Distorcao de Fase
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: coef_a
+  id: variable
+  parameters:
+    comment: 'Coeficiente do filtro all-pass.
+      Valores proximos de 1 causam mais distorcao de fase.
+      H(z) = (a + z^-1)/(1 + a*z^-1)
+      |H(f)| = 1 para todo f, mas fase nao-linear.'
+    value: '0.9'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 400]
+    rotation: 0
+    state: enabled
+- name: freq1
+  id: variable
+  parameters:
+    comment: Primeira componente de frequencia
+    value: '500'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 240]
+    rotation: 0
+    state: enabled
+- name: freq2
+  id: variable
+  parameters:
+    comment: Segunda componente de frequencia
+    value: '1500'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 320]
+    rotation: 0
+    state: enabled
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: Taxa de amostragem
+    value: '48000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 160]
+    rotation: 0
+    state: enabled
+- name: blocks_add
+  id: blocks_add_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Soma: cos(w1*t) + cos(w2*t)'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [440, 300]
+    rotation: 0
+    state: enabled
+- name: blocks_throttle
+  id: blocks_throttle2
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    limit: auto
+    maximum: '0.1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [600, 308]
+    rotation: 0
+    state: enabled
+- name: cos1
+  id: analog_sig_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: '1'
+    comment: Cosseno em freq1 = 500 Hz
+    freq: freq1
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: float
+    waveform: analog.GR_COS_WAVE
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 220]
+    rotation: 0
+    state: enabled
+- name: cos2
+  id: analog_sig_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: '1'
+    comment: Cosseno em freq2 = 1500 Hz
+    freq: freq2
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: float
+    waveform: analog.GR_COS_WAVE
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 380]
+    rotation: 0
+    state: enabled
+- name: iir_allpass
+  id: iir_filter_ffd
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Filtro All-Pass de 1a ordem:
+      fftaps = [a, 1], fbtaps = [1, a]
+      |H(f)| = 1 mas fase nao-linear'
+    fbtaps: '[1, coef_a]'
+    fftaps: '[coef_a, 1]'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    oldstyle: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [800, 380]
+    rotation: 0
+    state: enabled
+- name: note_info
+  id: note
+  parameters:
+    alias: ''
+    comment: 'DISTORCAO DE FASE: cos(500Hz) + cos(1500Hz) passa por filtro all-pass.
+      All-pass: |H(f)|=1 mas fase nao-linear. H(z)=(a+z^-1)/(1+a*z^-1).
+      Tempo: forma de onda muda. Frequencia: espectro IGUAL. Azul=original, Vermelho=filtrado.'
+    note: Distorcao de Fase
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [440, 8]
+    rotation: 0
+    state: enabled
+- name: qtgui_freq_sink
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: 'Os espectros de magnitude sao IGUAIS!
+      Isso confirma que o all-pass nao altera |H(f)|.'
+    ctrlpanel: 'False'
+    fc: '0'
+    fftsize: '4096'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: 1,0,1,1
+    label: Relative Gain
+    label1: Original
+    label10: ''''''
+    label2: Apos All-Pass
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '"Dominio da Frequencia - Magnitude Preservada"'
+    nconnections: '2'
+    norm_window: 'False'
+    showports: 'False'
+    tr_chan: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_tag: '""'
+    type: float
+    units: dB
+    update_time: '0.10'
+    width1: '2'
+    width10: '1'
+    width2: '2'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: window.WIN_BLACKMAN_hARRIS
+    ymax: '10'
+    ymin: '-80'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1060, 440]
+    rotation: 0
+    state: enabled
+- name: qtgui_time_sink
+  id: qtgui_time_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    axislabels: 'True'
+    color1: blue
+    color10: dark blue
+    color2: red
+    color3: green
+    color4: black
+    color5: cyan
+    color6: magenta
+    color7: yellow
+    color8: dark red
+    color9: dark green
+    comment: 'A forma de onda muda mesmo
+      com |H(f)| = 1 (sem distorcao de amplitude)'
+    ctrlpanel: 'False'
+    entags: 'True'
+    grid: 'True'
+    gui_hint: 0,0,1,1
+    label1: Original
+    label10: Signal 10
+    label2: Apos All-Pass (fase distorcida)
+    label3: Signal 3
+    label4: Signal 4
+    label5: Signal 5
+    label6: Signal 6
+    label7: Signal 7
+    label8: Signal 8
+    label9: Signal 9
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: '"Dominio do Tempo - Distorcao de Fase"'
+    nconnections: '2'
+    size: '2048'
+    srate: samp_rate
+    stemplot: 'False'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    tr_chan: '0'
+    tr_delay: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: float
+    update_time: '0.10'
+    width1: '2'
+    width10: '1'
+    width2: '2'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    ylabel: Amplitude
+    ymax: '2.5'
+    ymin: '-2.5'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1060, 220]
+    rotation: 0
+    state: enabled
+
+connections:
+- [blocks_add, '0', blocks_throttle, '0']
+- [blocks_throttle, '0', iir_allpass, '0']
+- [blocks_throttle, '0', qtgui_freq_sink, '0']
+- [blocks_throttle, '0', qtgui_time_sink, '0']
+- [cos1, '0', blocks_add, '0']
+- [cos2, '0', blocks_add, '1']
+- [iir_allpass, '0', qtgui_freq_sink, '1']
+- [iir_allpass, '0', qtgui_time_sink, '1']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.12.0
