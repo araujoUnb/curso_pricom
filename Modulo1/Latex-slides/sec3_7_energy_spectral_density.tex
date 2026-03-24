@@ -220,28 +220,24 @@ Portanto:
 
 \begin{frame}{Definição de Densidade Espectral de Energia}
 
-A \textbf{Densidade Espectral de Energia (DEE)} ou \textit{Energy Spectral Density (ESD)} é definida como:
+A \textbf{Densidade Espectral de Energia (DEE)} ou \textit{Energy Spectral Density (ESD)}:
 
 \begin{block}{Densidade Espectral de Energia}
+\vspace{-2mm}
 \[
 \Psi(\omega) = |F(\omega)|^2
 \]
+\vspace{-2mm}
 \end{block}
-
-\textbf{Unidades:} Energia por Hz (ou por rad/s, dependendo se usa $f$ ou $\omega$).
-
-\textbf{Interpretação:}
 
 \begin{itemize}
 \item $\Psi(\omega)$ indica quanto de energia está concentrado em cada frequência
 \item Áreas sob $\Psi(\omega)$ representam energia em bandas de frequência
-\item Pelo Teorema de Parseval:
-\[
-E = \frac{1}{2\pi} \int_{-\infty}^{\infty} \Psi(\omega) d\omega
-\]
+\item Relação com energia total (Parseval): $\displaystyle E = \frac{1}{2\pi} \int_{-\infty}^{\infty} \Psi(\omega)\, d\omega$
+\item Para sinais reais, $\Psi(\omega)$ é par: $\Psi(-\omega) = \Psi(\omega)$
 \end{itemize}
 
-\textbf{Propriedade:} Para sinais reais, $\Psi(\omega)$ é par: $\Psi(-\omega) = \Psi(\omega)$
+\textbf{Unidades:} Energia por Hz (ou por rad/s, dependendo se usa $f$ ou $\omega$).
 
 \end{frame}
 
@@ -249,29 +245,24 @@ E = \frac{1}{2\pi} \int_{-\infty}^{\infty} \Psi(\omega) d\omega
 
 \begin{frame}{Exemplo: DEE de Pulso Retangular}
 
-\textbf{Sinal:} $f(t) = A\rect(t/\tau)$
-
-Já sabemos que:
-\[
-F(\omega) = A\tau \sinc\left(\frac{\omega\tau}{2\pi}\right)
-\]
+\textbf{Sinal:} $f(t) = A\rect(t/\tau)$ \quad $\Rightarrow$ \quad $F(\omega) = A\tau \sinc\!\left(\frac{\omega\tau}{2\pi}\right)$
 
 \textbf{Densidade espectral de energia:}
-
+\vspace{-2mm}
 \[
-\Psi(\omega) = |F(\omega)|^2 = A^2\tau^2 \sinc^2\left(\frac{\omega\tau}{2\pi}\right)
+\Psi(\omega) = |F(\omega)|^2 = A^2\tau^2 \sinc^2\!\left(\frac{\omega\tau}{2\pi}\right)
 \]
+\vspace{-2mm}
 
 \textbf{Características:}
 
 \begin{itemize}
 \item Máximo em $\omega = 0$: $\Psi(0) = A^2\tau^2$
 \item Zeros em $\omega = \pm 2\pi n/\tau$ para $n = 1, 2, 3, ...$
-\item Maior parte da energia no lóbulo principal: $|\omega| < 2\pi/\tau$
-\item Decai como $1/\omega^2$ para grandes $\omega$
+\item Lóbulo principal ($|\omega| < 2\pi/\tau$) contém $\approx 90\%$ da energia
 \end{itemize}
 
-\textbf{Verificação do Teorema de Parseval:} A integral de $\Psi(\omega)/(2\pi)$ deve dar $A^2\tau$ (energia no tempo).
+\textbf{Verificação (Parseval):} $\frac{1}{2\pi}\int \Psi(\omega)\,d\omega = A^2\tau$ \checkmark
 
 \end{frame}
 
@@ -279,35 +270,27 @@ F(\omega) = A\tau \sinc\left(\frac{\omega\tau}{2\pi}\right)
 
 \begin{frame}{Exemplo: DEE de Exponencial Decrescente}
 
-\textbf{Sinal:} $f(t) = e^{-at}u(t)$, $a > 0$
-
-Transformada:
-\[
-F(\omega) = \frac{1}{a + j\omega}
-\]
+\textbf{Sinal:} $f(t) = e^{-at}u(t)$, $a > 0$ \quad $\Rightarrow$ \quad $F(\omega) = \frac{1}{a + j\omega}$
 
 \textbf{Densidade espectral de energia:}
-
+\vspace{-2mm}
 \[
-\Psi(\omega) = |F(\omega)|^2 = \frac{1}{|a + j\omega|^2} = \frac{1}{a^2 + \omega^2}
+\Psi(\omega) = |F(\omega)|^2 = \frac{1}{a^2 + \omega^2}
 \]
+\vspace{-2mm}
 
 \textbf{Características:}
 
 \begin{itemize}
-\item Forma Lorentziana
-\item Máximo em $\omega = 0$: $\Psi(0) = 1/a^2$
-\item Em $\omega = \pm a$: $\Psi(a) = 1/(2a^2)$ (metade do máximo)
-\item Decai como $1/\omega^2$ para $\omega \to \infty$
+\item Forma Lorentziana, máximo em $\omega = 0$: $\Psi(0) = 1/a^2$
+\item Em $\omega = \pm a$: $\Psi(a) = 1/(2a^2)$ (metade do máximo $\Rightarrow$ banda de 3\,dB)
 \end{itemize}
 
-\textbf{Energia total:}
-
+\textbf{Verificação (Parseval):}
+\vspace{-2mm}
 \[
-E = \frac{1}{2\pi} \int_{-\infty}^{\infty} \frac{1}{a^2 + \omega^2} d\omega = \frac{1}{2\pi} \cdot \frac{2\pi}{2a} = \frac{1}{2a}
+E = \frac{1}{2\pi} \int_{-\infty}^{\infty} \frac{d\omega}{a^2 + \omega^2} = \frac{1}{2\pi} \cdot \frac{2\pi}{2a} = \frac{1}{2a} \quad \checkmark
 \]
-
-Confirma cálculo no tempo!
 
 \end{frame}
 

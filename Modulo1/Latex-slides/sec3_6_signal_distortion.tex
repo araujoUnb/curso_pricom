@@ -1,205 +1,9 @@
 % ============================================
 % SEÇÃO 3.6: DISTORÇÃO DE SINAL EM CANAIS
 % ============================================
-
-\subsection{Modelo de Canal de Comunicação}
-
-\begin{frame}{Canal como Sistema LTI}
-
-Em um sistema de comunicação, o canal pode ser modelado como um sistema LTI:
-
-\begin{center}
-\begin{tikzpicture}[>=latex]
-\node[draw, rectangle, minimum width=2.5cm, minimum height=1cm] (canal) at (0,0) {Canal $H_c(\omega)$};
-\draw[->] (-4,0) -- node[above] {$x(t)$} node[below] {\small Transmitido} (canal.west);
-\draw[->] (canal.east) -- node[above] {$y(t)$} node[below] {\small Recebido} (4,0);
-\end{tikzpicture}
-\end{center}
-
-\textbf{Relação entrada-saída:}
-
-No tempo: $y(t) = x(t) \conv h_c(t)$
-
-Na frequência: $Y(\omega) = H_c(\omega) X(\omega)$
-
-\vspace{0.1cm}
-
-\textbf{Canal ideal:}
-\[
-H_c(\omega) = K e^{-j\omega t_d}
-\]
-
-Apenas amplifica e atrasa o sinal, sem alterar sua forma.
-
-\vspace{0.1cm}
-
-\textbf{Canal real:} $H_c(\omega)$ tem $|H_c(\omega)|$ e $\phi_c(\omega)$ variáveis, causando distorção.
-
-\end{frame}
-
-% ============================================
-
-\subsection{Tipos de Distorção}
-
-\begin{frame}{Distorção de Amplitude}
-
-\textbf{Causa:} $|H_c(\omega)|$ não é constante na banda do sinal.
-
-\textbf{Efeito:}
-
-Diferentes componentes de frequência são amplificadas/atenuadas diferentemente:
-
-\[
-|Y(\omega)| = |H_c(\omega)| \cdot |X(\omega)|
-\]
-
-\textbf{Consequências práticas:}
-
-\begin{itemize}
-\item Alteração do formato da forma de onda
-\item Componentes importantes podem ser atenuadas
-\item Interferência entre símbolos (ISI) em comunicação digital
-\item Degradação da relação sinal-ruído
-\end{itemize}
-
-\textbf{Exemplo típico:}
-
-Canal telefônico: atenuação aumenta com frequência (efeito de cabo)
-
-\[
-|H_c(\omega)| \approx e^{-\alpha \omega}
-\]
-
-Altas frequências sofrem maior atenuação que baixas frequências.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo: Distorção de Amplitude}
-
-\textbf{Situação:} Pulso quadrado transmitido através de canal passa-baixas.
-
-Pulso quadrado contém harmônicas ímpares: $\omega_0, 3\omega_0, 5\omega_0, ...$
-
-\textbf{Canal com resposta:}
-\[
-|H_c(\omega)| = \begin{cases}
-1 & |\omega| \leq 3\omega_0 \\
-0.5 & 3\omega_0 < |\omega| \leq 5\omega_0 \\
-0.1 & |\omega| > 5\omega_0
-\end{cases}
-\]
-
-\textbf{Efeito na recepção:}
-
-\begin{itemize}
-\item Fundamental ($\omega_0$): passa sem alteração
-\item 3ª harmônica ($3\omega_0$): atenuada a 50\%
-\item 5ª harmônica e superiores: fortemente atenuadas
-\end{itemize}
-
-\textbf{Resultado:} Bordas do pulso ficam arredondadas, perdendo "nitidez".
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Distorção de Fase}
-
-\textbf{Causa:} $\phi_c(\omega) = \arg[H_c(\omega)]$ não é linear com $\omega$.
-
-\textbf{Condição ideal:}
-\[
-\phi_c(\omega) = -\omega t_d \quad \text{(fase linear)}
-\]
-
-Todas as frequências sofrem o mesmo atraso temporal $t_d$.
-
-\vspace{0.1cm}
-
-\textbf{Fase não-linear:}
-
-Se $\phi_c(\omega) \neq -\omega t_d$, diferentes frequências chegam em tempos diferentes.
-
-\textbf{Consequências:}
-
-\begin{itemize}
-\item Distorção da forma de onda mesmo sem distorção de amplitude
-\item Componentes do sinal ficam "fora de sincronismo"
-\item Especialmente problemático para sinais com muitas componentes espectrais
-\item Crítico em comunicação digital (pulsos se dispersam)
-\end{itemize}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Atraso de Grupo}
-
-O \textbf{atraso de grupo} mede o atraso de envelopes de sinais:
-
-\[
-\tau_g(\omega) = -\frac{d\phi_c(\omega)}{d\omega}
-\]
-
-\textbf{Interpretação física:}
-
-\begin{itemize}
-\item Para fase linear $\phi = -\omega t_d$: $\tau_g = t_d$ (constante)
-\item Todas as componentes de frequência "viajam juntas"
-\item Para $\tau_g(\omega)$ variável: dispersão temporal das componentes
-\end{itemize}
-
-\vspace{0.1cm}
-
-\textbf{Efeito em sinais modulados:}
-
-Sinal modulado: $x(t) = m(t)\cos(\omega_c t)$
-
-Se $\tau_g$ varia na banda de $m(t)$, o envelope $m(t)$ é distorcido.
-
-\vspace{0.1cm}
-
-\textbf{Especificação de canal:}
-
-Canal aceitável: $\tau_g(\omega)$ aproximadamente constante na banda de interesse.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo: Distorção de Fase}
-
-\textbf{Sinal:} Soma de duas senoides:
-
-\[
-x(t) = \cos(\omega_1 t) + \cos(\omega_2 t)
-\]
-
-\textbf{Canal ideal:} $H_c(\omega) = e^{-j\omega t_d}$
-
-\[
-y(t) = \cos[\omega_1(t - t_d)] + \cos[\omega_2(t - t_d)]
-\]
-
-Ambas componentes atrasadas igualmente $\rightarrow$ forma preservada.
-
-\vspace{0.1cm}
-
-\textbf{Canal com fase não-linear:}
-
-$\phi_c(\omega_1) = -\omega_1 t_1$, $\phi_c(\omega_2) = -\omega_2 t_2$ com $t_1 \neq t_2$
-
-\[
-y(t) = \cos[\omega_1(t - t_1)] + \cos[\omega_2(t - t_2)]
-\]
-
-Componentes atrasadas diferentemente $\rightarrow$ interferência construtiva/destrutiva em tempos diferentes $\rightarrow$ forma alterada.
-
-\end{frame}
-
-% ============================================
+% Nota: Modelo de canal LTI, distorção de amplitude/fase e atraso de grupo
+% já foram cobertos na Seção 3.4 (Parte I). Aqui focamos em classificação,
+% equalização e exemplos práticos.
 
 \subsection{Distorção Linear versus Não-Linear}
 
@@ -228,18 +32,6 @@ Componentes atrasadas diferentemente $\rightarrow$ interferência construtiva/de
 \vspace{0.1cm}
 
 \textbf{Foco desta seção:} Distorção linear (mais comum e tratável).
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Visualização: Distorção de Sinal}
-
-\begin{center}
-\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/signal_distortion}
-\end{center}
-
-Magnitude não-uniforme e fase não-linear alteram a forma do sinal transmitido.
 
 \end{frame}
 
@@ -365,101 +157,9 @@ H_{eq}(\omega) = \frac{1}{H_c(\omega)} = \frac{1}{|H_c(\omega)|} e^{-j\phi_c(\om
 
 % ============================================
 
-\subsection{Exemplos Práticos}
-
-\begin{frame}{Exemplo 1: Canal Telefônico}
-
-\textbf{Características típicas do canal telefônico (PSTN):}
-
-\begin{itemize}
-\item Banda nominal: 300 Hz a 3400 Hz
-\item Atenuação: aumenta com frequência (skin effect)
-\item Fase: não-linear próximo aos extremos da banda
-\item Atraso de grupo: variação de até 2 ms na banda
-\end{itemize}
-
-\vspace{0.1cm}
-
-\textbf{Modelo simplificado:}
-
-\[
-|H_c(f)| \approx e^{-\alpha f} \quad \text{para} \quad 300 \text{ Hz} < f < 3400 \text{ Hz}
-\]
-
-com $\alpha$ dependendo do comprimento do cabo.
-
-\vspace{0.1cm}
-
-\textbf{Equalização:}
-
-Modems de linha discada (V.32, V.34, V.90) usam equalizadores adaptativos complexos para atingir taxas de 28.8-56 kbps nesta banda limitada e distorcida.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo 2: Canal em Cabo Coaxial}
-
-\textbf{Características de cabo coaxial (TV a cabo, Ethernet):}
-
-\begin{itemize}
-\item Atenuação: $\alpha(f) = k_1\sqrt{f} + k_2 f$ (dB/km)
-  \begin{itemize}
-  \item Termo $\sqrt{f}$: perdas dielétricas
-  \item Termo $f$: efeito pelicular (skin effect)
-  \end{itemize}
-\item Fase: aproximadamente linear
-\item Dispersão: mínima em frequências mais baixas
-\end{itemize}
-
-\vspace{0.1cm}
-
-\textbf{Exemplo numérico:} RG-59 a 100 MHz e 1 km
-
-Atenuação $\approx 20$ dB $\rightarrow$ $|H_c| \approx 0.1$
-
-\textbf{Equalização:}
-
-Amplificadores em linha com resposta pré-distorcida:
-
-\[
-|H_{amp}(f)| \propto \sqrt{f} \quad \text{ou} \quad |H_{amp}(f)| \propto f
-\]
-
-Compensa a atenuação crescente do cabo.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo 3: Canal sem Fio com Multipercurso}
-
-\textbf{Efeito multipercurso:} Sinal chega ao receptor por múltiplos caminhos com diferentes atrasos e atenuações.
-
-\textbf{Modelo de canal:}
-\vspace{-2mm}
-\[
-h_c(t) = \sum_{i=1}^{N} a_i \delta(t - \tau_i)
-\]
-\vspace{-4mm}
-
-\textbf{Resposta em frequência:}
-\vspace{-2mm}
-\[
-H_c(\omega) = \sum_{i=1}^{N} a_i e^{-j\omega\tau_i}
-\]
-\vspace{-4mm}
-
-\textbf{Características:}
-\begin{itemize}
-\item \textbf{Desvanecimento seletivo:} $|H_c(\omega)|$ varia rapidamente
-\item Interferência destrutiva em certas frequências: $|H_c(\omega)| \approx 0$
-\item Canal varia com tempo (movimento)
-\end{itemize}
-
-\textbf{Equalização:} Adaptativa complexa; OFDM para contornar desvanecimento.
-
-\end{frame}
+% --- Exemplos Práticos de Canais ---
+% Removido dos slides: conteúdo disponível como material extra.
+% Exemplos: Canal Telefônico, Cabo Coaxial, Canal sem Fio com Multipercurso.
 
 % ============================================
 
@@ -497,32 +197,25 @@ Se $|H_c(\omega_0)| \approx 0$ (null espectral):
 
 \begin{frame}{Resumo da Seção 3.6}
 
-\textbf{Tipos de distorção em canais:}
+\textbf{Classificação da distorção:}
 
 \begin{itemize}
-\item \textbf{Distorção de amplitude:} $|H_c(\omega)|$ variável
-\item \textbf{Distorção de fase:} $\phi_c(\omega)$ não-linear
-\item Ambas alteram formato do sinal
+\item \textbf{Linear:} causada por $|H_c(\omega)|$ variável ou $\phi_c(\omega)$ não-linear — compensável por equalização
+\item \textbf{Não-linear:} cria novas frequências (harmônicas, intermodulação) — muito mais difícil de compensar
 \end{itemize}
 
-\vspace{0.1cm}
-
-\textbf{Atraso de grupo:} $\tau_g(\omega) = -d\phi_c/d\omega$
-
-Deve ser constante para evitar distorção de fase.
-
-\vspace{0.1cm}
+\vspace{0.2cm}
 
 \textbf{Equalização:}
 
 \begin{itemize}
-\item Compensa distorção: $H_{eq}(\omega) \approx 1/H_c(\omega)$
+\item Compensa distorção linear: $H_{eq}(\omega) \approx 1/H_c(\omega)$
 \item Pode ser fixa ou adaptativa
 \item Compromisso: correção vs. amplificação de ruído
 \end{itemize}
 
-\vspace{0.1cm}
+\vspace{0.2cm}
 
-\textbf{Aplicações práticas:} Telefonia, TV a cabo, comunicação sem fio.
+\textbf{Aplicações práticas:} Telefonia, cabo coaxial, comunicação sem fio.
 
 \end{frame}
