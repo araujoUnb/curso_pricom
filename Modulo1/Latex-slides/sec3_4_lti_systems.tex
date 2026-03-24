@@ -292,7 +292,7 @@ H(\omega) = K e^{-j\omega t_d} \quad \Rightarrow \quad |H(\omega)| = K, \quad \p
 
 \vspace{0.3cm}
 
-\textbf{Por quê?} Pelo critério de Paley-Wiener, a resposta em frequência de um sistema causal não pode ser zero em um intervalo contínuo de frequências. Um sistema com banda infinita e ganho perfeitamente constante é uma idealização irrealizável.
+%\textbf{Por quê?} Pelo critério de Paley-Wiener, a resposta em frequência de um sistema causal não pode ser zero em um intervalo contínuo de frequências. Um sistema com banda infinita e ganho perfeitamente constante é uma idealização irrealizável.
 
 \vspace{0.3cm}
 
@@ -364,6 +364,16 @@ Em sistemas práticos, busca-se minimizar distorção na banda de interesse.
 
 % ============================================
 
+\begin{frame}{Distorção de Fase — Espectro de Magnitude e Fase}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/gnuradio_distorcao_fase_espectro}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Atraso de Grupo}
 
 O \textbf{atraso de grupo} quantifica o atraso de um "envelope" do sinal:
@@ -404,30 +414,62 @@ O \textbf{atraso de grupo} quantifica o atraso de um "envelope" do sinal:
 
 \subsection{Largura de Banda}
 
-\begin{frame}{Largura de Banda de Sistemas}
+\begin{frame}{Largura de Banda de Sistemas — 3\,dB e Absoluta}
 
 A \textbf{largura de banda} de um sistema mede a faixa de frequências que o sistema transmite eficientemente.
 
-\textbf{Definições comuns:}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Largura de banda de 3\,dB:}
+\[
+|H(\omega)| \geq \frac{|H(\omega_{\max})|}{\sqrt{2}}
+\]
+Frequências onde o ganho cai no máximo 3\,dB (metade da potência).
 
-\begin{enumerate}
-\item \textbf{Largura de banda de 3 dB:}
-   \[
-   |H(\omega)| \geq \frac{|H(\omega_{\max})|}{\sqrt{2}}
-   \]
-   Frequências onde o ganho cai no máximo 3 dB (metade da potência).
+\vspace{0.3cm}
 
-\item \textbf{Largura de banda de ruído:}
-   \[
-   B_n = \frac{1}{|H(\omega_{\max})|^2} \int_{-\infty}^{\infty} |H(\omega)|^2 d\omega
-   \]
+\textbf{Largura de banda absoluta:}
 
-\item \textbf{Largura de banda absoluta:}
-   
-   Faixa onde $|H(\omega)| > 0$ (pode ser infinita).
-\end{enumerate}
+Faixa onde $|H(\omega)| > 0$ (pode ser infinita).
+\end{column}
+\begin{column}{0.50\textwidth}
+\includegraphics[width=\textwidth]{figures/cap3/largura_banda_3dB_abs}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Largura de Banda de Sistemas — Banda de Ruído}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\textbf{Largura de banda de ruído:}
+\[
+B_n = \frac{1}{|H(\omega_{\max})|^2} \int_{-\infty}^{\infty} |H(\omega)|^2 d\omega
+\]
+
+Retângulo de mesma área que $|H(\omega)|^2$, com altura $|H(\omega_{\max})|^2$.
+
+\vspace{0.3cm}
 
 \textbf{Princípio:} Sistemas de banda limitada introduzem distorção em sinais de banda larga.
+\end{column}
+\begin{column}{0.50\textwidth}
+\includegraphics[width=\textwidth]{figures/cap3/largura_banda_ruido}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Largura de Banda na Prática}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/bandas_tecnologias}
+\end{center}
 
 \end{frame}
 
@@ -628,9 +670,9 @@ h(t) = \frac{\sin(\omega_c t)}{\pi t}
 
 \textbf{Problema:} Um cabo de áudio de 50 m atenua altas frequências.
 
-Modelo do cabo: $H_c(\omega) = \frac{1}{1 + j\omega/\omega_c}$ com $f_c = 15$ kHz
+Modelo do cabo: $H_c(\omega) = \frac{1}{1 + j\omega/\omega_c}$ com $f_c = 5$ kHz
 
-\textbf{Efeito:} Sons agudos ($f > 15$ kHz) são atenuados $\Rightarrow$ áudio ``abafado''
+\textbf{Efeito:} Sons agudos ($f > 5$ kHz) são atenuados $\Rightarrow$ áudio ``abafado''
 
 \textbf{Solução --- Equalizador:}
 \[
@@ -639,9 +681,37 @@ H_{eq}(\omega) = 1 + j\omega/\omega_c \quad \Rightarrow \quad H_{eq} \cdot H_c =
 
 Na prática: um filtro que \textbf{amplifica} altas frequências para compensar.
 
-\vspace{0.2cm}
+É exatamente o que um equalizador de áudio faz: ajusta ganhos em diferentes faixas de frequência para compensar as características do canal!
 
-\textbf{É exatamente o que um equalizador de áudio faz:} ajusta ganhos em diferentes faixas de frequência para compensar as características do canal!
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Efeito do Cabo no Sinal}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/equalizacao_audio_cabo}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Equalizador: Compensando o Cabo}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/equalizacao_audio_equalizador}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resultado: Sinal Restaurado}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/equalizacao_audio_tempo}
+\end{center}
 
 \end{frame}
 
@@ -676,6 +746,5 @@ Na prática: um filtro que \textbf{amplifica} altas frequências para compensar.
 \item Fase: $\phi(\omega)$ não linear
 \end{itemize}
 
-\textbf{Próximo:} Filtros ideais versus práticos.
 
 \end{frame}
