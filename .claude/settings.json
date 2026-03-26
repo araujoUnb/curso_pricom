@@ -46,7 +46,28 @@
       "Bash(do python3:*)",
       "Bash(echo \"$f: OK\")",
       "Bash(echo \"$f: ERRO\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(python3 -c \"import numpy, matplotlib, scipy; print\\(''OK''\\)\")",
+      "Bash(python3 generate_distortion_figures.py)",
+      "Bash(python3 generate_filters_figures.py)",
+      "Bash(python3 generate_part2_figures.py)",
+      "Bash(git status:*)",
+      "Bash(ls Modulo1/Latex-slides/figures/cap3/gnuradio_*.png Modulo1/Latex-slides/figures/cap3/filtro_*.png Modulo1/Latex-slides/figures/cap3/comparacao_*.png Modulo1/Latex-slides/figures/cap3/resposta_*.png Modulo1/Latex-slides/figures/cap3/butterworth_*.png Modulo1/Latex-slides/figures/cap3/sinal_filtrado_*.png Modulo1/Latex-slides/figures/cap3/parseval_energia_demo.png Modulo1/Latex-slides/figures/cap3/densidade_espectral_energia.png Modulo1/Latex-slides/figures/cap3/psd_senoide.png Modulo1/Latex-slides/figures/cap3/ruido_branco_filtrado.png Modulo1/Latex-slides/figures/cap3/dft_janelamento.png Modulo1/Latex-slides/figures/cap3/aliasing_demo.png Modulo1/Latex-slides/figures/cap3/banda_basica_vs_passante.png Modulo1/Latex-slides/figures/cap3/downconversion_basica.png Modulo1/Latex-slides/figures/cap3/hilbert_transform.png Modulo1/Latex-slides/figures/cap3/envelope_am.png)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh auth:*)",
+      "Bash(git remote:*)",
+      "Bash(ls Modulo1/gnuradio_exemplos/*.py)",
+      "Bash(grcc --help)",
+      "Bash(do echo:*)",
+      "Bash(grcc -o . \"$f\")",
+      "Bash(grcc -o Modulo1/gnuradio_exemplos/ Modulo1/gnuradio_exemplos/exemplo_02_distorcao_fase.grc)",
+      "Bash(grcc -o Modulo1/gnuradio_exemplos/ \"$f\")",
+      "Bash(ls -1 Modulo1/gnuradio_exemplos/*.py)",
+      "Bash(ls -la /home/daniel/Documentos/UnB/Aulas/curso_pricom/Modulo1/Latex-slides/figures/cap3/largura_banda_sistemas.*)",
+      "Bash(ls Modulo1/Latex-slides/figures/cap3/*.pdf Modulo1/Latex-slides/figures/cap3/*.png)",
+      "Bash(python3 Modulo1/Latex-slides/figures/cap3/generate_baseband_passband_figures.py)"
     ]
   }
 }
