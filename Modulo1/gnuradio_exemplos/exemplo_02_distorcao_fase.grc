@@ -6,14 +6,13 @@ options:
     cmake_opt: ''
     comment: 'Exemplo 02 - Distorcao de Fase
 
-      Um sinal composto por duas senoides passa por um
-      filtro passa-tudo (all-pass) de primeira ordem.
+      Um sinal composto por duas senoides passa por um filtro passa-tudo (all-pass)
+      de primeira ordem.
 
-      O filtro NAO altera a magnitude |H(w)|, mas introduz
-      fase nao-linear, causando distorcao de fase.
+      O filtro NAO altera a magnitude |H(w)|, mas introduz fase nao-linear, causando
+      distorcao de fase.
 
-      Compare as formas de onda no dominio do tempo:
-      a magnitude do espectro e preservada,
+      Compare as formas de onda no dominio do tempo: a magnitude do espectro e preservada,
       mas a forma de onda muda!'
     copyright: ''
     description: Exemplo 02 - Distorcao de Fase em Canal LTI
@@ -46,10 +45,8 @@ blocks:
 - name: coef_a
   id: variable
   parameters:
-    comment: 'Coeficiente do filtro all-pass.
-      Valores proximos de 1 causam mais distorcao de fase.
-      H(z) = (a + z^-1)/(1 + a*z^-1)
-      |H(f)| = 1 para todo f, mas fase nao-linear.'
+    comment: Coeficiente do filtro all-pass. Valores proximos de 1 causam mais distorcao
+      de fase. H(z) = (a + z^-1)/(1 + a*z^-1) |H(f)| = 1 para todo f, mas fase nao-linear.
     value: '0.9'
   states:
     bus_sink: false
@@ -184,9 +181,8 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    comment: 'Filtro All-Pass de 1a ordem:
-      fftaps = [a, 1], fbtaps = [1, a]
-      |H(f)| = 1 mas fase nao-linear'
+    comment: 'Filtro All-Pass de 1a ordem: fftaps = [a, 1], fbtaps = [1, a] |H(f)|
+      = 1 mas fase nao-linear'
     fbtaps: '[1, coef_a]'
     fftaps: '[coef_a, 1]'
     maxoutbuf: '0'
@@ -197,7 +193,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [800, 380]
+    coordinate: [776, 460.0]
     rotation: 0
     state: enabled
 - name: note_info
@@ -205,8 +201,8 @@ blocks:
   parameters:
     alias: ''
     comment: 'DISTORCAO DE FASE: cos(500Hz) + cos(1500Hz) passa por filtro all-pass.
-      All-pass: |H(f)|=1 mas fase nao-linear. H(z)=(a+z^-1)/(1+a*z^-1).
-      Tempo: forma de onda muda. Frequencia: espectro IGUAL. Azul=original, Vermelho=filtrado.'
+      All-pass: |H(f)|=1 mas fase nao-linear. H(z)=(a+z^-1)/(1+a*z^-1). Tempo: forma
+      de onda muda. Frequencia: espectro IGUAL. Azul=original, Vermelho=filtrado.'
     note: Distorcao de Fase
   states:
     bus_sink: false
@@ -244,8 +240,8 @@ blocks:
     color7: '"yellow"'
     color8: '"dark red"'
     color9: '"dark green"'
-    comment: 'Os espectros de magnitude sao IGUAIS!
-      Isso confirma que o all-pass nao altera |H(f)|.'
+    comment: Os espectros de magnitude sao IGUAIS! Isso confirma que o all-pass nao
+      altera |H(f)|.
     ctrlpanel: 'False'
     fc: '0'
     fftsize: '4096'
@@ -324,8 +320,7 @@ blocks:
     color7: yellow
     color8: dark red
     color9: dark green
-    comment: 'A forma de onda muda mesmo
-      com |H(f)| = 1 (sem distorcao de amplitude)'
+    comment: A forma de onda muda mesmo com |H(f)| = 1 (sem distorcao de amplitude)
     ctrlpanel: 'False'
     entags: 'True'
     grid: 'True'
