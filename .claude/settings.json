@@ -67,7 +67,23 @@
       "Bash(ls -1 Modulo1/gnuradio_exemplos/*.py)",
       "Bash(ls -la /home/daniel/Documentos/UnB/Aulas/curso_pricom/Modulo1/Latex-slides/figures/cap3/largura_banda_sistemas.*)",
       "Bash(ls Modulo1/Latex-slides/figures/cap3/*.pdf Modulo1/Latex-slides/figures/cap3/*.png)",
-      "Bash(python3 Modulo1/Latex-slides/figures/cap3/generate_baseband_passband_figures.py)"
+      "Bash(python3 Modulo1/Latex-slides/figures/cap3/generate_baseband_passband_figures.py)",
+      "Bash(pdftoppm -png -f 9 -l 10 -r 150 main_am.pdf /tmp/am_check)",
+      "Bash(ls /tmp/am_check*.png)",
+      "Bash(pdftoppm -png -f 8 -l 9 -r 150 main_am.pdf /tmp/am_dsb)",
+      "Bash(ls /tmp/am_dsb*.png)",
+      "Bash(pdftoppm -png -f 20 -l 23 -r 150 main_am.pdf /tmp/am_conv)",
+      "Bash(pdftoppm -png -f 19 -l 19 -r 150 main_am.pdf /tmp/am_conv19)",
+      "Bash(pdftoppm -png -f 35 -l 36 -r 150 main_am.pdf /tmp/am_ssb)",
+      "Bash(pdftoppm -png -f 43 -l 44 -r 150 main_am.pdf /tmp/am_vsb)",
+      "Bash(pdftoppm -png -f 47 -l 48 -r 150 main_am.pdf /tmp/am_cmp)",
+      "Bash(pdftoppm -png -f 32 -l 33 -r 150 main_am.pdf /tmp/am_ssb2)",
+      "Bash(pdftoppm -png -f 41 -l 42 -r 150 main_am.pdf /tmp/am_vsb2)",
+      "Bash(pdftoppm -png -f 46 -l 47 -r 150 main_am.pdf /tmp/am_cmp2)",
+      "Bash(sort -t'\\(' -k2 -rn)",
+      "Bash(pdftoppm -png -f 19 -l 20 -r 150 main_am.pdf /tmp/am_final_conv)",
+      "Bash(pdftoppm -png -f 36 -l 36 -r 150 main_am.pdf /tmp/am_final_filtro)",
+      "Bash(pdftoppm -png -f 48 -l 49 -r 150 main_am.pdf /tmp/am_final_radar)"
     ]
   }
 }
