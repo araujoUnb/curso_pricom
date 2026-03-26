@@ -326,7 +326,31 @@ $\beta$ & $J_0$ & $J_1$ & $J_2$ & $J_3$ & $J_4$ & $J_5$ \\
 \end{tabular}
 \end{center}
 
-\textbf{Veja figura:} Gráfico de $J_n(\beta)$ vs. $\beta$ para diferentes $n$
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Funções de Bessel}
+
+\begin{center}
+\includegraphics[width=\figHalf]{figures/cap4/fm_bessel_functions.pdf}
+\end{center}
+
+\textbf{Observe:} $J_0(\beta)$ decresce com $\beta$ (potência sai da portadora para bandas laterais).
+
+Para $\beta \approx 2.4$: $J_0 = 0$ $\rightarrow$ portadora desaparece!
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Espectro FM para Diferentes $\beta$}
+
+\begin{center}
+\includegraphics[width=\figFull]{figures/cap4/fm_spectrum_beta.pdf}
+\end{center}
+
+\textbf{Quanto maior $\beta$, mais bandas laterais significativas} e maior a largura de banda.
 
 \end{frame}
 
@@ -363,6 +387,18 @@ onde $\Delta f = k_f A_m$ é o desvio de frequência.
 
 % ============================================
 
+\begin{frame}{Visualização: Regra de Carson}
+
+\begin{center}
+\includegraphics[width=\figFull]{figures/cap4/fm_carson_rule.pdf}
+\end{center}
+
+\textbf{A Regra de Carson} é uma boa aproximação, especialmente para $\beta > 2$ (erro $< 10\%$).
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{NBFM vs. WBFM}
 
 \textbf{Dois regimes de operação:}
@@ -392,6 +428,20 @@ onde $\Delta f = k_f A_m$ é o desvio de frequência.
 \item FM: $B = 2\Delta f(1 + 1/\beta)$ (depende de $\Delta f$!)
 \item FM troca largura de banda por melhor SNR
 \end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: NBFM vs. WBFM}
+
+\begin{center}
+\includegraphics[width=\figFull]{figures/cap4/fm_nbfm_vs_wbfm.pdf}
+\end{center}
+
+\textbf{NBFM} ($\beta \ll 1$): espectro similar a AM, poucas bandas laterais.
+
+\textbf{WBFM} ($\beta \gg 1$): espectro largo, muitas bandas laterais, melhor SNR.
 
 \end{frame}
 
@@ -578,6 +628,28 @@ Após detector de envelope e filtro DC:
 
 % ============================================
 
+\begin{frame}{Visualização: Discriminador de Frequência}
+
+\begin{center}
+\includegraphics[width=\figFull]{figures/cap4/fm_discriminator.pdf}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Resposta do Discriminador}
+
+\begin{center}
+\includegraphics[width=\figHalf]{figures/cap4/fm_discriminator_response.pdf}
+\end{center}
+
+A resposta linear do discriminador converte variação de frequência em variação de amplitude proporcional.
+
+\end{frame}
+
+% ============================================
+
 \subsection{PLL (Phase-Locked Loop)}
 
 \begin{frame}{Conceito do PLL}
@@ -712,6 +784,28 @@ H(s) = \frac{K_d K_v}{s + K_d K_v}
 Sistema de 1ª ordem com constante de tempo $\tau = 1/(K_d K_v)$
 
 \textbf{Para filtro lag-lead:} Sistema de 2ª ordem (mais comum)
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Análise do PLL}
+
+\begin{center}
+\includegraphics[width=\figFull]{figures/cap4/pll_analysis.pdf}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Processo de Travamento do PLL}
+
+\begin{center}
+\includegraphics[width=\figFull]{figures/cap4/pll_locking.pdf}
+\end{center}
+
+\textbf{Observe:} O VCO converge para a frequência de entrada -- após o travamento, $v_c(t) \propto m(t)$.
 
 \end{frame}
 
@@ -966,7 +1060,33 @@ f_{im} = f_{LO} + f_{IF} = 110.7 + 10.7 = 121.4 \text{ MHz}
 
 Fora da banda FM (88-108 MHz) $\rightarrow$ filtro RF facilmente rejeita
 
-\vspace{0.3cm}
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Conversão Superheterodina}
+
+\begin{center}
+\includegraphics[width=\figFull]{figures/cap4/superheterodyne_conversion.pdf}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Problema da Frequência Imagem}
+
+\begin{center}
+\includegraphics[width=\figFull]{figures/cap4/superheterodyne_image.pdf}
+\end{center}
+
+O filtro RF deve rejeitar a frequência imagem antes do mixer.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Processamento no Receptor FM Superheterodino}
 
 \textbf{Processamento:}
 \begin{itemize}
