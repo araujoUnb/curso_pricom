@@ -43,6 +43,51 @@
 
 % ============================================
 
+\begin{frame}{Ideia Central: O que é Modular?}
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.75]
+% Sinal de mensagem
+\begin{scope}[yshift=2.5cm]
+\draw[->] (-0.5,0) -- (5.5,0) node[right, font=\small] {$t$};
+\draw[->] (0,-0.8) -- (0,1) node[above, font=\small] {$m(t)$};
+\draw[thick, blue, smooth] plot[domain=0:5, samples=80] (\x, {0.6*sin(1.5*\x r)});
+\node[left, font=\small, blue] at (-0.3,0.5) {Mensagem};
+\node[right, font=\footnotesize, blue] at (5.2,0.5) {\textbf{Baixa frequência}};
+\end{scope}
+
+% Portadora
+\begin{scope}[yshift=0cm]
+\draw[->] (-0.5,0) -- (5.5,0) node[right, font=\small] {$t$};
+\draw[->] (0,-0.8) -- (0,1) node[above, font=\small] {$c(t)$};
+\draw[thick, red, smooth] plot[domain=0:5, samples=200] (\x, {0.6*cos(20*\x r)});
+\node[left, font=\small, red] at (-0.3,0.5) {Portadora};
+\node[right, font=\footnotesize, red] at (5.2,0.5) {\textbf{Alta frequência}};
+\end{scope}
+
+% Sinal modulado
+\begin{scope}[yshift=-2.8cm]
+\draw[->] (-0.5,0) -- (5.5,0) node[right, font=\small] {$t$};
+\draw[->] (0,-1.2) -- (0,1.3) node[above, font=\small] {$s(t)$};
+\draw[thick, green!60!black, smooth] plot[domain=0:5, samples=200] (\x, {0.6*(1+0.7*sin(1.5*\x r))*cos(20*\x r)});
+\draw[thick, dashed, blue!50, smooth] plot[domain=0:5, samples=80] (\x, {0.6*(1+0.7*sin(1.5*\x r))});
+\draw[thick, dashed, blue!50, smooth] plot[domain=0:5, samples=80] (\x, {-0.6*(1+0.7*sin(1.5*\x r))});
+\node[left, font=\small, green!60!black] at (-0.3,0.5) {Modulado};
+\node[right, font=\footnotesize, green!60!black] at (5.2,0.5) {\textbf{RF (pronto p/ TX)}};
+\end{scope}
+
+% Setas indicando operação
+\draw[->, ultra thick, orange] (6.5,2.5) -- (6.5,-2.8);
+\node[right, font=\small, orange] at (6.6,0) {\textbf{Modulação}};
+\end{tikzpicture}
+\end{center}
+
+\textbf{Modular = ``embalar'' a mensagem dentro de uma portadora de alta frequência}
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Classificação das Modulações}
 
 \textbf{Modulação Analógica:} Parâmetro da portadora varia continuamente com mensagem
@@ -55,8 +100,10 @@
 
 \textbf{Três parâmetros moduláveis:}
 
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
 \begin{enumerate}
-\item \textbf{Amplitude} $A_c$: 
+\item \textbf{Amplitude} $A_c$:
    \begin{itemize}
    \item Modulação em Amplitude (AM)
    \item Variantes: DSB-SC, DSB-LC, SSB, VSB
@@ -72,10 +119,31 @@
    \item Modulação em Fase (PM)
    \end{itemize}
 \end{enumerate}
+\end{column}
+\begin{column}{0.42\textwidth}
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.6]
+% AM
+\draw[thick, blue, smooth] plot[domain=0:3, samples=150] (\x, {(1+0.7*sin(3*\x r))*0.4*cos(25*\x r)});
+\node[left, font=\footnotesize, blue] at (0,0.5) {AM};
+% FM
+\begin{scope}[yshift=-1.8cm]
+\draw[thick, red, smooth] plot[domain=0:3, samples=150] (\x, {0.4*cos((25+8*sin(3*\x r))*\x r)});
+\node[left, font=\footnotesize, red] at (0,0.5) {FM};
+\end{scope}
+% PM
+\begin{scope}[yshift=-3.6cm]
+\draw[thick, green!60!black, smooth] plot[domain=0:3, samples=150] (\x, {0.4*cos(25*\x r + 2*sin(3*\x r))});
+\node[left, font=\footnotesize, green!60!black] at (0,0.5) {PM};
+\end{scope}
+\end{tikzpicture}
+\end{center}
+\end{column}
+\end{columns}
 
 \vspace{0.3cm}
 
-\textbf{Nesta seção:} Modulação em Amplitude e suas variantes
+\textbf{Nesta aula:} Modulação em Amplitude e suas variantes
 
 \end{frame}
 
@@ -156,6 +224,34 @@ onde:
 
 % ============================================
 
+\begin{frame}{Visualização DSB-SC: Mensagem e Portadora}
+
+\begin{center}
+\includegraphics[width=\figFull, trim=0 220bp 0 0, clip]{figures/cap4/am_dsb_sc.pdf}
+\end{center}
+
+\textbf{Acima:} sinal modulante $m(t)$ (tempo e frequência) e portadora $c(t)$ em $f_c$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização DSB-SC: Sinal Modulado}
+
+\begin{center}
+\includegraphics[width=\figFull, trim=0 0 0 440bp, clip]{figures/cap4/am_dsb_sc.pdf}
+\end{center}
+
+\textbf{Observe:}
+\begin{itemize}
+\item O \textbf{envelope} segue $|m(t)|$, com inversão de fase quando $m(t) < 0$
+\item No espectro: \textbf{duas bandas laterais} (LSB e USB), sem componente em $f_c$
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Análise Espectral do DSB-SC}
 
 \textbf{Transformada de Fourier de} $s(t) = A_c m(t) \cos(2\pi f_c t)$:
@@ -187,32 +283,66 @@ S(f) = \frac{A_c}{2}[M(f - f_c) + M(f + f_c)]
 
 % ============================================
 
+\begin{frame}{O que Acontece no Espectro?}
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.75]
+% Sinal original M(f)
+\begin{scope}[yshift=2cm]
+\draw[->] (-4,0) -- (4,0) node[right, font=\small] {$f$};
+\draw[->] (0,-0.3) -- (0,2) node[above, font=\small] {$M(f)$};
+\fill[blue!20] (-1.5,0) -- (-1.5,1.5) -- (0,1.5) -- (1.5,1.5) -- (1.5,0) -- cycle;
+\draw[thick, blue] (-1.5,0) -- (-1.5,1.5) -- (1.5,1.5) -- (1.5,0);
+\draw[<->] (-1.5,-0.4) -- (1.5,-0.4) node[midway, below, font=\footnotesize] {$2W$};
+\node[above, font=\small, blue] at (0,1.5) {Banda base};
+\end{scope}
+
+% Seta
+\draw[->, ultra thick, orange] (0,1.3) -- (0,0.3) node[midway, right, font=\small] {$\times \cos(2\pi f_c t)$};
+
+% Sinal modulado S(f)
+\begin{scope}[yshift=-2cm]
+\draw[->] (-6,0) -- (6,0) node[right, font=\small] {$f$};
+\draw[->] (0,-0.3) -- (0,2) node[above, font=\small] {$S(f)$};
+% LSB e USB em +fc
+\fill[red!20] (2,0) -- (2,1) -- (3.5,1) -- (3.5,0) -- cycle;
+\fill[green!20] (3.5,0) -- (3.5,1) -- (5,1) -- (5,0) -- cycle;
+\draw[thick, red] (2,0) -- (2,1) -- (3.5,1);
+\draw[thick, green!60!black] (3.5,1) -- (5,1) -- (5,0);
+% LSB e USB em -fc
+\fill[green!20] (-5,0) -- (-5,1) -- (-3.5,1) -- (-3.5,0) -- cycle;
+\fill[red!20] (-3.5,0) -- (-3.5,1) -- (-2,1) -- (-2,0) -- cycle;
+\draw[thick, green!60!black] (-5,0) -- (-5,1) -- (-3.5,1);
+\draw[thick, red] (-3.5,1) -- (-2,1) -- (-2,0);
+% Labels
+\node[below, font=\small] at (3.5,-0.1) {$f_c$};
+\node[below, font=\small] at (-3.5,-0.1) {$-f_c$};
+\node[above, font=\footnotesize, red] at (2.7,1) {LSB};
+\node[above, font=\footnotesize, green!60!black] at (4.3,1) {USB};
+\draw[<->] (2,-0.5) -- (5,-0.5) node[midway, below, font=\footnotesize] {$B = 2W$};
+\end{scope}
+\end{tikzpicture}
+\end{center}
+
+\textbf{A modulação ``copia'' o espectro da mensagem para $\pm f_c$}
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Largura de Banda do DSB-SC}
 
 \[
 \boxed{S(f) = \frac{A_c}{2}[M(f - f_c) + M(f + f_c)]}
 \]
 
-\textbf{Análise da largura de banda:}
-
-\begin{itemize}
-\item Mensagem $m(t)$ tem largura de banda $W$ (de $-W$ a $W$)
-\item Após modulação:
-  \begin{itemize}
-  \item USB ocupa: $f_c$ a $f_c + W$
-  \item LSB ocupa: $f_c - W$ a $f_c$
-  \end{itemize}
-\item Largura de banda total do sinal modulado:
-\end{itemize}
-
+\textbf{Largura de banda:}
 \[
 \boxed{B_{\DSB} = 2W}
 \]
 
-\textbf{Observações:}
 \begin{itemize}
-\item Ambas bandas laterais carregam a mesma informação
-\item Redundância espectral
+\item Ambas bandas laterais carregam a \textbf{mesma informação} (redundância)
 \item Oportunidade para economia de banda $\rightarrow$ SSB
 \end{itemize}
 
@@ -224,17 +354,7 @@ S(f) = \frac{A_c}{2}[M(f - f_c) + M(f + f_c)]
 
 \textbf{Potência transmitida:}
 
-\[
-P_s = \frac{1}{T} \int_0^T |s(t)|^2 dt = \frac{1}{T} \int_0^T A_c^2 m^2(t) \cos^2(2\pi f_c t) dt
-\]
-
 Usando $\langle \cos^2(2\pi f_c t) \rangle = 1/2$:
-
-\[
-P_s = \frac{A_c^2}{2} \langle m^2(t) \rangle = \frac{A_c^2}{2} P_m
-\]
-
-onde $P_m$ é a potência média de $m(t)$.
 
 \begin{block}{Potência do DSB-SC}
 \[
@@ -242,10 +362,8 @@ onde $P_m$ é a potência média de $m(t)$.
 \]
 \end{block}
 
-\textbf{Observação:}
 \begin{itemize}
-\item Toda potência está nas bandas laterais
-\item Nenhuma potência na portadora (suprimida)
+\item Toda potência está nas bandas laterais (portadora suprimida)
 \item Eficiência energética superior ao AM convencional
 \end{itemize}
 
@@ -292,45 +410,35 @@ P_s = 2 \times \frac{(A_c/2)^2}{2} = \frac{A_c^2}{4}
 \textbf{Detector de Produto (Síncrono):}
 
 \begin{center}
-\begin{tikzpicture}[>=latex, scale=0.9]
+\begin{tikzpicture}[>=latex, scale=0.85]
 % Multiplicador
-\node[draw, circle, minimum size=1cm] (mult) at (0,0) {$\times$};
+\node[draw, circle, minimum size=0.9cm] (mult) at (0,0) {$\times$};
 % Filtro passa-baixas
-\node[draw, rectangle, minimum width=2.5cm, minimum height=0.8cm] (lpf) at (3,0) {Filtro PB};
+\node[draw, rectangle, minimum width=2.2cm, minimum height=0.7cm] (lpf) at (3,0) {Filtro PB};
 
 % Entradas
-\draw[->] (-2.5,0.5) -- node[above] {$s(t)$} (mult.north west);
+\draw[->] (-2.5,0.5) -- node[above, font=\small] {$s(t)$} (mult.north west);
 \draw[->] (-2.5,-0.5) -- node[below, font=\small] {$2\cos(2\pi f_c t)$} (mult.south west);
 
 % Saídas
 \draw[->] (mult.east) -- node[above, font=\small] {$v(t)$} (lpf.west);
-\draw[->] (lpf.east) -- node[above] {$y(t)$} (5,0);
+\draw[->] (lpf.east) -- node[above, font=\small] {$y(t)$} (5,0);
 
 % Oscilador local
-\node[draw, rectangle, minimum width=1.5cm, minimum height=0.6cm] (osc) at (-2.5,-2) {Oscilador};
+\node[draw, rectangle, minimum width=1.5cm, minimum height=0.5cm] (osc) at (-2.5,-1.5) {Oscilador};
 \draw[->] (osc.north) -- (-2.5,-0.5);
 \end{tikzpicture}
 \end{center}
-
-\textbf{Análise matemática:}
-
-Sinal recebido: $r(t) = A_c m(t) \cos(2\pi f_c t)$
 
 Após multiplicação com $2\cos(2\pi f_c t)$:
 \[
 v(t) = 2A_c m(t) \cos^2(2\pi f_c t) = A_c m(t) [1 + \cos(4\pi f_c t)]
 \]
 
-\[
-= A_c m(t) + A_c m(t) \cos(4\pi f_c t)
-\]
-
 Após filtro passa-baixas (remove $2f_c$):
 \[
-\boxed{y(t) = A_c m(t)}
+\boxed{y(t) = A_c m(t)} \qquad \text{Recuperação perfeita!}
 \]
-
-\textbf{Recuperação perfeita com ganho $A_c$!}
 
 \end{frame}
 
@@ -356,11 +464,11 @@ Após filtro passa-baixas:
 \boxed{y(t) = A_c m(t) \cos\theta}
 \]
 
-\textbf{Observações:}
+\textbf{Consequências:}
 \begin{itemize}
 \item Atenuação por fator $\cos\theta$
 \item Para $\theta = 90^{\circ}$: $y(t) = 0$ (perda total!)
-\item Para $\theta pequeno$: $\cos\theta \approx 1$ (pouca degradação)
+\item Para $\theta$ pequeno: $\cos\theta \approx 1$ (pouca degradação)
 \item \textbf{Sincronização precisa é crítica!}
 \end{itemize}
 
@@ -370,9 +478,49 @@ Após filtro passa-baixas:
 
 \subsection{AM Convencional}
 
-\begin{frame}{AM Convencional (DSB-LC)}
+\begin{frame}{AM Convencional (DSB-LC): A Ideia}
 
-\textbf{Motivação:} DSB-SC requer sincronização perfeita. Podemos simplificar o receptor?
+\textbf{Problema do DSB-SC:} Requer sincronização perfeita do oscilador local
+
+\vspace{0.3cm}
+
+\textbf{Pergunta:} E se transmitirmos junto a portadora?
+
+\vspace{0.3cm}
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.7]
+% DSB-SC
+\begin{scope}[xshift=-4cm]
+\node[font=\small\bfseries] at (2,2.2) {DSB-SC};
+\draw[->] (0,0) -- (4,0) node[right, font=\tiny] {$t$};
+\draw[thick, green!60!black, smooth] plot[domain=0:3.5, samples=150] (\x, {0.8*sin(2*\x r)*cos(20*\x r)});
+\draw[thick, dashed, red, smooth] plot[domain=0:3.5, samples=80] (\x, {0.8*sin(2*\x r)});
+\draw[thick, dashed, red, smooth] plot[domain=0:3.5, samples=80] (\x, {-0.8*sin(2*\x r)});
+\node[below, font=\tiny, red] at (2,-1.2) {Envelope cruza zero!};
+\end{scope}
+
+% AM Convencional
+\begin{scope}[xshift=4cm]
+\node[font=\small\bfseries] at (2,2.2) {AM Convencional};
+\draw[->] (0,0) -- (4,0) node[right, font=\tiny] {$t$};
+\draw[thick, blue, smooth] plot[domain=0:3.5, samples=150] (\x, {(1+0.7*sin(2*\x r))*0.7*cos(20*\x r)});
+\draw[thick, dashed, orange, smooth] plot[domain=0:3.5, samples=80] (\x, {(1+0.7*sin(2*\x r))*0.7});
+\draw[thick, dashed, orange, smooth] plot[domain=0:3.5, samples=80] (\x, {-(1+0.7*sin(2*\x r))*0.7});
+\node[below, font=\tiny, orange] at (2,-1.5) {Envelope sempre $> 0$};
+\end{scope}
+\end{tikzpicture}
+\end{center}
+
+\textbf{AM Convencional:} Adiciona portadora ao DSB-SC $\rightarrow$ envelope sempre positivo
+
+$\rightarrow$ Permite demodulação com \textbf{detector de envelope} (simples e barato!)
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Definição: AM Convencional (DSB-LC)}
 
 \begin{block}{Definição: AM Convencional}
 \[
@@ -386,52 +534,101 @@ onde:
 \end{itemize}
 \end{block}
 
-\textbf{Diferença fundamental:}
+\textbf{Decomposição:}
 \[
 s(t) = \underbrace{A_c \cos(2\pi f_c t)}_{\text{portadora}} + \underbrace{A_c k_a m(t) \cos(2\pi f_c t)}_{\text{DSB-SC}}
 \]
 
 Portadora transmitida + bandas laterais
 
+\vspace{0.3cm}
+
+\textbf{Preço a pagar:} Gastar potência transmitindo a portadora (que não carrega informação!)
+
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Índice de Modulação}
+\begin{frame}{Índice de Modulação $\mu$}
 
-\textbf{Normalização:} Assumir $m(t)$ normalizado tal que $\max|m(t)| = 1$
+\textbf{Normalizando} $m(t)$ tal que $\max|m(t)| = 1$:
 
-\textbf{Índice de modulação:}
-\[
-\mu = k_a \max|m(t)| = k_a
-\]
-
-Para $0 \leq \mu \leq 1$:
+\textbf{Índice de modulação:} $\mu = k_a$
 
 \[
 \boxed{s(t) = A_c[1 + \mu m_n(t)] \cos(2\pi f_c t)}
 \]
 
-onde $m_n(t)$ é $m(t)$ normalizado ($\max|m_n(t)| = 1$).
+\textbf{Envelope:} $A(t) = A_c[1 + \mu m_n(t)]$
 
 \vspace{0.3cm}
 
-\textbf{Envelope:}
-\[
-A(t) = A_c[1 + \mu m_n(t)]
-\]
-
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
+\textbf{Valores de $\mu$:}
 \begin{itemize}
-\item $\mu = 0$: portadora não modulada
-\item $\mu = 1$: modulação 100\% (envelope vai a zero)
-\item $\mu > 1$: \textbf{supermodulação} (distorção!)
+\item $\mu = 0$: portadora pura
+\item $0 < \mu < 1$: operação normal
+\item $\mu = 1$: modulação 100\%
+\item $\mu > 1$: \textbf{supermodulação!}
 \end{itemize}
+\end{column}
+\begin{column}{0.52\textwidth}
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.55]
+% mu = 0.5
+\begin{scope}[yshift=1.5cm]
+\draw[thick, blue, smooth] plot[domain=0:3, samples=120] (\x, {(1+0.5*sin(3*\x r))*0.5*cos(25*\x r)});
+\node[right, font=\tiny, blue] at (3.1,0.3) {$\mu = 0.5$};
+\end{scope}
+% mu = 1.0
+\begin{scope}[yshift=0cm]
+\draw[thick, green!60!black, smooth] plot[domain=0:3, samples=120] (\x, {(1+1.0*sin(3*\x r))*0.5*cos(25*\x r)});
+\node[right, font=\tiny, green!60!black] at (3.1,0.3) {$\mu = 1.0$};
+\end{scope}
+% mu = 1.5
+\begin{scope}[yshift=-1.8cm]
+\draw[thick, red, smooth] plot[domain=0:3, samples=120] (\x, {(1+1.5*sin(3*\x r))*0.5*cos(25*\x r)});
+\node[right, font=\tiny, red] at (3.1,0.3) {$\mu = 1.5$};
+\end{scope}
+\end{tikzpicture}
+\end{center}
+\end{column}
+\end{columns}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Supermodulação}
+\begin{frame}{Visualização AM: $\mu = 0.5$ e $\mu = 1.0$}
+
+\begin{center}
+\includegraphics[width=\figFull, trim=0 235bp 0 0, clip]{figures/cap4/am_conventional.pdf}
+\end{center}
+
+\textbf{$\mu = 0.5$:} Envelope sempre positivo, modulação parcial.
+
+\textbf{$\mu = 1.0$:} Envelope toca zero -- modulação 100\%.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização AM: Supermodulação ($\mu = 1.5$)}
+
+\begin{center}
+\includegraphics[width=\figFull, trim=0 0 0 470bp, clip]{figures/cap4/am_conventional.pdf}
+\end{center}
+
+\textbf{Observe:} Para $\mu > 1$, o envelope torna-se negativo (regiões em vermelho) $\rightarrow$ \textbf{distorção!}
+
+Componentes espúrias aparecem no espectro.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Supermodulação: Por que Evitar?}
 
 \textbf{Condição de supermodulação:} $\mu > 1$ ou $|k_a m(t)| > 1$
 
@@ -442,7 +639,7 @@ A(t) = A_c[1 + \mu m_n(t)]
 
 Envelope torna-se negativo $\rightarrow$ inversão de fase $\rightarrow$ distorção
 
-\vspace{0.5cm}
+\vspace{0.3cm}
 
 \textbf{Consequências:}
 \begin{itemize}
@@ -455,8 +652,6 @@ Envelope torna-se negativo $\rightarrow$ inversão de fase $\rightarrow$ distor�
 \vspace{0.3cm}
 
 \textbf{Solução:} Controle automático de ganho (AGC) no transmissor
-
-\textbf{Veja figura:} Comparação de envelopes para $\mu = 0.5$, $1.0$ e $1.5$
 
 \end{frame}
 
@@ -473,88 +668,79 @@ s(t) = A_c \cos(2\pi f_c t) + A_c k_a m(t) \cos(2\pi f_c t)
 S(f) = \frac{A_c}{2}[\delta(f - f_c) + \delta(f + f_c)] + \frac{A_c k_a}{2}[M(f - f_c) + M(f + f_c)]
 \]
 
-\textbf{Componentes:}
-\begin{itemize}
-\item \textbf{Portadora:} impulsos em $\pm f_c$ com amplitude $A_c/2$
-\item \textbf{Bandas laterais:} versões deslocadas de $M(f)$
-  \begin{itemize}
-  \item USB: $f_c$ a $f_c + W$
-  \item LSB: $f_c - W$ a $f_c$
-  \end{itemize}
-\end{itemize}
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.65]
+\draw[->] (-5,0) -- (5,0) node[right, font=\small] {$f$};
+\draw[->] (0,-0.3) -- (0,2.5) node[above, font=\small] {$|S(f)|$};
+% Portadora (impulsos)
+\draw[thick, red, ->, line width=1.5pt] (-3,0) -- (-3,2) node[above, font=\footnotesize] {Portadora};
+\draw[thick, red, ->, line width=1.5pt] (3,0) -- (3,2) node[above, font=\footnotesize] {Portadora};
+% Bandas laterais
+\fill[blue!20] (1.5,0) -- (1.5,1) -- (3,1) -- cycle;
+\fill[blue!20] (3,1) -- (4.5,0) -- (3,0) -- cycle;
+\draw[thick, blue] (1.5,0) -- (3,1) -- (4.5,0);
+\fill[blue!20] (-4.5,0) -- (-3,1) -- (-1.5,0) -- cycle;
+\draw[thick, blue] (-4.5,0) -- (-3,1) -- (-1.5,0);
+% Labels
+\node[below, font=\footnotesize] at (3,-0.1) {$f_c$};
+\node[below, font=\footnotesize] at (-3,-0.1) {$-f_c$};
+\node[below, font=\tiny] at (2.2,0) {LSB};
+\node[below, font=\tiny] at (3.8,0) {USB};
+\end{tikzpicture}
+\end{center}
 
-\textbf{Largura de banda:}
-\[
-B_{\AM} = 2W \quad \text{(mesma que DSB-SC)}
-\]
+\textbf{Largura de banda:} $B_{\AM} = 2W$ (mesma que DSB-SC)
 
-\textbf{Diferença visual:} Presença de linhas espectrais em $\pm f_c$
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Potência do AM Convencional}
-
-\[
-s(t) = A_c[1 + k_a m(t)] \cos(2\pi f_c t)
-\]
-
-\textbf{Potência total:}
-\[
-P_s = \left\langle A_c^2[1 + k_a m(t)]^2 \cos^2(2\pi f_c t) \right\rangle
-\]
-
-\[
-= \frac{A_c^2}{2} \left\langle [1 + k_a m(t)]^2 \right\rangle
-\]
-
-\[
-= \frac{A_c^2}{2} \left[1 + 2k_a\langle m(t)\rangle + k_a^2\langle m^2(t)\rangle\right]
-\]
-
-Se $\langle m(t)\rangle = 0$ (sem componente DC):
-
-\[
-P_s = \frac{A_c^2}{2}[1 + k_a^2 P_m]
-\]
-
-\textbf{Decomposição:}
-\begin{itemize}
-\item Potência na portadora: $P_c = \frac{A_c^2}{2}$
-\item Potência nas bandas laterais: $P_{sb} = \frac{A_c^2 k_a^2 P_m}{2}$
-\end{itemize}
+\textbf{Diferença visual:} Presença de linhas espectrais em $\pm f_c$ (portadora)
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Eficiência de Potência do AM}
+\begin{frame}{Potência e Eficiência do AM Convencional}
 
-\textbf{Eficiência:} Fração da potência total que carrega informação
-
+\textbf{Potência total} (para $\langle m(t)\rangle = 0$):
 \[
-\eta = \frac{P_{sb}}{P_s} = \frac{P_{sb}}{P_c + P_{sb}}
+P_s = \frac{A_c^2}{2}[1 + k_a^2 P_m] = \underbrace{\frac{A_c^2}{2}}_{P_c \text{ (portadora)}} + \underbrace{\frac{A_c^2 k_a^2 P_m}{2}}_{P_{sb} \text{ (bandas laterais)}}
 \]
 
+\textbf{Eficiência:} Fração que carrega informação
 \[
-= \frac{\frac{A_c^2 k_a^2 P_m}{2}}{\frac{A_c^2}{2} + \frac{A_c^2 k_a^2 P_m}{2}} = \frac{k_a^2 P_m}{1 + k_a^2 P_m}
+\eta = \frac{P_{sb}}{P_s} = \frac{k_a^2 P_m}{1 + k_a^2 P_m}
 \]
 
-\textbf{Para tom único} $m(t) = \cos(2\pi f_m t)$: $P_m = 1/2$
-
+\textbf{Para tom único} ($P_m = 1/2$):
 \[
-\eta = \frac{\mu^2/2}{1 + \mu^2/2} = \frac{\mu^2}{2 + \mu^2}
+\eta = \frac{\mu^2}{2 + \mu^2}
 \]
 
+\begin{columns}[T]
+\begin{column}{0.45\textwidth}
 \textbf{Eficiências típicas:}
 \begin{itemize}
+\item $\mu = 0.3$: $\eta = 4.3\%$
 \item $\mu = 0.5$: $\eta = 11\%$
 \item $\mu = 1.0$: $\eta = 33\%$ (máximo!)
-\item $\mu = 0.3$: $\eta = 4.3\%$
 \end{itemize}
+\end{column}
+\begin{column}{0.52\textwidth}
+\textbf{Mais de 2/3 da potência é desperdiçada na portadora!}
+\end{column}
+\end{columns}
 
-\textbf{Conclusão:} AM convencional é \textbf{muito ineficiente} em potência!
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Eficiência de Potência}
+
+\begin{center}
+\includegraphics[width=\figHalf]{figures/cap4/am_efficiency.pdf}
+\end{center}
+
+\textbf{Mesmo no melhor caso} ($\mu = 1$), apenas 33\% da potência carrega informação.
+
+\textbf{Conclusão:} AM convencional é \textbf{muito ineficiente} em potência, mas compensa pela simplicidade do receptor!
 
 \end{frame}
 
@@ -572,72 +758,60 @@ s(t) = 100[1 + 0.8\cos(2\pi f_m t)] \cos(2\pi f_c t)
 \textbf{Espectro:}
 \begin{itemize}
 \item Portadora em $f_c$: amplitude $50$ V
-\item LSB em $f_c - f_m$: amplitude $40 \times 0.5 = 20$ V
+\item LSB em $f_c - f_m$: amplitude $20$ V
 \item USB em $f_c + f_m$: amplitude $20$ V
 \end{itemize}
 
 \textbf{Potências:}
 \[
-P_c = \frac{100^2}{2} = 5000 \text{ W (em 1 }\Omega\text{)}
+P_c = \frac{100^2}{2} = 5000 \text{ W} \qquad P_{sb} = \frac{0.8^2}{2} \times 5000 = 1600 \text{ W}
 \]
 \[
-P_{sb} = \frac{0.8^2}{2} \times 5000 = 1600 \text{ W}
-\]
-\[
-P_s = 5000 + 1600 = 6600 \text{ W}
-\]
-\[
-\eta = \frac{1600}{6600} = 24.2\%
+P_s = 5000 + 1600 = 6600 \text{ W} \qquad \eta = \frac{1600}{6600} = 24.2\%
 \]
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Detector de Envelope}
+\begin{frame}{Detector de Envelope: Circuito}
 
-\textbf{Vantagem do AM convencional:} Demodulação simples com detector de envelope
+\textbf{Vantagem do AM convencional:} Demodulação simples!
 
 \begin{center}
-\begin{tikzpicture}[>=latex, scale=1.0]
+\begin{tikzpicture}[>=latex, scale=0.9]
 % Diodo
 \draw (0,0) -- (1,0);
 \draw[fill=white] (1,-0.3) -- (1,0.3) -- (1.5,0) -- cycle;
 \draw (1.5,0) -- (2,0);
 % Capacitor
-\draw (2,0) -- (2,-1.5);
+\draw (2,0) -- (2,-1.3);
+\draw (1.7,-1.3) -- (2.3,-1.3);
 \draw (1.7,-1.5) -- (2.3,-1.5);
-\draw (1.7,-1.7) -- (2.3,-1.7);
 % Resistor
 \draw (2,0) -- (3,0);
-\draw (3,-0.3) rectangle (4,0.3);
+\draw (3,-0.25) rectangle (4,0.25);
 \node at (3.5,0) {$R$};
-\draw (4,0) -- (4,-1.5);
+\draw (4,0) -- (4,-1.3);
 % Terra
-\draw (0,-1.5) -- (4,-1.5);
-\draw (2,-1.8) -- (2,-1.5);
-\draw (1.8,-1.8) -- (2.2,-1.8);
+\draw (0,-1.3) -- (4,-1.3);
 % Entrada/Saída
 \draw[<-] (0,0) -- (-1,0) node[left] {$s(t)$};
 \draw[->] (4,0) -- (5,0) node[right] {$y(t)$};
 % Labels
-\node at (2,-0.7) {$C$};
-\node at (1.25,0.5) {Diodo};
+\node at (2,-0.6) {$C$};
+\node at (1.25,0.45) {\footnotesize Diodo};
 \end{tikzpicture}
 \end{center}
 
 \textbf{Funcionamento:}
 \begin{itemize}
-\item Diodo retifica o sinal (permite apenas semi-ciclos positivos)
-\item Capacitor $C$ carrega rapidamente nos picos
-\item Descarrega lentamente através de $R$
+\item Diodo retifica o sinal (semi-ciclos positivos)
+\item Capacitor carrega nos picos, descarrega por $R$
 \item Saída segue o envelope $A_c[1 + k_a m(t)]$
 \end{itemize}
 
-\textbf{Condição para operação correta:}
-\[
-\frac{1}{f_c} \ll RC \ll \frac{1}{W}
-\]
+\textbf{Condição:} $\frac{1}{f_c} \ll RC \ll \frac{1}{W}$
 
 \textbf{Muito mais simples que detecção coerente!} (Razão do sucesso do AM broadcast)
 
@@ -645,21 +819,101 @@ P_s = 5000 + 1600 = 6600 \text{ W}
 
 % ============================================
 
-\subsection{AM SSB}
+\begin{frame}{Resumo: DSB-SC vs. AM Convencional}
 
-\begin{frame}{AM SSB: Single Sideband}
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.65]
+% DSB-SC lado
+\begin{scope}[xshift=-5cm]
+\node[font=\normalsize\bfseries, blue] at (2,3.5) {DSB-SC};
 
-\textbf{Observação fundamental:}
+% Espectro
+\draw[->] (-0.5,0) -- (4.5,0) node[right, font=\tiny] {$f$};
+\draw[thick, blue] (0.5,0) -- (0.5,1.2) -- (2,1.2) -- (3.5,1.2) -- (3.5,0);
+\node[below, font=\tiny] at (2,0) {$f_c$};
 
-No DSB-SC, ambas bandas laterais (USB e LSB) carregam a mesma informação.
+% Prós e Contras
+\node[font=\footnotesize, green!60!black] at (2,-1) {Eficiente em potência};
+\node[font=\footnotesize, red] at (2,-1.7) {Requer detecção coerente};
+\end{scope}
+
+% AM Convencional lado
+\begin{scope}[xshift=5cm]
+\node[font=\normalsize\bfseries, red!70!black] at (2,3.5) {AM Convencional};
+
+% Espectro
+\draw[->] (-0.5,0) -- (4.5,0) node[right, font=\tiny] {$f$};
+\draw[thick, blue] (0.5,0) -- (0.5,1.2) -- (3.5,1.2) -- (3.5,0);
+\draw[thick, red, ->, line width=1.5pt] (2,0) -- (2,2.2);
+\node[above, font=\tiny, red] at (2,2.2) {Portadora};
+\node[below, font=\tiny] at (2,0) {$f_c$};
+
+% Prós e Contras
+\node[font=\footnotesize, green!60!black] at (2,-1) {Detector de envelope (simples!)};
+\node[font=\footnotesize, red] at (2,-1.7) {Ineficiente ($\eta \leq 33\%$)};
+\end{scope}
+\end{tikzpicture}
+\end{center}
 
 \vspace{0.3cm}
 
-\textbf{Ideia do SSB:}
+\textbf{Trade-off fundamental:}
+\begin{itemize}
+\item \textbf{DSB-SC:} Eficiente em potência, mas receptor complexo
+\item \textbf{AM Conv.:} Receptor simples e barato, mas desperdiça potência na portadora
+\end{itemize}
 
-Transmitir apenas uma banda lateral $\rightarrow$ economiza largura de banda!
+\textbf{Na prática:} AM broadcast escolhe simplicidade do receptor (milhões de receptores vs. poucos transmissores)
 
-\vspace{0.5cm}
+\end{frame}
+
+% ============================================
+
+\subsection{AM SSB}
+
+\begin{frame}{AM SSB: A Motivação}
+
+\textbf{Observação fundamental no DSB-SC:}
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.7]
+\draw[->] (-5,0) -- (5,0) node[right, font=\small] {$f$};
+\draw[->] (0,-0.3) -- (0,2.2) node[above, font=\small] {$|S(f)|$};
+
+% USB e LSB
+\fill[red!30] (1,0) -- (1,1.5) -- (3,1.5) -- (3,0) -- cycle;
+\fill[blue!30] (3,0) -- (3,1.5) -- (5,1.5) -- (5,0) -- cycle;
+\draw[thick, red] (1,0) -- (1,1.5) -- (3,1.5);
+\draw[thick, blue] (3,1.5) -- (5,1.5) -- (5,0);
+
+\fill[blue!30] (-5,0) -- (-5,1.5) -- (-3,1.5) -- (-3,0) -- cycle;
+\fill[red!30] (-3,0) -- (-3,1.5) -- (-1,1.5) -- (-1,0) -- cycle;
+
+\node[font=\footnotesize, red] at (2,0.75) {\textbf{LSB}};
+\node[font=\footnotesize, blue] at (4,0.75) {\textbf{USB}};
+\node[below, font=\small] at (3,-0.1) {$f_c$};
+
+% Setas de informação
+\draw[<->, thick, orange] (2,1.8) -- (4,1.8) node[midway, above, font=\footnotesize] {Mesma informação!};
+\end{tikzpicture}
+\end{center}
+
+\textbf{LSB e USB carregam informação idêntica} $\rightarrow$ Redundância!
+
+\vspace{0.3cm}
+
+\textbf{Ideia do SSB:} Transmitir apenas \textbf{uma} banda lateral $\rightarrow$ economia de 50\% em banda!
+
+\begin{itemize}
+\item \textbf{SSB-USB:} Apenas Banda Lateral Superior
+\item \textbf{SSB-LSB:} Apenas Banda Lateral Inferior
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{SSB: Vantagens e Desvantagens}
 
 \textbf{Vantagens do SSB:}
 \begin{itemize}
@@ -676,6 +930,15 @@ Transmitir apenas uma banda lateral $\rightarrow$ economiza largura de banda!
 \item Sensível a erro de frequência
 \end{itemize}
 
+\vspace{0.3cm}
+
+\textbf{Aplicações:}
+\begin{itemize}
+\item Rádio amador (HF: 3--30 MHz)
+\item Comunicações marítimas e aeronáuticas
+\item Comunicações militares de longa distância
+\end{itemize}
+
 \end{frame}
 
 % ============================================
@@ -685,6 +948,7 @@ Transmitir apenas uma banda lateral $\rightarrow$ economiza largura de banda!
 \textbf{SSB pode ser gerado de duas formas:}
 
 1. Filtragem de DSB-SC
+
 2. Método de Hilbert (phasing)
 
 \vspace{0.5cm}
@@ -743,6 +1007,30 @@ onde $\hilbert{m}(t)$ é a \textbf{transformada de Hilbert} de $m(t)$.
 
 % ============================================
 
+\begin{frame}{Visualização SSB: Sinal e Transformada de Hilbert}
+
+\begin{center}
+\includegraphics[width=\figFull, trim=0 220bp 0 0, clip]{figures/cap4/am_ssb.pdf}
+\end{center}
+
+\textbf{Acima:} $m(t)$ e $\hat{m}(t)$ (Hilbert), e o DSB-SC com espectro mostrando LSB e USB.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização SSB: Resultado Final}
+
+\begin{center}
+\includegraphics[width=\figFull, trim=0 0 0 440bp, clip]{figures/cap4/am_ssb.pdf}
+\end{center}
+
+\textbf{Observe:} SSB-USB transmite apenas a banda lateral superior, usando metade da largura de banda do DSB-SC.
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Derivação do SSB-USB}
 
 \textbf{Partindo do DSB-SC:} $s_{\DSB}(t) = A_c m(t) \cos(2\pi f_c t)$
@@ -779,7 +1067,7 @@ LSB se cancela, USB permanece!
 
 % ============================================
 
-\begin{frame}{Espectro do SSB}
+\begin{frame}{Espectro e Potência do SSB}
 
 \textbf{SSB-USB:}
 \[
@@ -789,10 +1077,6 @@ S_{\USB}(f) = \begin{cases}
 \end{cases}
 \]
 
-Apenas banda superior em torno de $f_c$!
-
-\vspace{0.5cm}
-
 \textbf{Largura de banda:}
 \[
 \boxed{B_{\SSB} = W}
@@ -800,7 +1084,7 @@ Apenas banda superior em torno de $f_c$!
 
 \textbf{Economia de 50\% comparado a DSB!}
 
-\vspace{0.5cm}
+\vspace{0.3cm}
 
 \textbf{Potência:}
 \[
@@ -816,45 +1100,31 @@ Metade da potência do DSB-SC (uma banda lateral em vez de duas).
 \begin{frame}{Geração de SSB: Método do Filtro}
 
 \begin{center}
-\begin{tikzpicture}[>=latex, scale=0.85]
+\begin{tikzpicture}[>=latex, scale=0.8]
 % Multiplicador
-\node[draw, circle, minimum size=0.8cm] (mult) at (0,0) {$\times$};
+\node[draw, circle, minimum size=0.7cm] (mult) at (0,0) {$\times$};
 % Filtro
-\node[draw, rectangle, minimum width=2.2cm, minimum height=0.7cm] (filt) at (3,0) {Filtro SSB};
+\node[draw, rectangle, minimum width=2cm, minimum height=0.6cm] (filt) at (2.8,0) {Filtro SSB};
 % Amplificador
-\node[draw, rectangle, minimum width=1.5cm, minimum height=0.7cm] (amp) at (6,0) {Amp.};
+\node[draw, rectangle, minimum width=1.3cm, minimum height=0.6cm] (amp) at (5.5,0) {Amp.};
 
 % Conexões
 \draw[->] (-2,0.4) -- node[above, font=\small] {$m(t)$} (mult.north west);
 \draw[->] (-2,-0.4) -- node[below, font=\small] {$A_c\cos(2\pi f_c t)$} (mult.south west);
-\draw[->] (mult.east) -- node[above, font=\small] {DSB-SC} (filt.west);
+\draw[->] (mult.east) -- node[above, font=\footnotesize] {DSB-SC} (filt.west);
 \draw[->] (filt.east) -- (amp.west);
-\draw[->] (amp.east) -- node[above, font=\small] {$s_{\SSB}(t)$} (7.5,0);
-
-% Resposta do filtro
-\node[below of=filt, node distance=1.8cm, font=\footnotesize] (resp) {
-\begin{tikzpicture}[scale=0.4]
-\draw[->] (-2,0) -- (2,0) node[right] {$f$};
-\draw[->] (0,-0.3) -- (0,1.5) node[above] {$|H|$};
-\draw[thick, blue] (-2,0) -- (-0.3,0) -- (-0.1,1.2) -- (2,1.2);
-\node[below] at (-0.2,-0.3) {$f_c$};
-\end{tikzpicture}
-};
+\draw[->] (amp.east) -- node[above, font=\small] {$s_{\SSB}(t)$} (7,0);
 \end{tikzpicture}
 \end{center}
 
 \textbf{Processo:}
 \begin{enumerate}
 \item Gerar DSB-SC: $A_c m(t)\cos(2\pi f_c t)$
-\item Filtrar com passa-faixas centrado em $f_c$
-   \begin{itemize}
-   \item USB: passa alta de $f_c$
-   \item LSB: passa baixa de $f_c$
-   \end{itemize}
+\item Filtrar: passa alta de $f_c$ (USB) ou passa baixa de $f_c$ (LSB)
 \item Amplificar
 \end{enumerate}
 
-\textbf{Desafio:} Filtro deve ter transição abrupta em $f_c$ (difícil para sinais com componentes de baixa frequência)
+\textbf{Desafio:} Filtro deve ter transição abrupta em $f_c$
 
 \end{frame}
 
@@ -934,9 +1204,11 @@ Sinal recuperado tem modulação residual em $\Delta f$!
 
 \vspace{0.3cm}
 
-\textbf{Para voz:} $\Delta f < 20$ Hz é aceitável
-
-\textbf{Para música:} $\Delta f < 2$ Hz necessário
+\textbf{Tolerância ao erro:}
+\begin{itemize}
+\item Para voz: $\Delta f < 20$ Hz é aceitável
+\item Para música: $\Delta f < 2$ Hz necessário
+\end{itemize}
 
 \textbf{Solução:} Transmitir piloto de baixa potência para sincronização
 
@@ -983,7 +1255,7 @@ Aplicações & Estéreo FM & Rádio amador \\
 
 \subsection{AM VSB}
 
-\begin{frame}{AM VSB: Vestigial Sideband}
+\begin{frame}{AM VSB: Vestigial Sideband -- A Motivação}
 
 \textbf{Problema com SSB:}
 
@@ -991,58 +1263,77 @@ Filtragem abrupta em $f_c$ é difícil, especialmente para sinais com componente
 
 \vspace{0.3cm}
 
-\textbf{Solução: VSB}
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.65]
+% SSB ideal
+\begin{scope}[xshift=-5cm]
+\node[font=\small\bfseries] at (2,2.5) {SSB Ideal};
+\draw[->] (-0.5,0) -- (4.5,0) node[right, font=\tiny] {$f$};
+\draw[->] (0,-0.3) -- (0,2) node[above, font=\tiny] {$|H|$};
+\draw[thick, red, line width=1.5pt] (0,0) -- (2,0) -- (2,1.5) -- (4,1.5);
+\node[below, font=\tiny] at (2,0) {$f_c$};
+\node[font=\tiny, red] at (1.5,1) {Transição};
+\node[font=\tiny, red] at (1.5,0.6) {abrupta!};
+\draw[->, red, thick] (1.8,0.8) -- (2,0.5);
+\end{scope}
 
-Transmitir uma banda lateral completa + "vestígio" da outra.
+% VSB
+\begin{scope}[xshift=3cm]
+\node[font=\small\bfseries] at (2,2.5) {VSB (Compromisso)};
+\draw[->] (-0.5,0) -- (4.5,0) node[right, font=\tiny] {$f$};
+\draw[->] (0,-0.3) -- (0,2) node[above, font=\tiny] {$|H|$};
+\draw[thick, blue, line width=1.5pt] (0,0) -- (0.8,0)
+    .. controls (1.2,0.3) and (1.8,1.2) ..
+    (2.2,1.5) -- (4,1.5);
+\node[below, font=\tiny] at (2,0) {$f_c$};
+\node[font=\tiny, blue] at (1.3,1) {Transição};
+\node[font=\tiny, blue] at (1.3,0.6) {suave};
+\fill[orange!30] (0.8,0) .. controls (1.2,0.3) and (1.8,1.2) .. (2.2,1.5) -- (2,1.5) -- (2,0) -- (0.8,0);
+\node[font=\tiny, orange!70!black] at (1.2,0.2) {Vestígio};
+\end{scope}
+\end{tikzpicture}
+\end{center}
 
-\begin{block}{Definição}
-VSB é um compromisso entre DSB e SSB:
+\textbf{VSB:} Transmitir uma banda lateral completa + ``vestígio'' da outra
+
 \begin{itemize}
 \item Largura de banda: $W < B_{\VSB} < 2W$
-\item Transmite USB completa + parte da LSB (ou vice-versa)
-\item Filtro com roll-off gradual em $f_c$
+\item Filtro com roll-off gradual em $f_c$ (realizável!)
 \end{itemize}
-\end{block}
 
 \textbf{Aplicação principal:} TV analógica (NTSC, PAL)
-
-Vídeo tem componentes de 0 Hz a vários MHz $\rightarrow$ SSB impraticável
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Filtro VSB}
-
-\textbf{Característica do filtro VSB:}
+\begin{frame}{Visualização VSB: Filtro e Comparação Espectral}
 
 \begin{center}
-\begin{tikzpicture}[scale=1.0]
-\draw[->] (-0.5,0) -- (5,0) node[right] {$f$};
-\draw[->] (0,-0.3) -- (0,2.5) node[above] {$|H_{\VSB}(f)|$};
-
-% Filtro VSB
-\draw[thick, blue] (0,0) -- (1.5,0) 
-    .. controls (1.8,0.5) and (2.2,1.5) .. 
-    (2.5,2) -- (4.5,2);
-
-% Linhas de referência
-\draw[dashed] (2.5,0) -- (2.5,2.2);
-\draw[dashed] (0,2) -- (4.7,2);
-
-% Labels
-\node[below] at (2.5,-0.1) {$f_c$};
-\node[left] at (-0.1,2) {$1$};
-\node[below] at (1.5,-0.1) {$f_c-W$};
-\node[below] at (3.5,-0.1) {$f_c+W$};
-\node[above right, blue] at (1.8,0.7) {Vestígio};
-\node[above, blue] at (3.5,2.2) {Banda completa};
-
-% Simetria vestigial
-\draw[<->] (2.5,0.5) -- (2.2,1) node[midway, right, font=\footnotesize] {Simetria};
-\draw[<->] (2.5,1.5) -- (2.8,1);
-\end{tikzpicture}
+\includegraphics[width=\figFull, trim=0 345bp 0 0, clip]{figures/cap4/am_vsb.pdf}
 \end{center}
+
+\textbf{Esquerda:} Resposta do filtro VSB com roll-off gradual.
+\textbf{Direita:} Comparação de espectros DSB, SSB e VSB.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização VSB: Simetria e Largura de Banda}
+
+\begin{center}
+\includegraphics[width=\figFull, trim=0 0 0 360bp, clip]{figures/cap4/am_vsb.pdf}
+\end{center}
+
+\textbf{Esquerda:} A simetria vestigial em torno de $f_c$ garante recuperação sem distorção.
+\textbf{Direita:} Economia de banda: DSB (8.4 kHz) $>$ VSB (5.5 kHz) $>$ SSB (4.2 kHz).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Filtro VSB: Condição de Simetria}
 
 \textbf{Condição de simetria vestigial:}
 \[
@@ -1051,28 +1342,14 @@ H_{\VSB}(f_c + f) + H_{\VSB}(f_c - f) = \text{constante}
 
 Garante recuperação sem distorção na demodulação coerente.
 
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Análise Matemática do VSB}
+\vspace{0.3cm}
 
 \textbf{Sinal VSB:}
 \[
 s_{\VSB}(t) = [A_c m(t) \cos(2\pi f_c t)] * h_{\VSB}(t)
 \]
 
-\textbf{No domínio da frequência:}
-\[
-S_{\VSB}(f) = \frac{A_c}{2}[M(f - f_c) + M(f + f_c)] H_{\VSB}(f)
-\]
-
 \textbf{Demodulação coerente com} $2\cos(2\pi f_c t)$:
-
-Produto resulta em:
-\[
-v(t) = s_{\VSB}(t) \cdot 2\cos(2\pi f_c t)
-\]
 
 Após passa-baixas, se $H_{\VSB}$ satisfaz condição de simetria:
 \[
@@ -1109,41 +1386,7 @@ Após passa-baixas, se $H_{\VSB}$ satisfaz condição de simetria:
 \item Economia: $\approx 35\%$
 \end{itemize}
 
-\textbf{Trade-off perfeito:} Eficiência espectral + facilidade de implementação
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Largura de Banda do VSB}
-
-\textbf{Largura de banda geral:}
-\[
-B_{\VSB} = W + f_{vest}
-\]
-
-onde $f_{vest}$ é a largura do vestígio.
-
-\vspace{0.3cm}
-
-\textbf{Limites:}
-\begin{itemize}
-\item Se $f_{vest} = W$: $B_{\VSB} = 2W$ (torna-se DSB)
-\item Se $f_{vest} = 0$: $B_{\VSB} = W$ (torna-se SSB)
-\end{itemize}
-
-\textbf{Típico:} $f_{vest} = 0.2W$ a $0.3W$
-
-\[
-\boxed{W < B_{\VSB} < 2W}
-\]
-
-\textbf{Exemplo NTSC:}
-\begin{itemize}
-\item $W = 4.2$ MHz
-\item $f_{vest} = 1.25$ MHz
-\item $B_{\VSB} = 5.45$ MHz $\approx 1.3W$
-\end{itemize}
+\textbf{Largura de banda geral:} $B_{\VSB} = W + f_{vest}$, onde $f_{vest}$ é a largura do vestígio.
 
 \end{frame}
 
@@ -1194,6 +1437,44 @@ Aplicações & - & Rádio AM & Rádio & TV \\
 
 % ============================================
 
+\begin{frame}{Comparação Espectral: DSB-SC e AM Convencional}
+
+\begin{center}
+\includegraphics[width=\figFull, trim=0 345bp 0 0, clip]{figures/cap4/am_comparison.pdf}
+\end{center}
+
+\textbf{DSB-SC:} Apenas bandas laterais, sem portadora.
+\textbf{AM Conv.:} Portadora dominante + bandas laterais (maior potência total).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Comparação Espectral: SSB e Sobreposição}
+
+\begin{center}
+\includegraphics[width=\figFull, trim=0 0 0 360bp, clip]{figures/cap4/am_comparison.pdf}
+\end{center}
+
+\textbf{SSB-USB:} Apenas uma banda lateral (metade da banda).
+\textbf{Sobreposição:} Comparação direta dos três esquemas no mesmo gráfico.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Comparação Radar: Variantes AM}
+
+\begin{center}
+\includegraphics[width=0.5\textwidth]{figures/cap4/am_radar_comparison.pdf}
+\end{center}
+
+\textbf{Cada variante tem seus pontos fortes e fracos} -- a escolha depende da aplicação.
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Comparação Espectral Visual}
 
 \textbf{Para mesmo sinal modulante} $m(t)$ com banda $W$:
@@ -1230,7 +1511,7 @@ Aplicações & - & Rádio AM & Rádio & TV \\
 % VSB
 \begin{scope}[yshift=-1.5cm]
 \draw[->] (-3,0) -- (3,0) node[right, font=\small] {$f$};
-\draw[thick, blue] (-0.5,0) .. controls (-0.3,0.5) .. (0,0.7) 
+\draw[thick, blue] (-0.5,0) .. controls (-0.3,0.5) .. (0,0.7)
                    -- (2,1.5) -- (2,0);
 \node[left, font=\small] at (-3,0.7) {VSB};
 \draw[<->] (-0.5,-0.3) -- (2,-0.3) node[midway, below, font=\footnotesize] {$\approx 1.3W$};
@@ -1251,23 +1532,20 @@ Aplicações & - & Rádio AM & Rádio & TV \\
 
 \textbf{AM Convencional (DSB-LC):}
 \begin{itemize}
-\item Rádio AM broadcast (535-1705 kHz)
+\item Rádio AM broadcast (535--1705 kHz)
 \item Receptor muito simples e barato
-\item Ainda usado em países em desenvolvimento
 \end{itemize}
 
 \textbf{SSB:}
 \begin{itemize}
-\item Rádio amador (HF: 3-30 MHz)
+\item Rádio amador (HF: 3--30 MHz)
 \item Comunicações marítimas e aeronáuticas
 \item Comunicações militares de longa distância
-\item Telefonia por satélite (histórico)
 \end{itemize}
 
 \textbf{VSB:}
 \begin{itemize}
 \item TV analógica terrestre (NTSC, PAL, SECAM)
-\item Modems de alta velocidade (histórico)
 \item Base para VSB digital (ATSC)
 \end{itemize}
 
