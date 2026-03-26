@@ -2,42 +2,36 @@
 % MODULAÇÃO EM AMPLITUDE (AM)
 % ============================================
 
-\subsection{Introdução}
+\section{Introdução à Modulação}
 
 \begin{frame}{Por que Modular Sinais?}
 
 \textbf{Comunicação Banda Base} vs. \textbf{Comunicação por Portadora}
 
-\vspace{0.3cm}
+\vspace{0.2cm}
 
-\textbf{Razões para modulação:}
-
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
 \begin{enumerate}
-\item \textbf{Multiplexação (FDM)}:
-   \begin{itemize}
-   \item Múltiplos sinais compartilham mesmo meio
-   \item Cada sinal em frequência diferente
-   \end{itemize}
+\item \textbf{Multiplexação (FDM):}
+   Múltiplos sinais compartilham o mesmo meio, cada um em frequência diferente
 
-\item \textbf{Propagação e Antenas}:
-   \begin{itemize}
-   \item Antena eficiente: tamanho $\approx \lambda/4$
-   \item Sinal de 1 kHz: $\lambda = 300$ km $\rightarrow$ antena impraticável
-   \item Portadora de 1 MHz: $\lambda = 300$ m $\rightarrow$ antena de 75 m
-   \end{itemize}
-
-\item \textbf{Largura de Banda vs. Frequência}:
-   \begin{itemize}
-   \item Aloca sinais em bandas apropriadas
-   \item Reduz ruído e interferência
-   \end{itemize}
-
-\item \textbf{Processamento de Sinal}:
-   \begin{itemize}
-   \item Facilita filtragem e amplificação
-   \item Melhora relação sinal-ruído
-   \end{itemize}
+\item \textbf{Propagação e Antenas:}
+   Antena eficiente: tamanho $\approx \lambda/4$\\
+   1 kHz: $\lambda = 300$ km (impraticável)\\
+   1 MHz: $\lambda = 300$ m (antena de 75 m)
 \end{enumerate}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{enumerate}\setcounter{enumi}{2}
+\item \textbf{Largura de Banda vs. Frequência:}
+   Aloca sinais em bandas apropriadas, reduz ruído e interferência
+
+\item \textbf{Processamento de Sinal:}
+   Facilita filtragem, amplificação e melhora relação sinal-ruído
+\end{enumerate}
+\end{column}
+\end{columns}
 
 \end{frame}
 
@@ -152,35 +146,36 @@
 \begin{frame}{Diagrama de Blocos: Sistema de Comunicação}
 
 \begin{center}
-\begin{tikzpicture}[>=latex, scale=0.85]
+\begin{tikzpicture}[>=latex, scale=0.75,
+    bloco/.style={draw, rectangle, rounded corners=3pt, minimum width=1.8cm, minimum height=0.8cm, font=\footnotesize}]
 % Transmissor
-\node[draw, rectangle, minimum width=2cm, minimum height=0.8cm] (mod) at (0,0) {Modulador};
-\node[draw, rectangle, minimum width=2cm, minimum height=0.8cm] (tx) at (3,0) {Transmissor};
+\node[bloco, fill=blue!15] (mod) at (0,0) {Modulador};
+\node[bloco, fill=blue!8] (tx) at (3,0) {Transmissor};
 
 % Canal
-\node[draw, rectangle, minimum width=2.5cm, minimum height=0.8cm] (canal) at (6.5,0) {Canal};
+\node[bloco, fill=yellow!20] (canal) at (6,0) {Canal};
 
 % Receptor
-\node[draw, rectangle, minimum width=2cm, minimum height=0.8cm] (rx) at (10,0) {Receptor};
-\node[draw, rectangle, minimum width=2cm, minimum height=0.8cm] (demod) at (13,0) {Demodulador};
+\node[bloco, fill=green!8] (rx) at (9,0) {Receptor};
+\node[bloco, fill=green!15] (demod) at (12,0) {Demodulador};
 
 % Conexões
-\draw[->] (-2,0) -- node[above] {$m(t)$} (mod.west);
-\draw[->] (mod.east) -- node[above, font=\small] {$s(t)$} (tx.west);
+\draw[->] (-2,0) -- node[above, font=\small] {$m(t)$} (mod.west);
+\draw[->] (mod.east) -- node[above, font=\footnotesize] {$s(t)$} (tx.west);
 \draw[->] (tx.east) -- (canal.west);
 \draw[->] (canal.east) -- (rx.west);
-\draw[->] (rx.east) -- node[above, font=\small] {$r(t)$} (demod.west);
-\draw[->] (demod.east) -- node[above] {$\hat{m}(t)$} (15,0);
+\draw[->] (rx.east) -- node[above, font=\footnotesize] {$r(t)$} (demod.west);
+\draw[->] (demod.east) -- node[above, font=\small] {$\hat{m}(t)$} (14,0);
 
 % Portadora
-\draw[->] (mod.south) -- ++(0,-0.8) node[below, font=\small] {$A_c\cos(2\pi f_c t)$};
-\draw[->] (demod.south) -- ++(0,-0.8) node[below, font=\small] {$\cos(2\pi f_c t)$};
+\draw[->] (mod.south) -- ++(0,-1.0) node[below, font=\footnotesize] {$A_c\cos(2\pi f_c t)$};
+\draw[->] (demod.south) -- ++(0,-1.0) node[below, font=\footnotesize] {$\cos(2\pi f_c t)$};
 
-% Labels
-\node[above of=mod, node distance=1.2cm, font=\small] {Mensagem};
-\node[above of=tx, node distance=1.2cm, font=\small] {RF};
-\node[above of=rx, node distance=1.2cm, font=\small] {RF};
-\node[above of=demod, node distance=1.2cm, font=\small] {Mensagem};
+% Labels acima
+\node[above=0.4cm of mod, font=\footnotesize] {Mensagem};
+\node[above=0.4cm of tx, font=\footnotesize] {RF};
+\node[above=0.4cm of rx, font=\footnotesize] {RF};
+\node[above=0.4cm of demod, font=\footnotesize] {Mensagem};
 \end{tikzpicture}
 \end{center}
 
@@ -195,7 +190,7 @@
 
 % ============================================
 
-\subsection{AM DSB-SC}
+\section{AM DSB-SC}
 
 \begin{frame}{AM DSB-SC: Double Sideband Suppressed Carrier}
 
@@ -212,7 +207,16 @@ onde:
 \end{itemize}
 \end{block}
 
-\textbf{Características:}
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Características do DSB-SC}
+
+\[
+\boxed{s(t) = A_c m(t) \cos(2\pi f_c t)}
+\]
+
 \begin{itemize}
 \item Amplitude varia linearmente com $m(t)$
 \item Portadora suprimida (não transmitida)
@@ -268,6 +272,16 @@ m(t)e^{j2\pi f_c t} \xleftrightarrow{\mathcal{F}} M(f - f_c)
 \]
 
 Portanto:
+\[
+\boxed{S(f) = \frac{A_c}{2}[M(f - f_c) + M(f + f_c)]}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Interpretação Espectral do DSB-SC}
+
 \[
 S(f) = \frac{A_c}{2}[M(f - f_c) + M(f + f_c)]
 \]
@@ -380,10 +394,17 @@ Usando $\langle \cos^2(2\pi f_c t) \rangle = 1/2$:
 s(t) = A_c \cos(2\pi f_m t) \cos(2\pi f_c t)
 \]
 
-Usando identidade trigonométrica:
+Usando identidade trigonométrica $\cos A \cos B = \frac{1}{2}[\cos(A-B) + \cos(A+B)]$:
+
 \[
-\cos A \cos B = \frac{1}{2}[\cos(A-B) + \cos(A+B)]
+s(t) = \frac{A_c}{2}[\cos(2\pi(f_c - f_m)t) + \cos(2\pi(f_c + f_m)t)]
 \]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo 1: Espectro e Potência}
 
 \[
 s(t) = \frac{A_c}{2}[\cos(2\pi(f_c - f_m)t) + \cos(2\pi(f_c + f_m)t)]
@@ -410,23 +431,21 @@ P_s = 2 \times \frac{(A_c/2)^2}{2} = \frac{A_c^2}{4}
 \textbf{Detector de Produto (Síncrono):}
 
 \begin{center}
-\begin{tikzpicture}[>=latex, scale=0.85]
+\begin{tikzpicture}[>=latex, scale=0.85,
+    bloco/.style={draw, rectangle, rounded corners=3pt, minimum height=0.8cm, font=\small}]
+% Entrada
+\draw[->] (-3,0) -- node[above, font=\small] {$s(t)$} (-1.5,0);
 % Multiplicador
-\node[draw, circle, minimum size=0.9cm] (mult) at (0,0) {$\times$};
-% Filtro passa-baixas
-\node[draw, rectangle, minimum width=2.2cm, minimum height=0.7cm] (lpf) at (3,0) {Filtro PB};
-
-% Entradas
-\draw[->] (-2.5,0.5) -- node[above, font=\small] {$s(t)$} (mult.north west);
-\draw[->] (-2.5,-0.5) -- node[below, font=\small] {$2\cos(2\pi f_c t)$} (mult.south west);
-
-% Saídas
-\draw[->] (mult.east) -- node[above, font=\small] {$v(t)$} (lpf.west);
-\draw[->] (lpf.east) -- node[above, font=\small] {$y(t)$} (5,0);
-
+\node[draw, circle, fill=yellow!20, minimum size=1cm] (mult) at (-0.5,0) {$\times$};
+\draw[->] (-1.5,0) -- (mult.west);
 % Oscilador local
-\node[draw, rectangle, minimum width=1.5cm, minimum height=0.5cm] (osc) at (-2.5,-1.5) {Oscilador};
-\draw[->] (osc.north) -- (-2.5,-0.5);
+\node[bloco, fill=green!10, minimum width=2.5cm] (osc) at (-0.5,-1.8) {Oscilador local};
+\draw[->] (osc.north) -- node[right, font=\small] {$2\cos(2\pi f_c t)$} (mult.south);
+% Filtro passa-baixas
+\node[bloco, fill=blue!10, minimum width=2.2cm] (lpf) at (3,0) {Filtro PB};
+\draw[->] (mult.east) -- node[above, font=\small] {$v(t)$} (lpf.west);
+% Saída
+\draw[->] (lpf.east) -- node[above, font=\small] {$y(t)$} (5.5,0);
 \end{tikzpicture}
 \end{center}
 
@@ -448,12 +467,7 @@ Após filtro passa-baixas (remove $2f_c$):
 
 \textbf{Oscilador local com erro de fase:} $2\cos(2\pi f_c t + \theta)$
 
-Após multiplicação:
-\[
-v(t) = 2A_c m(t) \cos(2\pi f_c t) \cos(2\pi f_c t + \theta)
-\]
-
-Usando $\cos A \cos B = \frac{1}{2}[\cos(A-B) + \cos(A+B)]$:
+Após multiplicação e usando $\cos A \cos B = \frac{1}{2}[\cos(A-B) + \cos(A+B)]$:
 
 \[
 v(t) = A_c m(t) [\cos\theta + \cos(4\pi f_c t + \theta)]
@@ -464,7 +478,16 @@ Após filtro passa-baixas:
 \boxed{y(t) = A_c m(t) \cos\theta}
 \]
 
-\textbf{Consequências:}
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Consequências do Erro de Fase}
+
+\[
+y(t) = A_c m(t) \cos\theta
+\]
+
 \begin{itemize}
 \item Atenuação por fator $\cos\theta$
 \item Para $\theta = 90^{\circ}$: $y(t) = 0$ (perda total!)
@@ -476,7 +499,7 @@ Após filtro passa-baixas:
 
 % ============================================
 
-\subsection{AM Convencional}
+\section{AM Convencional (DSB-LC)}
 
 \begin{frame}{AM Convencional (DSB-LC): A Ideia}
 
@@ -603,12 +626,11 @@ Portadora transmitida + bandas laterais
 \begin{frame}{Visualização AM: $\mu = 0.5$ e $\mu = 1.0$}
 
 \begin{center}
-\includegraphics[width=\figFull, trim=0 235bp 0 0, clip]{figures/cap4/am_conventional.pdf}
+\includegraphics[width=\figFull, height=0.7\textheight, keepaspectratio, trim=0 235bp 0 0, clip]{figures/cap4/am_conventional.pdf}
 \end{center}
 
-\textbf{$\mu = 0.5$:} Envelope sempre positivo, modulação parcial.
-
-\textbf{$\mu = 1.0$:} Envelope toca zero -- modulação 100\%.
+\vspace{-2mm}
+\textbf{$\mu = 0.5$:} Envelope sempre positivo. \quad \textbf{$\mu = 1.0$:} Envelope toca zero.
 
 \end{frame}
 
@@ -697,22 +719,27 @@ S(f) = \frac{A_c}{2}[\delta(f - f_c) + \delta(f + f_c)] + \frac{A_c k_a}{2}[M(f 
 
 % ============================================
 
-\begin{frame}{Potência e Eficiência do AM Convencional}
+\begin{frame}{Potência do AM Convencional}
 
 \textbf{Potência total} (para $\langle m(t)\rangle = 0$):
 \[
 P_s = \frac{A_c^2}{2}[1 + k_a^2 P_m] = \underbrace{\frac{A_c^2}{2}}_{P_c \text{ (portadora)}} + \underbrace{\frac{A_c^2 k_a^2 P_m}{2}}_{P_{sb} \text{ (bandas laterais)}}
 \]
 
-\textbf{Eficiência:} Fração que carrega informação
+\textbf{Eficiência:} Fração da potência que carrega informação
 \[
-\eta = \frac{P_{sb}}{P_s} = \frac{k_a^2 P_m}{1 + k_a^2 P_m}
+\boxed{\eta = \frac{P_{sb}}{P_s} = \frac{k_a^2 P_m}{1 + k_a^2 P_m}}
 \]
 
-\textbf{Para tom único} ($P_m = 1/2$):
-\[
-\eta = \frac{\mu^2}{2 + \mu^2}
-\]
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Eficiência do AM Convencional}
+
+\textbf{Para tom único} ($P_m = 1/2$): \quad $\eta = \dfrac{\mu^2}{2 + \mu^2}$
+
+\vspace{0.3cm}
 
 \begin{columns}[T]
 \begin{column}{0.45\textwidth}
@@ -725,6 +752,10 @@ P_s = \frac{A_c^2}{2}[1 + k_a^2 P_m] = \underbrace{\frac{A_c^2}{2}}_{P_c \text{ 
 \end{column}
 \begin{column}{0.52\textwidth}
 \textbf{Mais de 2/3 da potência é desperdiçada na portadora!}
+
+\vspace{0.3cm}
+
+Mesmo no melhor caso ($\mu = 1$), apenas 33\% da potência carrega informação útil.
 \end{column}
 \end{columns}
 
@@ -869,7 +900,7 @@ P_s = 5000 + 1600 = 6600 \text{ W} \qquad \eta = \frac{1600}{6600} = 24.2\%
 
 % ============================================
 
-\subsection{AM SSB}
+\section{AM SSB}
 
 \begin{frame}{AM SSB: A Motivação}
 
@@ -1253,7 +1284,7 @@ Aplicações & Estéreo FM & Rádio amador \\
 
 % ============================================
 
-\subsection{AM VSB}
+\section{AM VSB}
 
 \begin{frame}{AM VSB: Vestigial Sideband -- A Motivação}
 
@@ -1392,7 +1423,7 @@ Após passa-baixas, se $H_{\VSB}$ satisfaz condição de simetria:
 
 % ============================================
 
-\subsection{Comparação}
+\section{Comparação entre Modulações AM}
 
 \begin{frame}{Tabela Comparativa: Tipos de AM}
 

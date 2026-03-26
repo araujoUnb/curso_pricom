@@ -95,6 +95,12 @@ Z(f) = 2\,S(f) \cdot u(f) = \begin{cases} 2S(f), & f > 0 \\ 0, & f < 0 \end{case
 \includegraphics[width=\figFull, height=0.55\textheight, keepaspectratio]{figures/cap3/passband_passo2_analitico}
 \end{center}
 
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Passo 2: Sinal Analítico}
+
 O sinal $z(t)$ correspondente é chamado \textbf{sinal analítico} de $s(t)$.
 
 \end{frame}
@@ -117,18 +123,49 @@ $\tilde{s}(t)$ é o \textbf{envelope complexo} — sinal de banda básica com to
 
 \subsection{A Transformada de Hilbert}
 
-\begin{frame}{De Onde Vem a Transformada de Hilbert?}
+\begin{frame}{De Onde Vem a Transformada de Hilbert? (1/2)}
 
 No Passo 2, multiplicamos por $2u(f) = 1 + \sgn(f)$:
 
 \begin{center}
-\includegraphics[width=\figHalf, height=0.35\textheight, keepaspectratio]{figures/cap3/passband_passo4_hilbert}
+\includegraphics[width=\figHalf, height=0.3\textheight, keepaspectratio]{figures/cap3/passband_passo4_hilbert}
 \end{center}
 \vspace{-2mm}
 
-$Z(f) = S(f)\big[1 + \sgn(f)\big] = S(f) + \sgn(f) \cdot S(f)$
+No domínio da frequência:
+\[
+Z(f) = S(f)\big[1 + \sgn(f)\big] = S(f) + \sgn(f) \cdot S(f)
+\]
 
-Voltando ao tempo: \quad $\boxed{z(t) = s(t) + j\,\hat{s}(t)}$
+Sabemos que multiplicação na frequência $\Leftrightarrow$ convolução no tempo:
+\[
+z(t) = \mathcal{F}^{-1}\{S(f)\} + \mathcal{F}^{-1}\{\sgn(f) \cdot S(f)\}
+\]
+
+O primeiro termo é simplesmente $s(t)$. Mas o que é $\mathcal{F}^{-1}\{\sgn(f) \cdot S(f)\}$?
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{De Onde Vem a Transformada de Hilbert? (2/2)}
+
+Sabemos que $\dfrac{1}{\pi t} \leftrightarrow -j\,\sgn(f)$, logo $\sgn(f) \leftrightarrow \dfrac{j}{\pi t}$.
+
+Pelo teorema da convolução:
+\[
+\mathcal{F}^{-1}\{\sgn(f) \cdot S(f)\} = s(t) \ast \frac{j}{\pi t} = j\underbrace{\left[s(t) \ast \frac{1}{\pi t}\right]}_{\hat{s}(t)}
+\]
+
+\textbf{Definimos} a Transformada de Hilbert: \quad $\hat{s}(t) \triangleq s(t) \ast \dfrac{1}{\pi t}$
+
+Portanto: \quad $\mathcal{F}^{-1}\{\sgn(f) \cdot S(f)\} = j\,\hat{s}(t)$
+
+\vspace{3mm}
+Substituindo na expressão de $z(t)$:
+\[
+\boxed{z(t) = s(t) + j\,\hat{s}(t)}
+\]
 
 onde $\hat{s}(t)$ é a \textbf{Transformada de Hilbert} de $s(t)$: defasagem de $90°$ em cada componente.
 
@@ -136,13 +173,7 @@ onde $\hat{s}(t)$ é a \textbf{Transformada de Hilbert} de $s(t)$: defasagem de 
 
 % ============================================
 
-\begin{frame}{Definição da Transformada de Hilbert}
-
-A \textbf{Transformada de Hilbert} de $s(t)$ é definida como:
-
-\[
-\boxed{\hat{s}(t) = s(t) \ast \frac{1}{\pi t} = \frac{1}{\pi} \int_{-\infty}^{\infty} \frac{s(\tau)}{t - \tau}\, d\tau}
-\]
+\begin{frame}{Propriedades da Transformada de Hilbert}
 
 \textbf{No domínio da frequência:}
 \[
@@ -234,15 +265,23 @@ a(t) = |\tilde{s}(t)| = \sqrt{s_I^2(t) + s_Q^2(t)}
 \[
 \theta(t) = \arctan\!\left(\frac{s_Q(t)}{s_I(t)}\right)
 \]
-
-\textbf{Forma polar:}
-\[
-\tilde{s}(t) = a(t)\,e^{j\theta(t)}
-\]
 \end{column}
 \end{columns}
 
-\vspace{0.2cm}
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Representação Vetorial — Forma Polar}
+
+\textbf{Forma polar} do envelope complexo:
+\[
+\boxed{\tilde{s}(t) = a(t)\,e^{j\theta(t)}}
+\]
+
+onde $a(t) = |\tilde{s}(t)|$ é a \textbf{amplitude instantânea} e $\theta(t) = \arctan\!\left(\frac{s_Q(t)}{s_I(t)}\right)$ é a \textbf{fase instantânea}.
+
+\vspace{0.3cm}
 
 Toda a informação do sinal passante (amplitude \textbf{e} fase) está codificada neste vetor complexo de banda básica.
 
@@ -270,6 +309,93 @@ Expandindo:
 \includegraphics[width=\textwidth]{figures/cap3/passband_passo6_reconstrucao}
 \end{column}
 \end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Obtendo $\hat{s}(t)$ a partir das Componentes I/Q}
+
+Sabemos que o sinal analítico é $z(t) = s(t) + j\,\hat{s}(t)$.
+
+Por outro lado, usando o envelope complexo:
+\[
+z(t) = \tilde{s}(t)\,e^{j2\pi f_c t} = \big[s_I(t) + j\,s_Q(t)\big]\big[\cos(2\pi f_c t) + j\sin(2\pi f_c t)\big]
+\]
+
+Expandindo e separando parte real e imaginária:
+
+\begin{align*}
+s(t) &= \Real\{z(t)\} = s_I(t)\cos(2\pi f_c t) - s_Q(t)\sin(2\pi f_c t) \\[6pt]
+\hat{s}(t) &= \text{Im}\{z(t)\} = s_I(t)\sin(2\pi f_c t) + s_Q(t)\cos(2\pi f_c t)
+\end{align*}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Representação Matricial — Modulação I/Q}
+
+Podemos escrever $s(t)$ e $\hat{s}(t)$ de forma compacta:
+
+\[
+\boxed{
+\begin{bmatrix} s(t) \\ \hat{s}(t) \end{bmatrix}
+=
+\underbrace{
+\begin{bmatrix}
+\cos(2\pi f_c t) & -\sin(2\pi f_c t) \\
+\sin(2\pi f_c t) & \cos(2\pi f_c t)
+\end{bmatrix}
+}_{\text{matriz de rotação por } 2\pi f_c t}
+\begin{bmatrix} s_I(t) \\ s_Q(t) \end{bmatrix}
+}
+\]
+
+\vspace{3mm}
+
+A portadora aplica uma \textbf{rotação} ao vetor de banda básica $(s_I, s_Q)$:
+\begin{itemize}
+\item O vetor $(s_I, s_Q)$ gira com velocidade angular $2\pi f_c$
+\item As projeções nos novos eixos dão $s(t)$ e $\hat{s}(t)$
+\item Inversão: rotação de $-2\pi f_c t$ (basta multiplicar pela transposta)
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualização: Rotação pela Portadora}
+
+\begin{center}
+\begin{tikzpicture}[scale=2.2, >=latex]
+% Original axes (I/Q)
+\draw[->, thick, gray] (-0.4,0) -- (2.3,0) node[right, font=\small] {$I$ (em fase)};
+\draw[->, thick, gray] (0,-0.4) -- (0,2.1) node[above, font=\small] {$Q$ (quadratura)};
+% Original vector (baseband)
+\draw[->, very thick, blue] (0,0) -- (1.5,0.6);
+\node[blue, font=\small, below right] at (1.5,0.6) {$\begin{pmatrix}s_I \\ s_Q\end{pmatrix}$};
+% Dashed projections for original
+\draw[dashed, blue!50] (1.5,0) -- (1.5,0.6);
+\draw[dashed, blue!50] (0,0.6) -- (1.5,0.6);
+\node[blue!70, font=\scriptsize, below] at (1.5,0) {$s_I$};
+\node[blue!70, font=\scriptsize, left] at (0,0.6) {$s_Q$};
+% Rotated axes (s / s_hat)
+\draw[->, gray, dashed] (0,0) -- ({2.1*cos(35)},{2.1*sin(35)}) node[right, font=\small] {eixo $s$};
+\draw[->, gray, dashed] (0,0) -- ({-1.8*sin(35)},{1.8*cos(35)}) node[above left, font=\small] {eixo $\hat{s}$};
+% Rotated vector
+\pgfmathsetmacro{\rx}{1.5*cos(35)-0.6*sin(35)}
+\pgfmathsetmacro{\ry}{1.5*sin(35)+0.6*cos(35)}
+\draw[->, very thick, red!70!black] (0,0) -- (\rx,\ry);
+\node[red!70!black, font=\small, above right] at (\rx,\ry) {$\begin{pmatrix}s \\ \hat{s}\end{pmatrix}$};
+% Rotation arc
+\draw[->, thick, green!50!black] (0.8,0) arc (0:35:0.8);
+\node[green!50!black, font=\small] at (1.15,0.3) {$2\pi f_c t$};
+% Same magnitude note
+\node[font=\small, text=gray] at (1.2,-0.7) {mesmo vetor, eixos diferentes};
+\node[font=\small, text=gray] at (1.2,-1.0) {$|\tilde{s}|^2 = s_I^2 + s_Q^2 = s^2 + \hat{s}^2$};
+\end{tikzpicture}
+\end{center}
 
 \end{frame}
 
