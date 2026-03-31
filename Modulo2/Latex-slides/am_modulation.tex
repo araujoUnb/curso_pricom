@@ -505,6 +505,99 @@ Usando $\langle \cos^2(2\pi f_c t) \rangle = 1/2$:
 \end{frame}
 
 % ============================================
+% SLIDE: DSB-SC como sinal banda passante (I/Q)
+% ============================================
+\begin{frame}{DSB-SC é um Sinal Banda Passante}
+
+O espectro $S(f) = \frac{A_c}{2}[M(f-f_c) + M(f+f_c)]$ mostra: a energia está em torno de $\pm f_c$, \textbf{não na origem}.
+
+\vspace{0.2cm}
+
+\onslide<2->{
+Lembrando a representação I/Q de um sinal banda passante:
+\vspace{-0.2cm}
+\[
+s(t) = \underbrace{s_I(t)}_{\text{em fase}}\cos(2\pi f_c t) - \underbrace{s_Q(t)}_{\text{quadratura}}\sin(2\pi f_c t)
+\]
+}
+
+\onslide<3->{
+\vspace{-0.2cm}
+Comparando com $s(t) = A_c\,m(t)\cos(2\pi f_c t)$, identificamos:
+\vspace{-0.2cm}
+\[
+\boxed{s_I(t) = A_c\,m(t), \qquad s_Q(t) = 0}
+\]
+
+\vspace{-0.1cm}
+O DSB-SC modula \textbf{apenas a componente em fase}. A quadratura é nula!
+}
+
+\end{frame}
+
+% ============================================
+% SLIDE: Interpretação I/Q do DSB-SC
+% ============================================
+\begin{frame}{Interpretação no Plano I/Q}
+
+\begin{columns}[c]
+\begin{column}{0.45\textwidth}
+
+Com $s_Q(t) = 0$, o envelope complexo é \textbf{puramente real}:
+\[
+\tilde{s}(t) = A_c\,m(t)
+\]
+
+\onslide<2->{
+\vspace{0.2cm}
+No plano I/Q, o fasor varia \textbf{apenas ao longo do eixo $I$}:
+
+\begin{itemize}\setlength{\itemsep}{2pt}
+\item Amplitude $\to$ informação
+\item Fase $\to$ fixa (0 ou $\pi$)
+\end{itemize}
+}
+
+\onslide<3->{
+\vspace{0.2cm}
+\colorbox{yellow!20}{\parbox{0.93\columnwidth}{\small\centering
+Toda informação está na \textbf{amplitude} da portadora --- a \textbf{fase} não é explorada.
+}}
+}
+
+\end{column}
+\begin{column}{0.50\textwidth}
+\begin{center}
+\begin{tikzpicture}[scale=1.5, >=latex]
+% Axes
+\draw[->, thick, gray] (-1.8,0) -- (1.9,0) node[right, font=\small] {$I$};
+\draw[->, thick, gray] (0,-1.3) -- (0,1.5) node[above, font=\small] {$Q$};
+
+% Shaded region on I axis showing m(t) range
+\fill[blue!12, rounded corners=2pt] (-1.3,-0.1) rectangle (1.3,0.1);
+
+% Vector on I axis
+\draw[->, very thick, blue] (0,0) -- (1.15,0);
+\node[blue, font=\small, above right] at (0.7,0.05) {$A_c\,m(t)$};
+
+% Q = 0 annotation
+\draw[dashed, red!60, thick] (0,-0.9) -- (0,0.9);
+\node[red!70, font=\footnotesize, rotate=90] at (-0.22,0.6) {$s_Q = 0$};
+
+% Oscillation arrow
+\draw[->, thick, blue!50, decorate, decoration={snake, amplitude=1pt, segment length=5pt}]
+  (-1.0,0) -- (1.0,0);
+\node[font=\footnotesize, text=blue!60] at (0,-0.5) {o fasor varia};
+\node[font=\footnotesize, text=blue!60] at (0,-0.75) {apenas no eixo $I$};
+
+\end{tikzpicture}
+\end{center}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+% ============================================
 % SLIDE: Exemplo DSB-SC — Enunciado
 % ============================================
 \begin{frame}{Exemplo: Transmissor de Rádio DSB-SC}
@@ -629,6 +722,158 @@ B = 2f_m = 2 \times 5 = \boxed{10\,\text{kHz}}
 \end{frame}
 
 % ============================================
+% SLIDE: Demodulação via Envelope Complexo — passo 1
+% ============================================
+\begin{frame}{Demodulação DSB-SC: Abordagem via Envelope Complexo}
+
+\only<1>{
+Vimos que o DSB-SC tem envelope complexo $\tilde{s}(t) = A_c\,m(t)$. Como recuperar $m(t)$?
+
+\vspace{0.5cm}
+
+\textbf{Receita do Módulo anterior} (passante $\to$ banda básica):
+
+\vspace{0.3cm}
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.85,
+    bloco/.style={draw, rectangle, rounded corners=3pt, minimum height=0.8cm, font=\small, fill=blue!8}]
+
+% s(t) input
+\node[font=\small] (in) at (-5,0) {$s(t)$};
+
+% Step 1: form analytic signal
+\node[bloco, minimum width=3cm] (hilb) at (-1.5,0) {Sinal analítico $z(t)$};
+\draw[->, thick] (in) -- (hilb);
+
+% Step 2: derotate
+\node[bloco, minimum width=3cm, fill=green!10] (derot) at (3.5,0) {$\times\; e^{-j2\pi f_c t}$};
+\draw[->, thick] (hilb) -- node[above, font=\footnotesize] {$s(t) + j\hat{s}(t)$} (derot);
+
+% Step 3: output
+\node[font=\small] (out) at (7.5,0) {$\tilde{s}(t) = A_c\,m(t)$};
+\draw[->, thick] (derot) -- (out);
+
+% Labels below
+\node[font=\footnotesize, blue!70, align=center] at (-1.5,-1.2) {Passo 1:\\Hilbert + parte real};
+\node[font=\footnotesize, green!50!black, align=center] at (3.5,-1.2) {Passo 2:\\Translação para\\banda básica};
+
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.5cm}
+
+Dois passos: construir o sinal analítico, depois transladar para banda básica.
+
+Mas o que envolve cada passo na prática?
+}
+
+% --- Overlay 2: Expande o diagrama detalhado ---
+\only<2>{
+\textbf{Expandindo:} o sinal analítico requer a \textbf{Transformada de Hilbert}:
+
+\[
+z(t) = s(t) + j\,\hat{s}(t), \qquad \hat{s}(t) = s(t) \ast \frac{1}{\pi t}
+\]
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.85,
+    bloco/.style={draw, rectangle, rounded corners=3pt, minimum height=0.8cm, font=\small}]
+
+% s(t)
+\node[font=\small] (in) at (-4,0) {$s(t)$};
+
+% Branch point
+\coordinate (branch) at (-2.5,0);
+\fill (branch) circle (2.5pt);
+
+% Upper path: direct (real part)
+\draw[->, thick] (in) -- (branch);
+\draw[->, thick] (branch) -- ++(0,1) -| node[above, pos=0.25, font=\footnotesize] {parte real: $s(t)$} (2.5, 0.5);
+
+% Lower path: Hilbert (imag part)
+\node[bloco, fill=orange!15, minimum width=2cm] (ht) at (0,-1) {$\mathcal{H}\{\cdot\}$};
+\draw[->, thick] (branch) |- (ht);
+\draw[->, thick] (ht) -| node[below, pos=0.25, font=\footnotesize] {parte imag.: $j\hat{s}(t)$} (2.5,-0.5);
+
+% Combine
+\node[draw, circle, fill=yellow!20, minimum size=0.7cm, font=\small] (sum) at (2.5,0) {$+$};
+
+% multiply by exp
+\node[bloco, fill=green!10, minimum width=2.5cm] (exp) at (6,0) {$\times\; e^{-j2\pi f_c t}$};
+\draw[->, thick] (sum) -- node[above, font=\footnotesize] {$z(t)$} (exp);
+
+% output
+\node[font=\small, right] (out) at (7.8,0) {$\tilde{s}(t) = A_c\,m(t)$};
+\draw[->, thick] (exp) -- (out);
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.3cm}
+
+\begin{center}
+\colorbox{orange!12}{\parbox{0.85\textwidth}{\centering
+Precisa de um \textbf{filtro de Hilbert} (convolução com $\frac{1}{\pi t}$) e de um \textbf{oscilador complexo} ($e^{-j2\pi f_c t}$). Isso é fácil de implementar?
+}}
+\end{center}
+}
+
+\end{frame}
+
+% ============================================
+% SLIDE: Dificuldades da abordagem via Hilbert
+% ============================================
+\begin{frame}{Por que Não Usar Hilbert Diretamente?}
+
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+
+\textbf{1. Filtro ideal irrealizável}
+
+\vspace{0.1cm}
+$H(f) = -j\,\sgn(f)$: descontinuidade em $f=0$
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.5]
+\draw[->] (-2.8,0) -- (2.8,0) node[right, font=\small] {$f$};
+\draw[->] (0,-1.6) -- (0,1.8) node[above, font=\small] {$\angle H(f)$};
+\draw[very thick, red] (-2.3,-1.0) -- (-0.05,-1.0);
+\draw[very thick, red] (0.05,1.0) -- (2.3,1.0);
+\draw[dashed, gray] (-2.3,1.0) -- (0,1.0) node[left, font=\scriptsize, pos=0] {$+\frac{\pi}{2}$};
+\draw[dashed, gray] (-2.3,-1.0) -- (0,-1.0) node[left, font=\scriptsize, pos=0] {$-\frac{\pi}{2}$};
+\draw[thick, red, dashed] (0,-1.0) -- (0,1.0);
+\end{tikzpicture}
+\end{center}
+
+\vspace{-0.1cm}
+\textbf{2. Oscilador complexo}
+
+$e^{-j2\pi f_c t}$ precisa gerar $\cos$ \textbf{e} $\sin$ e operar sobre sinais complexos.
+
+\end{column}
+\begin{column}{0.50\textwidth}
+
+\onslide<2->{
+\textbf{3. Na prática:}
+\begin{itemize}\setlength{\itemsep}{3pt}
+\item Filtros de Hilbert analógicos são difíceis de construir
+\item Usado em \textbf{receptores digitais} (DSP)
+\item Para receptores \textbf{analógicos}: precisa de solução mais simples
+\end{itemize}
+
+\vspace{0.3cm}
+
+\colorbox{green!15}{\parbox{0.95\columnwidth}{\centering
+\textbf{Solução prática:} Multiplicar por $\cos(2\pi f_c t)$ e filtrar --- a \textbf{demodulação coerente} faz o mesmo trabalho sem Hilbert!
+}}
+}
+
+\end{column}
+\end{columns}
+
+\end{frame}
+
+% ============================================
 % SLIDE: Demodulação Coerente — diagrama + math com overlays
 % ============================================
 \begin{frame}{Demodulação Coerente do DSB-SC}
@@ -739,6 +984,169 @@ v(t) = 2A_c m(t) \cos^2(2\pi f_c t) = A_c m(t)\bigl[\underbrace{1}_{\text{banda 
 
 \end{tikzpicture}
 \end{center}
+
+\end{frame}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EXERCÍCIOS — AM DSB-SC (Espectro, Potência, DEP)
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Exercícios: Espectro e Potência DSB-SC}
+
+% ============================================
+\begin{frame}{Exercício: Espectro e Largura de Banda}
+
+\only<1>{
+Um sinal de áudio $m(t)$ com banda $W = 4\,\text{kHz}$ modula uma portadora
+$f_c = 1\,\text{MHz}$ usando DSB-SC.
+
+\vspace{0.3cm}
+
+\begin{enumerate}[a)]
+\item Qual a faixa de frequências ocupada pelo sinal modulado?
+\item Qual a largura de banda $B$?
+\item Identifique a LSB e a USB no espectro.
+\end{enumerate}
+}
+
+\only<2>{
+\textbf{Resolução:}
+
+\begin{enumerate}[a)]
+\item Faixa: de $f_c - W = 996\,\text{kHz}$ até $f_c + W = 1004\,\text{kHz}$
+\item $B = 2W = 2 \times 4 = \boxed{8\,\text{kHz}}$
+\item LSB: 996--1000 kHz \quad USB: 1000--1004 kHz
+\end{enumerate}
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.7]
+\draw[->] (-0.5,0) -- (7,0) node[right, font=\small] {$f$ (kHz)};
+\draw[->] (0,-0.3) -- (0,2);
+\fill[red!20] (1.5,0) -- (1.5,1.2) -- (3.5,1.2) -- (3.5,0) -- cycle;
+\fill[green!20] (3.5,0) -- (3.5,1.2) -- (5.5,1.2) -- (5.5,0) -- cycle;
+\draw[thick, red] (1.5,0) -- (1.5,1.2) -- (3.5,1.2) -- (3.5,0);
+\draw[thick, green!60!black] (3.5,0) -- (3.5,1.2) -- (5.5,1.2) -- (5.5,0);
+\node[font=\footnotesize, red] at (2.5,0.6) {LSB};
+\node[font=\footnotesize, green!60!black] at (4.5,0.6) {USB};
+\node[below, font=\small] at (1.5,-0.1) {996};
+\node[below, font=\small] at (3.5,-0.1) {1000};
+\node[below, font=\small] at (5.5,-0.1) {1004};
+\draw[<->, thick, orange] (1.5,-0.6) -- (5.5,-0.6) node[midway, below, font=\small] {$B=8$ kHz};
+\end{tikzpicture}
+\end{center}
+}
+
+\end{frame}
+
+% ============================================
+\begin{frame}{Exercício: Potência com Dois Tons}
+
+\only<1>{
+Um transmissor DSB-SC opera com $A_c = 20\,\text{V}$ e mensagem
+$m(t) = 3\cos(2\pi \cdot 1000\, t) + 2\cos(2\pi \cdot 3000\, t)$.
+
+\vspace{0.3cm}
+
+\begin{enumerate}[a)]
+\item Calcule a potência da mensagem $P_m$.
+\item Calcule a potência do sinal transmitido $P_s$.
+\item Quantas componentes espectrais existem e em que frequências?
+\end{enumerate}
+}
+
+\only<2>{
+\textbf{a) Potência da mensagem:}
+\[
+P_m = \frac{3^2}{2} + \frac{2^2}{2} = 4.5 + 2 = \boxed{6.5\,\text{W}}
+\]
+
+\textbf{b) Potência transmitida:}
+\[
+P_s = \frac{A_c^2 P_m}{2} = \frac{400 \times 6.5}{2} = \boxed{1300\,\text{W}}
+\]
+
+\textbf{c) Componentes:} 4 raias espectrais
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.6]
+\draw[->] (-0.5,0) -- (7,0) node[right, font=\small] {$f$};
+\draw[->] (0,-0.3) -- (0,2.5);
+\draw[thick, red, ->, line width=1.5pt] (1,0) -- (1,2) node[above, font=\tiny] {$f_c\!-\!3$k};
+\draw[thick, red, ->, line width=1.5pt] (2.5,0) -- (2.5,1.5) node[above, font=\tiny] {$f_c\!-\!1$k};
+\draw[thick, green!60!black, ->, line width=1.5pt] (4.5,0) -- (4.5,1.5) node[above, font=\tiny] {$f_c\!+\!1$k};
+\draw[thick, green!60!black, ->, line width=1.5pt] (6,0) -- (6,2) node[above, font=\tiny] {$f_c\!+\!3$k};
+\draw[dashed, gray] (3.5,0) -- (3.5,0.5);
+\node[below, font=\tiny] at (3.5,0) {$f_c$};
+\end{tikzpicture}
+\end{center}
+}
+
+\end{frame}
+
+% ============================================
+\begin{frame}{Exercício: Densidade Espectral de Potência}
+
+\only<1>{
+A mensagem $m(t)$ tem densidade espectral de potência (DEP):
+\[
+S_m(f) = \begin{cases}
+\frac{S_0}{2W}\left(1 - \frac{|f|}{W}\right) & |f| \leq W \\
+0 & |f| > W
+\end{cases}
+\]
+com $S_0 = 4\,\text{W}$ e $W = 5\,\text{kHz}$. A portadora tem $A_c = 10\,\text{V}$, $f_c = 100\,\text{kHz}$.
+
+\vspace{0.2cm}
+
+\begin{enumerate}[a)]
+\item Esboce $S_m(f)$ e calcule a potência $P_m$ da mensagem.
+\item Determine $S_s(f)$ do sinal DSB-SC modulado.
+\item Calcule $P_s$ diretamente pela DEP e verifique com $P_s = \frac{A_c^2 P_m}{2}$.
+\end{enumerate}
+}
+
+\only<2>{
+\textbf{a)} $P_m = \int_{-W}^{W} S_m(f)\, df = S_0 \times \frac{1}{2} \times 1 = \frac{S_0}{2} = \boxed{2\,\text{W}}$
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.6]
+% Sm(f)
+\draw[->] (-3.5,0) -- (3.5,0) node[right, font=\small] {$f$};
+\draw[->] (0,-0.3) -- (0,2.2) node[above, font=\small] {$S_m(f)$};
+\fill[blue!15] (-2,0) -- (0,1.5) -- (2,0) -- cycle;
+\draw[thick, blue] (-2,0) -- (0,1.5) -- (2,0);
+\node[below, font=\tiny] at (-2,0) {$-W$};
+\node[below, font=\tiny] at (2,0) {$W$};
+\node[left, font=\tiny] at (0,1.5) {$\frac{S_0}{2W}$};
+\node[font=\small] at (0,-1) {Triangular: área $= P_m = S_0/2$};
+\end{tikzpicture}
+\end{center}
+}
+
+\only<3>{
+\textbf{b)} DEP do sinal modulado $s(t) = A_c m(t)\cos(2\pi f_c t)$:
+\[
+\boxed{S_s(f) = \frac{A_c^2}{4}[S_m(f - f_c) + S_m(f + f_c)]}
+\]
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.55]
+\draw[->] (-6,0) -- (6,0) node[right, font=\small] {$f$};
+\draw[->] (0,-0.3) -- (0,2) node[above, font=\small] {$S_s(f)$};
+% Em +fc
+\fill[red!15] (2,0) -- (4,1.2) -- (6,0) -- cycle;
+\draw[thick, red] (2,0) -- (4,1.2) -- (6,0);
+\node[below, font=\tiny] at (4,0) {$f_c$};
+% Em -fc
+\fill[red!15] (-6,0) -- (-4,1.2) -- (-2,0) -- cycle;
+\draw[thick, red] (-6,0) -- (-4,1.2) -- (-2,0);
+\node[below, font=\tiny] at (-4,0) {$-f_c$};
+\node[above, font=\tiny] at (4,1.2) {$\frac{A_c^2 S_0}{8W}$};
+\end{tikzpicture}
+\end{center}
+
+\textbf{c)} $P_s = \int S_s(f)\,df = \frac{A_c^2}{2} P_m = \frac{100}{2}\times 2 = \boxed{100\,\text{W}}$ \checkmark
+}
 
 \end{frame}
 
@@ -979,18 +1387,18 @@ Sincronização de fase é \textbf{crítica} para DSB-SC. Erros acima de $30^{\c
 \node[bloco, fill=blue!10, minimum width=1.8cm] (lpf) at (3.5,0) {LPF};
 \draw[->] (mult.east) -- node[above, font=\footnotesize] {$v(t)$} (lpf.west);
 % Saída
-\draw[->] (lpf.east) -- node[above, font=\small] {$\hat{m}(t)$} (6.5,0);
-% Ponto de derivação após LPF
-\coordinate (tap) at (5.5,0);
+\draw[->] (lpf.east) -- node[above, font=\small] {$\hat{m}(t)$} (8,0);
+% Ponto de derivação após LPF (mais à frente)
+\coordinate (tap) at (6.8,0);
 \fill (tap) circle (2pt);
-% PLL abaixo, centrado entre mult e LPF
-\node[bloco, fill=green!15, minimum width=2.5cm] (pll) at (2,-2.2) {PLL / Costas};
+% PLL abaixo, centrado entre mult e saída
+\node[bloco, fill=green!15, minimum width=2.5cm] (pll) at (3,-2.2) {PLL / Costas};
 % Realimentação: desce da saída, vai ao PLL
-\draw[->, green!60!black] (tap) -- (5.5,-2.2) -- (pll.east);
-\node[font=\footnotesize, green!60!black] at (5.8,-1) {erro};
+\draw[->, green!60!black] (tap) -- (6.8,-2.2) -- (pll.east);
+\node[font=\footnotesize, green!60!black] at (7.1,-1) {erro};
 % PLL gera oscilador local: sai pela esquerda, sobe ao multiplicador
 \draw[->, blue] (pll.west) -- (0.5,-2.2) -- (0.5,-0.55);
-\node[font=\footnotesize, blue] at (-1,-1.5) {$2\cos(2\pi f_c t + \hat{\theta})$};
+\node[font=\footnotesize, blue, left] at (0.4,-1.3) {$2\cos(2\pi f_c t + \hat{\theta})$};
 \end{tikzpicture}
 \end{center}
 
@@ -1027,6 +1435,10 @@ y(t) = A_c\, m(t)\cos\bigl(\phi(t) - \hat{\phi}(t)\bigr) = A_c\, m(t)\cos(\theta
 \]
 
 onde $\theta_e(t) = \phi(t) - \hat{\phi}(t)$ é o \textbf{erro de fase}
+
+\vspace{0.2cm}
+\footnotesize
+Nota: a saída do demodulador depende de $\cos(\theta_e)$. Para \textbf{estimar} $\theta_e$ e corrigi-lo, o PLL usa internamente um detector em \textbf{quadratura} ($-\sin$), que produz $\sin(\theta_e)$ --- uma função ímpar que indica a \textit{direção} do erro.
 }
 
 \only<2>{
@@ -1085,11 +1497,13 @@ onde $\theta_e(t) = \phi(t) - \hat{\phi}(t)$ é o \textbf{erro de fase}
 \draw[->] (-2.2,0.15) -- node[above, font=\tiny] {$r(t)$} (pd.west |- 0,0.15);
 % Conexões
 \draw[->] (pd.east) -- node[above, font=\tiny] {$e(t)$} (lf.west);
-\coordinate (corner) at (4.8,0);
-\draw[->] (lf.east) -- (corner) -- (4.8,-1.6) -- (vco.east);
+\coordinate (corner) at (6.5,0);
+\draw (lf.east) -- (corner);
+\draw[->] (corner) -- (6.5,-1.6) -- (vco.east);
 \draw[->] (vco.west) -- (0,-1.6) -- (pd.south);
-\node[font=\tiny, blue] at (1.3,-1.85) {$2\cos(2\pi f_c t + \hat{\phi})$};
-\draw[->] (corner) -- ++(1,0) node[right, font=\tiny] {$v_c(t)$};
+\node[font=\tiny, blue] at (1.3,-1.85) {$c_L(t) = -2\sin(2\pi f_c t + \hat{\phi})$};
+\fill (corner) circle (2pt);
+\draw[->] (corner) -- ++(2,0) node[right, font=\tiny] {$v_c(t)$};
 \end{tikzpicture}
 \end{center}
 
@@ -1097,14 +1511,23 @@ onde $\theta_e(t) = \phi(t) - \hat{\phi}(t)$ é o \textbf{erro de fase}
 
 % --- Overlay 1: Detector de Fase ---
 \only<1>{
-\textbf{Detector de Fase (PD):} multiplica $r(t)$ pelo VCO e filtra
+\textbf{Detector de Fase (PD):} multiplica $r(t)$ pela saída do VCO e filtra
 
-$e(t) = r(t) \times c_L(t) \xrightarrow{\text{LPF}} K_d \sin(\theta_e)$
-
-Para erros pequenos ($\theta_e \ll 1$):
+\vspace{-0.1cm}
 \[
-\boxed{e(t) \approx K_d\, \theta_e(t)} \qquad \theta_e = \phi - \hat{\phi}
+r(t) \times c_L(t) = \underbrace{A_c m(t)\cos(2\pi f_c t + \phi)}_{\text{sinal recebido}} \times \underbrace{\bigl(-2\sin(2\pi f_c t + \hat{\phi})\bigr)}_{\text{VCO (em quadratura)}}
 \]
+
+\vspace{-0.3cm}
+Após o LPF (remove termo em $2f_c$):
+\vspace{-0.2cm}
+\[
+e(t) = K_d\sin\!\bigl(\underbrace{\phi - \hat{\phi}}_{\theta_e}\bigr)
+\]
+
+\vspace{-0.3cm}
+Para erros pequenos ($\theta_e \ll 1$): \quad
+$\boxed{e(t) \approx K_d\, \theta_e(t)}$, \quad $\theta_e = \phi - \hat{\phi}$
 }
 
 % --- Overlay 2: Filtro de Loop ---
@@ -1157,6 +1580,129 @@ A \textbf{realimentação negativa} faz $\theta_e \rightarrow 0$: o VCO ``perseg
 \end{frame}
 
 % ============================================
+% SLIDE: Aproximação linear do PLL
+% ============================================
+\begin{frame}{Aproximação Linear: Quando Vale $\sin(\theta_e) \approx \theta_e$?}
+
+\only<1>{
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=1.1]
+\draw[->] (-3.6,0) -- (3.8,0) node[right, font=\small] {$\theta_e$ (rad)};
+\draw[->] (0,-1.6) -- (0,1.8);
+% sin(theta)
+\draw[thick, red, smooth, domain=-3.14:3.14, samples=120] plot (\x, {sin(\x r)});
+\node[red, font=\small, above] at (1.8,1.05) {$\sin(\theta_e)$};
+% theta (linear)
+\draw[thick, blue, dashed, domain=-1.4:1.4] plot (\x, {\x});
+\node[blue, font=\small, above left] at (-1.1,-1.1) {$\theta_e$};
+% Shaded valid region
+\fill[green!15, opacity=0.6] (-0.55,-1.4) rectangle (0.55,1.4);
+\draw[green!60!black, thick, dashed] (-0.55,-1.4) -- (-0.55,1.4);
+\draw[green!60!black, thick, dashed] (0.55,-1.4) -- (0.55,1.4);
+% Labels
+\node[below, font=\footnotesize] at (3.14,0) {$\pi$};
+\node[below, font=\footnotesize] at (-3.14,0) {$-\pi$};
+\node[below, font=\footnotesize] at (1.57,-0.05) {$\frac{\pi}{2}$};
+\node[below, font=\footnotesize] at (-1.57,-0.05) {$-\frac{\pi}{2}$};
+% Green region label
+\node[green!50!black, font=\small, align=center] at (0,1.65) {Região linear};
+\node[green!50!black, font=\footnotesize] at (0,-1.65) {$|\theta_e| \lesssim 30°$: erro $< 5\%$};
+\end{tikzpicture}
+\end{center}
+
+Na região sombreada, $\sin(\theta_e) \approx \theta_e$ e o PLL pode ser analisado como sistema \textbf{linear}.
+}
+
+\only<2>{
+\begin{columns}[c]
+\begin{column}{0.45\textwidth}
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.85]
+\draw[->] (-3.5,0) -- (3.7,0) node[right, font=\small] {$\theta_e$};
+\draw[->] (0,-1.5) -- (0,1.7);
+% sin(theta)
+\draw[thick, red, smooth, domain=-3.14:3.14, samples=100] plot (\x, {sin(\x r)});
+% theta (linear)
+\draw[thick, blue, dashed, domain=-1.4:1.4] plot (\x, {\x});
+% Regions with colors
+\fill[green!15, opacity=0.5] (-0.55,-1.3) rectangle (0.55,1.3);
+\fill[orange!15, opacity=0.5] (0.55,-1.3) rectangle (1.57,1.3);
+\fill[orange!15, opacity=0.5] (-1.57,-1.3) rectangle (-0.55,1.3);
+\fill[red!10, opacity=0.5] (1.57,-1.3) rectangle (3.14,1.3);
+\fill[red!10, opacity=0.5] (-3.14,-1.3) rectangle (-1.57,1.3);
+% Labels
+\node[green!50!black, font=\scriptsize, align=center] at (0,-1.55) {linear};
+\node[orange!70!black, font=\scriptsize, align=center] at (1.06,-1.55) {não-linear};
+\node[red!70!black, font=\scriptsize, align=center] at (2.35,-1.55) {instável};
+\end{tikzpicture}
+\end{center}
+\end{column}
+\begin{column}{0.53\textwidth}
+
+\textbf{\color{green!50!black} Região linear} ($|\theta_e| < 30°$):
+\begin{itemize}\setlength{\itemsep}{1pt}
+\item $\sin(\theta_e) \approx \theta_e$ (erro $< 5\%$)
+\item Análise por Laplace válida
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{\color{orange!70!black} Região não-linear} ($30° < |\theta_e| < 90°$):
+\begin{itemize}\setlength{\itemsep}{1pt}
+\item $\sin$ satura $\to$ ganho efetivo cai
+\item PLL ainda converge, mas mais lento
+\end{itemize}
+
+\vspace{0.2cm}
+
+\textbf{\color{red!70!black} Região instável} ($|\theta_e| > 90°$):
+\begin{itemize}\setlength{\itemsep}{1pt}
+\item Sinal de erro \textbf{inverte}
+\item PLL perde travamento
+\item Precisa \textbf{recapturar} a fase
+\end{itemize}
+
+\end{column}
+\end{columns}
+}
+
+\only<3>{
+\textbf{Como garantir que $\theta_e$ fica pequeno?}
+
+\vspace{0.3cm}
+
+A própria \textbf{realimentação} do PLL cuida disso --- quando travado:
+
+\vspace{0.2cm}
+
+\begin{enumerate}\setlength{\itemsep}{4pt}
+\item O PLL detecta $\theta_e$ e corrige continuamente $\hat{\phi}$
+\item Em regime permanente, $\theta_e$ depende do tipo de perturbação:
+
+\vspace{0.1cm}
+\begin{center}
+\small
+\begin{tabular}{l c c}
+\textbf{Perturbação} & \textbf{PLL 1ª ordem} & \textbf{PLL 2ª ordem} \\
+\hline
+Degrau de fase & $\theta_e \to 0$ & $\theta_e \to 0$ \\
+Rampa (Doppler) & $\theta_e = \Delta\omega / K$ & $\theta_e \to 0$ \\
+\end{tabular}
+\end{center}
+
+\item Para manter $|\theta_e| < 30°$: basta $K$ suficientemente grande
+\end{enumerate}
+
+\vspace{0.3cm}
+
+\colorbox{orange!12}{\parbox{0.9\textwidth}{\small\centering
+\textbf{Atenção:} A aproximação é \textit{autoconsistente} --- se o PLL está travado e o ganho $K$ é adequado, $\theta_e$ permanece pequeno, validando a própria análise linear que usamos para projetá-lo.
+}}
+}
+
+\end{frame}
+
+% ============================================
 % SLIDE: Equação do PLL — derivação
 % ============================================
 \begin{frame}{Equação do PLL: Derivação}
@@ -1185,31 +1731,39 @@ Combinando: $\dfrac{d\hat{\phi}}{dt} = 2\pi K_v \bigl[f(t) \ast K_d\,\theta_e(t)
 }
 
 \only<2>{
-\textbf{No domínio de Laplace} (linearizado para $\theta_e$ pequeno):
+\textbf{Passando ao domínio de Laplace} (propriedades: convolução $\to$ produto, derivada $\to$ $s$):
 
 \vspace{0.2cm}
 
-\begin{center}
-\begin{tikzpicture}[>=latex, scale=0.8,
-    bloco/.style={draw, rectangle, rounded corners=2pt, minimum height=0.7cm, font=\small}]
-% Somador
-\node[draw, circle, minimum size=0.6cm] (sum) at (0,0) {$-$};
-\draw[->] (-2.5,0) -- node[above, font=\small] {$\Phi(s)$} (sum.west);
-% Kd
-\node[bloco, fill=yellow!15] (kd) at (2,0) {$K_d$};
-\draw[->] (sum.east) -- node[above, font=\footnotesize] {$\Theta_e(s)$} (kd.west);
-% F(s)
-\node[bloco, fill=blue!15] (fs) at (4.5,0) {$F(s)$};
-\draw[->] (kd.east) -- (fs.west);
-% Kv/s
-\node[bloco, fill=green!15] (kv) at (7,0) {$\dfrac{K_v}{s}$};
-\draw[->] (fs.east) -- (kv.west);
-% Saída
-\draw[->] (kv.east) -- ++(1,0) node[right, font=\small] {$\hat{\Phi}(s)$};
-% Realimentação
-\draw[->] (8,0) |- (0,-1.5) -- (sum.south);
-\end{tikzpicture}
-\end{center}
+\begin{tabular}{l @{\;$\xrightarrow{\;\mathcal{L}\;}$\;} l l}
+$e(t) = K_d\,\theta_e(t)$ & $E(s) = K_d\,\Theta_e(s)$ & \footnotesize (linearidade) \\[6pt]
+$v_c(t) = f(t) \ast e(t)$ & $V_c(s) = F(s)\cdot E(s)$ & \footnotesize (convolução $\to$ produto) \\[6pt]
+$\dfrac{d\hat{\phi}}{dt} = 2\pi K_v\, v_c(t)$ & $s\,\hat{\Phi}(s) = 2\pi K_v\, V_c(s)$ & \footnotesize (derivada $\to$ $s$)
+\end{tabular}
+
+\vspace{0.3cm}
+
+Encadeando (e absorvendo $2\pi$ em $K_v$ por convenção):
+\[
+\hat{\Phi}(s) = \frac{K_v}{s} \cdot F(s) \cdot K_d \cdot \Theta_e(s)
+\]
+
+Como $\Theta_e(s) = \Phi(s) - \hat{\Phi}(s)$:
+\[
+\hat{\Phi}(s) = \frac{K_d K_v F(s)}{s}\bigl[\Phi(s) - \hat{\Phi}(s)\bigr]
+\]
+}
+
+\only<3>{
+\textbf{Isolando $\hat{\Phi}(s)$:}
+
+\[
+\hat{\Phi}(s)\left[1 + \frac{K_d K_v F(s)}{s}\right] = \frac{K_d K_v F(s)}{s}\,\Phi(s)
+\]
+
+\[
+\hat{\Phi}(s)\cdot\frac{s + K_d K_v F(s)}{s} = \frac{K_d K_v F(s)}{s}\,\Phi(s)
+\]
 
 \vspace{0.2cm}
 
@@ -1217,9 +1771,29 @@ Combinando: $\dfrac{d\hat{\phi}}{dt} = 2\pi K_v \bigl[f(t) \ast K_d\,\theta_e(t)
 \[
 \boxed{H(s) = \frac{\hat{\Phi}(s)}{\Phi(s)} = \frac{K_d K_v F(s)}{s + K_d K_v F(s)}}
 \]
+
+\vspace{0.2cm}
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.7,
+    bloco/.style={draw, rectangle, rounded corners=2pt, minimum height=0.7cm, font=\small}]
+\node[draw, circle, minimum size=0.6cm] (sum) at (0,0) {$-$};
+\draw[->] (-2.5,0) -- node[above, font=\small] {$\Phi(s)$} (sum.west);
+\node[bloco, fill=yellow!15] (kd) at (2,0) {$K_d$};
+\draw[->] (sum.east) -- node[above, font=\footnotesize] {$\Theta_e$} (kd.west);
+\node[bloco, fill=blue!15] (fs) at (4.2,0) {$F(s)$};
+\draw[->] (kd.east) -- (fs.west);
+\node[bloco, fill=green!15] (kv) at (6.5,0) {$\frac{K_v}{s}$};
+\draw[->] (fs.east) -- (kv.west);
+\draw[->] (kv.east) -- ++(1.2,0) node[right, font=\small] {$\hat{\Phi}(s)$};
+\coordinate (tap) at (7.7,0);
+\fill (tap) circle (1.5pt);
+\draw[->] (tap) |- (0,-1.3) -- (sum.south);
+\end{tikzpicture}
+\end{center}
 }
 
-\only<3>{
+\only<4>{
 \textbf{Caso simples:} $F(s) = 1$ (PLL de 1ª ordem)
 
 \[
@@ -1367,103 +1941,13 @@ O PLL converge rapidamente e o sinal recuperado acompanha o original
 \end{frame}
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% EXERCÍCIOS — AM DSB-SC
+% EXERCÍCIOS — AM DSB-SC (Sincronismo e PLL)
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsection*{Exercícios: AM DSB-SC}
+\subsection*{Exercícios: Sincronismo e PLL}
 
 % ============================================
-\begin{frame}{Exercício DSB-SC 1: Espectro e Largura de Banda}
-
-\only<1>{
-Um sinal de áudio $m(t)$ com banda $W = 4\,\text{kHz}$ modula uma portadora
-$f_c = 1\,\text{MHz}$ usando DSB-SC.
-
-\vspace{0.3cm}
-
-\begin{enumerate}[a)]
-\item Qual a faixa de frequências ocupada pelo sinal modulado?
-\item Qual a largura de banda $B$?
-\item Identifique a LSB e a USB no espectro.
-\end{enumerate}
-}
-
-\only<2>{
-\textbf{Resolução:}
-
-\begin{enumerate}[a)]
-\item Faixa: de $f_c - W = 996\,\text{kHz}$ até $f_c + W = 1004\,\text{kHz}$
-\item $B = 2W = 2 \times 4 = \boxed{8\,\text{kHz}}$
-\item LSB: 996--1000 kHz \quad USB: 1000--1004 kHz
-\end{enumerate}
-
-\begin{center}
-\begin{tikzpicture}[>=latex, scale=0.7]
-\draw[->] (-0.5,0) -- (7,0) node[right, font=\small] {$f$ (kHz)};
-\draw[->] (0,-0.3) -- (0,2);
-\fill[red!20] (1.5,0) -- (1.5,1.2) -- (3.5,1.2) -- (3.5,0) -- cycle;
-\fill[green!20] (3.5,0) -- (3.5,1.2) -- (5.5,1.2) -- (5.5,0) -- cycle;
-\draw[thick, red] (1.5,0) -- (1.5,1.2) -- (3.5,1.2) -- (3.5,0);
-\draw[thick, green!60!black] (3.5,0) -- (3.5,1.2) -- (5.5,1.2) -- (5.5,0);
-\node[font=\footnotesize, red] at (2.5,0.6) {LSB};
-\node[font=\footnotesize, green!60!black] at (4.5,0.6) {USB};
-\node[below, font=\small] at (1.5,-0.1) {996};
-\node[below, font=\small] at (3.5,-0.1) {1000};
-\node[below, font=\small] at (5.5,-0.1) {1004};
-\draw[<->, thick, orange] (1.5,-0.6) -- (5.5,-0.6) node[midway, below, font=\small] {$B=8$ kHz};
-\end{tikzpicture}
-\end{center}
-}
-
-\end{frame}
-
-% ============================================
-\begin{frame}{Exercício DSB-SC 2: Potência com Dois Tons}
-
-\only<1>{
-Um transmissor DSB-SC opera com $A_c = 20\,\text{V}$ e mensagem
-$m(t) = 3\cos(2\pi \cdot 1000\, t) + 2\cos(2\pi \cdot 3000\, t)$.
-
-\vspace{0.3cm}
-
-\begin{enumerate}[a)]
-\item Calcule a potência da mensagem $P_m$.
-\item Calcule a potência do sinal transmitido $P_s$.
-\item Quantas componentes espectrais existem e em que frequências?
-\end{enumerate}
-}
-
-\only<2>{
-\textbf{a) Potência da mensagem:}
-\[
-P_m = \frac{3^2}{2} + \frac{2^2}{2} = 4.5 + 2 = \boxed{6.5\,\text{W}}
-\]
-
-\textbf{b) Potência transmitida:}
-\[
-P_s = \frac{A_c^2 P_m}{2} = \frac{400 \times 6.5}{2} = \boxed{1300\,\text{W}}
-\]
-
-\textbf{c) Componentes:} 4 raias espectrais
-
-\begin{center}
-\begin{tikzpicture}[>=latex, scale=0.6]
-\draw[->] (-0.5,0) -- (7,0) node[right, font=\small] {$f$};
-\draw[->] (0,-0.3) -- (0,2.5);
-\draw[thick, red, ->, line width=1.5pt] (1,0) -- (1,2) node[above, font=\tiny] {$f_c\!-\!3$k};
-\draw[thick, red, ->, line width=1.5pt] (2.5,0) -- (2.5,1.5) node[above, font=\tiny] {$f_c\!-\!1$k};
-\draw[thick, green!60!black, ->, line width=1.5pt] (4.5,0) -- (4.5,1.5) node[above, font=\tiny] {$f_c\!+\!1$k};
-\draw[thick, green!60!black, ->, line width=1.5pt] (6,0) -- (6,2) node[above, font=\tiny] {$f_c\!+\!3$k};
-\draw[dashed, gray] (3.5,0) -- (3.5,0.5);
-\node[below, font=\tiny] at (3.5,0) {$f_c$};
-\end{tikzpicture}
-\end{center}
-}
-
-\end{frame}
-
-% ============================================
-\begin{frame}{Exercício DSB-SC 3: Erro de Sincronismo e PLL}
+\begin{frame}{Exercício: Erro de Sincronismo e PLL}
 
 \only<1>{
 Um receptor DSB-SC opera com $f_c = 10\,\text{MHz}$ e oscilador local
@@ -1508,7 +1992,7 @@ O PLL reduz a perda de $-3$ dB para desprezível!
 \end{frame}
 
 % ============================================
-\begin{frame}{Exercício DSB-SC 4: Dimensionamento do PLL}
+\begin{frame}{Exercício: Dimensionamento do PLL}
 
 \only<1>{
 Um sistema de comunicação móvel usa DSB-SC em $f_c = 900\,\text{MHz}$.
@@ -1536,73 +2020,6 @@ $K \geq \frac{2\pi \times 100}{0.087} = \boxed{2\pi \times 1149\,\text{rad/s}}$
 \textbf{c)} $\tau = \frac{1}{K} = \frac{1}{2\pi \times 2000} = \boxed{0.08\,\text{ms}}$ \quad (rápido!)
 
 \textbf{d)} Sim! PLL de 2ª ordem tem erro zero para rampa de fase ($\theta_e(\infty) = 0$ para Doppler constante), enquanto o de 1ª ordem sempre tem erro residual
-}
-
-\end{frame}
-
-% ============================================
-\begin{frame}{Exercício DSB-SC 5: Densidade Espectral de Potência}
-
-\only<1>{
-A mensagem $m(t)$ tem densidade espectral de potência (DEP):
-\[
-S_m(f) = \begin{cases}
-\frac{S_0}{2W}\left(1 - \frac{|f|}{W}\right) & |f| \leq W \\
-0 & |f| > W
-\end{cases}
-\]
-com $S_0 = 4\,\text{W}$ e $W = 5\,\text{kHz}$. A portadora tem $A_c = 10\,\text{V}$, $f_c = 100\,\text{kHz}$.
-
-\vspace{0.2cm}
-
-\begin{enumerate}[a)]
-\item Esboce $S_m(f)$ e calcule a potência $P_m$ da mensagem.
-\item Determine $S_s(f)$ do sinal DSB-SC modulado.
-\item Calcule $P_s$ diretamente pela DEP e verifique com $P_s = \frac{A_c^2 P_m}{2}$.
-\end{enumerate}
-}
-
-\only<2>{
-\textbf{a)} $P_m = \int_{-W}^{W} S_m(f)\, df = S_0 \times \frac{1}{2} \times 1 = \frac{S_0}{2} = \boxed{2\,\text{W}}$
-
-\begin{center}
-\begin{tikzpicture}[>=latex, scale=0.6]
-% Sm(f)
-\draw[->] (-3.5,0) -- (3.5,0) node[right, font=\small] {$f$};
-\draw[->] (0,-0.3) -- (0,2.2) node[above, font=\small] {$S_m(f)$};
-\fill[blue!15] (-2,0) -- (0,1.5) -- (2,0) -- cycle;
-\draw[thick, blue] (-2,0) -- (0,1.5) -- (2,0);
-\node[below, font=\tiny] at (-2,0) {$-W$};
-\node[below, font=\tiny] at (2,0) {$W$};
-\node[left, font=\tiny] at (0,1.5) {$\frac{S_0}{2W}$};
-\node[font=\small] at (0,-1) {Triangular: área $= P_m = S_0/2$};
-\end{tikzpicture}
-\end{center}
-}
-
-\only<3>{
-\textbf{b)} DEP do sinal modulado $s(t) = A_c m(t)\cos(2\pi f_c t)$:
-\[
-\boxed{S_s(f) = \frac{A_c^2}{4}[S_m(f - f_c) + S_m(f + f_c)]}
-\]
-
-\begin{center}
-\begin{tikzpicture}[>=latex, scale=0.55]
-\draw[->] (-6,0) -- (6,0) node[right, font=\small] {$f$};
-\draw[->] (0,-0.3) -- (0,2) node[above, font=\small] {$S_s(f)$};
-% Em +fc
-\fill[red!15] (2,0) -- (4,1.2) -- (6,0) -- cycle;
-\draw[thick, red] (2,0) -- (4,1.2) -- (6,0);
-\node[below, font=\tiny] at (4,0) {$f_c$};
-% Em -fc
-\fill[red!15] (-6,0) -- (-4,1.2) -- (-2,0) -- cycle;
-\draw[thick, red] (-6,0) -- (-4,1.2) -- (-2,0);
-\node[below, font=\tiny] at (-4,0) {$-f_c$};
-\node[above, font=\tiny] at (4,1.2) {$\frac{A_c^2 S_0}{8W}$};
-\end{tikzpicture}
-\end{center}
-
-\textbf{c)} $P_s = \int S_s(f)\,df = \frac{A_c^2}{2} P_m = \frac{100}{2}\times 2 = \boxed{100\,\text{W}}$ \checkmark
 }
 
 \end{frame}
