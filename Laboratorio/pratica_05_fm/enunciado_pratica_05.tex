@@ -128,10 +128,12 @@ proporcional ao cubo do índice para WBFM.
 \end{tabular}
 \end{center}
 
-\atencao{Atenção -- taxa de amostragem}{O bloco \texttt{WBFM Transmit} opera
+\begin{atencao}[Atenção -- taxa de amostragem]
+O bloco \texttt{WBFM Transmit} opera
 com taxa de saída $=$ \texttt{samp\_rate}, enquanto \texttt{WBFM Receive}
-decimated para \texttt{audio\_rate}.  Use \texttt{samp\_rate = 480000} e
-\texttt{audio\_rate = 48000} (fator de decimação = 10).}
+decima para \texttt{audio\_rate}.  Use \texttt{samp\_rate = 480000} e
+\texttt{audio\_rate = 48000} (fator de decimação = 10).
+\end{atencao}
 
 \subsection*{Etapa 1 -- Modulador FM e espectro básico (0--14 min)}
 
@@ -220,7 +222,7 @@ decimated para \texttt{audio\_rate}.  Use \texttt{samp\_rate = 480000} e
     entre o WBFM Transmit e o WBFM Receive.
   \item Crie variável \texttt{noise\_amp} como \texttt{QT GUI Range}
     (min: 0, max: 0.5, passo: 0.01, padrão: 0).
-  \item Defina $\Delta f = 2000$\,Hz, $f_m = 2000$\,Hz ($\beta = 1$,
+  \item Defina $\Delta f = 1000$\,Hz, $f_m = 2000$\,Hz ($\beta = 0{,}5$,
     \textbf{NBFM}). Aumente o ruído até a demodulação degradar. Registre
     o valor de \texttt{noise\_amp} limite.
   \item Repita com $\Delta f = 20000$\,Hz ($\beta = 10$, \textbf{WBFM}).

@@ -1,0 +1,207 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{listings}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{entrega}[1][]{colback=green!5,colframe=green!50!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\lstset{basicstyle=\ttfamily\small, breaklines=true, frame=single,
+        backgroundcolor=\color{gray!10}, columns=fullflexible}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Trabalho Extra -- PLL Analógico}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.3cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.1cm]
+  {\normalsize Curso: Engenharia de Telecomunicações}\\
+  {\normalsize Disciplina: FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  {\Large\textbf{Trabalho Extra -- PLL Analógico}}\\[0.2cm]
+  {\large Rastreamento de fase para variação linear e quadrática}\\[0.2cm]
+  {\small Pontuação: até +1{,}0 ponto extra na nota da primeira prova \quad|\quad Entrega individual}
+\end{center}
+
+\hrule
+\vspace{0.4em}
+
+\section*{1. Contexto e objetivo}
+
+Nos slides de AM do Capítulo~4 estudamos o PLL, Phase-Locked Loop, como solução para o problema de
+sincronismo de portadora na demodulação coerente de DSB-SC. Vimos que o PLL é composto por três blocos
+fundamentais:
+
+\begin{enumerate}[leftmargin=2em]
+  \item Detector de fase PD --- multiplicador analógico seguido de filtro passa-baixas, que
+        gera uma tensão proporcional a $\sin(\theta_e)$, onde $\theta_e=\phi_{in}-\hat\phi$ é o erro de fase.
+  \item Filtro de malha $F(s)$, também chamado \emph{loop filter}, molda a dinâmica e a ordem do laço.
+        Para $F(s)=1$ obtém-se um PLL de 1\textsuperscript{a} ordem; para $F(s)=K_p+K_i/s$
+        com ação proporcional mais integradora, obtém-se um PLL de 2\textsuperscript{a} ordem.
+  \item VCO, Voltage-Controlled Oscillator, oscilador cuja frequência instantânea é
+        $f_{vco}(t)=f_c+K_v\,v_{ctrl}(t)$.
+\end{enumerate}
+
+A análise teórica (slides) prevê:
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Perturbação na fase de entrada} & \textbf{1\textsuperscript{a} ordem} & \textbf{2\textsuperscript{a} ordem} \\
+\midrule
+Degrau (offset constante)            & $\theta_e(\infty)=0$               & $\theta_e(\infty)=0$ \\
+Rampa (Doppler / desvio de freq.)    & $\theta_e(\infty)=\Delta\omega/K$  & $\theta_e(\infty)=0$ \\
+Parábola (aceleração de Doppler)     & cresce sem limite                  & $\theta_e(\infty)=2\pi\alpha/\omega_n^2$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Objetivo: montar um PLL analógico em LTspice, ou alternativamente em Qucs/Qucs-S/ngspice, usando blocos
+prontos, e verificar experimentalmente esse comportamento de rastreamento para variação linear
+e quadrática da fase de entrada.
+
+\section*{2. Especificação do sistema}
+
+\begin{instrucao}[Parâmetros do projeto (use estes valores)]
+\begin{itemize}[leftmargin=1.5em]
+  \item Portadora: $f_c = 2\,\mathrm{kHz}$.
+  \item Sensibilidade do VCO: $K_v = 500\,\mathrm{Hz/V}$, ou seja $K_{vco}=2\pi K_v\approx 3{,}14\times 10^3$ rad/s/V.
+  \item Frequência natural do laço: $f_n = 50\,\mathrm{Hz}$ ($\omega_n = 2\pi f_n \approx 314$ rad/s).
+  \item Coeficiente de amortecimento: $\zeta = 1/\sqrt{2}\approx 0{,}707$.
+  \item Filtro passa-baixas após o PD (remove componente em $2f_c$): $f_{LPF}\approx 250$ Hz.
+\end{itemize}
+\end{instrucao}
+
+\subsection*{2.1 Blocos disponíveis nos simuladores}
+
+Você não precisa implementar o VCO ou o multiplicador no nível de transistor. É permitido utilizar
+blocos funcionais já disponíveis no simulador escolhido, desde que o aluno saiba identificar e
+explicar o papel de cada um no diagrama do PLL.
+
+O filtro de malha $F(s)$ deve ser projetado pelo aluno.
+
+\subsection*{2.2 Dimensionamento a cargo do(a) aluno(a)}
+
+A partir da função de transferência do PLL linearizado e da especificação de $\omega_n$ e $\zeta$,
+projete o filtro de malha $F(s)$ para os dois casos, 1\textsuperscript{a} e 2\textsuperscript{a}
+ordem. Apresente no relatório a dedução, os valores numéricos dos ganhos e os componentes
+$R$, $C$, op.\ amp.\ e demais, escolhidos para realizar $F(s)$.
+
+\section*{3. Atividades}
+
+\subsection*{Parte A --- Variação linear de fase }
+
+Aplique no detector um sinal recebido com frequência deslocada $\Delta f = 50$ Hz da portadora
+nominal:
+\[
+  r(t) = \cos\!\bigl(2\pi (f_c+\Delta f)\,t\bigr) = \cos\!\bigl(2\pi f_c t + \underbrace{2\pi\Delta f\,t}_{\phi_{in}(t)}\bigr).
+\]
+
+A.1) Simule por $300\,$ms o PLL com:
+\begin{enumerate}[label=(\alph*),leftmargin=2em]
+  \item filtro de malha $F(s)=K_p$, correspondente à 1\textsuperscript{a} ordem;
+  \item filtro de malha $F(s)=K_p+K_i/s$, correspondente à 2\textsuperscript{a} ordem.
+\end{enumerate}
+
+A.2) Para cada caso, plote: i~a tensão de controle do VCO $v_{ctrl}(t)$;
+ii~o erro de fase verdadeiro $\theta_e(t) = \phi_{in}(t) - \hat\phi(t)$.
+
+A.3) Confronte o erro de fase em regime permanente com a previsão teórica vista nos slides.
+Discuta o resultado.
+
+\subsection*{Parte B --- Variação quadrática de fase}
+
+Aplique no detector um sinal cuja frequência varia linearmente no tempo, equivalente a uma aceleração Doppler:
+\[
+  r(t) = \cos\!\bigl(2\pi f_c t + \pi\alpha\,t^2\bigr), \qquad \alpha = 1000\;\mathrm{Hz/s}.
+\]
+
+A frequência instantânea de entrada é $f_{in}(t) = f_c + \alpha\,t$.
+
+B.1) Simule por $300\,$ms o PLL de 2\textsuperscript{a} ordem.
+
+B.2) Plote $v_{ctrl}(t)$ e $\theta_e(t)$. Calcule o erro de fase em regime e compare com o
+valor teórico previsto pelo modelo linearizado do PLL de 2\textsuperscript{a} ordem.
+
+B.3) Discuta: por que o PLL de 2\textsuperscript{a} ordem rastreia a rampa de fase
+da Parte~A com erro nulo, mas \emph{não} rastreia a parábola da Parte~B com erro nulo? O que seria
+necessário para anular esse erro?
+
+\section*{4. Entregáveis e prazo}
+
+\begin{entrega}[Pacote de entrega]
+Relatório em PDF, de 4 a 6 páginas, contendo:
+\begin{itemize}[leftmargin=1.5em]
+  \item Diagrama de blocos do PLL e dedução dos ganhos do filtro de malha;
+  \item Prints do esquemático montado no simulador;
+  \item Forma de onda de $v_{ctrl}$ e $\theta_e$ para cada teste, com no mínimo 3 figuras;
+  \item Tabela comparando erro de fase teórico vs.\ medido;
+  \item Resposta à pergunta da Parte B.3.
+\end{itemize}
+Demonstração: após a entrega do PDF, o aluno deverá apresentar o circuito
+funcionando em sessão presencial com o professor --- abrir o esquemático no simulador, rodar e mostrar
+as formas de onda.
+\end{entrega}
+
+Prazo: duas semanas após a publicação do trabalho.\\
+Forma de entrega: PDF pelo SIGAA e agendamento da apresentação. O relatório deve seguir o mesmo
+modelo utilizado nos relatórios da disciplina.
+
+\section*{5. Critério de avaliação (1{,}0 ponto)}
+
+\begin{center}
+\begin{tabular}{lc}
+\toprule
+\textbf{Item} & \textbf{Peso} \\
+\midrule
+Dimensionamento correto de $K_p,\,K_i$ e do filtro PI       & 0{,}3 \\
+Simulação Parte A (rampa) com 1\textsuperscript{a} e 2\textsuperscript{a} ordem & 0{,}3 \\
+Simulação Parte B (quadrática) com discussão                & 0{,}3 \\
+Qualidade do relatório (clareza, gráficos, conclusões)      & 0{,}1 \\
+\midrule
+\textbf{Total}                                              & \textbf{1{,}0} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{atencao}[Observações]
+\begin{itemize}[leftmargin=1.5em]
+  \item Os blocos VCO e multiplicador podem ser usados como caixas pretas; não é necessário
+        implementar Gilbert cell, ressonador LC, etc.\ no nível de transistor.
+  \item Sinais de amplitude unitária, $A_c=1$\,V, facilitam a interpretação do ganho do detector.
+  \item Use condições iniciais nulas nos integradores, via \texttt{.ic} no SPICE, e
+        \texttt{maxstep} pequeno, da ordem de 5--10\,\textmu s, para resolver bem a portadora em 2\,kHz.
+  \item Plote $\theta_e(t)$ comparando a fase verdadeira da entrada com a fase do VCO ---
+        por exemplo, \texttt{2*pi*Df*t - phi\_vco(t)} na Parte~A.
+\end{itemize}
+\end{atencao}
+
+\end{document}
