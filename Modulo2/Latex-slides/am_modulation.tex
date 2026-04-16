@@ -1618,22 +1618,28 @@ Na região sombreada, $\sin(\theta_e) \approx \theta_e$ e o PLL pode ser analisa
 \begin{column}{0.45\textwidth}
 \begin{center}
 \begin{tikzpicture}[>=latex, scale=0.85]
+% Regions with colors (draw first, behind curves)
+\fill[green!20, opacity=0.5] (-0.55,-1.3) rectangle (0.55,1.3);
+\fill[orange!20, opacity=0.5] (0.55,-1.3) rectangle (1.57,1.3);
+\fill[orange!20, opacity=0.5] (-1.57,-1.3) rectangle (-0.55,1.3);
+\fill[red!15, opacity=0.5] (1.57,-1.3) rectangle (3.14,1.3);
+\fill[red!15, opacity=0.5] (-3.14,-1.3) rectangle (-1.57,1.3);
+% Axes
 \draw[->] (-3.5,0) -- (3.7,0) node[right, font=\small] {$\theta_e$};
 \draw[->] (0,-1.5) -- (0,1.7);
 % sin(theta)
 \draw[thick, red, smooth, domain=-3.14:3.14, samples=100] plot (\x, {sin(\x r)});
 % theta (linear)
 \draw[thick, blue, dashed, domain=-1.4:1.4] plot (\x, {\x});
-% Regions with colors
-\fill[green!15, opacity=0.5] (-0.55,-1.3) rectangle (0.55,1.3);
-\fill[orange!15, opacity=0.5] (0.55,-1.3) rectangle (1.57,1.3);
-\fill[orange!15, opacity=0.5] (-1.57,-1.3) rectangle (-0.55,1.3);
-\fill[red!10, opacity=0.5] (1.57,-1.3) rectangle (3.14,1.3);
-\fill[red!10, opacity=0.5] (-3.14,-1.3) rectangle (-1.57,1.3);
-% Labels
-\node[green!50!black, font=\scriptsize, align=center] at (0,-1.55) {linear};
-\node[orange!70!black, font=\scriptsize, align=center] at (1.06,-1.55) {não-linear};
-\node[red!70!black, font=\scriptsize, align=center] at (2.35,-1.55) {instável};
+% Region labels — above the plot, spread out
+\node[green!50!black, font=\scriptsize, fill=green!15, rounded corners=2pt, inner sep=2pt] at (0,1.55) {linear};
+\node[orange!70!black, font=\scriptsize, fill=orange!15, rounded corners=2pt, inner sep=2pt] at (1.06,1.55) {não-linear};
+\node[red!70!black, font=\scriptsize, fill=red!10, rounded corners=2pt, inner sep=2pt] at (2.55,1.55) {instável};
+% Tick labels
+\node[below, font=\footnotesize] at (3.14,-0.05) {$\pi$};
+\node[below, font=\footnotesize] at (-3.14,-0.05) {$-\pi$};
+\node[below, font=\footnotesize] at (1.57,-0.05) {$\frac{\pi}{2}$};
+\node[below, font=\footnotesize] at (-1.57,-0.05) {$-\frac{\pi}{2}$};
 \end{tikzpicture}
 \end{center}
 \end{column}
@@ -1666,39 +1672,6 @@ Na região sombreada, $\sin(\theta_e) \approx \theta_e$ e o PLL pode ser analisa
 \end{columns}
 }
 
-\only<3>{
-\textbf{Como garantir que $\theta_e$ fica pequeno?}
-
-\vspace{0.3cm}
-
-A própria \textbf{realimentação} do PLL cuida disso --- quando travado:
-
-\vspace{0.2cm}
-
-\begin{enumerate}\setlength{\itemsep}{4pt}
-\item O PLL detecta $\theta_e$ e corrige continuamente $\hat{\phi}$
-\item Em regime permanente, $\theta_e$ depende do tipo de perturbação:
-
-\vspace{0.1cm}
-\begin{center}
-\small
-\begin{tabular}{l c c}
-\textbf{Perturbação} & \textbf{PLL 1ª ordem} & \textbf{PLL 2ª ordem} \\
-\hline
-Degrau de fase & $\theta_e \to 0$ & $\theta_e \to 0$ \\
-Rampa (Doppler) & $\theta_e = \Delta\omega / K$ & $\theta_e \to 0$ \\
-\end{tabular}
-\end{center}
-
-\item Para manter $|\theta_e| < 30°$: basta $K$ suficientemente grande
-\end{enumerate}
-
-\vspace{0.3cm}
-
-\colorbox{orange!12}{\parbox{0.9\textwidth}{\small\centering
-\textbf{Atenção:} A aproximação é \textit{autoconsistente} --- se o PLL está travado e o ganho $K$ é adequado, $\theta_e$ permanece pequeno, validando a própria análise linear que usamos para projetá-lo.
-}}
-}
 
 \end{frame}
 
@@ -1733,22 +1706,26 @@ Combinando: $\dfrac{d\hat{\phi}}{dt} = 2\pi K_v \bigl[f(t) \ast K_d\,\theta_e(t)
 \only<2>{
 \textbf{Passando ao domínio de Laplace} (propriedades: convolução $\to$ produto, derivada $\to$ $s$):
 
-\vspace{0.2cm}
+\vspace{0.1cm}
 
 \begin{tabular}{l @{\;$\xrightarrow{\;\mathcal{L}\;}$\;} l l}
-$e(t) = K_d\,\theta_e(t)$ & $E(s) = K_d\,\Theta_e(s)$ & \footnotesize (linearidade) \\[6pt]
-$v_c(t) = f(t) \ast e(t)$ & $V_c(s) = F(s)\cdot E(s)$ & \footnotesize (convolução $\to$ produto) \\[6pt]
+$e(t) = K_d\,\theta_e(t)$ & $E(s) = K_d\,\Theta_e(s)$ & \footnotesize (linearidade) \\[4pt]
+$v_c(t) = f(t) \ast e(t)$ & $V_c(s) = F(s)\cdot E(s)$ & \footnotesize (convolução $\to$ produto) \\[4pt]
 $\dfrac{d\hat{\phi}}{dt} = 2\pi K_v\, v_c(t)$ & $s\,\hat{\Phi}(s) = 2\pi K_v\, V_c(s)$ & \footnotesize (derivada $\to$ $s$)
 \end{tabular}
 
-\vspace{0.3cm}
+\vspace{0.15cm}
 
 Encadeando (e absorvendo $2\pi$ em $K_v$ por convenção):
+\vspace{-0.15cm}
 \[
 \hat{\Phi}(s) = \frac{K_v}{s} \cdot F(s) \cdot K_d \cdot \Theta_e(s)
 \]
 
+\vspace{-0.3cm}
+
 Como $\Theta_e(s) = \Phi(s) - \hat{\Phi}(s)$:
+\vspace{-0.15cm}
 \[
 \hat{\Phi}(s) = \frac{K_d K_v F(s)}{s}\bigl[\Phi(s) - \hat{\Phi}(s)\bigr]
 \]
@@ -1756,75 +1733,224 @@ Como $\Theta_e(s) = \Phi(s) - \hat{\Phi}(s)$:
 
 \only<3>{
 \textbf{Isolando $\hat{\Phi}(s)$:}
-
+\vspace{-0.2cm}
 \[
 \hat{\Phi}(s)\left[1 + \frac{K_d K_v F(s)}{s}\right] = \frac{K_d K_v F(s)}{s}\,\Phi(s)
-\]
-
-\[
+\qquad\Rightarrow\qquad
 \hat{\Phi}(s)\cdot\frac{s + K_d K_v F(s)}{s} = \frac{K_d K_v F(s)}{s}\,\Phi(s)
 \]
 
-\vspace{0.2cm}
+\vspace{-0.1cm}
 
 \textbf{Função de transferência em malha fechada:}
+\vspace{-0.1cm}
 \[
 \boxed{H(s) = \frac{\hat{\Phi}(s)}{\Phi(s)} = \frac{K_d K_v F(s)}{s + K_d K_v F(s)}}
 \]
 
-\vspace{0.2cm}
+\vspace{-0.1cm}
 
 \begin{center}
-\begin{tikzpicture}[>=latex, scale=0.7,
-    bloco/.style={draw, rectangle, rounded corners=2pt, minimum height=0.7cm, font=\small}]
-\node[draw, circle, minimum size=0.6cm] (sum) at (0,0) {$-$};
-\draw[->] (-2.5,0) -- node[above, font=\small] {$\Phi(s)$} (sum.west);
-\node[bloco, fill=yellow!15] (kd) at (2,0) {$K_d$};
-\draw[->] (sum.east) -- node[above, font=\footnotesize] {$\Theta_e$} (kd.west);
-\node[bloco, fill=blue!15] (fs) at (4.2,0) {$F(s)$};
+\begin{tikzpicture}[>=latex, scale=0.65,
+    bloco/.style={draw, rectangle, rounded corners=2pt, minimum height=0.6cm, font=\footnotesize}]
+\node[draw, circle, minimum size=0.5cm, inner sep=0pt] (sum) at (0,0) {$-$};
+\draw[->] (-2.2,0) -- node[above, font=\footnotesize] {$\Phi(s)$} (sum.west);
+\node[bloco, fill=yellow!15] (kd) at (1.8,0) {$K_d$};
+\draw[->] (sum.east) -- node[above, font=\scriptsize] {$\Theta_e$} (kd.west);
+\node[bloco, fill=blue!15] (fs) at (3.8,0) {$F(s)$};
 \draw[->] (kd.east) -- (fs.west);
-\node[bloco, fill=green!15] (kv) at (6.5,0) {$\frac{K_v}{s}$};
+\node[bloco, fill=green!15] (kv) at (5.9,0) {$\frac{K_v}{s}$};
 \draw[->] (fs.east) -- (kv.west);
-\draw[->] (kv.east) -- ++(1.2,0) node[right, font=\small] {$\hat{\Phi}(s)$};
-\coordinate (tap) at (7.7,0);
+\draw[->] (kv.east) -- ++(1.0,0) node[right, font=\footnotesize] {$\hat{\Phi}(s)$};
+\coordinate (tap) at (6.9,0);
 \fill (tap) circle (1.5pt);
-\draw[->] (tap) |- (0,-1.3) -- (sum.south);
+\draw[->] (tap) |- (0,-1.1) -- (sum.south);
 \end{tikzpicture}
 \end{center}
 }
 
 \only<4>{
-\textbf{Caso simples:} $F(s) = 1$ (PLL de 1ª ordem)
+\textbf{Função de transferência de erro --- derivação}
+
+\vspace{0.1cm}
+
+Sabemos que $\Theta_e(s) = \Phi(s) - \hat{\Phi}(s)$ e $H(s) = \hat{\Phi}(s)/\Phi(s)$, logo:
+\[
+\hat{\Phi}(s) = H(s)\,\Phi(s)
+\]
+
+Substituindo:
+\[
+\Theta_e(s) = \Phi(s) - H(s)\,\Phi(s) = \Phi(s)\bigl[1 - H(s)\bigr]
+\]
+
+Para PLL de 1ª ordem ($F(s) = 1$, \; $K = K_d K_v$):
+\[
+1 - H(s) = 1 - \frac{K}{s+K} = \frac{s + K - K}{s+K} = \frac{s}{s+K}
+\]
 
 \[
-H(s) = \frac{K}{s + K}, \quad K = K_d K_v
+\boxed{\Theta_e(s) = \Phi(s)\cdot\frac{s}{s + K}}
 \]
+
+O erro depende da \textbf{entrada} $\Phi(s)$. Vamos analisar dois cenários:
+\begin{enumerate}\setlength{\itemsep}{1pt}
+\item \textbf{Degrau de fase} --- mudança brusca (ex: reflexão, chaveamento)
+\item \textbf{Rampa de fase} --- desvio contínuo de frequência (ex: Doppler)
+\end{enumerate}
+}
+
+\only<5>{
+\textbf{Perturbação 1: Degrau de fase} (PLL 1ª ordem)
+
+\vspace{0.1cm}
+
+\textbf{Passo 1:} Definir a entrada e sua transformada.
+\[
+\phi(t) = \phi_0\,u(t) \quad\xrightarrow{\;\mathcal{L}\;}\quad \Phi(s) = \frac{\phi_0}{s}
+\]
+
+\textbf{Passo 2:} Substituir na expressão do erro.
+\[
+\Theta_e(s) = \Phi(s)\cdot\frac{s}{s+K} = \frac{\phi_0}{\cancel{s}}\cdot\frac{\cancel{s}}{s+K} = \frac{\phi_0}{s+K}
+\]
+
+\textbf{Passo 3:} Voltar ao tempo (transformada inversa).
+\[
+\frac{\phi_0}{s + K} \quad\xrightarrow{\;\mathcal{L}^{-1}\;}\quad \boxed{\theta_e(t) = \phi_0\,e^{-Kt}, \quad t \geq 0}
+\]
+
+\textbf{Passo 4:} Valor em regime permanente ($t \to \infty$).
+\[
+\theta_e(\infty) = \phi_0\,e^{-K\cdot\infty} = \boxed{0}
+\]
+
+O erro \textbf{decai exponencialmente} a zero com constante de tempo $\tau = 1/K$.
+}
+
+\only<6>{
+\textbf{Perturbação 1: Degrau de fase} --- visualização
 
 \vspace{0.2cm}
 
-\textbf{Erro de fase em regime:}
-\[
-\Theta_e(s) = \Phi(s) - \hat{\Phi}(s) = \Phi(s)\left[1 - H(s)\right] = \Phi(s)\frac{s}{s + K}
-\]
-
-\vspace{0.2cm}
-
-\begin{columns}[T]
+\begin{columns}[c]
 \begin{column}{0.48\textwidth}
-\textbf{Para degrau de fase} ($\phi = \phi_0$):
-\[
-\theta_e(\infty) = 0
-\]
-Erro vai a zero!
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.7]
+\draw[->] (-0.3,0) -- (5.5,0) node[right, font=\small] {$t$};
+\draw[->] (0,-0.5) -- (0,2.5) node[above, font=\small] {fase};
+% Fase real (degrau)
+\draw[thick, red] (0,0) -- (0.5,0) -- (0.5,1.8) -- (5,1.8);
+\node[right, font=\footnotesize, red] at (5,1.8) {$\phi(t) = \phi_0$};
+% Estimativa PLL
+\draw[thick, blue, smooth] plot[domain=0:5, samples=80]
+  (\x, {ifthenelse(\x<0.5, 0, 1.8*(1-exp(-2*(\x-0.5))))});
+\node[right, font=\footnotesize, blue] at (5,1.55) {$\hat{\phi}(t)$};
+\draw[dashed, gray] (0.5,0) -- (0.5,2);
+\end{tikzpicture}
+\end{center}
 \end{column}
 \begin{column}{0.48\textwidth}
-\textbf{Para rampa de fase} (Doppler: $\phi = \Delta\omega\, t$):
-\[
-\theta_e(\infty) = \frac{\Delta\omega}{K}
-\]
-Erro finito! Precisa $K$ grande
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.7]
+\draw[->] (-0.3,0) -- (5.5,0) node[right, font=\small] {$t$};
+\draw[->] (0,-0.3) -- (0,2.2) node[above, font=\small] {$\theta_e(t)$};
+\draw[thick, blue] plot[domain=0:5, samples=80] (\x, {1.5*exp(-1.5*\x)});
+\node[blue, font=\footnotesize, right] at (3.5,0.3) {$\phi_0 e^{-Kt}$};
+\draw[dashed, gray] (0,1.5) -- (5,1.5);
+\node[left, font=\footnotesize] at (0,1.5) {$\phi_0$};
+\draw[<->, gray] (0.67,-0.4) -- node[below, font=\scriptsize] {$\tau = 1/K$} (0,-0.4);
+\end{tikzpicture}
+\end{center}
 \end{column}
 \end{columns}
+
+\vspace{0.2cm}
+
+Para PLL de 2ª ordem ($F(s) = 1 + a/s$): o resultado é o mesmo ($\theta_e \to 0$), mas com convergência mais rápida. Ambas as ordens \textbf{eliminam} o erro para degrau.
+}
+
+\only<7>{
+\textbf{Perturbação 2: Rampa de fase / Doppler} (PLL 1ª ordem)
+
+\vspace{0.1cm}
+
+\textbf{Passo 1:} Definir a entrada e sua transformada.
+\[
+\phi(t) = \Delta\omega\,t \quad\xrightarrow{\;\mathcal{L}\;}\quad \Phi(s) = \frac{\Delta\omega}{s^2}
+\]
+
+\textbf{Passo 2:} Substituir na expressão do erro.
+\[
+\Theta_e(s) = \frac{\Delta\omega}{s^2}\cdot\frac{s}{s+K} = \frac{\Delta\omega}{s(s+K)}
+\]
+
+\textbf{Passo 3:} Frações parciais.
+\[
+\frac{\Delta\omega}{s(s+K)} = \frac{\Delta\omega}{K}\left(\frac{1}{s} - \frac{1}{s+K}\right)
+\]
+
+\textbf{Passo 4:} Voltar ao tempo.
+\[
+\boxed{\theta_e(t) = \frac{\Delta\omega}{K}\left(1 - e^{-Kt}\right), \quad t \geq 0}
+\]
+
+\textbf{Passo 5:} Valor em regime permanente.
+\[
+\theta_e(\infty) = \frac{\Delta\omega}{K}(1 - 0) = \boxed{\frac{\Delta\omega}{K}} \quad\text{(erro finito!)}
+\]
+}
+
+\only<8>{
+\textbf{Perturbação 2: Rampa} --- PLL de 2ª ordem
+
+\vspace{0.15cm}
+
+Com $F(s) = 1 + \frac{a}{s}$, a função de transferência de erro muda:
+\[
+1-H(s) = \frac{s^2}{s^2 + Ks + Ka}
+\]
+
+Substituindo $\Phi(s) = \Delta\omega/s^2$:
+\[
+\Theta_e(s) = \frac{\cancel{s^2}}{s^2 + Ks + Ka}\cdot\frac{\Delta\omega}{\cancel{s^2}} = \frac{\Delta\omega}{s^2 + Ks + Ka}
+\]
+
+Pelo teorema do valor final:
+\[
+\theta_e(\infty) = \lim_{s\to 0}\, s\cdot\frac{\Delta\omega}{s^2 + Ks + Ka} = \frac{0}{Ka} = \boxed{0}
+\]
+
+\vspace{0.2cm}
+
+O integrador no filtro $F(s)$ \textbf{elimina} o erro para rampa --- o PLL de 2ª ordem rastreia perfeitamente um desvio Doppler constante.
+}
+
+\only<9>{
+\textbf{Resumo: erro em regime permanente}
+
+\vspace{0.3cm}
+
+\begin{center}
+\begin{tabular}{l c c}
+\hline
+\textbf{Perturbação} & \textbf{PLL 1ª ordem} & \textbf{PLL 2ª ordem} \\
+\hline
+Degrau de fase ($\phi_0$) & $\theta_e \to 0$ & $\theta_e \to 0$ \\[4pt]
+Rampa / Doppler ($\Delta\omega\,t$) & $\theta_e = \dfrac{\Delta\omega}{K}$ & $\theta_e \to 0$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.3cm}
+
+Para manter $|\theta_e| < 30°$ com PLL de 1ª ordem: basta $K$ suficientemente grande.
+
+\vspace{0.3cm}
+
+\colorbox{orange!12}{\parbox{0.9\textwidth}{\small\centering
+\textbf{Atenção:} A aproximação é \textit{autoconsistente} --- se o PLL está travado e o ganho $K$ é adequado, $\theta_e$ permanece pequeno, validando a própria análise linear que usamos para projetá-lo.
+}}
 }
 
 \end{frame}
@@ -1834,7 +1960,7 @@ Erro finito! Precisa $K$ grande
 % ============================================
 \begin{frame}{Como o PLL Estima a Fase}
 
-\only<1>{
+\only<2>{
 \textbf{Dinâmica do travamento:}
 
 \begin{center}
@@ -1872,7 +1998,7 @@ Erro finito! Precisa $K$ grande
 PLL detecta erro $\theta_e$ $\rightarrow$ ajusta VCO $\rightarrow$ $\hat{\phi}(t)$ converge para $\phi(t)$
 }
 
-\only<2>{
+\only<1>{
 \textbf{Parâmetros importantes do PLL:}
 
 \vspace{0.3cm}
@@ -2011,15 +2137,75 @@ O veículo se desloca a $v = 120\,\text{km/h}$.
 }
 
 \only<2>{
-\textbf{a)} $\Delta f = \frac{v}{c} f_c = \frac{120/3.6}{3\times 10^8} \times 900\times 10^6 = \boxed{100\,\text{Hz}}$
+\textbf{a) Calcule o desvio Doppler $\Delta f$.}
 
-\textbf{b)} $\theta_e = \frac{\Delta\omega}{K} \leq 5^{\circ} = 0.087\,\text{rad}$
+\vspace{0.3cm}
 
-$K \geq \frac{2\pi \times 100}{0.087} = \boxed{2\pi \times 1149\,\text{rad/s}}$
+O efeito Doppler causa um desvio de frequência proporcional à velocidade relativa:
+\[
+\Delta f = \frac{v}{c}\,f_c
+\]
 
-\textbf{c)} $\tau = \frac{1}{K} = \frac{1}{2\pi \times 2000} = \boxed{0.08\,\text{ms}}$ \quad (rápido!)
+\vspace{0.2cm}
 
-\textbf{d)} Sim! PLL de 2ª ordem tem erro zero para rampa de fase ($\theta_e(\infty) = 0$ para Doppler constante), enquanto o de 1ª ordem sempre tem erro residual
+Convertendo $v = 120\,\text{km/h} = \dfrac{120}{3{,}6} = 33{,}3\,\text{m/s}$:
+
+\[
+\Delta f = \frac{33{,}3}{3\times 10^8} \times 900\times 10^6 = \boxed{100\,\text{Hz}}
+\]
+
+\vspace{0.2cm}
+
+Isso equivale a $\Delta\omega = 2\pi \times 100\,\text{rad/s}$.
+}
+
+\only<3>{
+\textbf{b) Ganho mínimo $K$ para erro $\leq 5°$.}
+
+\vspace{0.3cm}
+
+O Doppler é uma rampa de fase. Para PLL de 1ª ordem, o erro em regime é:
+\[
+\theta_e(\infty) = \frac{\Delta\omega}{K}
+\]
+
+Queremos $\theta_e \leq 5° = 0{,}087\,\text{rad}$:
+\[
+\frac{\Delta\omega}{K} \leq 0{,}087
+\quad\Rightarrow\quad
+K \geq \frac{\Delta\omega}{0{,}087} = \frac{2\pi \times 100}{0{,}087}
+\]
+\[
+\boxed{K \geq 2\pi \times 1149\,\text{rad/s}}
+\]
+}
+
+\only<4>{
+\textbf{c) Tempo de aquisição para $K = 2\pi \times 2000\,\text{rad/s}$.}
+
+\vspace{0.3cm}
+
+Para PLL de 1ª ordem, a constante de tempo é:
+\[
+\tau = \frac{1}{K}
+\]
+
+\[
+\tau = \frac{1}{2\pi \times 2000} = \boxed{0{,}08\,\text{ms}} \quad\text{(rápido!)}
+\]
+
+\vspace{0.3cm}
+
+\textbf{d) Um PLL de 2ª ordem seria melhor?}
+
+\vspace{0.3cm}
+
+Sim! PLL de 2ª ordem tem erro \textbf{zero} para rampa de fase:
+\[
+\theta_e(\infty) = 0 \quad\text{para Doppler constante}
+\]
+
+O de 1ª ordem sempre terá erro residual $\Delta\omega/K$, que só pode ser reduzido aumentando $K$ --- mas $K$ grande demais amplifica ruído.
 }
 
 \end{frame}
@@ -2194,15 +2380,53 @@ s(t) = \underbrace{A_c \cos(2\pi f_c t)}_{\text{portadora}} + \underbrace{A_c k_
 
 % ============================================
 
-\begin{frame}{Visualização AM: Supermodulação ($\mu = 1.5$)}
+\begin{frame}{Supermodulação: Sinal no Tempo}
 
 \begin{center}
-\includegraphics[width=\figFull, trim=0 0 0 470bp, clip]{figures/cap4/am_conventional.pdf}
+\includegraphics[width=\figFull]{figures/cap4/supermod_tempo.pdf}
 \end{center}
 
-\textbf{Observe:} Para $\mu > 1$, o envelope torna-se negativo (regiões em vermelho) $\rightarrow$ \textbf{distorção!}
+\vspace{-0.2cm}
+Para $\mu > 1$, o envelope $1 + \mu\,m(t)$ fica negativo $\rightarrow$ a portadora \textbf{inverte a fase} (salto de $180°$).
 
-Componentes espúrias aparecem no espectro.
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Supermodulação: Distorção no Detector de Envelope}
+
+\begin{center}
+\includegraphics[width=\figFull]{figures/cap4/supermod_detector.pdf}
+\end{center}
+
+\vspace{-0.2cm}
+O detector de envelope extrai $|1 + \mu\,m(t)|$: as partes negativas ``rebatem'' para cima $\rightarrow$ \textbf{distorção}.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Supermodulação: Espectro Transmitido}
+
+\begin{center}
+\includegraphics[width=\figFull]{figures/cap4/supermod_espectro_rf.pdf}
+\end{center}
+
+\vspace{-0.2cm}
+O espectro transmitido tem as \textbf{mesmas componentes} ($f_c$ e $f_c \pm f_m$) --- o problema não está aqui!
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Supermodulação: Distorção na Detecção}
+
+\begin{center}
+\includegraphics[width=\figFull]{figures/cap4/supermod_espectro_bb.pdf}
+\end{center}
+
+\vspace{-0.2cm}
+A distorção surge na \textbf{detecção}: $|1+\mu\,m(t)|$ é não-linear $\rightarrow$ gera harmônicas $2f_m, 3f_m, \ldots$ que \textbf{não existiam} em $m(t)$.
 
 \end{frame}
 
