@@ -1,0 +1,282 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usepackage{array}
+
+\geometry{left=2.5cm,right=2.5cm,top=2cm,bottom=2cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+\onehalfspacing
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação}
+\fancyhead[R]{\small Prova 01}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\textbf{Semestre:} 2026/1 \hfill \textbf{Data:} \rule{3cm}{0.4pt} \\[0.15cm]
+\textbf{Duração:} 8h00 às 9h50 (1h50min) \hfill \textbf{Valor:} 10{,}0 pontos
+
+\vspace{0.4cm}
+\begin{tabular}{@{}p{3cm}p{11cm}@{}}
+  \textbf{Nome:} & \rule{11cm}{0.4pt} \\[0.35cm]
+  \textbf{Matrícula:} & \rule{5cm}{0.4pt} \\
+\end{tabular}
+
+\vspace{0.3cm}
+\noindent\rule{\textwidth}{0.4pt}
+
+\textbf{Instruções:}
+\begin{itemize}[nosep, leftmargin=1.5em]
+  \item Prova individual e sem consulta.
+  \item Apresente todo o desenvolvimento. Respostas sem justificativa não serão consideradas.
+  \item É permitido o uso de calculadora científica.
+  \item Formulário na última página.
+\end{itemize}
+
+\noindent\rule{\textwidth}{0.4pt}
+
+% ======================================================
+% QUESTÃO 1 -- FÁCIL (1,0 ponto)
+% ======================================================
+\textbf{Questão 1} \hfill (1{,}0 ponto)
+
+Um transmissor AM convencional (DSB+C) transmite o sinal:
+\[
+  s(t) = A_c\big[1 + k_a\,m(t)\big]\cos(2\pi f_c\,t)
+\]
+com portadora $A_c = 50$, frequência $f_c = 1\;\text{MHz}$, constante de modulação $k_a = 0{,}1$ e mensagem $m(t) = 5\cos(2\pi \times 4000\,t)$.
+
+\begin{enumerate}[label=\alph*)]
+  \item Determine o índice de modulação $\mu$ e diga se há sobremodulação. \hfill (0{,}3 pt)
+  \item Calcule a eficiência de potência $\eta$ do transmissor. \hfill (0{,}4 pt)
+  \item Qual a largura de banda do sinal transmitido? \hfill (0{,}3 pt)
+\end{enumerate}
+
+% ======================================================
+% QUESTÃO 2 -- MÉDIA (2,0 pontos)
+% ======================================================
+\textbf{Questão 2} \hfill (2{,}0 pontos)
+
+Considere o sistema DSB-SC com demodulação coerente. A mensagem é $m(t) = 2\cos(2\pi \times 3 \times 10^3\,t) + \cos(2\pi \times 7 \times 10^3\,t)$ e a portadora é $c(t) = \cos(2\pi \times 200 \times 10^3\,t)$.
+
+\begin{center}
+\begin{circuitikz}[scale=0.85, transform shape]
+  \draw (0,0) node[left]{$m(t)$} -- (1.5,0);
+  \draw (1.5,-0.5) rectangle (3,0.5) node[midway]{\footnotesize $\otimes$};
+  \draw (2.25,1.2) node[above]{\footnotesize $\cos(2\pi f_c t)$} -- (2.25,0.5);
+  \draw (3,0) -- (4.5,0) node[midway, above]{\footnotesize canal};
+  \draw (4.5,0) -- (5.5,0);
+  \draw (5.5,-0.5) rectangle (7,0.5) node[midway]{\footnotesize $\otimes$};
+  \draw (6.25,1.2) node[above]{\footnotesize $\cos(2\pi f_c t + \phi)$} -- (6.25,0.5);
+  \draw (7,0) -- (8,0);
+  \draw (8,-0.5) rectangle (10,0.5) node[midway]{\footnotesize LPF};
+  \draw (10,0) -- (11,0) node[right]{$y(t)$};
+\end{circuitikz}
+\end{center}
+
+\begin{enumerate}[label=\alph*)]
+  \item Escreva a expressão de $s(t)$ e esboce o espectro bilateral, indicando frequências e amplitudes. \hfill (0{,}6 pt)
+  \item Derive $y(t)$ após o LPF quando o oscilador local possui erro de fase $\phi$. \hfill (0{,}6 pt)
+  \item Para qual valor de $\phi$ o sinal é completamente perdido? Explique fisicamente. \hfill (0{,}4 pt)
+  \item Se $\phi = 45^\circ$, qual a atenuação em dB em relação ao caso ideal? \hfill (0{,}4 pt)
+\end{enumerate}
+
+% ======================================================
+% QUESTÃO 3 -- MÉDIA (2,0 pontos)
+% ======================================================
+\textbf{Questão 3} \hfill (2{,}0 pontos)
+
+Um transmissor AM convencional opera com portadora $c(t) = 80\cos(2\pi \times 500 \times 10^3\,t)$. A mensagem $m(t)$ é um sinal de áudio com largura de banda $W = 4\;\text{kHz}$, índice de modulação $\mu = 0{,}8$ e potência $P_m = 8\;\text{W}$. Seu espectro $M(f)$ tem forma triangular conforme a figura.
+
+\begin{center}
+\begin{tikzpicture}[scale=0.7]
+  % Axes
+  \draw[->] (-6,0) -- (6,0) node[right]{$f$ (kHz)};
+  \draw[->] (0,-0.3) -- (0,3.8) node[above]{$M(f)$};
+  % Positive triangle (0 to W, peak at W/2)
+  \fill[blue!15] (0,0) -- (2.5,3) -- (5,0) -- cycle;
+  \draw[thick,blue] (0,0) -- (2.5,3) -- (5,0);
+  % Negative triangle (-W to 0, peak at -W/2)
+  \fill[blue!15] (-5,0) -- (-2.5,3) -- (0,0) -- cycle;
+  \draw[thick,blue] (-5,0) -- (-2.5,3) -- (0,0);
+  % Peak labels
+  \draw[dashed,gray] (2.5,3) -- (-0.6,3) node[left]{\footnotesize $M_0$};
+  % Tick labels
+  \node[below] at (-5,0) {\footnotesize $-W$};
+  \node[below] at (-2.5,0) {\footnotesize $-\frac{W}{2}$};
+  \node[below] at (2.5,0) {\footnotesize $\frac{W}{2}$};
+  \node[below] at (5,0) {\footnotesize $W$};
+  \node[below left] at (0,0) {\footnotesize $0$};
+\end{tikzpicture}
+\end{center}
+
+O sinal AM transmitido é $s(t) = A_c[1 + k_a\,m(t)]\cos(2\pi f_c\,t)$.
+
+\begin{enumerate}[label=\alph*)]
+  \item O transmissor alimenta uma antena com impedância de $50\;\Omega$. Calcule a potência da portadora e a potência das bandas laterais. \hfill (0{,}6 pt)
+  \item Calcule a eficiência de potência $\eta$. \hfill (0{,}4 pt)
+  \item Esboce o espectro de amplitude bilateral do sinal transmitido $s(t)$, identificando a forma das bandas laterais, a largura de banda total e a componente de portadora. \hfill (0{,}5 pt)
+  \item Se o índice de modulação fosse aumentado para $\mu = 1{,}2$, o que aconteceria com o sinal no domínio do tempo? E qual seria o efeito na demodulação por detector de envoltória? \hfill (0{,}5 pt)
+\end{enumerate}
+
+% ======================================================
+% QUESTÃO 4 -- DIFÍCIL / PROJETO (2,5 pontos)
+% ======================================================
+\textbf{Questão 4} \hfill (2{,}5 pontos)
+
+Considere a mesma mensagem $m(t)$ da Questão~3 (espectro triangular, $W = 4\;\text{kHz}$). Um engenheiro deseja transmitir esse sinal utilizando modulação SSB-USB (banda lateral superior) pelo método de filtragem, com portadora $f_c = 500\;\text{kHz}$.
+
+O transmissor gera primeiro o sinal DSB-SC e depois aplica um filtro passa-faixa $H(f)$ para selecionar a banda lateral superior:
+
+\begin{center}
+\begin{circuitikz}[scale=0.8, transform shape]
+  \draw (0,0) node[left]{\footnotesize $m(t)$} -- (1.5,0);
+  \draw (1.5,-0.5) rectangle (3,0.5) node[midway]{\footnotesize $\otimes$};
+  \draw (2.25,1.2) node[above]{\footnotesize $\cos(2\pi f_c t)$} -- (2.25,0.5);
+  \draw (3,0) -- (4,0);
+  \draw (4,-0.5) rectangle (6.2,0.5) node[midway]{\footnotesize $H(f)$};
+  \draw (6.2,0) -- (7,0) node[right]{\footnotesize $s_{\text{USB}}(t)$};
+\end{circuitikz}
+\end{center}
+
+\begin{enumerate}[label=\alph*)]
+  \item Esboce o espectro do sinal DSB-SC $= m(t)\cos(2\pi f_c t)$ em torno de $+f_c$, mostrando a forma triangular das bandas laterais. Indique as frequências limites de cada banda lateral. \hfill (0{,}5 pt)
+  \item Especifique a resposta em frequência do filtro $H(f)$ necessário para selecionar apenas a USB. Qual a dificuldade de projeto desse filtro considerando que o espectro de $M(f)$ é nulo em $f = 0$? \hfill (0{,}6 pt)
+  \item Compare banda e potência do SSB-USB com o AM convencional da Questão~3. \hfill (0{,}5 pt)
+  \item Na recepção, o sinal SSB é demodulado por um oscilador local com frequência $f_c + \Delta f$, onde $\Delta f = 50\;\text{Hz}$ é um erro de frequência. Mostre que todas as componentes do sinal recuperado sofrem um deslocamento de $\Delta f$ em frequência. Por que esse efeito é mais grave em SSB do que em AM convencional com detector de envoltória? \hfill (0{,}9 pt)
+\end{enumerate}
+
+% ======================================================
+% QUESTÃO 5 -- DIFÍCIL / PROJETO (2,5 pontos)
+% ======================================================
+\textbf{Questão 5} \hfill (2{,}5 pontos)
+
+Um receptor AM convencional utiliza um detector de envoltória com circuito diodo-RC para recuperar a mensagem. O sinal recebido é:
+\[
+  s(t) = A_c\big[1 + \mu\cos(2\pi f_m\,t)\big]\cos(2\pi f_c\,t)
+\]
+com $A_c = 10\;\text{V}$, $\mu = 0{,}8$, $f_m = 5\;\text{kHz}$ e $f_c = 1\;\text{MHz}$.
+
+\begin{center}
+\begin{circuitikz}[scale=0.9, transform shape]
+  \draw (0,0) node[left]{$s(t)$} -- (1,0);
+  \draw (1,0) to[D] (3,0);
+  \draw (3,0) -- (5,0);
+  \draw (3,0) to[R, l=$R$] (3,-2);
+  \draw (4,0) to[C, l=$C$] (4,-2);
+  \draw (3,-2) -- (4,-2);
+  \draw (5,0) -- (5.5,0) node[right]{$y(t)$};
+  \draw (4,-2) -- (5,-2);
+  \draw (5,-2) -- (5.5,-2) node[right]{};
+  \draw (0,-2) -- (5,-2);
+\end{circuitikz}
+\end{center}
+
+Para que o detector funcione corretamente, a constante de tempo $RC$ deve satisfazer:
+\[
+  \frac{1}{f_c} \ll RC \ll \frac{1}{f_m}
+\]
+
+\begin{enumerate}[label=\alph*)]
+  \item Explique fisicamente o significado de cada desigualdade na condição acima. O que acontece se $RC$ for muito pequeno? E se for muito grande? \hfill (0{,}6 pt)
+
+  \item Para evitar o efeito de \textit{corte diagonal} (\textit{diagonal clipping}), a constante de tempo deve satisfazer a condição mais restritiva:
+  \[
+    RC < \frac{\sqrt{1 - \mu^2}}{2\pi f_m \mu}
+  \]
+  Calcule o valor máximo de $RC$ e, escolhendo $C = 100\;\text{pF}$, determine o valor máximo de $R$. \hfill (0{,}7 pt)
+
+  \item Se a mensagem for alterada para $m(t) = \cos(2\pi \times 5000\,t) + 0{,}5\cos(2\pi \times 10000\,t)$ e o índice de modulação total for $\mu = 0{,}9$, recalcule o valor máximo de $RC$ usando a frequência mais alta da mensagem na condição de corte diagonal. O valor de $R$ encontrado no item anterior ainda é válido? \hfill (0{,}5 pt)
+
+  \item Compare o detector de envoltória com a demodulação coerente (síncrona) em termos de: necessidade de sincronismo de portadora, sensibilidade ao índice $\mu > 1$, e complexidade de implementação. Qual abordagem é mais vantajosa para radiodifusão AM comercial? \hfill (0{,}7 pt)
+\end{enumerate}
+
+\newpage
+
+% ======================================================
+% FORMULÁRIO
+% ======================================================
+\section*{Formulário}
+
+\subsection*{Série de Fourier}
+
+Sinal periódico $x(t)$ com período $T_0$ e frequência fundamental $f_0 = 1/T_0$:
+\[
+  x(t) = a_0 + \sum_{n=1}^{\infty}\Big[a_n\cos(2\pi n f_0\,t) + b_n\sin(2\pi n f_0\,t)\Big]
+\]
+\[
+  a_0 = \frac{1}{T_0}\int_{0}^{T_0} x(t)\,dt, \quad
+  a_n = \frac{2}{T_0}\int_{0}^{T_0} x(t)\cos(2\pi n f_0\,t)\,dt, \quad
+  b_n = \frac{2}{T_0}\int_{0}^{T_0} x(t)\sin(2\pi n f_0\,t)\,dt
+\]
+
+Forma exponencial: $\displaystyle x(t) = \sum_{n=-\infty}^{\infty} c_n\, e^{j2\pi n f_0 t}$, \quad $\displaystyle c_n = \frac{1}{T_0}\int_{0}^{T_0} x(t)\,e^{-j2\pi n f_0 t}\,dt$
+
+\subsection*{Transformada de Fourier}
+
+$\displaystyle X(f) = \int_{-\infty}^{\infty} x(t)\,e^{-j2\pi f t}\,dt \quad\longleftrightarrow\quad x(t) = \int_{-\infty}^{\infty} X(f)\,e^{j2\pi f t}\,df$
+
+\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{tabular}{>{\centering\arraybackslash}m{5.5cm} >{\centering\arraybackslash}m{5.5cm}}
+  \toprule
+  $x(t)$ & $X(f)$ \\
+  \midrule
+  $\delta(t)$ & $1$ \\
+  $1$ & $\delta(f)$ \\
+  $e^{j2\pi f_0 t}$ & $\delta(f - f_0)$ \\
+  $\cos(2\pi f_0 t)$ & $\frac{1}{2}\big[\delta(f - f_0) + \delta(f + f_0)\big]$ \\
+  $\sin(2\pi f_0 t)$ & $\frac{1}{2j}\big[\delta(f - f_0) - \delta(f + f_0)\big]$ \\
+  $\mathrm{rect}\!\left(\frac{t}{T}\right)$ & $T\,\mathrm{sinc}(fT)$ \\
+  $e^{-at}\,u(t),\; a > 0$ & $\frac{1}{a + j2\pi f}$ \\
+  $e^{-a|t|},\; a > 0$ & $\frac{2a}{a^2 + (2\pi f)^2}$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Propriedades}
+
+\renewcommand{\arraystretch}{1.4}
+\begin{center}
+\begin{tabular}{lcc}
+  \toprule
+  Propriedade & Tempo & Frequência \\
+  \midrule
+  Deslocamento no tempo & $x(t - t_0)$ & $X(f)\,e^{-j2\pi f t_0}$ \\
+  Deslocamento em frequência & $x(t)\,e^{j2\pi f_0 t}$ & $X(f - f_0)$ \\
+  Modulação & $x(t)\cos(2\pi f_0 t)$ & $\frac{1}{2}[X(f{-}f_0) + X(f{+}f_0)]$ \\
+  Convolução & $x(t) * y(t)$ & $X(f)\cdot Y(f)$ \\
+  Parseval & $\int |x(t)|^2\,dt$ & $\int |X(f)|^2\,df$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Identidades trigonométricas}
+\vspace{-0.3cm}
+\begin{align*}
+  \cos A \cos B &= \tfrac{1}{2}[\cos(A-B) + \cos(A+B)] &
+  \cos^2 A &= \tfrac{1}{2}[1 + \cos 2A] \\
+  \sin A \sin B &= \tfrac{1}{2}[\cos(A-B) - \cos(A+B)] &
+  \sin^2 A &= \tfrac{1}{2}[1 - \cos 2A] \\
+  \cos A \sin B &= \tfrac{1}{2}[\sin(A+B) - \sin(A-B)]
+\end{align*}
+
+\end{document}

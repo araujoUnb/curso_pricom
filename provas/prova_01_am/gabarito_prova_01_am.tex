@@ -1,0 +1,411 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{circuitikz}
+\usepackage{cancel}
+
+\geometry{left=2.5cm,right=2.5cm,top=2cm,bottom=2cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{resolucao}[1][]{colback=green!5,colframe=green!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação}
+\fancyhead[R]{\small Gabarito -- Prova 01}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\textbf{Semestre:} 2026/1
+
+% ======================================================================
+% QUESTÃO 1 -- FÁCIL (1,0 ponto)
+% ======================================================================
+\textbf{Questão 1} \hfill (1{,}0 ponto)
+
+Dados: $A_c = 50$, $f_c = 1\;\text{MHz}$, $k_a = 0{,}1$, $m(t) = 5\cos(2\pi \times 4000\,t)$.
+
+\begin{resolucao}[Item a -- Índice de modulação (0{,}3 pt)]
+
+O valor de pico da mensagem é $m_{\max} = 5$.
+
+O índice de modulação:
+\[
+  \mu = k_a \cdot m_{\max} = 0{,}1 \times 5 = \boxed{0{,}5}
+\]
+
+Como $\mu = 0{,}5 < 1$, \textbf{não há sobremodulação}.
+
+Verificação: valor mínimo do envelope $= A_c(1 - \mu) = 50(1 - 0{,}5) = 25 > 0$. \checkmark
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Eficiência (0{,}4 pt)]
+
+Para um tom senoidal com índice $\mu$, a eficiência do AM convencional é:
+\[
+  \eta = \frac{\mu^2/2}{1 + \mu^2/2} = \frac{0{,}5^2/2}{1 + 0{,}5^2/2} = \frac{0{,}125}{1{,}125} = \boxed{11{,}11\%}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Largura de banda (0{,}3 pt)]
+
+\[
+  B = 2f_m = 2 \times 4\;\text{kHz} = \boxed{8\;\text{kHz}}
+\]
+
+O sinal ocupa a faixa de $996\;\text{kHz}$ a $1004\;\text{kHz}$.
+\end{resolucao}
+
+
+% ======================================================================
+% QUESTÃO 2 -- MÉDIA (2,0 pontos)
+% ======================================================================
+\textbf{Questão 2} \hfill (2{,}0 pontos)
+
+Dados: $m(t) = 2\cos(2\pi \times 3000\,t) + \cos(2\pi \times 7000\,t)$, $f_c = 200\;\text{kHz}$.
+
+\begin{resolucao}[Item a -- Sinal transmitido e espectro (0{,}6 pt)]
+
+O sinal DSB-SC é $s(t) = m(t)\cos(2\pi f_c t)$.
+
+Expandindo com $\cos A \cos B = \frac{1}{2}[\cos(A-B) + \cos(A+B)]$:
+\begin{align*}
+  s(t) &= \cos(2\pi \times 197000\,t) + \cos(2\pi \times 203000\,t) \\
+  &\quad + \tfrac{1}{2}\cos(2\pi \times 193000\,t) + \tfrac{1}{2}\cos(2\pi \times 207000\,t)
+\end{align*}
+
+Espectro bilateral:
+
+\begin{center}
+\small
+\begin{tabular}{lcc}
+  \toprule
+  Componente & Frequência (kHz) & Amplitude espectral \\
+  \midrule
+  $f_c - f_1$ & $\pm 197$ & $0{,}5$ \\
+  $f_c + f_1$ & $\pm 203$ & $0{,}5$ \\
+  $f_c - f_2$ & $\pm 193$ & $0{,}25$ \\
+  $f_c + f_2$ & $\pm 207$ & $0{,}25$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+$B = 2 \times 7 = 14\;\text{kHz}$. Não há componente de portadora.
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Demodulação com erro de fase (0{,}6 pt)]
+
+\[
+  v(t) = m(t)\cos(\omega_c t)\cos(\omega_c t + \phi) = \frac{m(t)}{2}\cos\phi + \frac{m(t)}{2}\cos(2\omega_c t + \phi)
+\]
+
+Após o LPF:
+\[
+  \boxed{y(t) = \frac{1}{2}\cos\phi \cdot \big[2\cos(2\pi \times 3000\,t) + \cos(2\pi \times 7000\,t)\big]}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Perda total (0{,}4 pt)]
+
+O sinal se anula quando $\cos\phi = 0$, ou seja, $\boxed{\phi = \pm 90^\circ}$.
+
+O oscilador em quadratura produz apenas componentes em $2f_c$, eliminadas pelo LPF. Esse efeito de quadratura mostra a necessidade de sincronismo preciso de fase na demodulação coerente.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Atenuação com $\phi = 45^\circ$ (0{,}4 pt)]
+
+\[
+  \text{Atenuação} = 10\log_{10}(\cos^2 45^\circ) = 10\log_{10}(0{,}5) = \boxed{-3{,}01\;\text{dB}}
+\]
+\end{resolucao}
+
+
+% ======================================================================
+% QUESTÃO 3 -- MÉDIA (2,0 pontos)
+% ======================================================================
+\textbf{Questão 3} \hfill (2{,}0 pontos)
+
+Dados: $A_c = 80$, $f_c = 500\;\text{kHz}$, $\mu = 0{,}8$, $P_m = 8\;\text{W}$, $W = 4\;\text{kHz}$. Espectro $M(f)$ triangular.
+
+\begin{resolucao}[Item a -- Potências (0{,}6 pt)]
+
+$R = 50\;\Omega$ (impedância da antena).
+
+Potência da portadora:
+\[
+  P_c = \frac{A_c^2}{2R} = \frac{80^2}{2 \times 50} = \boxed{64\;\text{W}}
+\]
+
+Potência das bandas laterais. Para AM convencional com sinal genérico:
+\[
+  P_s = \frac{A_c^2 k_a^2 P_m}{2R} = P_c \cdot k_a^2 \cdot P_m
+\]
+
+Precisamos de $k_a$. Do índice de modulação: $\mu = k_a \cdot m_p$, onde $m_p$ é o valor de pico de $m(t)$. Porém, $\mu$ e $P_m$ são dados. A relação entre potência de bandas laterais e portadora no AM convencional é:
+\[
+  P_s = P_c \cdot \frac{\mu^2}{2} \cdot \frac{2P_m}{m_p^2}
+\]
+
+Para um sinal com espectro triangular, a razão $P_m / m_p^2$ depende da forma espectral. Alternativamente, usando a relação direta: no AM convencional, a potência total é $P_T = P_c(1 + k_a^2 P_m)$. Mas como temos $\mu$ e $P_m$, o caminho mais direto é notar que a potência das bandas laterais é:
+\[
+  P_s = P_c \cdot \frac{\mu^2}{2} \quad \text{(válido para tom único)}
+\]
+
+Para sinal genérico, a potência de banda lateral depende de $k_a^2 P_m$. O enunciado fornece $P_m = 8$ W e $\mu = 0{,}8$. Usando a definição geral:
+\[
+  P_T = P_c\big(1 + k_a^2 P_m\big)
+\]
+
+Do enunciado, $\mu = 0{,}8$ é o índice de modulação de pico. A potência das bandas laterais:
+\[
+  P_s = P_c \cdot k_a^2 \cdot P_m
+\]
+
+Como $\mu = k_a m_p$ e a potência normalizada de $m(t)$ é $P_m = 8\;\text{W}$, precisamos de $k_a$. Mas o enunciado não dá $m_p$ diretamente. Aceita-se que o aluno use a relação para tom único como aproximação ($P_s = P_c\mu^2/2$), obtendo:
+\[
+  P_s = 64 \times \frac{0{,}64}{2} = \boxed{20{,}48\;\text{W}}
+\]
+\[
+  P_T = 64 + 20{,}48 = \boxed{84{,}48\;\text{W}}
+\]
+
+\textit{Nota para correção:} aceitar também $P_s = P_c k_a^2 P_m$ se o aluno justificar o valor de $k_a$ a partir de hipóteses sobre $m_p$.
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Eficiência (0{,}4 pt)]
+
+\[
+  \eta = \frac{P_s}{P_T} = \frac{20{,}48}{84{,}48} = \boxed{24{,}2\%}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Espectro do sinal transmitido (0{,}5 pt)]
+
+A propriedade de modulação da Transformada de Fourier diz que:
+\[
+  m(t)\cos(2\pi f_c t) \;\longleftrightarrow\; \frac{1}{2}\big[M(f - f_c) + M(f + f_c)\big]
+\]
+
+Portanto, o espectro de $s(t)$ contém:
+\begin{itemize}
+  \item Um impulso (portadora) em $\pm f_c = \pm 500\;\text{kHz}$ com amplitude $A_c/2 = 40$.
+  \item Duas réplicas triangulares de $M(f)$, escaladas por $A_c k_a / 2$, centradas em $+f_c$ e $-f_c$.
+  \item Cada triangulo ocupa a faixa $f_c \pm W$, ou seja, de $496$ a $504\;\text{kHz}$ (e o espelho negativo).
+\end{itemize}
+
+A largura de banda total é $B = 2W = 8\;\text{kHz}$.
+
+O formato triangular do espectro da mensagem é preservado nas bandas laterais -- a banda lateral superior é um triangulo decrescente de $f_c$ a $f_c + W$ e a inferior é um triangulo decrescente de $f_c$ a $f_c - W$.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Sobremodulação $\mu = 1{,}2$ (0{,}5 pt)]
+
+Com $\mu = 1{,}2 > 1$, o envelope $A_c[1 + k_a m(t)]$ cruza o zero nos instantes em que $k_a m(t) < -1$. Nesses trechos, o envelope torna-se negativo, o que equivale a uma inversão de fase da portadora.
+
+No domínio do tempo, o sinal AM apresenta ``estrangulamentos'' onde o envelope se anula e inverte.
+
+No detector de envoltória, que extrai $|A_c[1 + k_a m(t)]|$, os trechos negativos do envelope são retificados (refletidos para cima). O sinal demodulado fica distorcido: onde a mensagem deveria ser negativa (abaixo de $-1/k_a$), o detector produz um valor positivo, gerando distorção harmônica severa. A mensagem não é recuperada corretamente.
+
+A demodulação coerente (síncrona) não sofre esse problema, pois multiplica diretamente por $\cos(\omega_c t)$ e recupera $m(t)$ linearmente, independente do valor de $\mu$.
+\end{resolucao}
+
+
+% ======================================================================
+% QUESTÃO 4 -- DIFÍCIL / PROJETO SSB (2,5 pontos)
+% ======================================================================
+\textbf{Questão 4} \hfill (2{,}5 pontos)
+
+Dados: mesma mensagem $m(t)$ da Q3 (espectro triangular, $W = 4\;\text{kHz}$, $M(f) = 0$ em $f = 0$), $f_c = 500\;\text{kHz}$. Método de filtragem para SSB-USB.
+
+\begin{resolucao}[Item a -- Espectro DSB-SC (0{,}5 pt)]
+
+O sinal DSB-SC é $s_{\text{DSB}}(t) = m(t)\cos(2\pi f_c t)$. Pela propriedade de modulação:
+\[
+  S_{\text{DSB}}(f) = \frac{1}{2}\big[M(f - f_c) + M(f + f_c)\big]
+\]
+
+Em torno de $+f_c = 500\;\text{kHz}$, o espectro triangular de $M(f)$ é replicado:
+\begin{itemize}
+  \item Banda lateral inferior (LSB): réplica de $M(f)$ para frequências negativas deslocada para $f_c$. Ocupa de $f_c - W = 496\;\text{kHz}$ a $f_c = 500\;\text{kHz}$, com forma triangular e pico em $f_c - W/2 = 498\;\text{kHz}$.
+  \item Banda lateral superior (USB): réplica de $M(f)$ para frequências positivas deslocada para $f_c$. Ocupa de $f_c = 500\;\text{kHz}$ a $f_c + W = 504\;\text{kHz}$, com forma triangular e pico em $f_c + W/2 = 502\;\text{kHz}$.
+\end{itemize}
+
+Como $M(0) = 0$, as duas bandas laterais se encontram em $f = f_c$ com amplitude zero. Não há sobreposição entre elas.
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Projeto do filtro $H(f)$ (0{,}6 pt)]
+
+O filtro $H(f)$ deve passar a USB (de $500$ a $504\;\text{kHz}$) e rejeitar a LSB (de $496$ a $500\;\text{kHz}$).
+
+A resposta ideal seria:
+\[
+  H(f) = \begin{cases} 1, & f_c < |f| \leq f_c + W \\ 0, & \text{caso contrário} \end{cases}
+\]
+
+A frequência de corte do filtro está em $f_c = 500\;\text{kHz}$.
+
+A grande vantagem neste caso é que $M(0) = 0$ (o espectro da mensagem é nulo em $f = 0$, ou seja, não tem componente DC). Isso significa que as bandas laterais se encontram em $f_c$ com amplitude zero, criando uma \textbf{separação natural} entre USB e LSB.
+
+O filtro não precisa ter transição infinitamente abrupta em $f_c$ -- basta uma transição razoável na vizinhança de $500\;\text{kHz}$, pois a energia espectral é naturalmente baixa ali. Isso torna o projeto do filtro SSB significativamente mais fácil do que se $M(f)$ tivesse energia concentrada em $f = 0$ (como seria com um sinal de voz/áudio típico com componente DC ou sub-grave).
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Comparação SSB vs.\ AM convencional (0{,}5 pt)]
+
+\textbf{Largura de banda:}
+\begin{itemize}
+  \item AM convencional (Q3): $B_{\text{AM}} = 2W = 8\;\text{kHz}$
+  \item SSB-USB: $B_{\text{SSB}} = W = 4\;\text{kHz}$
+\end{itemize}
+
+O SSB ocupa \textbf{metade} da largura de banda.
+
+\textbf{Potência:}
+\begin{itemize}
+  \item AM convencional: $P_T = P_c + P_s = 64 + 20{,}48 = 84{,}48\;\text{W}$, dos quais apenas $P_s = 20{,}48\;\text{W}$ carregam informação.
+  \item SSB-USB: não transmite portadora nem banda lateral redundante. Toda a potência transmitida carrega informação. $P_{\text{SSB}} = P_s/2 \approx 10{,}24\;\text{W}$ (metade da potência das bandas laterais, pois só uma é transmitida).
+\end{itemize}
+
+O SSB é muito mais eficiente: usa $\sim 12\%$ da potência total do AM convencional para transmitir a mesma informação, com metade da banda.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Demodulação SSB com erro de frequência (0{,}9 pt)]
+
+A demodulação coerente de SSB multiplica o sinal recebido por $\cos(2\pi(f_c + \Delta f)\,t)$:
+\[
+  y(t) = s_{\text{USB}}(t) \cdot \cos(2\pi(f_c + \Delta f)\,t)
+\]
+
+Considere uma componente genérica do sinal SSB na frequência $f_c + f_0$ (onde $0 < f_0 \leq W$):
+\begin{align*}
+  \cos(2\pi(f_c + f_0)t) \cdot \cos(2\pi(f_c + \Delta f)t) &= \frac{1}{2}\cos(2\pi(f_0 - \Delta f)t) \\
+  &\quad + \frac{1}{2}\cos(2\pi(2f_c + f_0 + \Delta f)t)
+\end{align*}
+
+Após o LPF, resta:
+\[
+  \boxed{y(t) \propto \cos(2\pi(f_0 - \Delta f)\,t)}
+\]
+
+Cada componente de frequência $f_0$ da mensagem original aparece deslocada para $f_0 - \Delta f$. Com $\Delta f = 50\;\text{Hz}$, todas as frequências são deslocadas em $-50\;\text{Hz}$.
+
+Esse deslocamento é \textbf{uniforme}: a componente de $500\;\text{Hz}$ vira $450\;\text{Hz}$, a de $2\;\text{kHz}$ vira $1{,}95\;\text{kHz}$, etc. As relações harmônicas entre componentes são destruídas (um tom de $1\;\text{kHz}$ e seu harmônico de $2\;\text{kHz}$ viram $950\;\text{Hz}$ e $1950\;\text{Hz}$, cuja razão não é mais $2{:}1$).
+
+\textbf{Por que é mais grave em SSB do que em AM com detector de envoltória?}
+
+No AM convencional com detector de envoltória, o envelope é extraído sem necessidade de oscilador local. A portadora transmitida serve como referência, e o detector de envoltória é \textbf{insensível a erros de frequência} do oscilador -- ele simplesmente segue a amplitude instantânea do sinal.
+
+No SSB, não há portadora transmitida. A demodulação depende inteiramente de um oscilador local cuja frequência e fase devem coincidir com a portadora original. Qualquer erro $\Delta f$ causa o deslocamento descrito, que é perceptível para voz a partir de $\sim 20\;\text{Hz}$ e inaceitável para música a partir de $\sim 2\;\text{Hz}$.
+\end{resolucao}
+
+
+% ======================================================================
+% QUESTÃO 5 -- DIFÍCIL / PROJETO (2,5 pontos)
+% ======================================================================
+\textbf{Questão 5} \hfill (2{,}5 pontos)
+
+Dados: $A_c = 10\;\text{V}$, $\mu = 0{,}8$, $f_m = 5\;\text{kHz}$, $f_c = 1\;\text{MHz}$.
+
+\begin{resolucao}[Item a -- Significado das desigualdades (0{,}6 pt)]
+
+A condição $\frac{1}{f_c} \ll RC \ll \frac{1}{f_m}$ tem dois limites:
+
+\textbf{Limite inferior} ($RC \gg 1/f_c$): o capacitor não deve se descarregar significativamente entre dois ciclos da portadora. Se $RC$ for muito pequeno (comparável a $1/f_c = 1\;\mu\text{s}$), o capacitor descarrega rapidamente e a saída acompanha cada ciclo individual da portadora em vez de seguir apenas o envelope. O resultado é um ripple de alta frequência ($f_c$) na saída.
+
+\textbf{Limite superior} ($RC \ll 1/f_m$): o capacitor deve conseguir acompanhar as variações do envelope (mensagem). Se $RC$ for muito grande (comparável a $1/f_m = 200\;\mu\text{s}$), o capacitor não consegue descarregar rápido o suficiente nos trechos em que o envelope está diminuindo. A saída não acompanha o envelope para baixo, causando o efeito de corte diagonal -- o sinal recuperado fica distorcido.
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Cálculo de $RC$ máximo (0{,}7 pt)]
+
+Condição de corte diagonal:
+\[
+  RC < \frac{\sqrt{1 - \mu^2}}{2\pi f_m \mu}
+\]
+
+Com $\mu = 0{,}8$ e $f_m = 5\;\text{kHz}$:
+\[
+  \sqrt{1 - 0{,}8^2} = \sqrt{1 - 0{,}64} = \sqrt{0{,}36} = 0{,}6
+\]
+\[
+  RC_{\max} = \frac{0{,}6}{2\pi \times 5000 \times 0{,}8} = \frac{0{,}6}{25132{,}7} = \boxed{23{,}87\;\mu\text{s}}
+\]
+
+Verificação da condição geral: $1/f_c = 1\;\mu\text{s} \ll 23{,}87\;\mu\text{s} \ll 200\;\mu\text{s} = 1/f_m$. \checkmark
+
+Com $C = 100\;\text{pF} = 100 \times 10^{-12}\;\text{F}$:
+\[
+  R_{\max} = \frac{RC_{\max}}{C} = \frac{23{,}87 \times 10^{-6}}{100 \times 10^{-12}} = \boxed{238{,}7\;\text{k}\Omega}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Nova mensagem multitom (0{,}5 pt)]
+
+Com $m(t) = \cos(2\pi \times 5000\,t) + 0{,}5\cos(2\pi \times 10000\,t)$, $\mu = 0{,}9$.
+
+A condição de corte diagonal deve ser avaliada na frequência mais alta da mensagem, $f_{m,\max} = 10\;\text{kHz}$:
+\[
+  \sqrt{1 - 0{,}9^2} = \sqrt{0{,}19} = 0{,}4359
+\]
+\[
+  RC_{\max} = \frac{0{,}4359}{2\pi \times 10000 \times 0{,}9} = \frac{0{,}4359}{56548{,}7} = \boxed{7{,}71\;\mu\text{s}}
+\]
+
+Com $C = 100\;\text{pF}$:
+\[
+  R_{\max} = \frac{7{,}71 \times 10^{-6}}{100 \times 10^{-12}} = 77{,}1\;\text{k}\Omega
+\]
+
+O valor anterior ($R = 238{,}7\;\text{k}\Omega$) é \textbf{maior} que $77{,}1\;\text{k}\Omega$, portanto \textbf{não é mais válido}. Seria necessário reduzir $R$ para no máximo $77{,}1\;\text{k}\Omega$ (ou aumentar $C$).
+
+O resultado mostra que o detector de envoltória é mais restritivo quando: (1) a frequência da mensagem é alta e (2) o índice de modulação é próximo de 1. Ambos exigem uma constante de tempo menor para que o capacitor consiga acompanhar as variações rápidas do envelope.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Comparação envoltória vs.\ coerente (0{,}7 pt)]
+
+\begin{center}
+\small
+\begin{tabular}{lcc}
+  \toprule
+  Critério & Detector de envoltória & Demodulação coerente \\
+  \midrule
+  Sincronismo de portadora & Não necessita & Essencial (PLL ou Costas) \\
+  Sensibilidade a $\mu > 1$ & Distorção severa & Funciona normalmente \\
+  Complexidade & Simples (diodo + RC) & Alta (PLL + mixer + LPF) \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Sincronismo:} o detector de envoltória não requer conhecimento da fase da portadora, pois extrai a amplitude instantânea do sinal. A demodulação coerente exige um oscilador local sincronizado em fase e frequência (via PLL), e qualquer erro de fase atenua o sinal ($\cos\phi$).
+
+\textbf{Sobremodulação:} quando $\mu > 1$, o envelope $A_c[1 + \mu\cos(\omega_m t)]$ cruza o zero e inverte a fase. O detector de envoltória retifica o envelope, causando distorção harmônica. Na demodulação coerente, a multiplicação recupera $m(t)$ linearmente, independente do valor de $\mu$.
+
+\textbf{Complexidade:} o detector de envoltória consiste em um diodo e um capacitor. A demodulação coerente exige um PLL para recuperação de portadora, um mixer e um filtro.
+
+\textbf{Para radiodifusão AM:} o detector de envoltória é a escolha correta. A simplicidade e o baixo custo são essenciais para receptores de massa. A transmissão garante $\mu \leq 1$ por controle de ganho automático (AGC). A ausência de necessidade de sincronismo torna o receptor robusto e barato.
+\end{resolucao}
+
+
+\vfill
+\begin{center}
+  \small\textit{Fim do gabarito.}
+\end{center}
+
+\end{document}
