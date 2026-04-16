@@ -18,6 +18,7 @@
 \usepackage{array}
 \usepackage{cancel}
 \usepackage{tikz}
+\usetikzlibrary{positioning,decorations.pathreplacing,decorations.pathmorphing}
 
 % ============================================
 % VARIÁVEIS DE CONFIGURAÇÃO
@@ -28,8 +29,8 @@
 \newcommand{\autorEmail}{daniel.araujo@unb.br}
 
 % --- Título e Subtítulo ---
-\newcommand{\tituloApresentacao}{Modulações Analógicas}
-\newcommand{\subtituloApresentacao}{Capítulo 4: AM, FM e Aplicações}
+\newcommand{\tituloApresentacao}{Modulação AM: DSB-SC}
+\newcommand{\subtituloApresentacao}{Capítulo 4a: DSB-SC e Recuperação de Portadora (PLL)}
 
 % --- Idioma ---
 \newcommand{\idioma}{pt}
@@ -119,13 +120,9 @@
 % ============================================
 % TAMANHOS PADRONIZADOS DE FIGURAS
 % ============================================
-% Figura ocupando slide inteiro (SOZINHA, sem texto/equações)
 \newcommand{\figFull}{0.85\textwidth}
-% Figura no mesmo slide COM texto/equações acima ou abaixo
 \newcommand{\figHalf}{0.65\textwidth}
-% Figura ocupando metade vertical (lado a lado)
 \newcommand{\figHalfV}{0.48\textwidth}
-% Compatibilidade com código existente
 \newcommand{\figw}{\figFull}
 
 % ============================================
@@ -161,48 +158,10 @@
 \tableofcontents[hideallsubsections]
 \end{frame}
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% SLIDE DE TRANSIÇÃO: CAPÍTULO 4
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-{
-\setbeamercolor{background canvas}{bg=structure.fg}
-\setbeamercolor{normal text}{fg=white}
-\usebeamercolor[fg]{normal text}
-\begin{frame}[plain,c]
-\begin{center}
-{\Huge\textbf{Capítulo 4}}\\[0.8cm]
-{\LARGE Modulações Analógicas}\\[0.5cm]
-{\large AM, FM e Aplicações em Sistemas de Comunicação}
-\end{center}
-\end{frame}
-}
-
 % ============================================
-% CAPÍTULO 4: MODULAÇÕES ANALÓGICAS
+% MODULAÇÃO EM AMPLITUDE (AM)
 % ============================================
-\input{cap4_modulacoes_analogicas}
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% SLIDE DE TRANSIÇÃO: CAPÍTULO 5
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-{
-\setbeamercolor{background canvas}{bg=structure.fg}
-\setbeamercolor{normal text}{fg=white}
-\usebeamercolor[fg]{normal text}
-\begin{frame}[plain,c]
-\begin{center}
-{\Huge\textbf{Capítulo 5}}\\[0.8cm]
-{\LARGE Efeito do Ruído em Sistemas de Comunicação}\\[0.5cm]
-{\large SNR, figura de ruído e perdas de transmissão}
-\end{center}
-\end{frame}
-}
-
-% ============================================
-% CAPÍTULO 5: RUÍDO EM SISTEMAS DE COMUNICAÇÃO
-% ============================================
-\section{Efeito do Ruído em Sistemas de Comunicação}
-\input{noise_communication_systems}
+\input{am_dsbsc}
 
 % ============================================
 % AGRADECIMENTOS

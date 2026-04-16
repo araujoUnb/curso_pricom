@@ -126,6 +126,20 @@
 \newcommand{\figw}{\figFull}
 
 % ============================================
+% SLIDE DE TRANSIÇÃO A CADA SEÇÃO
+% ============================================
+\AtBeginSection[]{%
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionnumber.~\insertsection\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+% ============================================
 % INÍCIO DO DOCUMENTO
 % ============================================
 \begin{document}
