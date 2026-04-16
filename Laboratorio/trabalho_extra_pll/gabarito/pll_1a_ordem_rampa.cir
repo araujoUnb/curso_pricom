@@ -1,0 +1,36 @@
+* PLL analogico de 1a ordem - Teste A: rampa de fase
+* F(s) = Kp constante (sem integrador no filtro de malha)
+.param fc    = 2k
+.param df    = 50
+.param Kv    = 500
+.param Kp    = 0.283
+.param twopi = 6.28318530718
+
+Brx   rx 0   V = cos(twopi*fc*time + twopi*df*time)
+
+Bphi  0 phint  I = twopi*Kv*V(ctrl)
+Cphi  phint 0  1
+Rphi  phint 0  1G
+
+Bvco  vco 0   V = -2*sin(twopi*fc*time + V(phint))
+Bpd   pd 0    V = V(rx)*V(vco)
+
+Rlpf  pd  pdf  6.37k
+Clpf  pdf 0    100n
+
+* Filtro de malha: 1a ordem -> apenas ganho proporcional
+Bctrl ctrl 0   V = Kp*V(pdf)
+
+Bphi_ref 0 phref  I = twopi*df
+Cphref phref 0  1
+Rphref phref 0  1G
+Berr  terr 0   V = V(phref) - V(phint)
+
+.ic V(phint)=0 V(phref)=0 V(pdf)=0
+.tran 10u 0.30 0 10u uic
+.control
+run
+wrdata pll_1a_rampa.dat V(pdf) V(ctrl) V(terr)
+quit
+.endc
+.end

@@ -1,0 +1,41 @@
+* PLL analogico de 2a ordem - Teste B: fase quadratica (frequency ramp alpha = 1000 Hz/s)
+* phi_in(t) = pi*alpha*t^2  =>  freq instantanea = fc + alpha*t
+.param fc    = 2k
+.param alpha = 1000      ; Hz/s
+.param Kv    = 500
+.param Kp    = 0.283
+.param Ki    = 62.83
+.param twopi = 6.28318530718
+.param pi    = 3.14159265359
+
+Brx   rx 0   V = cos(twopi*fc*time + pi*alpha*time*time)
+
+Bphi  0 phint  I = twopi*Kv*V(ctrl)
+Cphi  phint 0  1
+Rphi  phint 0  1G
+
+Bvco  vco 0   V = -2*sin(twopi*fc*time + V(phint))
+Bpd   pd 0    V = V(rx)*V(vco)
+
+Rlpf  pd  pdf  6.37k
+Clpf  pdf 0    100n
+
+Bint  0 intpd  I = Ki*V(pdf)
+Cint  intpd 0  1
+Rint  intpd 0  1G
+Bctrl ctrl 0   V = Kp*V(pdf) + V(intpd)
+
+* Referencia: integral de 2*pi*alpha*time => phi_ref = pi*alpha*t^2
+Bphi_ref 0 phref  I = twopi*alpha*time
+Cphref phref 0  1
+Rphref phref 0  1G
+Berr  terr 0   V = V(phref) - V(phint)
+
+.ic V(phint)=0 V(intpd)=0 V(phref)=0 V(pdf)=0
+.tran 10u 0.30 0 10u uic
+.control
+run
+wrdata pll_2a_quadratica.dat V(pdf) V(ctrl) V(terr)
+quit
+.endc
+.end

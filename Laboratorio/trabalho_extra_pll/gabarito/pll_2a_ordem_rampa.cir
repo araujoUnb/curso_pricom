@@ -1,0 +1,49 @@
+* PLL analogico de 2a ordem - Teste A: rampa de fase (frequency step df=50 Hz)
+* Detector de fase = multiplicador  | Filtro de malha = PI ativo  | VCO = senoidal
+* Integrais em ngspice: fonte de corrente B(I) carregando capacitor de 1 F.
+
+.param fc    = 2k
+.param df    = 50
+.param Kv    = 500       ; Hz/V
+.param Kp    = 0.283
+.param Ki    = 62.83     ; 1/s
+.param twopi = 6.28318530718
+
+* --- Sinal recebido r(t): portadora com rampa de fase 2*pi*df*t ---
+Brx   rx 0   V = cos(twopi*fc*time + twopi*df*time)
+
+* --- Integrador da fase do VCO: phint(t) = 2*pi*Kv * integral(ctrl) ---
+Bphi  0 phint   I = twopi*Kv*V(ctrl)
+Cphi  phint 0   1
+Rphi  phint 0   1G
+
+* --- VCO em quadratura: -2*sin(2*pi*fc*t + phint) ---
+Bvco  vco 0   V = -2*sin(twopi*fc*time + V(phint))
+
+* --- Detector de fase ---
+Bpd   pd 0    V = V(rx)*V(vco)
+
+* --- LPF RC para suprimir componente em 2*fc (~250 Hz de corte) ---
+Rlpf  pd  pdf  6.37k
+Clpf  pdf 0    100n
+
+* --- Filtro de malha PI: ctrl = Kp*pdf + Ki*integral(pdf) ---
+Bint  0 intpd  I = Ki*V(pdf)
+Cint  intpd 0  1
+Rint  intpd 0  1G
+Bctrl ctrl 0   V = Kp*V(pdf) + V(intpd)
+
+* --- Sinal de referencia (rampa pura) para calcular o erro de fase verdadeiro ---
+Bphi_ref 0 phref  I = twopi*df
+Cphref phref 0  1
+Rphref phref 0  1G
+Berr  terr 0   V = V(phref) - V(phint)
+
+.ic V(phint)=0 V(intpd)=0 V(phref)=0 V(pdf)=0
+.tran 10u 0.30 0 10u uic
+.control
+run
+wrdata pll_2a_rampa.dat V(pdf) V(ctrl) V(terr)
+quit
+.endc
+.end

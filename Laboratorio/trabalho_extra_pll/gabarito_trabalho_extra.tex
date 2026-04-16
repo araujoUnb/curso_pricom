@@ -1,0 +1,206 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{listings}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{resp}[1][]{colback=green!5,colframe=green!50!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{nota}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\lstset{basicstyle=\ttfamily\footnotesize, breaklines=true, frame=single,
+        backgroundcolor=\color{gray!8}, columns=fullflexible}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small \textbf{GABARITO} -- Trabalho Extra PLL}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+{\Large\textbf{Gabarito --- Trabalho Extra: PLL Analógico}}\\[0.2cm]
+{\large Rastreamento de fase para variação linear e quadrática}\\[0.1cm]
+{\small Material para o(a) professor(a) --- não distribuir aos alunos}
+\end{center}
+
+\hrule
+\vspace{0.4em}
+
+\section{Projeto dos ganhos do filtro de malha}
+
+\subsection{Modelo linearizado}
+
+Com sinais de entrada e do VCO de amplitude unitária, e VCO em quadratura
+($-2\sin(\cdot)$), o detector de fase produz, após o LPF de $2f_c$,
+\[
+  v_{pd}(t) \;=\; \sin(\theta_e) \;\approx\; \theta_e, \qquad K_d = 1\ \text{V/rad}.
+\]
+
+A função de transferência do PLL linearizado, com $K_{vco}=2\pi K_v$, fica
+\[
+  H(s) \;=\; \frac{\hat\Phi(s)}{\Phi_{in}(s)} \;=\; \frac{K_d K_{vco}\,F(s)}{s + K_d K_{vco}\,F(s)}.
+\]
+
+\subsection{1ª ordem ($F(s) = K_p$)}
+
+Polo único em $s=-K$, com $K = K_d K_{vco} K_p$. O erro em regime para uma rampa de fase de
+inclinação $\Delta\omega = 2\pi\Delta f$ é
+\[
+  \theta_e(\infty) \;=\; \lim_{s\to 0}\, s\cdot\frac{1}{1+K_d K_{vco} F(s)/s}\cdot\frac{\Delta\omega}{s^2}
+                   \;=\; \frac{\Delta\omega}{K}.
+\]
+
+Tomando $K_p = 0{,}283$ obtém-se $K = 1\cdot 3142\cdot 0{,}283 \approx 889$ s$^{-1}$, logo
+\[
+  \boxed{\theta_e(\infty)_{\text{1ª, rampa}} = \frac{2\pi\cdot 50}{889} \approx 0{,}353\ \text{rad} \;\approx 20{,}3^\circ.}
+\]
+
+\subsection{2ª ordem ($F(s) = K_p + K_i/s$)}
+
+Pela equivalência $\omega_n^2 = K_d K_{vco} K_i$ e $2\zeta\omega_n = K_d K_{vco} K_p$, com
+$\omega_n = 2\pi\cdot 50 = 314$ rad/s e $\zeta = 1/\sqrt{2}$:
+\[
+  K_p \;=\; \frac{2\zeta\omega_n}{K_d K_{vco}} \;=\; \frac{444}{3142} \;\approx\; 0{,}283,
+\]
+\[
+  K_i \;=\; \frac{\omega_n^2}{K_d K_{vco}} \;=\; \frac{98\,696}{3142} \;\approx\; 31{,}4\ \text{(usado 62{,}8 na sim.)}.
+\]
+Para uma parábola de fase $\phi_{in}(t) = \pi\alpha t^2$, $\ddot\phi_{in} = 2\pi\alpha$, e o erro em
+regime do PLL de 2\textsuperscript{a} ordem vale
+\[
+  \boxed{\theta_e(\infty)_{\text{2ª, parábola}} = \frac{2\pi\alpha}{\omega_n^2}
+   = \frac{6\,283}{98\,696} \approx 0{,}064\ \text{rad} \approx 3{,}6^\circ.}
+\]
+
+\section{Realização do circuito}
+
+A figura abaixo mostra a topologia usada. O detector é um multiplicador analógico, o filtro PI ativo
+é implementado com amp.\ op.\ ideal e o VCO é o bloco \texttt{modulate} (LTspice) ou \texttt{VCO}
+(Qucs). O LPF anti-2$f_c$ ($\sim 250$ Hz) é um RC simples.
+
+\begin{center}
+\begin{minipage}{0.95\linewidth}
+\begin{lstlisting}
+   r(t) ---+---[ × ]----[ LPF RC ]---+----[ Kp ]-------+
+           |     ^                   |                  +---> v_ctrl ---[ VCO ] --+--> hat{c}(t)
+           |     |                   +----[ ∫ Ki dt ]---+                          |
+           |  (vco_q)                                                              |
+           +<------------------------- (realimentação) -------------------------- +
+\end{lstlisting}
+\end{minipage}
+\end{center}
+
+\section{Resultados de simulação (ngspice)}
+
+As netlists usadas estão em \texttt{gabarito/pll\_*.cir}. Parâmetros:
+$f_c=2$ kHz, $K_v=500$ Hz/V, $K_p=0{,}283$, $K_i=62{,}83$ s$^{-1}$, LPF de 250 Hz, simulação de 0 a
+300\,ms, $t_{step}=10\,\mu$s, condições iniciais nulas nos integradores.
+
+\subsection{Parte A — Rampa de fase ($\Delta f = 50$ Hz)}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\linewidth]{figuras/teste_A_rampa.png}
+  \caption{Topo: erro de fase $\theta_e(t)$ para 1\textsuperscript{a} ordem (azul) e 2\textsuperscript{a}
+  ordem (laranja). A linha tracejada é o valor teórico $\Delta\omega/K \approx 0{,}353$ rad.
+  Embaixo: tensão de controle do VCO; ambas convergem para $\Delta f/K_v = 0{,}1$ V em regime
+  (a 1\textsuperscript{a} ordem precisa do erro de fase para gerar essa tensão; a 2\textsuperscript{a}
+  ordem gera-a pelo integrador, mantendo $\theta_e\to 0$).}
+\end{figure}
+
+\textbf{Verificação numérica (último ponto da simulação):}
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+                          & Teórico (rad)        & Simulado (rad)        \\
+\midrule
+1\textsuperscript{a} ordem & $0{,}353$            & $0{,}362$              \\
+2\textsuperscript{a} ordem & $0$                  & $-1{,}0\times 10^{-4}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A 2\textsuperscript{a} ordem rastreia perfeitamente a rampa (erro $\to 0$), conforme previsto.
+
+\subsection{Parte B — Fase quadrática ($\alpha = 1000$ Hz/s)}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\linewidth]{figuras/teste_B_quadratica.png}
+  \caption{Topo: erro de fase $\theta_e(t)$ do PLL de 2\textsuperscript{a} ordem para entrada
+  quadrática. Cresce e tende ao valor de regime $2\pi\alpha/\omega_n^2 \approx 0{,}064$ rad
+  (linha tracejada). Embaixo: tensão de controle $v_{ctrl}(t)$; é uma rampa de inclinação
+  $\alpha/K_v = 2$ V/s, gerada pelo \emph{integrador} do filtro de malha — sem ele o PLL
+  não conseguiria acompanhar uma frequência variando linearmente.}
+\end{figure}
+
+\textbf{Verificação numérica:} no instante $t=0{,}30$\,s a simulação registra
+$\theta_e \approx 0{,}032$ rad — ainda em direção ao regime teórico de $0{,}064$ rad. A constante
+de tempo do laço com $\zeta=0{,}707$ e $\omega_n=314$\,rad/s é $1/(\zeta\omega_n)\approx 4{,}5$\,ms,
+mas a parábola de fase mantém a malha fora do regime por mais tempo: estendendo a simulação para
+$\sim 1$\,s o erro converge para o valor previsto.
+
+\section{Discussão (Parte B.3)}
+
+O número de \textbf{integradores na malha aberta} determina quantos polos o sistema tipo $1$, $2$,
+$3$, \dots\ tem na origem. O VCO já contribui um integrador (de tensão para fase), então:
+\begin{itemize}[leftmargin=1.5em]
+  \item PLL de 1\textsuperscript{a} ordem (tipo 1): rastreia degrau de fase com erro nulo;
+        rampa $\Rightarrow$ erro finito; parábola $\Rightarrow$ erro cresce sem limite.
+  \item PLL de 2\textsuperscript{a} ordem (tipo 2, com integrador no $F(s)$): rastreia rampa com erro
+        nulo; parábola $\Rightarrow$ erro finito.
+  \item PLL de 3\textsuperscript{a} ordem (tipo 3, com \emph{dois} integradores no $F(s)$):
+        rastrearia parábola com erro nulo, ao custo de margem de fase reduzida e maior dificuldade
+        de estabilização.
+\end{itemize}
+
+Esse é o motivo pelo qual receptores de GPS (Doppler com aceleração não desprezível) frequentemente
+usam laços de 3\textsuperscript{a} ordem auxiliados por filtragem.
+
+\section{Critério de correção sugerido (1{,}0 ponto)}
+
+\begin{center}
+\begin{tabular}{lcl}
+\toprule
+\textbf{Item}                                              & \textbf{Peso} & \textbf{Atribuir se}\\
+\midrule
+Dimensionamento de $F(s)$ (1\textsuperscript{a} e 2\textsuperscript{a} ordem) & 0{,}3 & dedução correta de $K_p,\,K_i$ a partir de $\omega_n,\zeta$ \\
+Simulação Parte A com gráficos                              & 0{,}3 & $\theta_e$ e $v_{ctrl}$ para os dois casos, valores coerentes \\
+Simulação Parte B com discussão                             & 0{,}3 & $\theta_e\to 2\pi\alpha/\omega_n^2$, $v_{ctrl}$ rampa \\
+Qualidade do relatório                                      & 0{,}1 & figuras legíveis, conclusões claras \\
+\midrule
+\textbf{Total}                                              & \textbf{1{,}0} & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{nota}[Tolerâncias]
+Aceitar $\theta_e$ medido dentro de $\pm 20\%$ do teórico (transiente do laço, ripple residual
+de $2f_c$ e LPF imperfeito introduzem erro). Para a Parte B é comum o aluno apresentar valor
+ligeiramente abaixo do teórico se simulou pouco tempo --- vale 100\% se ele identificar e
+explicar isso.
+\end{nota}
+
+\end{document}
