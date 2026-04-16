@@ -1,0 +1,200 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{circuitikz}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Lista de Exercícios -- Modulação AM}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Lista de Exercícios}}\\[0.15cm]
+  {\Large\textbf{Modulação Analógica AM}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Semestre:} 2026/1
+
+\bigskip
+
+% ======================================================
+\section*{Questão 1 -- Modulação AM Convencional e Eficiência}
+
+Um transmissor AM convencional (DSB+C) opera com portadora $c(t) = 100\cos(2\pi \times 10^6\, t)$ e mensagem $m(t) = 3\cos(2\pi \times 5 \times 10^3\, t) + 4\cos(2\pi \times 8 \times 10^3\, t)$.
+
+O sinal AM transmitido é:
+\[
+  s(t) = A_c\big[1 + k_a\, m(t)\big]\cos(2\pi f_c\, t)
+\]
+com $k_a = 0{,}12$.
+
+\begin{enumerate}[label=\alph*)]
+  \item Determine o índice de modulação total $\mu$ e verifique se há sobremodulação.
+  \item Calcule a potência média da portadora, das bandas laterais e a potência total transmitida (carga de $50\;\Omega$).
+  \item Determine a eficiência de potência $\eta$ do transmissor.
+  \item Esboce o espectro de amplitude (bilateral) de $s(t)$, indicando frequências e amplitudes de cada componente espectral.
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 2 -- Demodulação DSB-SC com Erro de Fase}
+
+Considere o sistema de comunicação DSB-SC mostrado abaixo. A mensagem é $m(t) = \cos(2\pi \times 10^3\,t)$ e a portadora é $c(t) = \cos(2\pi \times 10^5\,t)$.
+
+\begin{center}
+\begin{circuitikz}[scale=0.85, transform shape]
+  % Transmitter
+  \draw (0,0) node[left]{$m(t)$} -- (1.5,0);
+  \draw (1.5,-0.5) rectangle (3,0.5) node[midway]{\footnotesize $\otimes$};
+  \draw (2.25,1.2) node[above]{\footnotesize $\cos(2\pi f_c t)$} -- (2.25,0.5);
+  \draw (3,0) -- (4.5,0) node[midway, above]{\footnotesize canal};
+
+  % Receiver
+  \draw (4.5,0) -- (5.5,0);
+  \draw (5.5,-0.5) rectangle (7,0.5) node[midway]{\footnotesize $\otimes$};
+  \draw (6.25,1.2) node[above]{\footnotesize $\cos(2\pi f_c t + \phi)$} -- (6.25,0.5);
+  \draw (7,0) -- (8,0);
+  \draw (8,-0.5) rectangle (10,0.5) node[midway]{\footnotesize LPF};
+  \draw (10,0) -- (11,0) node[right]{$y(t)$};
+\end{circuitikz}
+\end{center}
+
+\begin{enumerate}[label=\alph*)]
+  \item Obtenha a expressão do sinal DSB-SC transmitido $s(t)$ e esboce seu espectro.
+  \item Na recepção, o oscilador local tem erro de fase $\phi$. Derive a expressão de $y(t)$ após o filtro passa-baixas.
+  \item Para quais valores de $\phi$ o sinal recebido é completamente perdido? Justifique fisicamente.
+  \item Se o erro de fase for $\phi = 30^\circ$, qual a atenuação (em dB) do sinal recuperado em relação ao caso ideal $\phi = 0$?
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 3 -- Geração de SSB pelo Método de Hartley}
+
+Um transmissor SSB utiliza o \textbf{método de Hartley} para gerar o sinal de banda lateral superior (USB). A mensagem é $m(t) = 2\cos(2\pi \times 2 \times 10^3\,t) + \cos(2\pi \times 5 \times 10^3\,t)$ e a portadora tem frequência $f_c = 200\;\text{kHz}$ com amplitude $A_c = 1$.
+
+O diagrama de blocos do transmissor de Hartley é:
+
+\begin{center}
+\begin{circuitikz}[scale=0.8, transform shape]
+  % Upper path
+  \draw (0,1.5) node[left]{\footnotesize $m(t)$} -- (1.5,1.5);
+  \draw (1.5,1) rectangle (3,2) node[midway]{\footnotesize $\otimes$};
+  \draw (2.25,2.7) node[above]{\footnotesize $\cos(2\pi f_c t)$} -- (2.25,2);
+  \draw (3,1.5) -- (5,1.5);
+
+  % Lower path
+  \draw (0,-1.5) node[left]{\footnotesize $m(t)$} -- (0.5,-1.5);
+  \draw (0.5,-2) rectangle (2,-1) node[midway]{\footnotesize $\hat{H}$};
+  \draw (2,-1.5) -- (2.5,-1.5);
+  \draw (2.5,-2) rectangle (4,-1) node[midway]{\footnotesize $\otimes$};
+  \draw (3.25,-0.3) node[above]{\footnotesize $\sin(2\pi f_c t)$} -- (3.25,-1);
+  \draw (4,-1.5) -- (5,-1.5);
+
+  % Summer
+  \draw (5,-0.5) rectangle (6.2,0.5) node[midway]{\footnotesize $\sum$};
+  \draw (5,1.5) -- (5.6,1.5) -- (5.6,0.5);
+  \draw (5,-1.5) -- (5.6,-1.5) -- (5.6,-0.5);
+  \draw (6.2,0) -- (7,0) node[right]{\footnotesize $s_{\text{USB}}(t)$};
+
+  % Labels
+  \node at (1.25,-1.5) [below=0.3cm] {\footnotesize Hilbert};
+\end{circuitikz}
+\end{center}
+
+\begin{enumerate}[label=\alph*)]
+  \item Calcule $\hat{m}(t)$, a transformada de Hilbert de $m(t)$.
+  \item Derive a expressão completa de $s_{\text{USB}}(t)$ na saída do somador.
+  \item Mostre que o espectro $S_{\text{USB}}(f)$ contém apenas as componentes da banda lateral superior. Esboce o espectro bilateral indicando frequências e amplitudes.
+  \item Calcule a potência total transmitida e compare com a potência que seria transmitida se fosse DSB-SC com a mesma mensagem.
+  \item Explique o que acontece se o bloco $\hat{H}$ (Hilbert) tiver um erro de fase de $5^\circ$ em uma das componentes. O sinal ainda é SSB puro?
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 4 -- Modulador Balanceado com Chaveamento por Onda Quadrada}
+
+Um modulador balanceado utiliza uma onda quadrada $p(t)$ de frequência $f_c = 100\;\text{kHz}$ e amplitude $\pm 1$ como sinal de chaveamento (oscilador local). A mensagem é $m(t) = \cos(2\pi \times 5 \times 10^3\,t)$.
+
+A expansão em série de Fourier da onda quadrada simétrica ($\text{duty cycle} = 50\%$) é:
+\[
+  p(t) = \frac{4}{\pi}\sum_{n=0}^{\infty} \frac{(-1)^n}{2n+1}\cos\!\big[2\pi(2n+1)f_c\,t\big]
+  = \frac{4}{\pi}\!\left[\cos(\omega_c t) - \frac{1}{3}\cos(3\omega_c t) + \frac{1}{5}\cos(5\omega_c t) - \cdots\right]
+\]
+
+O sinal na saída do modulador é $s(t) = m(t) \cdot p(t)$.
+
+\begin{enumerate}[label=\alph*)]
+  \item Obtenha a expressão de $s(t)$ considerando os 3 primeiros termos da série de Fourier de $p(t)$. Identifique todos os pares de frequências gerados.
+  \item Esboce o espectro bilateral de $s(t)$, indicando todas as componentes espectrais até a $5^{\text{a}}$ harmônica da portadora, com suas respectivas amplitudes.
+  \item Projete um filtro passa-faixa para extrair apenas o sinal DSB-SC centrado na fundamental $f_c$. Especifique a frequência central e a largura de banda mínima do filtro.
+  \item Compare a potência do sinal DSB-SC extraído (componente fundamental) com a que seria obtida usando um multiplicador ideal por $\cos(2\pi f_c\,t)$. Qual a diferença em dB?
+  \item Se o oscilador tiver um \textit{duty cycle} de $40\%$ em vez de $50\%$, a onda quadrada ainda é simétrica de meia onda? Quais harmônicas pares passam a existir no espectro de $p(t)$? Justifique.
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 5 -- Demodulação Síncrona AM com Oscilador de Onda Quadrada}
+
+Um receptor AM utiliza um demodulador síncrono no qual o oscilador local gera uma onda quadrada $p(t)$ de frequência $f_c$ (mesma expansão da Questão~4) em vez de uma cossenoide pura. O sinal recebido é AM convencional:
+\[
+  s(t) = A_c\big[1 + \mu\cos(2\pi f_m\, t)\big]\cos(2\pi f_c\, t)
+\]
+com $A_c = 1$, $\mu = 0{,}8$, $f_m = 1\;\text{kHz}$ e $f_c = 500\;\text{kHz}$.
+
+\begin{center}
+\begin{circuitikz}[scale=0.85, transform shape]
+  % Input
+  \draw (0,0) node[left]{$s(t)$} -- (1.5,0);
+  % Mixer
+  \draw (1.5,-0.5) rectangle (3,0.5) node[midway]{\footnotesize $\otimes$};
+  \draw (2.25,-1.2) node[below]{\footnotesize $p(t)$\; (onda quadrada, $f_c$)} -- (2.25,-0.5);
+  \draw (3,0) -- (4,0);
+  % LPF
+  \draw (4,-0.5) rectangle (6,0.5) node[midway]{\footnotesize LPF};
+  \draw (6,0) -- (7,0) node[right]{$y(t)$};
+\end{circuitikz}
+\end{center}
+
+\begin{enumerate}[label=\alph*)]
+  \item O sinal demodulado antes da filtragem é $v(t) = s(t) \cdot p(t)$. Usando a série de Fourier de $p(t)$, expanda $v(t)$ e identifique os termos que caem em banda base (frequências $\leq f_m$).
+  \item Mostre que, após o filtro passa-baixas ideal com frequência de corte $f_m < f_{\text{corte}} < 2f_c - f_m$, o sinal $m(t)$ é recuperado corretamente. Qual a amplitude do sinal recuperado comparada com o caso do oscilador cossenoidal ideal?
+  \item Suponha agora que existe uma estação interferente transmitindo em $f_i = 3f_c = 1{,}5\;\text{MHz}$ com amplitude $A_i$. Mostre que a $3^{\text{a}}$ harmônica do oscilador local rebaixa essa interferência para banda base e calcule a amplitude relativa da interferência na saída.
+  \item Projete um filtro RF (posicionado antes do demodulador) que elimine essa interferência. Especifique a banda de passagem e a atenuação mínima necessária em $3f_c$ para que a interferência fique $40\;\text{dB}$ abaixo do sinal desejado.
+\end{enumerate}
+
+\vfill
+\begin{center}
+  \small\textit{Boa sorte!}
+\end{center}
+
+\end{document}

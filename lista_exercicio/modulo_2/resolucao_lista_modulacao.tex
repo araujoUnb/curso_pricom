@@ -1,0 +1,616 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{circuitikz}
+\usepackage{cancel}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{resolucao}[1][]{colback=green!5,colframe=green!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Resolução -- Lista de Modulação}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Resolução -- Lista de Exercícios}}\\[0.15cm]
+  {\Large\textbf{Modulação Analógica AM}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Semestre:} 2026/1
+
+\bigskip
+
+% ======================================================================
+% QUESTÃO 1
+% ======================================================================
+\section*{Questão 1 -- Modulação AM Convencional e Eficiência}
+
+\begin{resolucao}[Item a -- Índice de modulação]
+
+Dados: $A_c = 100$, $k_a = 0{,}12$, $m(t) = 3\cos(2\pi \times 5000\,t) + 4\cos(2\pi \times 8000\,t)$.
+
+O valor de pico de $m(t)$ ocorre quando ambos os cossenos valem 1:
+\[
+  m_{\max} = 3 + 4 = 7
+\]
+
+O índice de modulação total é:
+\[
+  \boxed{\mu = k_a \cdot m_{\max} = 0{,}12 \times 7 = 0{,}84}
+\]
+
+Como $\mu = 0{,}84 < 1$, \textbf{não há sobremodulação}. O envelope $A_c[1 + k_a\,m(t)]$ permanece sempre positivo.
+
+Verificação: o valor mínimo do envelope é $A_c(1 - \mu) = 100(1 - 0{,}84) = 16 > 0$. \checkmark
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Potências]
+
+\textbf{Potência da portadora:}
+
+A potência média da portadora pura (sem modulação) em carga $R = 50\;\Omega$:
+\[
+  P_c = \frac{A_c^2}{2R} = \frac{100^2}{2 \times 50} = \frac{10000}{100} = \boxed{100\;\text{W}}
+\]
+
+\textbf{Potência das bandas laterais:}
+
+O sinal modulado pode ser expandido como:
+\[
+  s(t) = A_c\cos(\omega_c t) + A_c k_a \underbrace{\left[3\cos(\omega_1 t) + 4\cos(\omega_2 t)\right]}_{m(t)} \cos(\omega_c t)
+\]
+
+Cada tom senoidal $a_i\cos(\omega_i t)$ multiplicado pela portadora gera um par de bandas laterais com amplitude $\frac{A_c k_a a_i}{2}$.
+
+Para o tom de 5 kHz ($a_1 = 3$): amplitude de cada banda = $\frac{100 \times 0{,}12 \times 3}{2} = 18$
+
+Potência do par: $P_1 = 2 \times \frac{18^2}{2 \times 50} = \frac{324}{50} = 6{,}48\;\text{W}$
+
+Para o tom de 8 kHz ($a_2 = 4$): amplitude de cada banda = $\frac{100 \times 0{,}12 \times 4}{2} = 24$
+
+Potência do par: $P_2 = 2 \times \frac{24^2}{2 \times 50} = \frac{576}{50} = 11{,}52\;\text{W}$
+
+\textbf{Potência total das bandas laterais:}
+\[
+  P_s = P_1 + P_2 = 6{,}48 + 11{,}52 = \boxed{18\;\text{W}}
+\]
+
+\textbf{Potência total transmitida:}
+\[
+  \boxed{P_T = P_c + P_s = 100 + 18 = 118\;\text{W}}
+\]
+
+\textit{Verificação alternativa:} para tom múltiplo, $P_s = \frac{P_c}{2}\sum_i (k_a a_i)^2 = \frac{100}{2}(0{,}36^2 + 0{,}48^2) = 50(0{,}1296 + 0{,}2304) = 50 \times 0{,}36 = 18\;\text{W}$. \checkmark
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Eficiência]
+
+A eficiência é a fração da potência total que carrega informação (bandas laterais):
+\[
+  \eta = \frac{P_s}{P_T} = \frac{18}{118} = \boxed{15{,}25\%}
+\]
+
+Isso ilustra a baixa eficiência do AM convencional: mais de 84\% da potência é desperdiçada na portadora que não carrega informação.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Espectro]
+
+O espectro bilateral contém 5 componentes (mais seus espelhos negativos):
+
+\begin{center}
+\small
+\begin{tabular}{lcc}
+  \toprule
+  Componente & Frequência (MHz) & Amplitude \\
+  \midrule
+  Portadora & $1{,}000$ & $50$ \\
+  BL inferior (5 kHz) & $0{,}995$ & $9$ \\
+  BL superior (5 kHz) & $1{,}005$ & $9$ \\
+  BL inferior (8 kHz) & $0{,}992$ & $12$ \\
+  BL superior (8 kHz) & $1{,}008$ & $12$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\textit{Nota:} as amplitudes na tabela são do espectro bilateral (metade da amplitude temporal): portadora $= A_c/2 = 50$; bandas laterais $= A_c k_a a_i / 4$.
+
+O espectro é simétrico em torno de $f_c = 1\;\text{MHz}$, com largura de banda total $B = 2 \times 8\;\text{kHz} = 16\;\text{kHz}$.
+\end{resolucao}
+
+
+% ======================================================================
+% QUESTÃO 2
+% ======================================================================
+\section*{Questão 2 -- Demodulação DSB-SC com Erro de Fase}
+
+\begin{resolucao}[Item a -- Sinal transmitido]
+
+O sinal DSB-SC é:
+\[
+  s(t) = m(t)\cos(2\pi f_c t) = \cos(2\pi \times 10^3 t)\cos(2\pi \times 10^5 t)
+\]
+
+Usando a identidade do produto de cossenos:
+\[
+  s(t) = \frac{1}{2}\cos\!\big[2\pi(f_c - f_m)t\big] + \frac{1}{2}\cos\!\big[2\pi(f_c + f_m)t\big]
+\]
+\[
+  = \frac{1}{2}\cos(2\pi \times 99000\,t) + \frac{1}{2}\cos(2\pi \times 101000\,t)
+\]
+
+O espectro tem duas raias em $f_c \pm f_m = 100 \pm 1\;\text{kHz}$, cada uma com amplitude $1/4$ (bilateral). Note a \textbf{ausência de portadora} -- característica do DSB-SC.
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Demodulação com erro de fase]
+
+Na recepção, o sinal é multiplicado pelo oscilador local com erro de fase:
+\[
+  v(t) = s(t) \cdot \cos(2\pi f_c t + \phi)
+\]
+\[
+  = m(t)\cos(2\pi f_c t)\cos(2\pi f_c t + \phi)
+\]
+
+Aplicando a identidade $\cos A \cos B = \frac{1}{2}[\cos(A-B) + \cos(A+B)]$:
+\[
+  v(t) = \frac{m(t)}{2}\left[\cos(-\phi) + \cos(4\pi f_c t + \phi)\right]
+\]
+\[
+  = \frac{m(t)}{2}\cos\phi + \frac{m(t)}{2}\cos(4\pi f_c t + \phi)
+\]
+
+Após o filtro passa-baixas (que elimina o termo em $2f_c$):
+\[
+  \boxed{y(t) = \frac{1}{2}m(t)\cos\phi = \frac{1}{2}\cos\phi \cdot \cos(2\pi \times 10^3\,t)}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Perda total do sinal]
+
+O sinal recuperado é $y(t) = \frac{1}{2}m(t)\cos\phi$. Ele se anula quando:
+\[
+  \cos\phi = 0 \implies \boxed{\phi = \pm 90^\circ \;(= \pm\pi/2)}
+\]
+
+\textbf{Interpretação física:} quando $\phi = 90^\circ$, o oscilador local está em quadratura com a portadora. A multiplicação gera apenas o termo em seno (componente em quadratura), que, ao ser filtrado, resulta em zero. Isso é chamado de \textbf{efeito de quadratura} e é o principal problema da demodulação coerente -- exige sincronismo preciso de fase.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Atenuação para phi = 30 graus]
+
+Com $\phi = 30^\circ$:
+\[
+  y(t) = \frac{1}{2}\cos(30^\circ)\,m(t) = \frac{1}{2} \times \frac{\sqrt{3}}{2}\,m(t) = \frac{\sqrt{3}}{4}\,m(t)
+\]
+
+No caso ideal ($\phi = 0$): $y_{\text{ideal}}(t) = \frac{1}{2}m(t)$.
+
+A atenuação em potência:
+\[
+  \text{Atenuação} = 10\log_{10}\!\left(\frac{|y|^2}{|y_{\text{ideal}}|^2}\right) = 10\log_{10}(\cos^2 30^\circ) = 10\log_{10}(0{,}75)
+\]
+\[
+  \boxed{\text{Atenuação} = -1{,}25\;\text{dB}}
+\]
+
+A perda de 1,25 dB é relativamente pequena para $30^\circ$ de erro, mas o sistema é muito sensível perto de $90^\circ$.
+\end{resolucao}
+
+
+% ======================================================================
+% QUESTÃO 3
+% ======================================================================
+\section*{Questão 3 -- Geração de SSB pelo Método de Hartley}
+
+\begin{resolucao}[Item a -- Transformada de Hilbert]
+
+A transformada de Hilbert de um cosseno desloca a fase em $-90^\circ$ (para frequências positivas):
+\[
+  \hat{m}(t) = \mathcal{H}\{m(t)\}
+\]
+
+Para cada componente:
+\begin{itemize}
+  \item $\mathcal{H}\{2\cos(2\pi \times 2000\,t)\} = 2\sin(2\pi \times 2000\,t)$
+  \item $\mathcal{H}\{\cos(2\pi \times 5000\,t)\} = \sin(2\pi \times 5000\,t)$
+\end{itemize}
+
+Portanto:
+\[
+  \boxed{\hat{m}(t) = 2\sin(2\pi \times 2000\,t) + \sin(2\pi \times 5000\,t)}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Sinal SSB-USB]
+
+Pelo método de Hartley, o sinal USB é:
+\[
+  s_{\text{USB}}(t) = m(t)\cos(2\pi f_c t) - \hat{m}(t)\sin(2\pi f_c t)
+\]
+
+\textit{Nota: o sinal negativo seleciona a banda superior; positivo selecionaria a inferior.}
+
+Substituindo:
+\begin{align*}
+  s_{\text{USB}}(t) &= \big[2\cos(\omega_1 t) + \cos(\omega_2 t)\big]\cos(\omega_c t) \\
+  &\quad - \big[2\sin(\omega_1 t) + \sin(\omega_2 t)\big]\sin(\omega_c t)
+\end{align*}
+
+onde $\omega_1 = 2\pi \times 2000$, $\omega_2 = 2\pi \times 5000$, $\omega_c = 2\pi \times 200000$.
+
+Usando $\cos A \cos B - \sin A \sin B = \cos(A+B)$:
+\begin{align*}
+  s_{\text{USB}}(t) &= 2\cos\!\big[(\omega_c + \omega_1)t\big] + \cos\!\big[(\omega_c + \omega_2)t\big]
+\end{align*}
+
+\[
+  \boxed{s_{\text{USB}}(t) = 2\cos(2\pi \times 202000\,t) + \cos(2\pi \times 205000\,t)}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Espectro]
+
+O espectro bilateral $S_{\text{USB}}(f)$ contém apenas impulsos nas frequências $f_c + f_1$ e $f_c + f_2$ (e seus espelhos negativos):
+
+\begin{center}
+\small
+\begin{tabular}{lcc}
+  \toprule
+  Componente & Frequência (kHz) & Amplitude espectral \\
+  \midrule
+  USB tom 1 & $+202$ e $-202$ & $1$ \\
+  USB tom 2 & $+205$ e $-205$ & $0{,}5$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+As componentes em $f_c - f_1 = 198\;\text{kHz}$ e $f_c - f_2 = 195\;\text{kHz}$ (banda lateral inferior) foram \textbf{completamente canceladas} pela subtração no somador. Isso confirma que o sinal é SSB-USB puro.
+
+A largura de banda ocupada é $B = 205 - 202 = 3\;\text{kHz}$, que é metade da banda do DSB-SC ($6\;\text{kHz}$).
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Comparação de potência]
+
+\textbf{Potência SSB-USB:}
+
+$s_{\text{USB}}(t) = 2\cos(\omega_1' t) + \cos(\omega_2' t)$, onde $\omega_i' = \omega_c + \omega_i$. Como são tons de frequências distintas:
+\[
+  P_{\text{SSB}} = \frac{2^2}{2} + \frac{1^2}{2} = 2 + 0{,}5 = \boxed{2{,}5\;\text{W}} \quad \text{(carga normalizada)}
+\]
+
+\textbf{Potência DSB-SC com mesma mensagem:}
+
+O sinal DSB-SC seria $s_{\text{DSB}}(t) = m(t)\cos(\omega_c t)$. Sua potência média é:
+\[
+  P_{\text{DSB}} = \overline{s_{\text{DSB}}^2(t)} = \overline{m^2(t)\cos^2(\omega_c t)} = \frac{1}{2}\overline{m^2(t)}
+\]
+
+Com $\overline{m^2(t)} = \frac{2^2}{2} + \frac{1^2}{2} = 2{,}5$:
+\[
+  P_{\text{DSB}} = \frac{2{,}5}{2} = 1{,}25\;\text{W}
+\]
+
+\textbf{Conclusão:}
+\[
+  \frac{P_{\text{SSB}}}{P_{\text{DSB}}} = \frac{2{,}5}{1{,}25} = 2
+\]
+
+O transmissor de Hartley usa \textbf{dois ramos de modulação}, cada um com sua portadora ($\cos$ e $\sin$). Cada ramo contribui com $P_{\text{DSB}} = 1{,}25\;\text{W}$. Os dois ramos interferem construtivamente na USB e destrutivamente na LSB, concentrando toda a potência em uma única banda lateral.
+
+Portanto $P_{\text{SSB}} = 2\,P_{\text{DSB}}$ porque o Hartley usa duas portadoras, gastando o dobro de potência de transmissor. Na comparação justa (mesma potência total, com $A_c/\sqrt{2}$ em cada ramo), o SSB ocupa metade da largura de banda e tem \textbf{3 dB de ganho em SNR} no receptor.
+
+$\boxed{P_{\text{SSB}} = 2\,P_{\text{DSB}} \text{ (duas portadoras), com metade da largura de banda.}}$
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Erro na Hilbert]
+
+Se o bloco de Hilbert introduz um erro de fase $\epsilon = 5^\circ$ em uma das componentes, por exemplo no tom de 2 kHz:
+\[
+  \hat{m}_{\text{erro}}(t) = 2\sin(\omega_1 t + \epsilon) + \sin(\omega_2 t)
+\]
+
+Analisemos o efeito sobre o tom de 2 kHz. As contribuições dos dois ramos do transmissor de Hartley na frequência $\omega_c - \omega_1$ (banda lateral inferior) são:
+
+\textbf{Ramo I} (em fase): $2\cos(\omega_1 t)\cos(\omega_c t) \to$ contribuição LSB: $+\cos((\omega_c - \omega_1)t)$
+
+\textbf{Ramo Q} (quadratura, com erro): $-2\sin(\omega_1 t + \epsilon)\sin(\omega_c t) \to$ contribuição LSB: $-\cos((\omega_c - \omega_1)t - \epsilon)$
+
+O resíduo na LSB é a soma dessas duas contribuições. Usando a identidade $\cos\alpha - \cos\beta = -2\sin\!\tfrac{\alpha+\beta}{2}\sin\!\tfrac{\alpha-\beta}{2}$, com $\alpha = (\omega_c{-}\omega_1)t$ e $\beta = (\omega_c{-}\omega_1)t - \epsilon$:
+\[
+  \cos((\omega_c{-}\omega_1)t) - \cos((\omega_c{-}\omega_1)t - \epsilon) = -2\sin\!\left((\omega_c{-}\omega_1)t - \frac{\epsilon}{2}\right)\sin\!\left(\frac{\epsilon}{2}\right)
+\]
+
+A amplitude do resíduo LSB é portanto:
+\[
+  A_{\text{resíduo}} = 2\sin\!\left(\frac{\epsilon}{2}\right) = 2\sin(2{,}5^\circ) \approx 2 \times 0{,}0436 = 0{,}087
+\]
+
+A banda desejada (USB) tem amplitude $\approx 2\cos(\epsilon/2) \approx 2$. A rejeição da banda indesejada:
+\[
+  \text{Rejeição} = 20\log_{10}\!\left(\frac{2\sin(\epsilon/2)}{2\cos(\epsilon/2)}\right) = 20\log_{10}\!\left(\tan\frac{\epsilon}{2}\right) = 20\log_{10}(\tan 2{,}5^\circ) \approx \boxed{-27{,}2\;\text{dB}}
+\]
+
+\textbf{O sinal não é mais SSB puro} -- torna-se SSB com vazamento da banda lateral oposta. Para $5^\circ$ de erro, a rejeição da banda indesejada é de apenas $\sim 27\;\text{dB}$. Na prática, isso pode ser aceitável para voz mas não para dados. É por isso que o método de filtragem é preferido ao de Hartley quando a precisão da Hilbert é difícil de garantir em hardware analógico.
+\end{resolucao}
+
+
+% ======================================================================
+% QUESTÃO 4
+% ======================================================================
+\section*{Questão 4 -- Modulador Balanceado com Chaveamento por Onda Quadrada}
+
+\begin{resolucao}[Item a -- Expressão de $s(t)$]
+
+Dados: $m(t) = \cos(2\pi \times 5000\,t)$, $f_c = 100\;\text{kHz}$, $\omega_c = 2\pi f_c$, $\omega_m = 2\pi \times 5000$.
+
+Os 3 primeiros termos da série de Fourier de $p(t)$:
+\[
+  p(t) \approx \frac{4}{\pi}\left[\cos(\omega_c t) - \frac{1}{3}\cos(3\omega_c t) + \frac{1}{5}\cos(5\omega_c t)\right]
+\]
+
+Multiplicando por $m(t) = \cos(\omega_m t)$ e usando $\cos A \cos B = \frac{1}{2}[\cos(A-B) + \cos(A+B)]$:
+\begin{align*}
+  s(t) &= \frac{4}{\pi}\bigg\{
+    \frac{1}{2}\big[\cos((\omega_c - \omega_m)t) + \cos((\omega_c + \omega_m)t)\big] \\
+  &\quad - \frac{1}{6}\big[\cos((3\omega_c - \omega_m)t) + \cos((3\omega_c + \omega_m)t)\big] \\
+  &\quad + \frac{1}{10}\big[\cos((5\omega_c - \omega_m)t) + \cos((5\omega_c + \omega_m)t)\big]
+  \bigg\}
+\end{align*}
+
+Os pares de frequências gerados são:
+\begin{center}
+\small
+\begin{tabular}{lcc}
+  \toprule
+  Harmônica & Frequências (kHz) & Amplitude \\
+  \midrule
+  $1^{\text{a}}$ ($f_c$) & $95$ e $105$ & $\frac{2}{\pi} \approx 0{,}6366$ \\[4pt]
+  $3^{\text{a}}$ ($3f_c$) & $295$ e $305$ & $\frac{2}{3\pi} \approx 0{,}2122$ \\[4pt]
+  $5^{\text{a}}$ ($5f_c$) & $495$ e $505$ & $\frac{2}{5\pi} \approx 0{,}1273$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Espectro]
+
+O espectro bilateral de $s(t)$ apresenta pares de raias simétricas em torno de cada harmônica ímpar de $f_c$:
+
+\begin{center}
+\small
+\begin{tabular}{lcc}
+  \toprule
+  Componente & Frequência (kHz) & Amplitude espectral (bilateral) \\
+  \midrule
+  $f_c - f_m$ & $\pm 95$ & $\frac{1}{\pi} \approx 0{,}3183$ \\[3pt]
+  $f_c + f_m$ & $\pm 105$ & $\frac{1}{\pi} \approx 0{,}3183$ \\[3pt]
+  $3f_c - f_m$ & $\pm 295$ & $\frac{1}{3\pi} \approx 0{,}1061$ \\[3pt]
+  $3f_c + f_m$ & $\pm 305$ & $\frac{1}{3\pi} \approx 0{,}1061$ \\[3pt]
+  $5f_c - f_m$ & $\pm 495$ & $\frac{1}{5\pi} \approx 0{,}0637$ \\[3pt]
+  $5f_c + f_m$ & $\pm 505$ & $\frac{1}{5\pi} \approx 0{,}0637$ \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+O espectro mostra réplicas DSB-SC centradas em cada harmônica ímpar ($f_c$, $3f_c$, $5f_c$, \ldots), com amplitudes decrescentes na razão $1/n$. Não há componente de portadora (é um modulador \textbf{balanceado}).
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Projeto do filtro passa-faixa]
+
+O filtro deve extrair apenas o par de bandas laterais em torno de $f_c = 100\;\text{kHz}$:
+
+\textbf{Frequência central:} $f_0 = f_c = 100\;\text{kHz}$
+
+\textbf{Largura de banda mínima:} deve passar $f_c \pm f_m$, ou seja, de $95\;\text{kHz}$ a $105\;\text{kHz}$:
+\[
+  \boxed{B \geq 2f_m = 10\;\text{kHz}}
+\]
+
+\textbf{Rejeição:} a componente espúria mais próxima está em $3f_c - f_m = 295\;\text{kHz}$, bem afastada. Um filtro com banda de passagem de $90$ a $110\;\text{kHz}$ (com margem) seria suficiente, já que a próxima componente está a $185\;\text{kHz}$ de distância da borda do filtro.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Comparação de potência]
+
+\textbf{Com oscilador de onda quadrada:}
+
+A componente DSB-SC fundamental tem amplitude $\frac{4}{\pi} \times \frac{1}{2} = \frac{2}{\pi}$ por banda lateral. A potência do par DSB-SC (carga normalizada):
+\[
+  P_{\text{quad}} = 2 \times \frac{1}{2}\left(\frac{2}{\pi}\right)^2 = \frac{4}{\pi^2}
+\]
+
+\textbf{Com multiplicador cossenoidal ideal:}
+
+$s_{\text{ideal}}(t) = m(t)\cos(\omega_c t)$. Cada banda lateral tem amplitude $1/2$:
+\[
+  P_{\text{ideal}} = 2 \times \frac{1}{2}\left(\frac{1}{2}\right)^2 \times 2 = \frac{1}{2}
+\]
+
+Espera -- vamos calcular com mais cuidado.
+
+Para o oscilador cossenoidal com amplitude 1: $s(t) = \cos(\omega_m t)\cos(\omega_c t)$. Potência: $P_{\text{ideal}} = \overline{s^2} = \frac{1}{2}\overline{\cos^2(\omega_m t)} = \frac{1}{4}$.
+
+Para o oscilador de onda quadrada, a componente extraída pelo BPF é:
+$s_1(t) = \frac{4}{\pi}\cos(\omega_m t)\cos(\omega_c t)$. Potência: $P_{\text{quad}} = \frac{1}{2}\left(\frac{4}{\pi}\right)^2 \overline{\cos^2(\omega_m t)} = \frac{1}{2} \times \frac{16}{\pi^2} \times \frac{1}{2} = \frac{4}{\pi^2}$.
+
+Razão:
+\[
+  \frac{P_{\text{quad}}}{P_{\text{ideal}}} = \frac{4/\pi^2}{1/4} = \frac{16}{\pi^2} \approx 1{,}621
+\]
+
+Em dB:
+\[
+  \boxed{\Delta P = 10\log_{10}\!\left(\frac{16}{\pi^2}\right) = 10\log_{10}(1{,}621) \approx +2{,}1\;\text{dB}}
+\]
+
+O oscilador de onda quadrada com amplitude $\pm 1$ produz \textbf{mais} potência na fundamental do que o cossenoidal com amplitude $1$, pois $4/\pi > 1$. Se compararmos com cossenoidal de mesma potência média (amplitude $1$ para ambos), a onda quadrada tem potência total $\overline{p^2} = 1$ (mesma do cosseno com amplitude $\sqrt{2}$), mas a fundamental concentra fração $8/\pi^2 \approx 81\%$ dessa potência.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Efeito do duty cycle de 40\%]
+
+Com \textit{duty cycle} de $50\%$, a onda quadrada possui \textbf{simetria de meia onda}: $p(t + T/2) = -p(t)$. Essa simetria garante que todos os coeficientes de Fourier de ordem par sejam zero ($a_{2n} = 0$). Somente harmônicas ímpares existem.
+
+Com \textit{duty cycle} de $40\%$, a onda \textbf{não possui mais simetria de meia onda}: o semiciclo positivo (duração $0{,}4T$) é diferente do negativo (duração $0{,}6T$), então $p(t + T/2) \neq -p(t)$.
+
+Consequência: \textbf{harmônicas pares passam a existir} ($2f_c$, $4f_c$, \ldots). Os coeficientes de Fourier para uma onda retangular com \textit{duty cycle} $D$ são:
+\[
+  c_n = \frac{2}{n\pi}\sin(n\pi D)
+\]
+
+Para $D = 0{,}4$:
+\begin{itemize}
+  \item $n = 1$: $c_1 = \frac{2}{\pi}\sin(0{,}4\pi) = \frac{2}{\pi}(0{,}951) = 0{,}605$
+  \item $n = 2$: $c_2 = \frac{1}{\pi}\sin(0{,}8\pi) = \frac{1}{\pi}(0{,}588) = 0{,}187 \neq 0$
+  \item $n = 3$: $c_3 = \frac{2}{3\pi}\sin(1{,}2\pi) = \frac{2}{3\pi}(-0{,}588) = -0{,}125$
+\end{itemize}
+
+A presença de harmônicas pares cria componentes espúrias adicionais em $2f_c \pm f_m$, $4f_c \pm f_m$, etc., que devem ser eliminadas pelo filtro BPF. A fundamental também fica ligeiramente reduzida ($0{,}605$ vs.\ $0{,}637$ para $D = 50\%$).
+\end{resolucao}
+
+
+% ======================================================================
+% QUESTÃO 5
+% ======================================================================
+\section*{Questão 5 -- Demodulação Síncrona AM com Oscilador de Onda Quadrada}
+
+\begin{resolucao}[Item a -- Expansão de $v(t)$]
+
+Dados: $s(t) = [1 + 0{,}8\cos(\omega_m t)]\cos(\omega_c t)$ com $\omega_m = 2\pi \times 10^3$ e $\omega_c = 2\pi \times 5 \times 10^5$.
+
+O produto $v(t) = s(t) \cdot p(t)$, onde $p(t) = \frac{4}{\pi}\sum_{n=0}^{\infty}\frac{(-1)^n}{2n+1}\cos[(2n+1)\omega_c t]$.
+
+Para o termo fundamental ($n = 0$):
+\begin{align*}
+  v_1(t) &= \frac{4}{\pi}[1 + 0{,}8\cos(\omega_m t)]\cos(\omega_c t)\cos(\omega_c t) \\
+  &= \frac{4}{\pi}[1 + 0{,}8\cos(\omega_m t)] \cdot \frac{1}{2}[1 + \cos(2\omega_c t)]
+\end{align*}
+
+O termo em banda base (após filtragem) do $n$-ésimo harmônico é obtido de:
+\[
+  \cos(\omega_c t)\cos[(2n+1)\omega_c t] = \frac{1}{2}\big[\cos(2n\omega_c t) + \cos[(2n+2)\omega_c t]\big]
+\]
+
+Para $n = 0$: $\cos^2(\omega_c t) = \frac{1}{2} + \frac{1}{2}\cos(2\omega_c t)$. O termo DC/banda-base é $\frac{1}{2}$.
+
+Para $n \geq 1$: $\cos(\omega_c t)\cos[(2n+1)\omega_c t]$ não produz termos em banda base (ambas as componentes estão em $2nf_c$ e $(2n+2)f_c$).
+
+Portanto, \textbf{apenas a fundamental contribui para banda base}:
+\[
+  v_{\text{BB}}(t) = \frac{4}{\pi} \cdot \frac{1}{2}[1 + 0{,}8\cos(\omega_m t)] = \frac{2}{\pi}[1 + 0{,}8\cos(\omega_m t)]
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Sinal recuperado após LPF]
+
+O filtro passa-baixas com $f_m < f_{\text{corte}} < 2f_c - f_m$ remove todos os termos de alta frequência ($2f_c$, $4f_c$, etc.) e mantém apenas a componente de banda base.
+
+A saída é:
+\[
+  \boxed{y(t) = \frac{2}{\pi}[1 + 0{,}8\cos(2\pi \times 10^3\,t)]}
+\]
+
+O termo DC ($2/\pi$) pode ser removido com um capacitor de bloqueio, restando o sinal de mensagem com amplitude $\frac{2}{\pi} \times 0{,}8 = \frac{1{,}6}{\pi}$.
+
+\textbf{Comparação com oscilador cossenoidal ideal:}
+
+Com $\cos(\omega_c t)$ como oscilador local: $y_{\text{ideal}}(t) = \frac{1}{2}[1 + 0{,}8\cos(\omega_m t)]$.
+
+Razão de amplitudes:
+\[
+  \frac{y_{\text{quad}}}{y_{\text{ideal}}} = \frac{2/\pi}{1/2} = \frac{4}{\pi} \approx 1{,}273
+\]
+
+O oscilador de onda quadrada produz sinal $\frac{4}{\pi}$ vezes mais intenso que o cossenoidal unitário, ou seja, $\boxed{+2{,}1\;\text{dB}}$ de ganho. Isso é coerente com o resultado da Questão~4: a fundamental da onda quadrada $\pm 1$ tem amplitude $4/\pi > 1$.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Interferência pela 3ª harmônica]
+
+Uma estação interferente em $f_i = 3f_c = 1{,}5\;\text{MHz}$ transmite:
+\[
+  s_i(t) = A_i\cos(2\pi \times 3f_c\,t + \theta)
+\]
+onde $\theta$ é uma fase arbitrária e $A_i$ é a amplitude.
+
+A $3^{\text{a}}$ harmônica do oscilador local é $-\frac{4}{3\pi}\cos(3\omega_c t)$. O produto:
+\[
+  s_i(t) \cdot \left(-\frac{4}{3\pi}\right)\cos(3\omega_c t) = -\frac{4A_i}{3\pi}\cos(3\omega_c t + \theta)\cos(3\omega_c t)
+\]
+\[
+  = -\frac{4A_i}{3\pi} \cdot \frac{1}{2}[\cos\theta + \cos(6\omega_c t + \theta)]
+\]
+
+Após o LPF, a componente em banda base é:
+\[
+  y_i = -\frac{2A_i}{3\pi}\cos\theta
+\]
+
+A amplitude máxima da interferência na saída (para $\theta = 0$) é:
+\[
+  |y_i|_{\max} = \frac{2A_i}{3\pi}
+\]
+
+Comparando com a amplitude do sinal desejado ($2A_c/\pi = 2/\pi$):
+\[
+  \boxed{\frac{|y_i|}{|y_{\text{desejado}}|} = \frac{2A_i/(3\pi)}{2/({\pi})} = \frac{A_i}{3}}
+\]
+
+Se a estação interferente tiver mesma amplitude que a desejada ($A_i = A_c = 1$), a interferência aparece com $1/3$ da amplitude ($-9{,}5\;\text{dB}$). Isso é inaceitável sem filtragem prévia.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Projeto do filtro RF]
+
+\textbf{Banda de passagem:}
+
+O filtro RF deve passar o sinal AM desejado centrado em $f_c = 500\;\text{kHz}$:
+\[
+  \boxed{f_c \pm f_m = 499\;\text{kHz a } 501\;\text{kHz}}
+\]
+
+Na prática, uma banda um pouco mais larga (ex.: $490$ a $510\;\text{kHz}$) para acomodar tolerâncias.
+
+\textbf{Atenuação em $3f_c$:}
+
+A interferência natural (sem filtro) está $9{,}5\;\text{dB}$ abaixo do sinal desejado (para $A_i = A_c$). Para atingir $-40\;\text{dB}$ abaixo do desejado:
+\[
+  \text{Atenuação necessária} \geq 40 - 9{,}5 = \boxed{30{,}5\;\text{dB em } 1{,}5\;\text{MHz}}
+\]
+
+Como $3f_c = 1{,}5\;\text{MHz}$ está a $1\;\text{MHz}$ do centro do filtro ($500\;\text{kHz}$), a separação relativa é grande (3:1 em frequência), facilitando o projeto do filtro.
+
+\textbf{Generalização:} para a $n$-ésima harmônica, a atenuação natural é $1/n$ em amplitude ($-20\log_{10} n$ dB). Portanto, harmônicas mais altas ($5f_c$, $7f_c$, \ldots) estão naturalmente mais atenuadas e são mais fáceis de filtrar. A $3^{\text{a}}$ harmônica é sempre o caso crítico.
+\end{resolucao}
+
+\vfill
+\begin{center}
+  \small\textit{Fim da resolução.}
+\end{center}
+
+\end{document}
