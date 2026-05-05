@@ -6,12 +6,12 @@ options:
     cmake_opt: ''
     comment: ''
     copyright: ''
-    description: 'Prática 05 - Modulação FM'
+    description: 'Prática 05 - Parte II - Demodulação FM por Discriminação'
     gen_cmake: 'On'
     gen_linking: dynamic
     generate_options: qt_gui
     hier_block_src_path: '.:'
-    id: pratica_05_fm
+    id: pratica_05_fm_parte2
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -22,7 +22,7 @@ options:
     run_options: prompt
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: 'Prática 05 - Modulação FM'
+    title: 'Prática 05 - Parte II - Demodulação FM'
     window_size: (1280,900)
   states:
     bus_sink: false
@@ -74,10 +74,10 @@ blocks:
     min_len: '200'
     orient: QtCore.Qt.Horizontal
     rangeType: float
-    start: '500'
-    step: '500'
-    stop: '10000'
-    value: '2000'
+    start: '200'
+    step: '100'
+    stop: '5000'
+    value: '1000'
     widget: counter_slider
   states:
     bus_sink: false
@@ -96,10 +96,10 @@ blocks:
     min_len: '200'
     orient: QtCore.Qt.Horizontal
     rangeType: float
-    start: '1000'
+    start: '5000'
     step: '1000'
-    stop: '20000'
-    value: '5000'
+    stop: '50000'
+    value: '25000'
     widget: counter_slider
   states:
     bus_sink: false
@@ -134,7 +134,6 @@ blocks:
 # ============================================
 # FONTES DE SINAL
 # ============================================
-# Mensagem: cos(2*pi*fm_freq*t)
 - name: src_mensagem
   id: analog_sig_source_x
   parameters:
@@ -159,14 +158,13 @@ blocks:
     rotation: 0
     state: enabled
 
-# Fonte de ruído gaussiano complexo
 - name: src_noise
   id: analog_noise_source_x
   parameters:
     affinity: ''
     alias: ''
     amp: noise_amp
-    comment: 'Ruído gaussiano'
+    comment: 'Ruído gaussiano complexo'
     maxoutbuf: '0'
     minoutbuf: '0'
     noise_type: analog.GR_GAUSSIAN
@@ -176,7 +174,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [480, 500]
+    coordinate: [480, 540]
     rotation: 0
     state: enabled
 
@@ -189,7 +187,7 @@ blocks:
     affinity: ''
     alias: ''
     audio_rate: audio_rate
-    comment: 'Modulador FM (WBFM Transmit)'
+    comment: 'Modulador FM'
     max_dev: max_dev
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -230,7 +228,7 @@ blocks:
 # ============================================
 # ADD (FM + ruído)
 # ============================================
-- name: add
+- name: add_noise
   id: blocks_add_xx
   parameters:
     affinity: ''
@@ -245,12 +243,12 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [700, 380]
+    coordinate: [700, 400]
     rotation: 0
     state: enabled
 
 # ============================================
-# DEMODULADOR FM (WBFM Receive)
+# RAMO 1 - REFERÊNCIA: WBFM Receive
 # ============================================
 - name: wbfm_rx
   id: analog_wfm_rcv
@@ -258,7 +256,7 @@ blocks:
     affinity: ''
     alias: ''
     audio_decimation: int(samp_rate/audio_rate)
-    comment: 'Demodulador FM (WBFM Receive)'
+    comment: 'Demodulador de referência'
     maxoutbuf: '0'
     minoutbuf: '0'
     quad_rate: samp_rate
@@ -266,12 +264,219 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [840, 380]
+    coordinate: [880, 200]
     rotation: 0
     state: enabled
 
 # ============================================
-# VISUALIZAÇÃO: Espectro do sinal FM modulado (Freq Sink - Complex)
+# RAMO 2 e 3 - FILTROS DE INCLINAÇÃO
+# ============================================
+- name: bpf_pos
+  id: band_pass_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    beta: '6.76'
+    comment: 'Filtro passa-faixa em +Δf (slope)'
+    decim: '1'
+    gain: '1'
+    high_cutoff_freq: 3*max_dev/2
+    interp: '1'
+    low_cutoff_freq: max_dev/2
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate
+    type: fir_filter_ccc
+    width: max_dev/4
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [880, 380]
+    rotation: 0
+    state: enabled
+
+- name: bpf_neg
+  id: band_pass_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    beta: '6.76'
+    comment: 'Filtro passa-faixa em -Δf (slope)'
+    decim: '1'
+    gain: '1'
+    high_cutoff_freq: -max_dev/2
+    interp: '1'
+    low_cutoff_freq: -3*max_dev/2
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate
+    type: fir_filter_ccc
+    width: max_dev/4
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [880, 540]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# DETECTORES DE ENVELOPE
+# ============================================
+- name: mag_pos
+  id: blocks_complex_to_mag
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Envoltória do ramo +Δf'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1080, 380]
+    rotation: 0
+    state: enabled
+
+- name: mag_neg
+  id: blocks_complex_to_mag
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Envoltória do ramo -Δf'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1080, 540]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# RAMO 2 - SLOPE DETECTOR (saída do mag_pos)
+# DC blocker + LPF + decimação
+# ============================================
+- name: dc_blocker_slope
+  id: dc_blocker_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Remove nível CC do slope'
+    length: '128'
+    long_form: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: ff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1280, 380]
+    rotation: 0
+    state: enabled
+
+- name: lpf_slope
+  id: low_pass_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    beta: '6.76'
+    comment: 'LPF de áudio + decimação'
+    cutoff_freq: '5000'
+    decim: int(samp_rate/audio_rate)
+    gain: '1'
+    interp: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate
+    type: fir_filter_fff
+    width: '2000'
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1480, 380]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# RAMO 3 - DISCRIMINADOR BALANCEADO
+# Sub (mag_pos - mag_neg) + DC blocker + LPF
+# ============================================
+- name: sub_balanced
+  id: blocks_sub_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Subtração: mag_pos - mag_neg'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1280, 540]
+    rotation: 0
+    state: enabled
+
+- name: dc_blocker_bal
+  id: dc_blocker_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Remove CC residual'
+    length: '128'
+    long_form: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: ff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1280, 660]
+    rotation: 0
+    state: enabled
+
+- name: lpf_bal
+  id: low_pass_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    beta: '6.76'
+    comment: 'LPF de áudio + decimação'
+    cutoff_freq: '5000'
+    decim: int(samp_rate/audio_rate)
+    gain: '1'
+    interp: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate
+    type: fir_filter_fff
+    width: '2000'
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1480, 660]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# VISUALIZAÇÃO
 # ============================================
 - name: freq_sink_fm
   id: qtgui_freq_sink_x
@@ -350,10 +555,7 @@ blocks:
     rotation: 0
     state: enabled
 
-# ============================================
-# VISUALIZAÇÃO: Osciloscópio (Time Sink - Float)
-# ============================================
-- name: time_sink
+- name: time_sink_compare
   id: qtgui_time_sink_x
   parameters:
     affinity: ''
@@ -384,12 +586,12 @@ blocks:
     ctrlpanel: 'False'
     entags: 'True'
     grid: 'True'
-    gui_hint: 2,1,1,1
+    gui_hint: 2,1,2,1
     label1: 'Mensagem original'
     label10: Signal 10
-    label2: 'Sinal demodulado'
-    label3: Signal 3
-    label4: Signal 4
+    label2: 'Slope detector'
+    label3: 'Discriminador balanceado'
+    label4: 'WBFM Receive'
     label5: Signal 5
     label6: Signal 6
     label7: Signal 7
@@ -406,8 +608,8 @@ blocks:
     marker7: '-1'
     marker8: '-1'
     marker9: '-1'
-    name: '"Domínio do Tempo"'
-    nconnections: '2'
+    name: '"Comparação no Tempo"'
+    nconnections: '4'
     size: '1024'
     srate: audio_rate
     stemplot: 'False'
@@ -447,107 +649,39 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1080, 300]
-    rotation: 0
-    state: enabled
-
-# ============================================
-# VISUALIZAÇÃO: Espectro do sinal demodulado (Freq Sink - Float)
-# ============================================
-- name: freq_sink_demod
-  id: qtgui_freq_sink_x
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    autoscale: 'False'
-    average: '1.0'
-    axislabels: 'True'
-    bw: audio_rate
-    color1: '"blue"'
-    color10: '"dark blue"'
-    color2: '"red"'
-    color3: '"green"'
-    color4: '"black"'
-    color5: '"cyan"'
-    color6: '"magenta"'
-    color7: '"yellow"'
-    color8: '"dark red"'
-    color9: '"dark green"'
-    comment: ''
-    ctrlpanel: 'False'
-    fc: '0'
-    fftsize: '4096'
-    freqhalf: 'True'
-    grid: 'True'
-    gui_hint: 3,0,1,2
-    label: Relative Gain
-    label1: 'Sinal demodulado'
-    label10: ''''''
-    label2: ''''''
-    label3: ''''''
-    label4: ''''''
-    label5: ''''''
-    label6: ''''''
-    label7: ''''''
-    label8: ''''''
-    label9: ''''''
-    legend: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    name: '"Espectro do Sinal Demodulado"'
-    nconnections: '1'
-    norm_window: 'False'
-    showports: 'False'
-    type: float
-    update_time: '0.10'
-    width1: '1'
-    width10: '1'
-    width2: '1'
-    width3: '1'
-    width4: '1'
-    width5: '1'
-    width6: '1'
-    width7: '1'
-    width8: '1'
-    width9: '1'
-    wintype: window.WIN_HANN
-    ymax: '10'
-    ymin: '-100'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1080, 540]
+    coordinate: [1700, 360]
     rotation: 0
     state: enabled
 
 connections:
-# Modulador FM: mensagem → WBFM Transmit
+# Cadeia de transmissão
 - [src_mensagem, '0', wbfm_tx, '0']
-# Throttle
 - [wbfm_tx, '0', throttle, '0']
-# Add: sinal FM + ruído
-- [throttle, '0', add, '0']
-- [src_noise, '0', add, '1']
-# Demodulador FM
-- [add, '0', wbfm_rx, '0']
-# Visualização no tempo: mensagem original + sinal demodulado
-- [src_mensagem, '0', time_sink, '0']
-- [wbfm_rx, '0', time_sink, '1']
-# Espectro do sinal FM modulado (após throttle, antes do ruído)
-- [throttle, '0', freq_sink_fm, '0']
-# Espectro do sinal demodulado
-- [wbfm_rx, '0', freq_sink_demod, '0']
+- [throttle, '0', add_noise, '0']
+- [src_noise, '0', add_noise, '1']
+# Espectro do sinal modulado (após Add)
+- [add_noise, '0', freq_sink_fm, '0']
+# Ramo 1: WBFM Receive (referência)
+- [add_noise, '0', wbfm_rx, '0']
+# Ramo 2 e 3: filtros de inclinação
+- [add_noise, '0', bpf_pos, '0']
+- [add_noise, '0', bpf_neg, '0']
+# Detectores de envelope
+- [bpf_pos, '0', mag_pos, '0']
+- [bpf_neg, '0', mag_neg, '0']
+# Ramo 2: slope detector (apenas mag_pos)
+- [mag_pos, '0', dc_blocker_slope, '0']
+- [dc_blocker_slope, '0', lpf_slope, '0']
+# Ramo 3: discriminador balanceado
+- [mag_pos, '0', sub_balanced, '0']
+- [mag_neg, '0', sub_balanced, '1']
+- [sub_balanced, '0', dc_blocker_bal, '0']
+- [dc_blocker_bal, '0', lpf_bal, '0']
+# Time Sink: 4 canais
+- [src_mensagem, '0', time_sink_compare, '0']
+- [lpf_slope, '0', time_sink_compare, '1']
+- [lpf_bal, '0', time_sink_compare, '2']
+- [wbfm_rx, '0', time_sink_compare, '3']
 
 metadata:
   file_format: 1

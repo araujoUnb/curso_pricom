@@ -1,0 +1,213 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\geometry{margin=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{nota}[1][]{colback=yellow!10,colframe=orange!60!black,fonttitle=\bfseries,title=#1,breakable}
+
+\begin{document}
+\begin{center}
+  \includegraphics[width=0.16\textwidth]{../../../figures_global/unb.png}\\[0.3cm]
+  {\large\textbf{GABARITO DO PROFESSOR -- USO RESTRITO}}\\[0.2cm]
+  {\large FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.2cm]
+  \rule{12cm}{0.8pt}\\[0.2cm]
+  {\Large\textbf{Prática 05 -- Parte II: Demodulação FM}}\\[0.2cm]
+  \rule{12cm}{0.8pt}
+\end{center}
+
+\section*{Comportamento esperado no Time Sink}
+
+Com $\Delta f = 25\,000$\,Hz, $f_m = 1\,000$\,Hz e \texttt{noise\_amp} $= 0$:
+
+\begin{itemize}
+  \item Mensagem original: cosseno limpo de 1\,000\,Hz, amplitude unitária.
+  \item Slope detector: cosseno reconhecível porém com distorção harmônica
+    visível e amplitude reduzida em relação à mensagem.
+  \item Discriminador balanceado: cosseno mais limpo, com menor distorção
+    e nível CC quase nulo antes do \texttt{DC Blocker}.
+  \item \texttt{WBFM Receive}: cosseno praticamente idêntico à mensagem
+    original, com fase e amplitude consistentes.
+\end{itemize}
+
+\section*{Verificação via GNU Radio}
+
+A figura abaixo foi gerada rodando o flowgraph equivalente ao
+\texttt{pratica\_05\_fm\_parte2.grc} de forma headless via
+\texttt{verificar\_gnuradio.py}. Confirma o comportamento esperado e fornece
+valores numéricos de referência para correção.
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{verificacao_gnuradio.png}
+\end{center}
+
+\textbf{Resultados medidos} ($f_m = 1$\,kHz, $\Delta f = 25$\,kHz,
+$\beta = 25$, sem ruído):
+
+\begin{tabular}{l c c}
+  \toprule
+  Demodulador & Fidelidade $|\rho|$ & THD \\
+  \midrule
+  Slope detector simples         & $0{,}7235$ & $94{,}9\%$ \\
+  Discriminador balanceado       & $0{,}9701$ & $24{,}5\%$ \\
+  \texttt{WBFM Receive}          & $0{,}9999$ & $0{,}3\%$ \\
+  \bottomrule
+\end{tabular}
+
+\textbf{Robustez ao ruído} ($|\rho|$ alinhada vs \texttt{noise\_amp}):
+
+\begin{tabular}{c c c c}
+  \toprule
+  \texttt{noise\_amp} & Slope & Balanceado & \texttt{WBFM Receive} \\
+  \midrule
+  $0{,}00$ & $0{,}724$ & $0{,}970$ & $1{,}000$ \\
+  $0{,}05$ & $0{,}718$ & $0{,}970$ & $1{,}000$ \\
+  $0{,}10$ & $0{,}712$ & $0{,}970$ & $1{,}000$ \\
+  $0{,}20$ & $0{,}700$ & $0{,}969$ & $1{,}000$ \\
+  $0{,}50$ & $0{,}670$ & $0{,}964$ & $0{,}999$ \\
+  $1{,}00$ & $0{,}627$ & $0{,}926$ & $0{,}895$ \\
+  \bottomrule
+\end{tabular}
+
+\begin{nota}[Interpretação dos valores medidos]
+O slope detector simples tem $|\rho| \approx 0{,}72$ mesmo sem ruído porque
+a distorção harmônica intrínseca da inclinação não-linear do filtro é o
+fator limitante, não o ruído. O discriminador balanceado e o
+\texttt{WBFM Receive} suportam \texttt{noise\_amp} até cerca de $0{,}5$
+sem degradação significativa, e degradam de forma visível somente em
+\texttt{noise\_amp} $\approx 1{,}0$, onde o \text{SNR}$_i \approx 0$\,dB e o
+limiar de FM é cruzado.
+\end{nota}
+
+\section*{Respostas esperadas}
+
+\begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*, itemsep=1em]
+
+  \item \textbf{Como o filtro passa-faixa converte variação de frequência em variação de amplitude?}
+
+    \textbf{Resposta esperada:} A resposta em frequência $|H(f)|$ do filtro
+    passa-faixa não é constante: na borda da banda de passagem ela varia
+    monotonicamente com $f$. Quando a frequência instantânea $f_i(t)$ do
+    sinal FM percorre essa região de inclinação, a amplitude da saída do
+    filtro acompanha $|H(f_i(t))|$, ou seja, varia proporcionalmente à
+    mensagem $m(t)$ que controla $f_i$. O detector de envelope converte essa
+    AM em sinal de banda base. Quando $\Delta f$ é pequeno comparado à
+    largura do filtro, $f_i(t)$ permanece quase toda na região plana de
+    $|H(f)|$, e a conversão FM-AM se torna desprezível, resultando em sinal
+    recuperado de amplitude muito baixa.
+
+    \begin{nota}[Erros comuns]
+      Afirmar que o filtro ``elimina o ruído'' ou ``recupera diretamente a
+      mensagem'' sem explicar o mecanismo de conversão FM-AM por inclinação
+      da resposta em frequência.
+    \end{nota}
+
+  \item \textbf{Distorção observada no slope detector e sua origem.}
+
+    \textbf{Resposta esperada:} A forma de onda recuperada apresenta
+    assimetria entre semiciclos positivos e negativos e harmônicos visíveis,
+    porque a curva de transferência $|H(f)|$ não é perfeitamente linear ao
+    longo da faixa $[f_c - \Delta f, f_c + \Delta f]$. Termos quadráticos e
+    de ordem superior do polinômio que aproxima $|H(f)|$ geram distorção
+    harmônica em $2 f_m$, $3 f_m$ etc. Além disso, há um nível CC residual
+    proporcional ao valor médio de $|H(f_i(t))|$, que precisa ser removido
+    pelo \texttt{DC Blocker}.
+
+    \begin{nota}[Erros comuns]
+      Atribuir a distorção apenas ao ruído ou à decimação, sem identificar
+      a não-linearidade da resposta do filtro como causa principal.
+    \end{nota}
+
+  \item \textbf{Vantagens do discriminador balanceado.}
+
+    \textbf{Resposta esperada:} Os dois ramos produzem envoltórias
+    aproximadamente $K_0 + K_1 m(t) + \alpha m^2(t) + \cdots$ e
+    $K_0 - K_1 m(t) + \alpha m^2(t) + \cdots$. A subtração cancela o termo
+    constante $K_0$ e os termos de ordem par, restando $2 K_1 m(t)$ mais
+    distorção de ordem ímpar, conforme a Equação~(2) do enunciado. O
+    resultado é maior fidelidade na recuperação da mensagem, melhor
+    linearidade na região central e dispensa parcial do bloqueio CC. No
+    Time Sink isso aparece como um cosseno mais simétrico, com menos
+    distorção visível e amplitude maior.
+
+    \begin{nota}[Erros comuns]
+      Dizer apenas que ``dois filtros são melhores que um'' sem mostrar
+      explicitamente o cancelamento do termo CC e da distorção de ordem par.
+    \end{nota}
+
+  \item \textbf{Comparação dos três demoduladores e por que \texttt{WBFM Receive} costuma vencer.}
+
+    \textbf{Resposta esperada:} A ordem esperada de fidelidade é
+    \texttt{WBFM Receive} $>$ discriminador balanceado $>$ slope detector.
+    O \texttt{WBFM Receive} usa um discriminador de quadratura, que estima
+    $f_i(t)$ a partir da fase instantânea do sinal complexo, sendo
+    teoricamente linear em frequência ao longo de toda a faixa de operação.
+    Os detectores baseados em envoltória dependem de aproximar uma região
+    linear na resposta de filtros reais, o que introduz distorção residual.
+    Adicionalmente, o discriminador de quadratura tem ganho independente da
+    forma de onda do filtro, tornando-o mais robusto a tolerâncias de
+    componentes.
+
+    \begin{nota}[Erros comuns]
+      Afirmar que o \texttt{WBFM Receive} é melhor por ``ser do GNU Radio''
+      sem descrever o princípio de operação do discriminador de quadratura.
+    \end{nota}
+
+  \item \textbf{Limiares de \texttt{noise\_amp} e efeito de limiar do FM.}
+
+    \textbf{Resposta esperada:} A simulação mostra que o fator limitante do
+    slope detector é a distorção intrínseca, não o ruído: $|\rho| \approx 0{,}72$
+    já em \texttt{noise\_amp} $= 0$ e cai pouco com ruído adicional. O
+    discriminador balanceado e o \texttt{WBFM Receive} suportam
+    \texttt{noise\_amp} até cerca de $0{,}5$ ($\text{SNR}_i \approx 6$\,dB) sem
+    degradação significativa em $|\rho|$, e só apresentam queda visível em
+    \texttt{noise\_amp} $\approx 1{,}0$ ($\text{SNR}_i \approx 0$\,dB), onde o
+    limiar do FM é cruzado e cliques aparecem na saída. A ordenação esperada
+    em fidelidade é \texttt{WBFM Receive} $>$ Balanceado $\gg$ Slope, o que
+    confirma que demoduladores baseados em fase instantânea superam os
+    baseados em envoltória, e que o discriminador balanceado lineariza
+    parcialmente a resposta da inclinação.
+
+    \begin{nota}[Erros comuns]
+      Reportar valores numéricos sem ordenação relativa entre os três
+      demoduladores, ou não mencionar o efeito de limiar do FM.
+    \end{nota}
+
+\end{enumerate}
+
+\section*{Critérios de correção}
+\begin{tabular}{ll}
+  \toprule
+  Critério & Pontuação \\
+  \midrule
+  Q1 -- Mecanismo de conversão FM-AM por inclinação                              & 1,0 ponto \\
+  Q2 -- Identificação da distorção harmônica e nível CC residual                 & 1,0 ponto \\
+  Q3 -- Cancelamento de CC e distorção par no discriminador balanceado           & 1,0 ponto \\
+  Q4 -- Comparação dos três demoduladores com justificativa de princípio         & 1,0 ponto \\
+  Q5 -- Ordenação dos limiares de ruído e menção ao limiar de FM                 & 1,0 ponto \\
+  \midrule
+  \textbf{Total} & \textbf{5,0 pontos} \\
+  \bottomrule
+\end{tabular}
+
+\bigskip
+\begin{nota}[Nota de correção geral]
+  Priorizar a coerência física e a evidência experimental por meio de
+  capturas de tela do Time Sink. Respostas que confundam detector de
+  envelope com discriminador de quadratura devem ter desconto. Valores
+  numéricos de limiar de \texttt{noise\_amp} podem variar com a
+  implementação dos filtros, e o critério de correção deve focar na
+  ordenação relativa entre os demoduladores, não nos valores absolutos.
+\end{nota}
+
+\end{document}

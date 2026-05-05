@@ -26,11 +26,70 @@
   \rule{12cm}{0.8pt}
 \end{center}
 
-\section*{Gráfico esperado}
+\section*{Gráfico esperado (referência teórica)}
 \begin{center}
   \includegraphics[width=0.88\textwidth]{grafico_esperado.png}
 \end{center}
-\textit{O gráfico acima foi gerado pelo script \texttt{gerar\_grafico.py} desta pasta.}
+\textit{Gerado pelo script \texttt{gerar\_grafico.py} desta pasta usando equações de FM.}
+
+\section*{Verificação via GNU Radio}
+
+A figura abaixo foi gerada rodando o flowgraph equivalente ao
+\texttt{pratica\_05\_fm.grc} em modo headless via \texttt{verificar\_gnuradio.py}.
+Confirma o comportamento esperado dos blocos \texttt{WBFM Transmit} e
+\texttt{WBFM Receive}.
+
+\begin{center}
+  \includegraphics[width=0.95\textwidth]{verificacao_gnuradio.png}
+\end{center}
+
+\textbf{Resultados medidos (valores de referência para correção):}
+
+\begin{tabular}{l l}
+  \toprule
+  Métrica & Valor medido \\
+  \midrule
+  Fidelidade $|\rho|$ entre mensagem e \texttt{WBFM Receive}, sem ruído & $0{,}9997$ para $\beta = 0{,}5$ a $5{,}0$ \\
+  Atraso de grupo da cadeia TX+RX & $\approx 41$ amostras de áudio \\
+  Erro de Carson medido em $-20$\,dB & $-34\%$ a $+50\%$ conforme $\beta$ \\
+  \bottomrule
+\end{tabular}
+
+\textbf{Tabela 3 do enunciado -- valores esperados} ($f_m = 2\,000$\,Hz, sem ruído):
+
+\begin{tabular}{c c c c c}
+  \toprule
+  $\Delta f$ (Hz) & $\beta$ & $T$ medido (ms) & Amplitude pico-a-pico & Distorção visível? \\
+  \midrule
+  1\,000  & 0{,}5 & $0{,}500$ & $\approx 0{,}027$ & não \\
+  5\,000  & 2{,}5 & $0{,}500$ & $\approx 0{,}133$ & não \\
+  10\,000 & 5{,}0 & $0{,}500$ & $\approx 0{,}267$ & não \\
+  \bottomrule
+\end{tabular}
+
+\begin{nota}[Sobre a amplitude variar com $\Delta f$]
+O período $T$ é constante em $0{,}500$\,ms porque a frequência da mensagem é
+preservada pela cadeia TX+RX. Já a amplitude pico-a-pico cresce linearmente
+com $\Delta f$ porque o bloco \texttt{WBFM Receive} usa internamente
+$\text{ganho} = \text{quad\_rate}/(2\pi \cdot 75\,000)$, com $\text{max\_dev}$
+de referência fixa em $75$\,kHz. A amplitude pico-a-pico é portanto
+$2\Delta f / 75\,000$, o que reproduz os valores medidos
+$0{,}027$, $0{,}133$ e $0{,}267$. Tolere variações de $\pm 10\%$ na medição
+visual do aluno.
+\end{nota}
+
+\textit{O painel de robustez ao ruído na figura é informação extra de validação;
+não é objeto de avaliação do aluno nesta prática, e foi mantido para referência
+do professor. O experimento equivalente está na Prática 07.}
+
+\begin{nota}[Sobre a Regra de Carson medida]
+A largura de banda medida em $-20$\,dB cresce linearmente com $\beta$, mas
+costuma ficar acima do valor de Carson em $\beta$ alto, pois $-20$\,dB é mais
+permissivo do que o critério de 98\% de potência da Regra de Carson e captura
+componentes de Bessel de ordem mais alta. O aluno deve apresentar erros entre
+$10$ e $50\%$ dependendo do critério visual; valores fora dessa faixa devem
+ser questionados.
+\end{nota}
 
 \section*{Respostas esperadas}
 
@@ -77,46 +136,22 @@
       significativamente mais largura de banda que o NBFM.
     \end{nota}
 
-  \item \textbf{Por que o FM oferece maior robustez ao ruído em comparação com o AM? Qual é o ganho teórico para $\beta=5$?}
-
-    \textbf{Resposta esperada:} O FM converte variações de amplitude do ruído em
-    variações de frequência que são filtradas pelo discriminador. O ganho de SNR do
-    WBFM é $\approx 3\beta^2(\beta+1)$ vezes o do AM com mesma potência. Para
-    $\beta=5$: ganho $\approx 3 \times 25 \times 6 = 450 \approx 27$\,dB. O custo é
-    $(\beta+1)$ vezes mais espectro que o AM. Abaixo do limiar ($\text{SNR} < 10$\,dB),
-    o discriminador colapsa abruptamente.
-
-    \begin{nota}[Erros comuns]
-      Afirmar que o FM é ``sempre melhor'' sem mencionar o fenômeno de limiar do FM e
-      sem apresentar o cálculo numérico do ganho de SNR.
-    \end{nota}
-
-  \item \textbf{Compare experimentalmente NBFM e WBFM em presença de ruído. Os resultados são consistentes com a teoria?}
-
-    \textbf{Resposta esperada:} O WBFM deve suportar níveis de ruído significativamente
-    mais altos que o NBFM antes da degradação visível. Se \texttt{noise\_amp\_NBFM}
-    $\approx 0{,}1$ e \texttt{noise\_amp\_WBFM} $\approx 0{,}5$ causam degradação
-    similar, isso reflete um ganho de SNR de fator 5, consistente com $\beta$ diferindo
-    por fator $\sim 5$ entre os casos. O importante é que a tendência seja explicada
-    fisicamente com referência à teoria de FM.
-
-    \begin{nota}[Erros comuns]
-      Não relacionar os valores de \texttt{noise\_amp} com a previsão teórica de ganho
-      de SNR, ou reportar resultados sem comparar com o valor esperado de ganho.
-    \end{nota}
-
 \end{enumerate}
+
+\begin{nota}[Sobre comparação com AM e ruído]
+A análise experimental do efeito de ruído e a comparação entre AM e FM saíram
+desta prática e estão concentradas na Prática 07. As respostas aqui não devem
+exigir resultados experimentais com ruído.
+\end{nota}
 
 \section*{Critérios de correção}
 \begin{tabular}{ll}
   \toprule
   Critério & Pontuação \\
   \midrule
-  Q1 -- Definição de $\Delta f$ e manifestação no tempo sem confundir com amplitude & 1,0 ponto \\
-  Q2 -- Cálculo correto de $\beta$ e $B_T$ pela Regra de Carson                    & 1,0 ponto \\
-  Q3 -- Diferença espectral NBFM vs.\ WBFM e contexto de aplicação                & 1,0 ponto \\
-  Q4 -- Ganho de SNR com cálculo numérico e menção ao limiar do FM                 & 1,0 ponto \\
-  Q5 -- Comparação experimental consistente com tendência teórica                  & 1,0 ponto \\
+  Q1 -- Definição de $\Delta f$ e manifestação no tempo sem confundir com amplitude & 1,5 ponto \\
+  Q2 -- Cálculo correto de $\beta$ e $B_T$ pela Regra de Carson                    & 2,0 pontos \\
+  Q3 -- Diferença espectral NBFM vs.\ WBFM e contexto de aplicação                & 1,5 ponto \\
   \midrule
   \textbf{Total} & \textbf{5,0 pontos} \\
   \bottomrule

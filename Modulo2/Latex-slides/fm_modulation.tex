@@ -6,33 +6,25 @@
 
 \begin{frame}{Modulação Angular vs. Modulação em Amplitude}
 
-\textbf{AM:} Amplitude varia, frequência e fase fixas
+\textbf{AM:} amplitude varia, frequência e fase fixas
 \[
 s_{\AM}(t) = A(t) \cos(2\pi f_c t)
 \]
 
-\vspace{0.3cm}
-
-\textbf{Modulação Angular:} Amplitude fixa, ângulo (fase ou frequência) varia
+\vspace{0.2cm}
+\textbf{Modulação angular:} amplitude fixa, ângulo varia
 \[
 s(t) = A_c \cos[\theta(t)] = A_c \cos[2\pi f_c t + \phi(t)]
 \]
 
 onde $\phi(t)$ é a fase modulada.
 
-\vspace{0.5cm}
-
+\vspace{0.3cm}
 \textbf{Duas variantes:}
-
-\begin{enumerate}
-\item \textbf{FM (Modulação em Frequência):}
-   
-   Frequência instantânea varia com $m(t)$
-
-\item \textbf{PM (Modulação em Fase):}
-   
-   Fase instantânea varia diretamente com $m(t)$
-\end{enumerate}
+\begin{itemize}
+\item \textbf{FM} -- frequência instantânea varia com $m(t)$.
+\item \textbf{PM} -- fase instantânea varia com $m(t)$.
+\end{itemize}
 
 \end{frame}
 
@@ -47,20 +39,14 @@ Para sinal modulado $s(t) = A_c \cos[\theta(t)]$:
 \[
 \theta(t) = 2\pi f_c t + \phi(t)
 \]
-
 \textbf{Frequência instantânea:}
 \[
 f_i(t) = \frac{1}{2\pi} \frac{d\theta(t)}{dt} = f_c + \frac{1}{2\pi}\frac{d\phi(t)}{dt}
 \]
 \end{block}
 
-\textbf{Interpretação:}
-\begin{itemize}
-\item $\theta(t)$: argumento da função cosseno
-\item $f_i(t)$: taxa instantânea de oscilação
-\item $f_c$: frequência da portadora (não modulada)
-\item $\phi(t)$: desvio de fase causado pela modulação
-\end{itemize}
+\small
+\textbf{Interpretação:} $\theta(t)$ é o argumento do cosseno; $f_i(t)$ é a taxa instantânea de oscilação; $f_c$ é a portadora não modulada; $\phi(t)$ é o desvio de fase causado pela mensagem.
 
 \end{frame}
 
@@ -75,26 +61,41 @@ A frequência instantânea é proporcional à mensagem:
 \[
 f_i(t) = f_c + k_f m(t)
 \]
-onde $k_f$ é a constante de sensibilidade de frequência (Hz/V).
+onde $k_f$ é a constante de sensibilidade de frequência, em Hz/V.
 \end{block}
 
-\textbf{Desvio de frequência:}
+\textbf{Desvio de frequência instantâneo:}
 \[
 \Delta f(t) = k_f m(t)
 \]
 
-\textbf{Desvio máximo:}
+\textbf{Desvio máximo de frequência:}
 \[
 \Delta f = k_f \max|m(t)|
 \]
 
-\vspace{0.3cm}
+\end{frame}
 
-\textbf{Derivando} $\phi(t)$ de $f_i(t)$:
+% ============================================
 
+\begin{frame}{Da frequência à fase: integração}
+
+A partir da definição de frequência instantânea,
 \[
-\frac{d\phi(t)}{dt} = 2\pi k_f m(t) \quad \Rightarrow \quad \phi(t) = 2\pi k_f \int_{-\infty}^{t} m(\tau) d\tau
+\frac{d\theta(t)}{dt} = 2\pi f_i(t) = 2\pi[f_c + k_f m(t)].
 \]
+
+\pause
+Integrando dos dois lados, e identificando $\phi(t)$:
+\[
+\frac{d\phi(t)}{dt} = 2\pi k_f m(t)
+\]
+\[
+\Rightarrow \quad \phi(t) = 2\pi k_f \int_{-\infty}^{t} m(\tau)\,d\tau
+\]
+
+\pause
+\textbf{Conclusão:} a fase do FM é a integral da mensagem, escalada por $2\pi k_f$.
 
 \end{frame}
 
@@ -104,26 +105,18 @@ onde $k_f$ é a constante de sensibilidade de frequência (Hz/V).
 
 \begin{block}{Sinal FM}
 \[
-s_{\FM}(t) = A_c \cos\left[2\pi f_c t + 2\pi k_f \int_{-\infty}^{t} m(\tau) d\tau\right]
+s_{\FM}(t) = A_c \cos\left[2\pi f_c t + 2\pi k_f \int_{-\infty}^{t} m(\tau)\,d\tau\right]
 \]
 \end{block}
 
-Ou definindo o \textbf{índice de fase}:
-\[
-\beta(t) = 2\pi k_f \int_{-\infty}^{t} m(\tau) d\tau
-\]
-
+Definindo o \textbf{índice de fase} $\beta(t) = 2\pi k_f \int_{-\infty}^{t} m(\tau)\,d\tau$:
 \[
 s_{\FM}(t) = A_c \cos[2\pi f_c t + \beta(t)]
 \]
 
-\textbf{Características:}
-\begin{itemize}
-\item Amplitude constante: $|s_{\FM}(t)| = A_c$
-\item Toda informação está na fase
-\item Potência transmitida constante: $P_s = A_c^2/2$
-\item \textbf{Vantagem:} Imune a variações de amplitude (ruído, desvanecimento)
-\end{itemize}
+\pause
+\small
+\textbf{Características:} amplitude constante $|s_{\FM}(t)| = A_c$, toda a informação na fase, potência transmitida fixa $P_s = A_c^2/2$, imunidade a variações de amplitude por ruído ou desvanecimento.
 
 \end{frame}
 
@@ -136,7 +129,7 @@ A fase instantânea é diretamente proporcional à mensagem:
 \[
 \phi(t) = k_p m(t)
 \]
-onde $k_p$ é a constante de sensibilidade de fase (rad/V).
+onde $k_p$ é a constante de sensibilidade de fase, em rad/V.
 \end{block}
 
 \textbf{Sinal PM:}
@@ -144,15 +137,37 @@ onde $k_p$ é a constante de sensibilidade de fase (rad/V).
 s_{\PM}(t) = A_c \cos[2\pi f_c t + k_p m(t)]
 \]
 
+\pause
 \textbf{Frequência instantânea:}
 \[
-f_i(t) = f_c + \frac{k_p}{2\pi} \frac{dm(t)}{dt}
+f_i(t) = f_c + \frac{1}{2\pi}\frac{d\phi(t)}{dt} = f_c + \frac{k_p}{2\pi} \frac{dm(t)}{dt}
 \]
 
-\textbf{Relação FM-PM:}
+\end{frame}
+
+% ============================================
+
+\begin{frame}{FM vs.\ PM: comparação direta}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|l|c|c|}
+\hline
+                        & \textbf{FM}                       & \textbf{PM} \\
+\hline
+Fase $\phi(t)$          & $\propto \int m(t)\,dt$           & $\propto m(t)$ \\
+\hline
+Frequência $f_i(t)$     & $\propto m(t)$                    & $\propto dm(t)/dt$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.4cm}
+\textbf{Resumo:}
 \begin{itemize}
-\item \textbf{FM:} frequência $\propto m(t)$, fase $\propto \int m(t)dt$
-\item \textbf{PM:} fase $\propto m(t)$, frequência $\propto dm(t)/dt$
+\item Em FM, a frequência é a cópia direta da mensagem.
+\item Em PM, é a fase que copia diretamente a mensagem.
+\item As duas são equivalentes a menos de uma integração ou diferenciação.
 \end{itemize}
 
 \end{frame}
@@ -161,41 +176,47 @@ f_i(t) = f_c + \frac{k_p}{2\pi} \frac{dm(t)}{dt}
 
 \begin{frame}{Relação entre FM e PM}
 
-\textbf{FM pode ser vista como PM do integral:}
-
+\textbf{FM pode ser vista como PM do integral da mensagem:}
 \[
-\text{FM de } m(t) = \text{PM de } \int m(t)dt
+\text{FM de } m(t) \;\equiv\; \text{PM de } \int m(t)\,dt
 \]
 
-\textbf{PM pode ser vista como FM da derivada:}
-
+\pause
+\textbf{PM pode ser vista como FM da derivada da mensagem:}
 \[
-\text{PM de } m(t) = \text{FM de } \frac{dm(t)}{dt}
+\text{PM de } m(t) \;\equiv\; \text{FM de } \frac{dm(t)}{dt}
 \]
 
-\vspace{0.5cm}
+\vspace{0.4cm}
+\pause
+Na prática, FM é mais usada do que PM por ter melhor desempenho em ruído.
 
-\textbf{Conversão prática:}
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Conversão prática FM--PM}
 
 \begin{center}
 \begin{tikzpicture}[>=latex]
 % FM para PM
-\node[draw, rectangle, minimum width=1.5cm, minimum height=0.6cm] (int) at (0,1) {$\int dt$};
-\node[draw, rectangle, minimum width=1.5cm, minimum height=0.6cm] (pm) at (2.5,1) {PM};
-\draw[->] (-1.5,1) -- node[above, font=\small] {$m(t)$} (int);
+\node[draw, rectangle, minimum width=1.5cm, minimum height=0.7cm] (int) at (0,1.2) {$\int dt$};
+\node[draw, rectangle, minimum width=1.5cm, minimum height=0.7cm] (pm) at (3,1.2) {Mod.\ PM};
+\draw[->] (-1.7,1.2) -- node[above, font=\small] {$m(t)$} (int);
 \draw[->] (int) -- (pm);
-\draw[->] (pm) -- (4,1) node[right, font=\small] {FM de $m(t)$};
+\draw[->] (pm) -- (5,1.2) node[right, font=\small] {FM de $m(t)$};
 
 % PM para FM
-\node[draw, rectangle, minimum width=1.5cm, minimum height=0.6cm] (der) at (0,-1) {$d/dt$};
-\node[draw, rectangle, minimum width=1.5cm, minimum height=0.6cm] (fm) at (2.5,-1) {FM};
-\draw[->] (-1.5,-1) -- node[above, font=\small] {$m(t)$} (der);
+\node[draw, rectangle, minimum width=1.5cm, minimum height=0.7cm] (der) at (0,-1.2) {$d/dt$};
+\node[draw, rectangle, minimum width=1.5cm, minimum height=0.7cm] (fm) at (3,-1.2) {Mod.\ FM};
+\draw[->] (-1.7,-1.2) -- node[above, font=\small] {$m(t)$} (der);
 \draw[->] (der) -- (fm);
-\draw[->] (fm) -- (4,-1) node[right, font=\small] {PM de $m(t)$};
+\draw[->] (fm) -- (5,-1.2) node[right, font=\small] {PM de $m(t)$};
 \end{tikzpicture}
 \end{center}
 
-\textbf{Na prática:} FM é mais comum (melhor desempenho em ruído)
+\vspace{0.3cm}
+\small Os blocos integrador e derivador convertem uma modulação em outra. Em hardware comercial, isto significa que um modulador PM com pré-integrador realiza uma FM de qualidade comparável.
 
 \end{frame}
 
@@ -203,62 +224,152 @@ f_i(t) = f_c + \frac{k_p}{2\pi} \frac{dm(t)}{dt}
 
 \subsection{Análise Espectral de FM}
 
-\begin{frame}{FM com Tom Único: Configuração}
+\begin{frame}{FM com Tom Único: substituição}
 
-\textbf{Sinal modulante:} $m(t) = A_m \cos(2\pi f_m t)$
+\textbf{Sinal modulante:} $m(t) = A_m \cos(2\pi f_m t)$.
 
 \textbf{Sinal FM:}
 \[
-s(t) = A_c \cos\left[2\pi f_c t + 2\pi k_f A_m \int_{-\infty}^{t} \cos(2\pi f_m \tau) d\tau\right]
+s(t) = A_c \cos\!\left[2\pi f_c t + 2\pi k_f A_m\!\!\int_{-\infty}^{t}\!\! \cos(2\pi f_m \tau)\,d\tau\right]
 \]
 
-Integrando:
+\pause
+\textbf{Integral elementar:}
 \[
-\int \cos(2\pi f_m \tau) d\tau = \frac{\sin(2\pi f_m t)}{2\pi f_m}
+\int \cos(2\pi f_m \tau)\,d\tau = \frac{\sin(2\pi f_m t)}{2\pi f_m}
 \]
 
+\pause
+\textbf{Substituindo:}
 \[
-s(t) = A_c \cos\left[2\pi f_c t + \frac{k_f A_m}{f_m} \sin(2\pi f_m t)\right]
-\]
-
-Definindo o \textbf{índice de modulação}:
-\[
-\beta = \frac{k_f A_m}{f_m} = \frac{\Delta f}{f_m}
-\]
-
-\[
-\boxed{s(t) = A_c \cos[2\pi f_c t + \beta \sin(2\pi f_m t)]}
+s(t) = A_c \cos\!\left[2\pi f_c t + \frac{k_f A_m}{f_m}\sin(2\pi f_m t)\right]
 \]
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Expansão de Bessel}
+\begin{frame}{Índice de modulação $\beta$}
 
-\textbf{Para analisar o espectro, usamos a identidade:}
-
+\textbf{Definição:}
 \[
-\cos[\beta \sin(\omega_m t)] = \sum_{n=-\infty}^{\infty} J_n(\beta) \cos(n\omega_m t)
+\boxed{\;\beta \;=\; \frac{k_f A_m}{f_m} \;=\; \frac{\Delta f}{f_m}\;}
 \]
 
-onde $J_n(\beta)$ são \textbf{funções de Bessel de primeira espécie de ordem $n$}.
+\pause
+\textbf{Forma canônica do FM com tom único:}
+\[
+\boxed{\;s(t) = A_c \cos[2\pi f_c t + \beta \sin(2\pi f_m t)]\;}
+\]
 
 \vspace{0.3cm}
+\pause
+\textbf{Duas leituras de $\beta$:}
+\begin{itemize}
+\item Pico do desvio de fase, em radianos.
+\item Razão entre desvio máximo de frequência e frequência da mensagem.
+\end{itemize}
 
-\textbf{Aplicando a} $s(t) = A_c \cos[2\pi f_c t + \beta \sin(2\pi f_m t)]$:
+\end{frame}
 
-Usando $\cos(A + B) = \cos A \cos B - \sin A \sin B$:
+% ============================================
 
+\begin{frame}{Expansão de Bessel: passo 1 -- série de Fourier}
+
+\textbf{Ideia:} a exponencial $g(t) = e^{j\beta\sin(\omega_m t)}$ é periódica de período $T_m = 2\pi/\omega_m$.
+
+\pause
+Toda função periódica admite série de Fourier:
 \[
-s(t) = A_c[\cos(2\pi f_c t)\cos(\beta \sin(2\pi f_m t)) - \sin(2\pi f_c t)\sin(\beta \sin(2\pi f_m t))]
+e^{j\beta\sin(\omega_m t)} = \sum_{n=-\infty}^{\infty} c_n\, e^{jn\omega_m t}
 \]
 
-E as identidades:
+\pause
+\textbf{Coeficientes:}
+\[
+c_n = \frac{1}{T_m}\int_{0}^{T_m}\! e^{j[\beta\sin(\omega_m t) - n\omega_m t]}\,dt
+\]
+
+\pause
+\textbf{Substituindo} $\theta = \omega_m t$, com $d\theta = \omega_m\,dt$:
+\[
+c_n = \frac{1}{2\pi}\int_{0}^{2\pi}\! e^{j[\beta\sin\theta - n\theta]}\,d\theta
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Expansão de Bessel: passo 2 -- $c_n = J_n(\beta)$}
+
+\textbf{Definição integral da função de Bessel de primeira espécie:}
+\[
+\boxed{\,J_n(\beta) \;\triangleq\; \frac{1}{2\pi}\int_{-\pi}^{\pi}\! e^{j[\beta\sin\theta - n\theta]}\,d\theta\,}
+\]
+
+\pause
+\textbf{Logo:} $c_n = J_n(\beta)$, e
+\[
+e^{j\beta\sin(\omega_m t)} = \sum_{n=-\infty}^{\infty} J_n(\beta)\, e^{jn\omega_m t}
+\]
+
+\pause
+\textbf{Tomando partes real e imaginária} via $e^{jx} = \cos x + j\sin x$:
 \begin{align*}
-\cos[\beta \sin(\omega_m t)] &= J_0(\beta) + 2\sum_{n=1}^{\infty} J_{2n}(\beta) \cos(2n\omega_m t) \\
-\sin[\beta \sin(\omega_m t)] &= 2\sum_{n=0}^{\infty} J_{2n+1}(\beta) \sin[(2n+1)\omega_m t]
+\cos[\beta\sin(\omega_m t)] &= \sum_{n} J_n(\beta)\cos(n\omega_m t)\\
+\sin[\beta\sin(\omega_m t)] &= \sum_{n} J_n(\beta)\sin(n\omega_m t)
 \end{align*}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Expansão de Bessel: passo 3 -- simetria}
+
+\textbf{Propriedade:} $J_{-n}(\beta) = (-1)^n J_n(\beta)$.
+
+\vspace{0.2cm}
+Combinando os termos $n$ e $-n$ no cosseno: sobrevivem só os \emph{pares}.
+
+\[
+\boxed{\,\cos[\beta\sin(\omega_m t)] = J_0(\beta) + 2\!\sum_{n=1}^{\infty}\! J_{2n}(\beta)\cos(2n\omega_m t)\,}
+\]
+
+\pause
+Combinando os termos $n$ e $-n$ no seno: sobrevivem só os \emph{ímpares}.
+
+\[
+\boxed{\,\sin[\beta\sin(\omega_m t)] = 2\!\sum_{n=0}^{\infty}\! J_{2n+1}(\beta)\sin[(2n+1)\omega_m t]\,}
+\]
+
+\pause
+Estas são as identidades de Jacobi--Anger, obtidas aqui como consequência direta da série de Fourier.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Expansão de Bessel: passo 4 -- aplicação ao FM}
+
+Aplicando $\cos(A+B) = \cos A\cos B - \sin A\sin B$ no sinal FM:
+\[
+s(t)/A_c = \cos(2\pi f_c t)\cos[\beta\sin(2\pi f_m t)] - \sin(2\pi f_c t)\sin[\beta\sin(2\pi f_m t)]
+\]
+
+\pause
+Substituindo as duas expansões e usando produtos trigonométricos
+\[
+\cos a\cos b = \tfrac{1}{2}[\cos(a-b)+\cos(a+b)],\quad
+\sin a\sin b = \tfrac{1}{2}[\cos(a-b)-\cos(a+b)],
+\]
+todos os termos viram cossenos em $f_c \pm k f_m$.
+
+\pause
+\begin{block}{Resultado}
+\[
+s(t) = A_c\!\sum_{n=-\infty}^{\infty}\! J_n(\beta)\,\cos[2\pi(f_c + n f_m)t]
+\]
+\end{block}
 
 \end{frame}
 
@@ -266,29 +377,19 @@ E as identidades:
 
 \begin{frame}{Espectro FM: Resultado Final}
 
-Após manipulação algébrica:
-
 \[
-s(t) = A_c \sum_{n=-\infty}^{\infty} J_n(\beta) \cos[2\pi(f_c + nf_m)t]
+s(t) = A_c \sum_{n=-\infty}^{\infty} J_n(\beta)\,\cos[2\pi(f_c + nf_m)t]
 \]
 
-\textbf{Interpretação do espectro:}
-
-\begin{itemize}
-\item \textbf{Portadora} em $f_c$: amplitude $A_c J_0(\beta)$
-\item \textbf{Bandas laterais} em $f_c \pm nf_m$ para $n = 1, 2, 3, ...$
-\item Amplitude da n-ésima banda: $A_c J_n(\beta)$
-\item \textbf{Infinitas bandas laterais teoricamente}
-\item Na prática: $J_n(\beta) \approx 0$ para $n > \beta + 1$
+\textbf{Interpretação:}
+\begin{itemize}\itemsep0pt
+\item Portadora em $f_c$ com amplitude $A_c J_0(\beta)$.
+\item Bandas laterais em $f_c \pm nf_m$ com amplitude $A_c J_n(\beta)$.
+\item Infinitas componentes na teoria; na prática, $J_n(\beta)\approx 0$ para $n > \beta + 1$.
 \end{itemize}
 
-\vspace{0.3cm}
-
-\textbf{Diferença fundamental de AM:}
-\begin{itemize}
-\item AM: 2 bandas laterais (USB, LSB)
-\item FM: Infinitas bandas laterais (mas só algumas significativas)
-\end{itemize}
+\vspace{0.2cm}
+\textbf{Diferença fundamental para AM:} AM tem apenas duas bandas laterais USB e LSB; FM tem infinitas, mas só algumas relevantes.
 
 \end{frame}
 
@@ -333,12 +434,10 @@ $\beta$ & $J_0$ & $J_1$ & $J_2$ & $J_3$ & $J_4$ & $J_5$ \\
 \begin{frame}{Visualização: Funções de Bessel}
 
 \begin{center}
-\includegraphics[width=\figHalf]{figures/cap4/fm_bessel_functions.pdf}
+\includegraphics[height=0.65\textheight,keepaspectratio]{figures/cap4/fm_bessel_functions.pdf}
 \end{center}
 
-\textbf{Observe:} $J_0(\beta)$ decresce com $\beta$ (potência sai da portadora para bandas laterais).
-
-Para $\beta \approx 2.4$: $J_0 = 0$ $\rightarrow$ portadora desaparece!
+\small $J_0(\beta)$ decresce com $\beta$: a potência migra da portadora para as bandas laterais. Em $\beta \approx 2{,}4$, $J_0 = 0$ e a portadora desaparece.
 
 \end{frame}
 
@@ -347,10 +446,128 @@ Para $\beta \approx 2.4$: $J_0 = 0$ $\rightarrow$ portadora desaparece!
 \begin{frame}{Visualização: Espectro FM para Diferentes $\beta$}
 
 \begin{center}
-\includegraphics[width=\figFull]{figures/cap4/fm_spectrum_beta.pdf}
+\includegraphics[height=0.72\textheight,keepaspectratio]{figures/cap4/fm_spectrum_beta.pdf}
 \end{center}
 
 \textbf{Quanto maior $\beta$, mais bandas laterais significativas} e maior a largura de banda.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exercício: Componentes Espectrais para $\beta = 2$}
+
+\small
+\textbf{Dados:} sinal FM com tom único, $A_c = 1$\,V, $f_c = 100$\,kHz, $f_m = 1$\,kHz, $\beta = 2$.
+
+\textbf{Pede-se:} frequências e amplitudes das componentes com $|J_n(\beta)| \geq 0.01$ e verificação da conservação de potência $\sum_n J_n^2(\beta) \approx 1$.
+
+\pause
+\textbf{Resolução:} componentes em $f_c \pm n f_m$ com amplitude $A_c\,|J_n(\beta)|$.
+
+\begin{center}
+\scriptsize
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{|c|c|c|c|}
+\hline
+$n$ & Frequência [kHz] & $J_n(2)$ & Amplitude [V] \\
+\hline
+$0$       & 100      & 0.22 & 0.22 \\
+$\pm 1$   & 99, 101  & 0.58 & 0.58 \\
+$\pm 2$   & 98, 102  & 0.35 & 0.35 \\
+$\pm 3$   & 97, 103  & 0.13 & 0.13 \\
+$\pm 4$   & 96, 104  & 0.03 & 0.03 \\
+$\pm 5$   & 95, 105  & 0.01 & 0.01 \\
+\hline
+\end{tabular}
+\end{center}
+
+\pause
+\textbf{Conservação:} $J_0^2 + 2\sum_{n=1}^{5} J_n^2(2) \approx 0.05 + 2\cdot 0.48 \approx 1$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exercício: Espectro FM com Mensagem de Dois Tons}
+
+\footnotesize
+\textbf{Dados:} $m(t) = A_1\cos(2\pi f_1 t) + A_2\cos(2\pi f_2 t)$, com $f_1 = 1$\,kHz, $f_2 = 10$\,kHz, $\beta_1 = 1$, $\beta_2 = 0.5$, $A_c = 1$\,V, $f_c = 100$\,kHz.
+
+\textbf{Sinal FM:}
+\[
+s(t) = A_c \cos[2\pi f_c t + \beta_1\sin(2\pi f_1 t) + \beta_2\sin(2\pi f_2 t)]
+\]
+
+\pause
+\textbf{Passo 1.} Forma exponencial, fatorando os três termos da fase:
+\[
+s(t) = A_c\,\Re\!\left\{ e^{j2\pi f_c t}\, e^{j\beta_1\sin(2\pi f_1 t)}\, e^{j\beta_2\sin(2\pi f_2 t)} \right\}
+\]
+
+\pause
+\textbf{Passo 2.} Identidade de Jacobi--Anger em cada exponencial periódica, $k = 1, 2$:
+\[
+e^{j\beta_k\sin(2\pi f_k t)} = \sum_{n=-\infty}^{\infty} J_n(\beta_k)\,e^{j2\pi n f_k t}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Dois Tons: Derivação (continuação)}
+
+\footnotesize
+\textbf{Passo 3.} Substituir as duas séries e agrupar exponenciais em uma única soma dupla:
+\[
+s(t) = A_c\,\Re\!\left\{ \sum_{m,n} J_m(\beta_1)\, J_n(\beta_2)\, e^{j2\pi(f_c + m f_1 + n f_2)t} \right\}
+\]
+
+\pause
+\textbf{Passo 4.} Tomar a parte real do somatório:
+\[
+\boxed{\;s(t) = A_c\!\!\sum_{m,n}\!\! J_m(\beta_1)\, J_n(\beta_2)\, \cos[2\pi(f_c + m f_1 + n f_2)t]\;}
+\]
+
+\pause
+\vspace{0.2cm}
+\textbf{Leitura do resultado:}
+\begin{itemize}\itemsep0pt
+\item Cada par de inteiros $(m, n)$ contribui com uma componente em $f_c + m f_1 + n f_2$.
+\item A amplitude é o produto $A_c\, J_m(\beta_1)\, J_n(\beta_2)$, fatorada por modulação.
+\item Surgem produtos de intermodulação $f_c \pm m f_1 \pm n f_2$ ausentes em sistemas lineares como AM.
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Dois Tons: Componentes Numéricas}
+
+\footnotesize
+Componente em $f_c + m f_1 + n f_2$ tem amplitude $A_c\,|J_m(\beta_1)\, J_n(\beta_2)|$.
+
+Com $J_m(1) = 0.77;\ 0.44;\ 0.11$ e $J_n(0.5) = 0.94;\ 0.24$, $A_c = 1$\,V:
+
+\begin{center}
+\scriptsize
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{|c|c|c|}
+\hline
+$(m,n)$ & Frequências [kHz] & Amplitude [V] \\
+\hline
+$(0,0)$         & 100              & 0.72 \\
+$(\pm 1,0)$     & 99, 101          & 0.41 \\
+$(\pm 2,0)$     & 98, 102          & 0.10 \\
+$(0,\pm 1)$     & 90, 110          & 0.18 \\
+$(\pm 1,\pm 1)$ & 89, 91, 109, 111 & 0.11 \\
+$(\pm 2,\pm 1)$ & 88, 92, 108, 112 & 0.03 \\
+\hline
+\end{tabular}
+\end{center}
+
+\pause
+\textbf{Conferência:} a maior componente, em $f_c$, tem amplitude $J_0(1)\,J_0(0.5) \approx 0.72$, valor coerente com a regra de produto $A_c\,J_m(\beta_1)\,J_n(\beta_2)$.
 
 \end{frame}
 
@@ -426,7 +643,7 @@ onde $\Delta f = k_f A_m$ é o desvio de frequência.
 \begin{itemize}
 \item AM: $B = 2W$ (independente de $A_c$ ou $\mu$)
 \item FM: $B = 2\Delta f(1 + 1/\beta)$ (depende de $\Delta f$!)
-\item FM troca largura de banda por melhor SNR
+%\item FM troca largura de banda por melhor SNR
 \end{itemize}
 
 \end{frame}
@@ -436,12 +653,12 @@ onde $\Delta f = k_f A_m$ é o desvio de frequência.
 \begin{frame}{Visualização: NBFM vs. WBFM}
 
 \begin{center}
-\includegraphics[width=\figFull]{figures/cap4/fm_nbfm_vs_wbfm.pdf}
+\includegraphics[height=0.7\textheight,keepaspectratio]{figures/cap4/fm_nbfm_vs_wbfm.pdf}
 \end{center}
 
-\textbf{NBFM} ($\beta \ll 1$): espectro similar a AM, poucas bandas laterais.
-
-\textbf{WBFM} ($\beta \gg 1$): espectro largo, muitas bandas laterais, melhor SNR.
+\small
+\textbf{NBFM} ($\beta \ll 1$): espectro similar a AM. \quad
+\textbf{WBFM} ($\beta \gg 1$): espectro largo, melhor SNR.
 
 \end{frame}
 
@@ -449,31 +666,24 @@ onde $\Delta f = k_f A_m$ é o desvio de frequência.
 
 \begin{frame}{Exemplo 1: FM com Tom Único}
 
-\textbf{Dados:}
-\begin{itemize}
-\item $m(t) = \cos(2\pi \times 5000 \cdot t)$ (5 kHz)
-\item $\Delta f = 75$ kHz (desvio máximo)
-\item $f_c = 100$ MHz (portadora)
-\end{itemize}
+\textbf{Dados:} $m(t) = \cos(2\pi\cdot 5000\,t)$, $\Delta f = 75$\,kHz, $f_c = 100$\,MHz.
 
-\textbf{Cálculo do índice de modulação:}
+\pause
+\textbf{Índice de modulação:}
 \[
-\beta = \frac{\Delta f}{f_m} = \frac{75 \text{ kHz}}{5 \text{ kHz}} = 15
+\beta = \frac{\Delta f}{f_m} = \frac{75\,\text{kHz}}{5\,\text{kHz}} = 15
 \]
 
-\textbf{Largura de banda (Carson):}
+\pause
+\textbf{Largura de banda por Carson:}
 \[
-B \approx 2(\Delta f + f_m) = 2(75 + 5) = 160 \text{ kHz}
+B \approx 2(\Delta f + f_m) = 2(75 + 5) = 160\,\text{kHz}
 \]
 
-\textbf{Número de bandas significativas:}
-\[
-n_{\max} \approx \beta + 1 = 16
-\]
+\pause
+\textbf{Bandas significativas:} $n_{\max} \approx \beta + 1 = 16$, ou seja, 16 pares de bandas laterais.
 
-$\rightarrow$ 16 pares de bandas laterais (32 componentes espectrais!)
-
-\textbf{Classificação:} WBFM ($\beta = 15 \gg 1$)
+\textbf{Classificação:} $\beta = 15 \gg 1$, WBFM.
 
 \end{frame}
 
@@ -549,40 +759,51 @@ Número de canais: $(108-88)/0.2 = 100$ canais
 
 % ============================================
 
-\begin{frame}{Discriminador de Frequência}
+\begin{frame}{Discriminador de Frequência: princípio}
 
-\textbf{Princípio:} Converter variação de frequência em variação de amplitude
+\textbf{Princípio:} converter variação de frequência em variação de amplitude e depois usar detector de envelope.
 
 \begin{center}
-\begin{tikzpicture}[>=latex, scale=0.9]
-\node[draw, rectangle, minimum width=2cm, minimum height=0.7cm] (der) at (0,0) {Derivador};
-\node[draw, rectangle, minimum width=2cm, minimum height=0.7cm] (env) at (3,0) {Det. Envelope};
+\begin{tikzpicture}[>=latex, scale=0.95]
+\node[draw, rectangle, minimum width=2cm, minimum height=0.8cm] (der) at (0,0) {Derivador};
+\node[draw, rectangle, minimum width=2.4cm, minimum height=0.8cm] (env) at (3.4,0) {Det.\ envelope};
 
 \draw[->] (-2,0) -- node[above, font=\small] {$s_{\FM}(t)$} (der);
 \draw[->] (der) -- node[above, font=\small] {AM} (env);
-\draw[->] (env) -- node[above, font=\small] {$\hat{m}(t)$} (5,0);
+\draw[->] (env) -- node[above, font=\small] {$\hat{m}(t)$} (5.8,0);
 \end{tikzpicture}
 \end{center}
 
-\textbf{Análise matemática:}
-
+\pause
+\textbf{Aplicando $d/dt$:}
 \[
-\frac{ds_{\FM}(t)}{dt} = -A_c \cdot 2\pi f_i(t) \sin[2\pi f_c t + \phi(t)]
+\frac{ds_{\FM}(t)}{dt} = -A_c \cdot 2\pi f_i(t)\,\sin[2\pi f_c t + \phi(t)]
 \]
 
-Amplitude do sinal derivado:
+\pause
+\textbf{Amplitude do sinal derivado:}
 \[
 A(t) = 2\pi A_c f_i(t) = 2\pi A_c [f_c + k_f m(t)]
 \]
 
-Após detector de envelope e filtro DC:
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Discriminador: saída e limitação}
+
+\textbf{Após detector de envelope e bloqueio DC:}
 \[
-\hat{m}(t) = K \cdot k_f m(t)
+\hat{m}(t) = K\cdot k_f\, m(t)
 \]
 
-\textbf{Problema:} Sensível a variações de amplitude (ruído AM)
+\vspace{0.3cm}
+\pause
+\textbf{Problema:} o derivador também responde a variações de amplitude. Ruído de amplitude do canal contamina a saída do detector de envelope.
 
-\textbf{Solução:} Limitador de amplitude antes do discriminador
+\vspace{0.3cm}
+\pause
+\textbf{Solução:} colocar um limitador de amplitude antes do discriminador. Como em FM toda informação está na frequência, recortar amplitude não destrói a mensagem.
 
 \end{frame}
 
@@ -631,8 +852,391 @@ Após detector de envelope e filtro DC:
 \begin{frame}{Visualização: Discriminador de Frequência}
 
 \begin{center}
-\includegraphics[width=\figFull]{figures/cap4/fm_discriminator.pdf}
+\includegraphics[height=0.78\textheight,keepaspectratio]{figures/cap4/fm_discriminator.pdf}
 \end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Derivador como filtro linear em frequência}
+
+\small
+\textbf{Operação no tempo:} $y(t) = \dfrac{ds(t)}{dt}$.
+
+\pause
+\textbf{No domínio da frequência:}
+\[
+Y(f) = j2\pi f\, S(f) \;\Longrightarrow\; \boxed{\,H_d(f) = j2\pi f\,} \;\Longrightarrow\; |H_d(f)| = 2\pi|f|.
+\]
+
+\pause
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.55]
+\draw[->] (-3.2,0) -- (3.4,0) node[right, font=\scriptsize] {$f$};
+\draw[->] (0,-0.2) -- (0,2.5) node[above, font=\scriptsize] {$|H_d(f)|$};
+\draw[thick, blue] (-2.5,2.2) -- (0,0) -- (2.5,2.2);
+\node[font=\tiny, blue] at (2.5,2.5) {$2\pi|f|$};
+\end{tikzpicture}
+\end{center}
+
+A linearidade em $f$ produz, na saída do envelope, tensão proporcional a $f_i(t) = f_c + k_f m(t)$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aproximação na banda do FM}
+
+\textbf{Banda ocupada pelo FM:} $B_T = 2(\Delta f + f_m)$ em torno de $f_c$. Basta o filtro ser linear nessa janela.
+
+\pause
+\vspace{0.15cm}
+\textbf{Linearização local em $f = f_c + \delta$:}
+\[
+|H_d(f_c + \delta)| = 2\pi f_c + 2\pi \delta
+\]
+
+A parcela $2\pi f_c$ é DC após o envelope; $2\pi\delta = 2\pi k_f m(t)$ é a mensagem.
+
+\pause
+\vspace{0.15cm}
+\textbf{Por que não usar $H_d(f) = j2\pi f$ exato?}
+\begin{itemize}\itemsep0pt
+\item Ganho cresce sem limite e amplifica ruído fora da banda.
+\item Não é realizável com componentes passivos.
+\end{itemize}
+
+\pause
+\textbf{Solução prática:} aproximar $H_d(f)$ apenas dentro de $B_T$, com um passa-faixas cujo flanco seja amplitude-linear em torno de $f_c$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Slope detector com circuito ressonante}
+
+\small
+\textbf{Tank LC com $Q$ e ressonância em $f_0$:}
+\[
+|H(f)| = \dfrac{1}{\sqrt{1 + Q^2\!\left(\dfrac{f}{f_0} - \dfrac{f_0}{f}\right)^{\!2}}}
+\]
+
+\pause
+\textbf{Ideia:} sintonizar $f_0$ ao lado de $f_c$, deixando $f_c$ no flanco do filtro.
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.62]
+\draw[->] (-0.2,0) -- (5.8,0) node[right, font=\scriptsize] {$f$};
+\draw[->] (0,-0.2) -- (0,2.7) node[above, font=\scriptsize] {$|H(f)|$};
+\draw[thick, blue] plot[domain=0.5:5.2, samples=120] (\x, {2.3/sqrt(1+30*(\x/3 - 3/\x)^2)});
+\draw[dashed] (1.7,0) node[below, font=\tiny] {$f_c$} -- (1.7,1.05);
+\draw[dashed] (3.0,0) node[below, font=\tiny] {$f_0$} -- (3.0,2.3);
+\draw[red, very thick] (1.2,0.43) -- (2.3,1.85);
+\node[red, font=\tiny, anchor=west] at (3.6,0.8) {flanco linear};
+\end{tikzpicture}
+\end{center}
+
+Em $f \approx f_c$, o flanco aproxima a rampa $2\pi(f-f_c)$ do derivador ideal.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Slope detector: análise da linearidade}
+
+\textbf{Taylor de $|H(f)|$ em torno de $f_c$:}
+\[
+|H(f_c + \delta)| = a_0 + a_1 \delta + a_2 \delta^2 + a_3 \delta^3 + \cdots
+\]
+
+\pause
+\vspace{0.1cm}
+\textbf{Saída do envelope com $\delta = k_f m(t)$, após bloqueio DC:}
+\[
+\hat m(t) \propto a_1 k_f m(t) + a_2 k_f^2 m^2(t) + a_3 k_f^3 m^3(t) + \cdots
+\]
+
+\pause
+\vspace{0.1cm}
+\textbf{Termo desejado:} $a_1 k_f m(t)$.
+
+\textbf{Distorção dominante:} $a_2 k_f^2 m^2(t)$, harmônico par da mensagem.
+
+\pause
+\vspace{0.1cm}
+\textbf{Limitação do filtro único:} $a_2 \neq 0$. A saída só é razoavelmente fiel se $|m(t)|$ for pequeno o bastante para tornar o termo quadrático desprezível.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Slope detector balanceado}
+
+\small
+\textbf{Estrutura:} dois filtros ressonantes em $f_0 \pm \Delta$, com envelopes subtraídos.
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.62]
+\draw[->] (-0.2,0) -- (6.4,0) node[right, font=\scriptsize] {$f$};
+\draw[->] (0,-2.3) -- (0,2.7);
+\draw[thick, blue] plot[domain=0.4:6.0, samples=160] (\x, {2.1/(1+((\x-2)/0.7)^2)});
+\draw[thick, red]  plot[domain=0.4:6.0, samples=160] (\x, {2.1/(1+((\x-4)/0.7)^2)});
+\draw[very thick, violet] plot[domain=0.4:6.0, samples=200] (\x, {2.1/(1+((\x-2)/0.7)^2) - 2.1/(1+((\x-4)/0.7)^2)});
+\draw[gray, dashed] (-0.2,0) -- (6.0,0);
+\draw[dashed] (3.0,-2.1) -- (3.0,2.2) node[above, font=\tiny] {$f_c$};
+\draw[dashed] (2.0,0) node[below, font=\tiny] {$f_0\!-\!\Delta$} -- (2.0,2.1);
+\draw[dashed] (4.0,0) node[below, font=\tiny] {$f_0\!+\!\Delta$} -- (4.0,2.1);
+\node[blue,    font=\scriptsize] at (1.3,2.4) {$|H_1|$};
+\node[red,     font=\scriptsize] at (4.7,2.4) {$|H_2|$};
+\node[violet,  font=\scriptsize] at (5.6,-1.6) {$H_{\rm bal}$};
+\end{tikzpicture}
+\end{center}
+
+\pause
+\textbf{Resposta combinada:} $H_{\rm bal}(f) = |H_1(f)| - |H_2(f)|$, função ímpar em torno de $f_c$, cruzando zero exatamente em $f = f_c$ e linearizando o flanco.
+
+\pause
+\textbf{Consequência:} cancelam-se os termos pares de Taylor, $H_{\rm bal}(f_c + \delta) = 2 a_1 \delta + 2 a_3 \delta^3 + \cdots$, eliminando a distorção quadrática $a_2\delta^2$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Por que só os termos ímpares sobrevivem -- I}
+
+\textbf{Simetria especular dos dois filtros:} $|H_2|$ é a imagem refletida de $|H_1|$ em torno de $f_c$. Em fórmula,
+\[
+|H_2(f_c + \delta)| = |H_1(f_c - \delta)|.
+\]
+
+\pause
+\vspace{0.3cm}
+\textbf{Expansão de Taylor de $|H_1|$ em $f_c$, escrita em variável genérica $u$:}
+\[
+|H_1(f_c + u)| = a_0 + a_1 u + a_2 u^2 + a_3 u^3 + a_4 u^4 + \cdots
+\]
+
+\pause
+\vspace{0.3cm}
+A próxima frame avalia esta série no ponto $u = -\delta$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Por que só os termos ímpares sobrevivem -- II}
+
+\textbf{Substituindo $u = -\delta$,} cada potência fica
+\[
+(-\delta)^n = (-1)^n\,\delta^n.
+\]
+
+\pause
+\vspace{0.2cm}
+Termos pares conservam o sinal, $(-1)^{2k} = +1$; ímpares trocam, $(-1)^{2k+1} = -1$:
+\[
+|H_1(f_c - \delta)| = a_0 - a_1 \delta + a_2 \delta^2 - a_3 \delta^3 + a_4 \delta^4 - \cdots
+\]
+
+\pause
+\vspace{0.2cm}
+\textbf{Pela simetria especular,} $|H_2(f_c + \delta)| = |H_1(f_c - \delta)|$:
+\[
+|H_2(f_c + \delta)| = a_0 - a_1 \delta + a_2 \delta^2 - a_3 \delta^3 + a_4 \delta^4 - \cdots
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Por que só os termos ímpares sobrevivem -- III}
+
+\textbf{Subtraindo termo a termo} as duas séries:
+\[
+H_{\rm bal}(f_c + \delta) = \sum_{n \geq 0} a_n\,\bigl[1 - (-1)^n\bigr]\,\delta^n.
+\]
+
+\pause
+\vspace{0.2cm}
+\textbf{Fator $1 - (-1)^n$:}
+\begin{itemize}\itemsep0pt
+\item $n$ par: $1 - 1 = 0$, o termo cancela.
+\item $n$ ímpar: $1 - (-1) = 2$, o termo dobra.
+\end{itemize}
+
+\pause
+\vspace{0.3cm}
+\[
+\boxed{\;H_{\rm bal}(f_c + \delta) = 2 a_1 \delta + 2 a_3 \delta^3 + 2 a_5 \delta^5 + \cdots\;}
+\]
+
+A não-linearidade dominante passa a ser cúbica, $2 a_3 \delta^3$, muito menor que $a_2 \delta^2$ do filtro único.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo numérico: definindo o filtro}
+
+\footnotesize
+\textbf{Passo 1 -- modelo do flanco:}
+\[
+|H(f)| = \frac{1}{\sqrt{1 + ((f-f_0)/W)^2}}, \quad W = 250\,\text{kHz}.
+\]
+$f_0$ é o pico, $W$ a meia-largura: em $f = f_0 \pm W$, $|H| = 1/\sqrt{2}$.
+
+\pause
+\textbf{Passo 2 -- adimensionalizar:} definindo $x \equiv (f - f_0)/W$, o filtro vira $|H| = 1/\sqrt{1 + x^2}$. A variável $x$ mede o afastamento do pico em unidades de $W$.
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.45]
+\draw[->] (-0.2,0) -- (5.6,0) node[right, font=\tiny] {$f$};
+\draw[->] (0,-0.2) -- (0,2.4);
+\draw[thick, blue] plot[domain=0.5:5.2, samples=120] (\x, {2.1/(1+((\x-3.0)/0.8)^2)});
+\draw[dashed] (3.0,0) node[below, font=\tiny] {$f_0$} -- (3.0,2.1);
+\draw[dashed] (3.8,0) node[below, font=\tiny] {$f_0\!+\!W$} -- (3.8,1.05);
+\draw[dashed] (2.2,0) node[below, font=\tiny] {$f_0\!-\!W$} -- (2.2,1.05);
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo numérico: porque $x_0 = -1$}
+
+\small
+\textbf{Passo 3 -- escolher onde colocar $f_c$.} Para que o filtro forneça uma resposta amplitude-linear, $f_c$ precisa cair no flanco, e não no pico. Escolhemos $f_c$ deslocado uma largura $W$ para a esquerda do pico:
+\[
+f_c \;=\; f_0 - W.
+\]
+
+\pause
+\vspace{0.15cm}
+\textbf{Passo 4 -- avaliar $x$ no ponto $f = f_c$.} Substituindo na definição $x = (f - f_0)/W$:
+\[
+x_0 \;=\; \left.x\right|_{f = f_c} \;=\; \frac{f_c - f_0}{W}.
+\]
+
+\pause
+\textbf{Passo 5 -- usar a escolha do passo 3.} Como $f_c - f_0 = (f_0 - W) - f_0 = -W$:
+\[
+x_0 \;=\; \frac{-W}{W} \;=\; -1.
+\]
+
+\pause
+\vspace{0.1cm}
+\textbf{Leitura:} $x_0 = -1$ significa que $f_c$ está exatamente uma meia-largura abaixo do pico, no ponto onde o flanco do filtro tem boa linearidade local. É nesse ponto que vamos expandir $|H|$ em série de Taylor.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo numérico: $a_3 \delta^3$ versus $a_2 \delta^2$}
+
+\small
+\textbf{Coeficientes de Taylor de $|H|$ em $f_c$,} obtidos derivando em $x_0 = -1$:
+\[
+a_1 = \frac{1}{2\sqrt{2}\,W}, \qquad
+a_2 = \frac{1}{8\sqrt{2}\,W^2}, \qquad
+a_3 = -\frac{1}{16\sqrt{2}\,W^3}.
+\]
+
+\pause
+\textbf{Substituindo} $W = 250$\,kHz e o desvio máximo $\delta = 75$\,kHz:
+\begin{center}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{|l|c|c|}
+\hline
+Termo & Valor & Razão ao linear \\
+\hline
+$a_1\,\delta$        & $1{,}06 \times 10^{-1}$  & $100\%$ \\
+$a_2\,\delta^2$      & $7{,}95 \times 10^{-3}$  & $7{,}5\%$ \\
+$a_3\,\delta^3$      & $-1{,}19 \times 10^{-3}$ & $1{,}1\%$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo numérico: leitura do resultado}
+
+\footnotesize
+\textbf{Razão entre cúbico e quadrático:}
+\[
+\left|\frac{a_3 \delta^3}{a_2 \delta^2}\right| = \frac{\delta}{2W} = \frac{75}{500} \approx 0{,}15.
+\]
+O termo cúbico vale cerca de um sétimo do quadrático.
+
+\pause
+\textbf{Distorção do filtro único:} $|a_2 \delta^2|/|a_1 \delta| \approx 7{,}5\%$. A parcela $a_2 \delta^2$ domina e gera segundo harmônico da mensagem.
+
+\pause
+\textbf{Distorção do detector balanceado:} $a_2 \delta^2$ se cancela; resta apenas $2 a_3 \delta^3$, com
+\[
+\frac{|a_3 \delta^3|}{|a_1 \delta|} \approx 1{,}1\%.
+\]
+
+\pause
+\textbf{Ganho prático:} o balanceamento reduz a distorção total em fator $\approx 7$, sem mudar a sensibilidade $a_1$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo de projeto: discriminador para FM broadcast}
+
+\footnotesize
+\textbf{Especificação:} receptor de FM broadcast operando na frequência intermediária.
+\begin{itemize}\itemsep0pt
+\item Portadora IF: $f_c = 10{,}7$\,MHz.
+\item Desvio máximo: $\Delta f = 85$\,kHz; áudio máximo: $f_m = 15$\,kHz.
+\item Largura de Carson: $B_T = 2(\Delta f + f_m) = 200$\,kHz.
+\end{itemize}
+
+\pause
+\vspace{0.15cm}
+\textbf{Passo 1 -- afastamento entre os filtros $\Delta$:} adotamos $\Delta = 1000$\,kHz, deixando $f_c$ bem dentro do flanco quase-linear de cada filtro:
+\[
+f_1 = f_c - \Delta = 9{,}7\,\text{MHz}, \qquad f_2 = f_c + \Delta = 11{,}7\,\text{MHz}.
+\]
+
+\pause
+\vspace{0.1cm}
+\textbf{Passo 2 -- fator de qualidade $Q$:} a banda 3\,dB de cada filtro precisa cobrir $\pm(\Delta + \Delta f)$ em torno de seu pico,
+\[
+\frac{f_0}{Q} \approx 2(\Delta + \Delta f) = 2{,}17\,\text{MHz}
+\;\Longrightarrow\; Q \approx \frac{10{,}7\,\text{MHz}}{2{,}17\,\text{MHz}} \approx 5.
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: dimensionamento de $L, C$ e verificação}
+
+\footnotesize
+\textbf{Passo 3 -- $LC$ de cada filtro:} de $\omega_0 = 1/\sqrt{LC}$, adotando $L = 1{,}0\,\mu\text{H}$,
+\[
+C = \frac{1}{(2\pi f_0)^2 L}.
+\]
+Substituindo: $C_1 \approx 269$\,pF para $f_1 = 9{,}7$\,MHz e $C_2 \approx 185$\,pF para $f_2 = 11{,}7$\,MHz.
+
+\pause
+\vspace{0.15cm}
+\textbf{Passo 4 -- verificação:}
+\begin{itemize}\itemsep0pt
+\item Excursão da frequência instantânea: $\pm 85$\,kHz em torno de $f_c$.
+\item Cai dentro do trecho quase-linear de cada flanco, longe da extremidade onde $a_2$ cresce.
+\item A subtração balanceada cancela $a_2\delta^2$; resta como distorção residual apenas $a_3\delta^3$.
+\end{itemize}
+
+\pause
+\vspace{0.1cm}
+\textbf{Resultado:} discriminador linear sobre $\pm 85$\,kHz, sintonia ajustável trocando os capacitores. A constante de demodulação é $K \propto a_1 k_f$, com $a_1$ fixado pela escolha de $Q$ e $\Delta$.
 
 \end{frame}
 
@@ -725,33 +1329,52 @@ onde $K_v$ é a sensibilidade do VCO (Hz/V).
 
 % ============================================
 
-\begin{frame}{Equação Diferencial do PLL}
+\begin{frame}{Análise em regime travado}
 
-\textbf{Filtro de loop:} $V_c(s) = F(s) E(s)$
+\textbf{Filtro de loop:} $V_c(s) = F(s)\,E(s)$.
 
-\textbf{Análise em regime travado (locked):}
-
+\textbf{Hipótese de regime travado, ou \emph{locked}:}
 \[
 \phi_o(t) \approx \phi_i(t)
 \]
 
-Para FM: $\phi_i(t) = 2\pi k_f \int m(\tau)d\tau$
-
-VCO produz: $\frac{d\phi_o}{dt} = 2\pi K_v v_c(t)$
-
-Igualando:
+\pause
+Para FM, a fase de entrada é
 \[
-v_c(t) = \frac{k_f}{K_v} m(t)
+\phi_i(t) = 2\pi k_f \int m(\tau)\,d\tau
+\quad\Rightarrow\quad \dot\phi_i(t) = 2\pi k_f m(t).
 \]
 
-\textbf{Conclusão:} $v_c(t)$ é proporcional a $m(t)$ $\rightarrow$ demodulação FM!
+\pause
+Como $\phi_o \approx \phi_i$, vale também $\dot\phi_o(t) \approx 2\pi k_f m(t)$.
 
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Saída do PLL como demodulador FM}
+
+O VCO impõe:
+\[
+\frac{d\phi_o(t)}{dt} = 2\pi K_v v_c(t)
+\]
+
+\pause
+Igualando às duas relações para $\dot\phi_o$:
+\[
+2\pi K_v\, v_c(t) = 2\pi k_f\, m(t)
+\quad\Rightarrow\quad v_c(t) = \frac{k_f}{K_v}\, m(t).
+\]
+
+\pause
 \begin{block}{Saída do PLL para FM}
 \[
-\boxed{v_c(t) = K m(t)}
+\boxed{v_c(t) = K\, m(t)}
 \]
 onde $K = k_f/K_v$ é o ganho de demodulação.
 \end{block}
+
+A tensão de controle do VCO é a mensagem demodulada.
 
 \end{frame}
 
@@ -760,30 +1383,39 @@ onde $K = k_f/K_v$ é o ganho de demodulação.
 \begin{frame}{Função de Transferência do PLL}
 
 \textbf{No domínio de Laplace:}
+\begin{align*}
+E(s) &= K_d[\Phi_i(s) - \Phi_o(s)] \\
+V_c(s) &= F(s)\,E(s) \\
+\Phi_o(s) &= \frac{2\pi K_v}{s}\,V_c(s)
+\end{align*}
 
-Erro de fase: $E(s) = K_d[\Phi_i(s) - \Phi_o(s)]$
-
-Filtro: $V_c(s) = F(s) E(s)$
-
-VCO: $\Phi_o(s) = \frac{2\pi K_v}{s} V_c(s)$
-
-\vspace{0.3cm}
-
+\pause
 \textbf{Função de transferência em malha fechada:}
-
 \[
 H(s) = \frac{\Phi_o(s)}{\Phi_i(s)} = \frac{K_d K_v F(s)}{s + K_d K_v F(s)}
 \]
 
-\textbf{Para filtro simples} $F(s) = 1$ (proporcional):
+\end{frame}
 
+% ============================================
+
+\begin{frame}{Casos comuns de filtro}
+
+\textbf{Filtro proporcional} $F(s)=1$:
 \[
 H(s) = \frac{K_d K_v}{s + K_d K_v}
 \]
 
-Sistema de 1ª ordem com constante de tempo $\tau = 1/(K_d K_v)$
+Sistema de 1ª ordem, com constante de tempo $\tau = 1/(K_d K_v)$.
 
-\textbf{Para filtro lag-lead:} Sistema de 2ª ordem (mais comum)
+\vspace{0.4cm}
+\pause
+\textbf{Filtro lag-lead:}
+\[
+F(s) = \frac{1 + s\tau_2}{1 + s\tau_1}
+\]
+
+Sistema de 2ª ordem, topologia mais usada em receptores reais. Permite ajustar separadamente o amortecimento e a frequência natural do loop.
 
 \end{frame}
 
@@ -792,7 +1424,7 @@ Sistema de 1ª ordem com constante de tempo $\tau = 1/(K_d K_v)$
 \begin{frame}{Visualização: Análise do PLL}
 
 \begin{center}
-\includegraphics[width=\figFull]{figures/cap4/pll_analysis.pdf}
+\includegraphics[height=0.78\textheight,keepaspectratio]{figures/cap4/pll_analysis.pdf}
 \end{center}
 
 \end{frame}
@@ -802,44 +1434,47 @@ Sistema de 1ª ordem com constante de tempo $\tau = 1/(K_d K_v)$
 \begin{frame}{Visualização: Processo de Travamento do PLL}
 
 \begin{center}
-\includegraphics[width=\figFull]{figures/cap4/pll_locking.pdf}
+\includegraphics[height=0.72\textheight,keepaspectratio]{figures/cap4/pll_locking.pdf}
 \end{center}
 
-\textbf{Observe:} O VCO converge para a frequência de entrada -- após o travamento, $v_c(t) \propto m(t)$.
+\small O VCO converge para a frequência de entrada. Após o travamento, $v_c(t) \propto m(t)$.
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Parâmetros do PLL}
+\begin{frame}{Parâmetros do PLL: capture e lock}
 
-\textbf{Largura de banda de captura (capture range):}
-
-Faixa de frequências onde o PLL pode adquirir lock.
-
+\textbf{Capture range} -- faixa onde o PLL adquire o travamento partindo do destravado:
 \[
-\Delta f_{capture} \approx \frac{1}{2\pi} \sqrt{2 K_d K_v F(0)}
+\Delta f_{capture} \approx \frac{1}{2\pi}\sqrt{2 K_d K_v F(0)}
 \]
 
-\textbf{Largura de banda de lock (lock range):}
-
-Faixa onde o PLL mantém lock após adquirido.
-
+\pause
+\textbf{Lock range} -- faixa onde o PLL mantém o travamento já adquirido:
 \[
 \Delta f_{lock} \approx \frac{K_d K_v}{2\pi}
 \]
 
-Sempre: $\Delta f_{lock} > \Delta f_{capture}$
+\pause
+Sempre vale $\Delta f_{lock} > \Delta f_{capture}$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Parâmetros do PLL: largura de banda do loop}
+
+\textbf{Banda do loop} $B_L$ determina resposta dinâmica e rejeição de ruído.
+
+Para filtro de 1ª ordem:
+\[
+B_L = \frac{K_d K_v}{4\pi}
+\]
 
 \vspace{0.3cm}
-
-\textbf{Largura de banda de loop:}
-
-Determina resposta dinâmica e rejeição de ruído.
-
-Para filtro de 1ª ordem: $B_L = K_d K_v / (4\pi)$
-
-\textbf{Trade-off:} Banda larga $\rightarrow$ resposta rápida, mas mais ruído
+\pause
+\textbf{Trade-off:} banda larga gera resposta rápida e mais ruído; banda estreita gera saída mais limpa porém PLL lento, que pode não acompanhar variações rápidas da mensagem.
 
 \end{frame}
 
@@ -888,7 +1523,7 @@ Para filtro de 1ª ordem: $B_L = K_d K_v / (4\pi)$
 
 \begin{frame}{Geração Direta de FM}
 
-\textbf{Método: Modulador Direto com VCO}
+\textbf{Modulador direto com VCO:}
 
 \begin{center}
 \begin{tikzpicture}[>=latex]
@@ -899,56 +1534,61 @@ Para filtro de 1ª ordem: $B_L = K_d K_v / (4\pi)$
 \end{tikzpicture}
 \end{center}
 
-\textbf{Características:}
-\begin{itemize}
-\item Simples e direto
-\item $f_{out} = f_c + k_v m(t)$
-\item VCO implementado com: varactor diode, capacitor variável, etc.
-\end{itemize}
+\textbf{Características:} simples e direto. VCO implementado com varactor, capacitor variável, ou similares.
 
-\textbf{Problema:} Instabilidade de frequência
+\pause
+\vspace{0.2cm}
+\textbf{Problema:} instabilidade de frequência. $f_c$ deriva com temperatura, componentes e tensão de alimentação. É difícil obter $f_c$ precisa e estável.
 
-\begin{itemize}
-\item $f_c$ pode derivar com temperatura, componentes
-\item Difícil obter $f_c$ precisa e estável
-\end{itemize}
-
-\textbf{Solução:} Usar método indireto (Armstrong)
+\pause
+\textbf{Solução:} usar método indireto de Armstrong.
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Método de Armstrong (Indireto)}
+\begin{frame}{Método de Armstrong: ideia geral}
 
-\textbf{Ideia:} Gerar NBFM estável, depois converter para WBFM
+\textbf{Ideia central:} gerar NBFM estável a partir de cristal e depois multiplicar a frequência até obter WBFM.
 
+\vspace{0.4cm}
+\pause
 \textbf{Processo:}
 
 \begin{enumerate}
-\item Gerar NBFM com $\beta$ pequeno e $f_c$ estável (cristal)
-\item Multiplicar frequência por $n$:
-   \begin{itemize}
-   \item $f_c \to nf_c$
-   \item $\beta \to n\beta$
-   \item $\Delta f \to n\Delta f$
-   \end{itemize}
-\item Converter para banda desejada (mixing)
-\item Repetir multiplicação se necessário
+\item Gerar NBFM com $\beta$ pequeno e $f_c$ estável de cristal.
+\item Multiplicar frequência por $n$, o que multiplica também $f_c$, $\Delta f$ e $\beta$ pelo mesmo fator.
+\item Converter para a banda desejada via mixer.
+\item Repetir multiplicação se necessário.
 \end{enumerate}
 
+\pause
 \vspace{0.3cm}
+\textbf{Efeito da multiplicação por $n$:}
+\[
+f_c \to n f_c, \qquad \beta \to n\beta, \qquad \Delta f \to n\Delta f.
+\]
 
-\textbf{Exemplo:}
+\end{frame}
 
-Gerar FM com $f_c = 100$ MHz, $\Delta f = 75$ kHz:
+% ============================================
 
-\begin{itemize}
-\item NBFM: $f_1 = 200$ kHz, $\Delta f_1 = 25$ Hz
-\item Multiplicar por $\times 64$: $f_2 = 12.8$ MHz, $\Delta f_2 = 1.6$ kHz
-\item Multiplicar por $\times 48$: $f_3 = 614.4$ MHz, $\Delta f_3 = 76.8$ kHz
-\item Misturar com 514.4 MHz: $f_c = 100$ MHz, $\Delta f = 76.8$ kHz $\approx 75$ kHz
-\end{itemize}
+\begin{frame}{Método de Armstrong: exemplo numérico}
+
+\textbf{Meta:} gerar FM com $f_c = 100$\,MHz e $\Delta f = 75$\,kHz.
+
+\vspace{0.3cm}
+\pause
+\begin{enumerate}
+\item NBFM inicial: $f_1 = 200$\,kHz, $\Delta f_1 = 25$\,Hz.
+\item Multiplicar por $\times 64$: $f_2 = 12{,}8$\,MHz, $\Delta f_2 = 1{,}6$\,kHz.
+\item Multiplicar por $\times 48$: $f_3 = 614{,}4$\,MHz, $\Delta f_3 = 76{,}8$\,kHz.
+\item Misturar com 514,4\,MHz: $f_c = 100$\,MHz, $\Delta f \approx 75$\,kHz.
+\end{enumerate}
+
+\pause
+\vspace{0.3cm}
+\textbf{Por que funciona:} a multiplicação de frequência preserva a estabilidade de cristal do oscilador inicial e amplifica o desvio até o valor comercial.
 
 \end{frame}
 
@@ -958,44 +1598,49 @@ Gerar FM com $f_c = 100$ MHz, $\Delta f = 75$ kHz:
 
 \begin{frame}{Princípio do Receptor Superheterodino}
 
-\textbf{Problema:} Demodular diretamente em $f_c$ variável é complexo
+\textbf{Problema:} demodular diretamente em $f_c$ variável é complexo, pois o filtro precisaria ser ajustável e ainda muito seletivo.
 
-\textbf{Solução:} Converter todas as frequências recebidas para uma \textbf{frequência intermediária (IF)} fixa
+\vspace{0.3cm}
+\pause
+\textbf{Solução:} converter todas as frequências recebidas para uma frequência intermediária IF fixa.
 
-\begin{center}
-\begin{tikzpicture}[>=latex, scale=0.65]
-% Blocos
-\node[draw, rectangle, minimum width=1.5cm, minimum height=0.6cm] (rf) at (0,0) {RF Amp};
-\node[draw, circle, minimum size=0.8cm] (mix) at (2.5,0) {$\times$};
-\node[draw, rectangle, minimum width=1.5cm, minimum height=0.6cm] (if) at (4.5,0) {IF Amp};
-\node[draw, rectangle, minimum width=1.5cm, minimum height=0.6cm] (det) at (7,0) {Detector};
-
-% Oscilador local
-\node[draw, rectangle, minimum width=1.5cm, minimum height=0.6cm] (lo) at (2.5,-1.8) {Osc. Local};
-
-% Conexões
-\draw[->] (-1.5,0) -- node[above, font=\footnotesize] {$f_{RF}$} (rf);
-\draw[->] (rf) -- (mix.west);
-\draw[->] (mix.east) -- node[above, font=\footnotesize] {$f_{IF}$} (if);
-\draw[->] (if) -- (det);
-\draw[->] (det) -- node[above, font=\footnotesize] {$m(t)$} (8.5,0);
-\draw[->] (lo.north) -- node[right, font=\footnotesize] {$f_{LO}$} (mix.south);
-
-% Labels
-\node[above of=rf, node distance=1cm, font=\tiny] {Sintonizado};
-\node[above of=rf, node distance=1.3cm, font=\tiny] {em $f_{RF}$};
-\node[above of=if, node distance=1cm, font=\tiny] {Fixo em};
-\node[above of=if, node distance=1.3cm, font=\tiny] {$f_{IF}$};
-\node[below of=lo, node distance=1cm, font=\footnotesize] {$f_{LO} = f_{RF} \pm f_{IF}$};
-\end{tikzpicture}
-\end{center}
-
-\textbf{Relação:}
+\vspace{0.3cm}
+\pause
+\textbf{Relação fundamental:}
 \[
 f_{IF} = |f_{RF} - f_{LO}|
 \]
 
-Ajustando $f_{LO}$, qualquer $f_{RF}$ é convertido para $f_{IF}$ fixo.
+\pause
+Ajustando $f_{LO}$, qualquer $f_{RF}$ vai para $f_{IF}$ fixo. O filtro IF é projetado uma única vez para máxima seletividade.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Diagrama do Receptor Superheterodino}
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.85]
+\node[draw, rectangle, minimum width=1.5cm, minimum height=0.7cm] (rf) at (0,0) {Amp.\ RF};
+\node[draw, circle, minimum size=0.8cm] (mix) at (2.5,0) {$\times$};
+\node[draw, rectangle, minimum width=1.5cm, minimum height=0.7cm] (if) at (4.7,0) {Amp.\ IF};
+\node[draw, rectangle, minimum width=1.6cm, minimum height=0.7cm] (det) at (7.3,0) {Detector};
+
+\node[draw, rectangle, minimum width=1.6cm, minimum height=0.7cm] (lo) at (2.5,-1.9) {Osc.\ Local};
+
+\draw[->] (-1.6,0) -- node[above, font=\footnotesize] {$f_{RF}$} (rf);
+\draw[->] (rf) -- (mix.west);
+\draw[->] (mix.east) -- node[above, font=\footnotesize] {$f_{IF}$} (if);
+\draw[->] (if) -- (det);
+\draw[->] (det) -- node[above, font=\footnotesize] {$\hat m(t)$} (9,0);
+\draw[->] (lo.north) -- node[right, font=\footnotesize] {$f_{LO}$} (mix.south);
+
+\node[below of=lo, node distance=0.9cm, font=\footnotesize] {$f_{LO} = f_{RF} \pm f_{IF}$};
+\end{tikzpicture}
+\end{center}
+
+\small Amplificador RF sintonizado em torno do canal desejado; mixer translada para a IF; amplificador IF concentra ganho e seletividade; detector demodula.
 
 \end{frame}
 
@@ -1067,7 +1712,7 @@ Fora da banda FM (88-108 MHz) $\rightarrow$ filtro RF facilmente rejeita
 \begin{frame}{Visualização: Conversão Superheterodina}
 
 \begin{center}
-\includegraphics[width=\figFull]{figures/cap4/superheterodyne_conversion.pdf}
+\includegraphics[height=0.78\textheight,keepaspectratio]{figures/cap4/superheterodyne_conversion.pdf}
 \end{center}
 
 \end{frame}
@@ -1077,10 +1722,10 @@ Fora da banda FM (88-108 MHz) $\rightarrow$ filtro RF facilmente rejeita
 \begin{frame}{Visualização: Problema da Frequência Imagem}
 
 \begin{center}
-\includegraphics[width=\figFull]{figures/cap4/superheterodyne_image.pdf}
+\includegraphics[height=0.72\textheight,keepaspectratio]{figures/cap4/superheterodyne_image.pdf}
 \end{center}
 
-O filtro RF deve rejeitar a frequência imagem antes do mixer.
+\small O filtro RF deve rejeitar a frequência imagem antes do mixer.
 
 \end{frame}
 
@@ -1194,38 +1839,45 @@ Múltiplos sinais compartilham mesmo canal, cada um em frequência diferente.
 
 % ============================================
 
-\begin{frame}{Resumo: Modulação Angular}
+\begin{frame}{Resumo: FM vs.\ PM e Espectro}
 
 \textbf{FM vs. PM:}
-\begin{itemize}
-\item FM: frequência $\propto m(t)$, fase $\propto \int m(t)$
-\item PM: fase $\propto m(t)$, frequência $\propto dm(t)/dt$
-\item FM mais comum (melhor em ruído)
+\begin{itemize}\itemsep0pt
+\item FM -- frequência $\propto m(t)$, fase $\propto \int m(t)$. Mais comum, melhor em ruído.
+\item PM -- fase $\propto m(t)$, frequência $\propto dm(t)/dt$.
 \end{itemize}
 
 \vspace{0.3cm}
-
 \textbf{Espectro FM:}
-\begin{itemize}
-\item Infinitas bandas laterais (Bessel)
-\item Largura de banda: $B \approx 2(\Delta f + f_m)$ (Carson)
-\item NBFM: $\beta \ll 1$, WBFM: $\beta \gg 1$
+\begin{itemize}\itemsep0pt
+\item Infinitas bandas laterais via Bessel.
+\item Carson: $B \approx 2(\Delta f + f_m)$.
+\item NBFM se $\beta \ll 1$; WBFM se $\beta \gg 1$.
 \end{itemize}
 
-\vspace{0.3cm}
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resumo: Demodulação e Geração}
 
 \textbf{Demodulação:}
-\begin{itemize}
-\item Discriminador de frequência
-\item PLL (mais usado atualmente)
+\begin{itemize}\itemsep0pt
+\item Discriminador de frequência -- precisa de limitador antes para rejeitar ruído de amplitude.
+\item PLL -- mais usado atualmente, intrinsecamente imune a variações de amplitude.
 \end{itemize}
 
 \vspace{0.3cm}
-
 \textbf{Geração:}
-\begin{itemize}
-\item Direta: VCO (instável)
-\item Indireta: Armstrong (estável)
+\begin{itemize}\itemsep0pt
+\item Direta -- VCO, simples mas instável em $f_c$.
+\item Indireta -- método de Armstrong, NBFM com cristal seguido de multiplicação.
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Receptor:}
+\begin{itemize}\itemsep0pt
+\item Arquitetura superheterodina, IF fixa de 10,7\,MHz no caso comercial.
 \end{itemize}
 
 \end{frame}

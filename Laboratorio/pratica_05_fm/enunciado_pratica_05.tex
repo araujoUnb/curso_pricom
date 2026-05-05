@@ -87,10 +87,6 @@ funções de Bessel de primeiro tipo $J_n(\beta)$.  Para $\beta \ll 1$
 Para $\beta \gg 1$ (WBFM), muitos termos contribuem e a largura de banda
 cresce com $\beta$.
 
-A \textbf{vantagem de FM sobre AM} para relação sinal-ruído é
-$\text{SNR}_{o,\text{FM}} \approx 3\beta^2(\beta+1)\,\text{SNR}_i$,
-proporcional ao cubo do índice para WBFM.
-
 % ======================================================
 \section{Materiais e blocos GNU Radio}
 
@@ -104,8 +100,6 @@ proporcional ao cubo do índice para WBFM.
     \texttt{Signal Source}     & Waveform Generators  & Sinal mensagem \\
     \texttt{WBFM Transmit}     & Modulators           & Modulador FM \\
     \texttt{WBFM Receive}      & Modulators           & Demodulador FM \\
-    \texttt{Noise Source}      & Waveform Generators  & Ruído gaussiano \\
-    \texttt{Add}               & Math Operators       & Inserir ruído \\
     \texttt{Throttle}          & Misc Operators       & Controle de CPU \\
     \texttt{QT GUI Freq Sink}  & Instrumentation      & Analisador de espectro \\
     \texttt{QT GUI Time Sink}  & Instrumentation      & Formas de onda \\
@@ -196,39 +190,48 @@ decima para \texttt{audio\_rate}.  Use \texttt{samp\_rate = 480000} e
   \label{tab:carson}
 \end{table}
 
-\subsection*{Etapa 3 -- Demodulação FM (28--40 min)}
+\subsection*{Etapa 3 -- Demodulação FM (28--50 min)}
 
 \begin{instrucao}[Construção do demodulador WBFM]
 \begin{enumerate}[label=\arabic*.]
   \item Adicione \texttt{WBFM Receive}:
     \begin{itemize}
       \item Decimation = 10
-      \item Deemphasis = 0 (desligar deênfase por enquanto)
     \end{itemize}
   \item Conecte: WBFM Transmit $\to$ Throttle $\to$ WBFM Receive
     $\to$ QT GUI Time Sink.
   \item Adicione um segundo canal no Time Sink para a mensagem original.
   \item Execute. Compare a mensagem original com a demodulada. A forma de
     onda deve ser praticamente idêntica.
-  \item Mude $f_m$ e $\Delta f$ com os sliders: a recuperação continua fiel?
+  \item Mude $f_m$ e $\Delta f$ com os sliders e verifique que a recuperação
+    continua fiel para diferentes valores de $\beta$.
+  \item Para $f_m = 2\,000$\,Hz, meça no Time Sink e preencha a
+    Tabela~\ref{tab:fidelidade} com os critérios objetivos para três valores
+    de $\Delta f$. 
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 4 -- Efeito do ruído: NBFM vs WBFM (40--50 min)}
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c c}
+    \toprule
+    $\Delta f$ (Hz) & $\beta$ & $T$ medido (ms) & Amplitude pico-a-pico & Distorção visível? \\
+    \midrule
+    1\,000  & 0{,}5 & & & \\
+    5\,000  & 2{,}5 & & & \\
+    10\,000 & 5{,}0 & & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Medições da demodulação por \texttt{WBFM Receive} para $f_m = 2\,000$\,Hz.
+    Distorção visível responder com sim ou não.}
+  \label{tab:fidelidade}
+\end{table}
 
-\begin{instrucao}[Inserir ruído e comparar NBFM e WBFM]
-\begin{enumerate}[label=\arabic*.]
-  \item Adicione \texttt{Noise Source} (tipo: Gaussian) e \texttt{Add}
-    entre o WBFM Transmit e o WBFM Receive.
-  \item Crie variável \texttt{noise\_amp} como \texttt{QT GUI Range}
-    (min: 0, max: 0.5, passo: 0.01, padrão: 0).
-  \item Defina $\Delta f = 1000$\,Hz, $f_m = 2000$\,Hz ($\beta = 0{,}5$,
-    \textbf{NBFM}). Aumente o ruído até a demodulação degradar. Registre
-    o valor de \texttt{noise\_amp} limite.
-  \item Repita com $\Delta f = 20000$\,Hz ($\beta = 10$, \textbf{WBFM}).
-    Anote diferença na robustez ao ruído.
-\end{enumerate}
-\end{instrucao}
+\begin{atencao}[Atenção -- escopo desta prática]
+Esta prática se concentra nos aspectos sem ruído da modulação e demodulação FM.
+A análise quantitativa do efeito de ruído e a comparação experimental entre
+AM e FM serão tratadas na Prática 07.
+\end{atencao}
 
 % ======================================================
 \section{Perguntas para o relatório}
@@ -243,29 +246,23 @@ decima para \texttt{audio\_rate}.  Use \texttt{samp\_rate = 480000} e
     experimentalmente? Discuta as fontes de erro entre $B_T^\text{Carson}$
     e $B_T^\text{medida}$.
 
-  \item Qual é a diferença entre FM de faixa estreita (NBFM, $\beta < 1$)
-    e de faixa larga (WBFM, $\beta \gg 1$) em termos de espectro e
+  \item Qual é a diferença entre FM de faixa estreita, NBFM com $\beta < 1$,
+    e de faixa larga, WBFM com $\beta \gg 1$, em termos de espectro e
     complexidade de implementação?
-
-  \item Por que o FM é mais robusto ao ruído do que o AM, especialmente para
-    índices de modulação altos? Qual é o custo desta robustez?
-
-  \item Qual foi o valor mínimo de \texttt{noise\_amp} que degradou
-    visivelmente a demodulação para NBFM e para WBFM? Que conclusão você
-    tira sobre a relação entre $\beta$ e resistência ao ruído?
 
 \end{enumerate}
 
 % ======================================================
 \section{Entregáveis}
 
+O entregável é o relatório no modelo definido no SIGAA contendo:
+
 \begin{itemize}
-  \item Relatório em PDF (\texttt{relatorio\_pratica\_05.tex}).
-  \item Espectro para pelo menos 3 combinações ($f_m$, $\Delta f$) com
+  \item Espectro para pelo menos 3 combinações de $f_m$ e $\Delta f$ com
     medição de $B_T$.
   \item Tabela de Carson preenchida com cálculo de erro.
-  \item Comparação NBFM vs WBFM com ruído (capturas de tela).
-  \item Respostas às 5 questões.
+  \item Tabela de fidelidade da demodulação preenchida.
+  \item Respostas às 3 questões.
 \end{itemize}
 
 \end{document}
