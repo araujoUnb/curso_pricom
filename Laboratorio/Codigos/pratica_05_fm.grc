@@ -194,7 +194,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     quad_rate: samp_rate
-    tau: '0'
+    tau: 75e-6
   states:
     bus_sink: false
     bus_source: false
