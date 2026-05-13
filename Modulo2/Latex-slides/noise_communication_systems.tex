@@ -1,335 +1,976 @@
 % ============================================
 % EFEITO DO RUÍDO EM SISTEMAS DE COMUNICAÇÃO
-% Baseado em Proakis, Cap. 6 - Fundamentals of Communication Systems
+% Baseado em Proakis, Cap. 6 -- Fundamentals of Communication Systems
+% Versão didática: slides curtos, intuição antes da matemática,
+% diagramas TikZ e exemplos passo a passo.
 % ============================================
 
-\subsection{Ruído em sistema banda base}
+\section{Por que estudar ruído?}
 
-\begin{frame}{Modelo de canal com ruído aditivo}
+\begin{frame}{O problema}
 
-Sistema de comunicação em banda base: sinal $m(t)$ transmitido, ruído aditivo no canal.
+Todo canal real adiciona \textbf{ruído} ao sinal transmitido. O receptor recupera uma versão corrompida da mensagem.
+
+\vspace{0.3cm}
+
+\begin{center}
+\begin{tikzpicture}[node distance=1.3cm, font=\small,
+  block/.style={rectangle, draw, rounded corners, minimum height=0.9cm, minimum width=1.8cm, align=center},
+  sum/.style={circle, draw, inner sep=1pt}]
+\node[block] (tx) {Transmissor};
+\node[block, right=of tx] (ch) {Canal};
+\node[sum, right=0.9cm of ch] (sum) {$+$};
+\node[block, right=0.9cm of sum] (rx) {Receptor};
+\node[below=0.4cm of sum] (n) {$n(t)$};
+\draw[->] (tx) -- (ch);
+\draw[->] (ch) -- (sum);
+\draw[->] (sum) -- (rx);
+\draw[->] (n) -- (sum);
+\node[left=0.05cm of tx] {$m(t)$};
+\node[right=0.05cm of rx] {$\hat m(t)$};
+\end{tikzpicture}
+\end{center}
+
+\textbf{Perguntas centrais deste capítulo:}
+\begin{itemize}
+\item Como medir a qualidade do sinal recuperado?
+\item Cada esquema de modulação reage da mesma forma ao ruído?
+\item É possível trocar banda por imunidade a ruído? E vale a pena?
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Métrica: relação sinal-ruído}
+
+A figura de mérito é a \textbf{relação sinal-ruído na saída do demodulador}:
+\[
+\left(\frac{S}{N}\right)_o = \frac{\text{potência de sinal útil}}{\text{potência de ruído}}
+\]
+
+\vspace{0.3cm}
+
+Para comparar modulações de forma justa, fixamos:
+\begin{itemize}
+\item mesma potência \textbf{recebida} $P_r$;
+\item mesma banda de mensagem $W$;
+\item mesma densidade espectral de ruído $N_0/2$.
+\end{itemize}
+
+\vspace{0.3cm}
+
+Definimos a \textbf{SNR de referência}:
+\[
+\boxed{\gamma = \frac{P_r}{N_0 W}}
+\]
+
+Toda a comparação dos sistemas analógicos é feita em função de $\gamma$.
+
+\end{frame}
+
+% ============================================
+
+\section{Ruído em sistema banda base}
+
+\begin{frame}{Modelo de canal AWGN}
+
+Sinal transmitido em \textbf{banda base}: $m(t)$ com banda $[-W, W]$.
 
 \textbf{Sinal recebido:}
 \[
 r(t) = m(t) + n(t)
 \]
-onde $n(t)$ é ruído branco gaussiano (AWGN) com densidade espectral de potência bilateral $N_0/2$ (W/Hz).
+$n(t)$: ruído branco gaussiano aditivo, PSD bilateral $S_n(f) = N_0/2$ em W/Hz.
 
 \vspace{0.3cm}
 
-\textbf{Receptor:} Filtro passa-baixas ideal com largura de banda $W$ (igual à banda de $m(t)$).
+\textbf{Receptor:} filtro passa-baixas ideal com largura de banda $W$.
 
-\textbf{Potência do sinal na saída do filtro:} $P_m$ (potência média de $m(t)$).
+\vspace{0.3cm}
 
-\textbf{Potência do ruído na saída:} Ruído filtrado em $[-W, W]$ tem potência
+\begin{center}
+\begin{tikzpicture}[node distance=1cm, font=\small,
+  block/.style={rectangle, draw, rounded corners, minimum height=0.9cm, minimum width=2cm, align=center},
+  sum/.style={circle, draw, inner sep=1pt}]
+\node (in) {$m(t)$};
+\node[sum, right=0.8cm of in] (sum) {$+$};
+\node[below=0.4cm of sum] (n) {$n(t)$};
+\node[block, right=0.8cm of sum] (lpf) {Filtro PB\\ banda $W$};
+\node[right=0.8cm of lpf] (out) {$y(t)$};
+\draw[->] (in) -- (sum);
+\draw[->] (n) -- (sum);
+\draw[->] (sum) -- (lpf);
+\draw[->] (lpf) -- (out);
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{De onde vem a potência do ruído?}
+
+\textbf{Passo 1.} O ruído branco tem PSD bilateral constante:
 \[
-N = \int_{-W}^{W} \frac{N_0}{2} df = N_0 W
+S_n(f) = \frac{N_0}{2}, \qquad \forall\, f \in \mathbb{R}
+\]
+Potência total seria infinita — todo sistema real tem filtro.
+
+\textbf{Passo 2.} Após filtro passa-baixas ideal $|H(f)| = 1$ em $|f| \le W$, zero fora:
+\[
+S_{n,\text{out}}(f) = |H(f)|^2 S_n(f) = \begin{cases} N_0/2, & |f| \le W \\ 0, & \text{caso contrário} \end{cases}
+\]
+
+\textbf{Passo 3.} Potência = integral da PSD (Wiener-Khinchin):
+\[
+P_{\text{noise}} = \int_{-\infty}^{\infty} S_{n,\text{out}}(f)\, df = \int_{-W}^{W} \frac{N_0}{2}\, df = N_0 W
 \]
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{SNR em banda base}
+\begin{frame}{Ilustração: espectro e potência}
 
-\textbf{Relação sinal-ruído na saída (SNR de referência):}
+\begin{center}
+\begin{tikzpicture}[font=\tiny, x=0.4cm, y=0.6cm]
+% Antes do filtro
+\begin{scope}
+\draw[->] (-3.2,0) -- (3.4,0) node[right] {$f$};
+\draw[->] (0,-0.1) -- (0,2.0) node[above] {$S_n(f)$};
+\draw[thick, blue] (-3,1.3) -- (3,1.3);
+\node[blue, above] at (-2.0,1.3) {$N_0/2$};
+\node[below=0.05cm] at (0,-0.1) {ruído branco};
+\end{scope}
+
+\begin{scope}[xshift=4.5cm]
+\draw[->] (-3.2,0) -- (3.4,0) node[right] {$f$};
+\draw[->] (0,-0.1) -- (0,2.0) node[above] {$|H(f)|^2$};
+\draw[thick, red] (-3,0) -- (-1.5,0) -- (-1.5,1.3) -- (1.5,1.3) -- (1.5,0) -- (3,0);
+\node[below] at (1.5,0) {$W$};
+\node[below] at (-1.5,0) {$-W$};
+\node[below=0.05cm] at (0,-0.1) {filtro PB};
+\end{scope}
+
+\begin{scope}[xshift=9cm]
+\draw[->] (-3.2,0) -- (3.4,0) node[right] {$f$};
+\draw[->] (0,-0.1) -- (0,2.0) node[above] {$S_{n,\text{out}}(f)$};
+\fill[green!40] (-1.5,0) rectangle (1.5,1.3);
+\draw[thick, green!50!black] (-3,0) -- (-1.5,0) -- (-1.5,1.3) -- (1.5,1.3) -- (1.5,0) -- (3,0);
+\node[below] at (1.5,0) {$W$};
+\node[below] at (-1.5,0) {$-W$};
+\node[green!50!black, above] at (0,0.05) {$N_0 W$};
+\end{scope}
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.2cm}
+
+\textbf{Leitura:} a PSD branca tem potência infinita; após o filtro passa-baixas ideal, a PSD vira um retângulo de altura $N_0/2$ e largura $2W$. A área $= N_0 W$ é a potência do ruído.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Potências na saída}
+
+\textbf{Sinal na saída:} $m(t)$ passa intacto pelo filtro $\Rightarrow$ potência $P_m$.
+
+\textbf{Ruído na saída:} pela derivação anterior,
+\[
+P_{\text{noise}} = \int_{-W}^{W} \frac{N_0}{2}\, df = N_0 W
+\]
+
+\textbf{SNR de saída:}
 \[
 \left(\frac{S}{N}\right)_o = \frac{P_m}{N_0 W}
 \]
 
-\begin{block}{Definição: SNR de entrada}
-Chamamos de $\gamma$ a relação sinal-ruído na entrada do demodulador (após filtro de recepção, na banda do sinal):
+\end{frame}
+
+% ============================================
+
+\begin{frame}{SNR de referência $\gamma$}
+
+\begin{block}{Definição}
+Como em banda base $P_r = P_m$, temos
 \[
-\gamma = \frac{P_r}{N_0 W}
+\left(\frac{S}{N}\right)_o = \gamma.
 \]
-onde $P_r$ é a potência do sinal recebido (na banda útil).
+Esta é a SNR de referência contra a qual mediremos todas as modulações.
 \end{block}
-
-Para banda base, $P_r = P_m$, logo $(S/N)_o = \gamma$. Este valor serve de \textbf{referência} para comparar modulações.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo: SNR banda base}
-
-\textbf{Dados:} Sinal de voz com $P_m = 10$ mW, banda $W = 4$ kHz. Canal com $N_0 = 10^{-12}$ W/Hz.
-
-\textbf{Potência do ruído na saída do filtro:}
-\[
-N = N_0 W = 10^{-12} \times 4000 = 4 \times 10^{-9} \text{ W} = 4 \text{ nW}
-\]
-
-\textbf{SNR na saída:}
-\[
-\left(\frac{S}{N}\right)_o = \frac{10 \times 10^{-3}}{4 \times 10^{-9}} = 2{,}5 \times 10^6 \approx 64 \text{ dB}
-\]
-
-\textbf{Parâmetro $\gamma$:}
-\[
-\gamma = \frac{P_m}{N_0 W} = \left(\frac{S}{N}\right)_o = 64 \text{ dB}
-\]
-
-Em sistemas reais, perdas de propagação reduzem $P_r$ e portanto $\gamma$ e $(S/N)_o$.
-
-\end{frame}
-
-% ============================================
-
-\subsection{Ruído em DSB-SC}
-
-\begin{frame}{Receptor DSB-SC com ruído}
-
-Sinal recebido: $r(t) = s(t) + n(t)$, com $s(t) = A_c m(t)\cos(2\pi f_c t)$.
-
-Ruído $n(t)$ em banda passante (centrado em $f_c$): pode ser escrito na forma em quadratura:
-\[
-n(t) = n_c(t)\cos(2\pi f_c t) - n_s(t)\sin(2\pi f_c t)
-\]
-onde $n_c(t)$ e $n_s(t)$ são ruídos de banda base, independentes, cada um com PSD $N_0$ em $[-W, W]$ e potência $N_0 W$.
 
 \vspace{0.3cm}
 
-\textbf{Demodulação coerente:} Multiplicar por $2\cos(2\pi f_c t)$ e filtrar passa-baixas em $W$.
+Todas as fórmulas $(S/N)_o = 2\gamma$, $\gamma$, $\eta\gamma$, $3\beta^2 \gamma$ que veremos a seguir usam esse mesmo $\gamma$.
 
-Saída do multiplicador:
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aplicação: SNR de um sistema de voz}
+
+\textbf{Enunciado.} Um sinal de voz com potência $P_m = 10$ mW e banda $W = 4$ kHz é transmitido em banda base por um canal AWGN com $N_0 = 10^{-12}$ W/Hz. Determine $(S/N)_o$ em dB.
+
+\begin{center}
+\begin{tikzpicture}[node distance=1cm, font=\small,
+  block/.style={rectangle, draw, rounded corners, minimum height=0.8cm, minimum width=1.6cm, align=center},
+  sum/.style={circle, draw, inner sep=1pt}]
+\node[align=center] (in) {$m(t)$\\\scriptsize $P_m\!=\!10$ mW};
+\node[sum, right=1cm of in] (sum) {$+$};
+\node[below=0.4cm of sum, align=center] (n) {$n(t)$\\\scriptsize $N_0\!=\!10^{-12}$};
+\node[block, right=1cm of sum] (lpf) {Filtro PB\\\scriptsize $W\!=\!4$ kHz};
+\node[right=1cm of lpf] (out) {$y(t)$};
+\draw[->] (in) -- (sum);
+\draw[->] (n) -- (sum);
+\draw[->] (sum) -- (lpf);
+\draw[->] (lpf) -- (out);
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: potências}
+
+\textbf{Passo 1.} Potência de ruído após o filtro:
 \[
-r(t) \cdot 2\cos(2\pi f_c t) = 2A_c m(t)\cos^2(2\pi f_c t) + 2n(t)\cos(2\pi f_c t)
-\]
-\[
-= A_c m(t)[1+\cos(4\pi f_c t)] + n_c(t)[1+\cos(4\pi f_c t)] + n_s(t)\sin(4\pi f_c t)
+P_{\text{noise}} = N_0 W = 10^{-12} \times 4 \times 10^{3} = 4 \text{ nW}
 \]
 
-Após filtro passa-baixas (remove componentes em $2f_c$):
+\textbf{Passo 2.} SNR linear:
 \[
-y(t) = A_c m(t) + n_c(t)
+\left(\frac{S}{N}\right)_o = \frac{P_m}{P_{\text{noise}}} = \frac{10 \times 10^{-3}}{4 \times 10^{-9}} = 2{,}5 \times 10^{6}
 \]
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{SNR na saída do DSB-SC}
+\begin{frame}{Resolução: conversão em dB}
 
-Saída do demodulador: $y(t) = A_c m(t) + n_c(t)$.
+\textbf{Passo 3.} Conversão para decibéis:
+\[
+\left(\frac{S}{N}\right)_o\Big|_{\text{dB}} = 10\log_{10}(2{,}5 \times 10^{6}) \approx 64 \text{ dB}
+\]
 
-\textbf{Potência do sinal na saída:} $P_{so} = A_c^2 P_m$.
+\begin{block}{Interpretação}
+Em condições ideais, a SNR de banda base é $\gamma = 64$ dB. Cada dB de perda no canal reduz esse valor diretamente.
+\end{block}
 
-\textbf{Potência do ruído na saída:} $n_c(t)$ tem PSD $N_0$ em $[-W,W]$, logo $N_o = N_0 W$.
+\end{frame}
 
-\textbf{SNR na saída:}
+% ============================================
+
+\section{Ruído em DSB-SC}
+
+\begin{frame}{Sinal recebido em DSB-SC}
+
+\textbf{Sinal transmitido:} $s(t) = A_c\, m(t)\cos(2\pi f_c t)$, ocupa banda $2W$ em torno de $f_c$.
+
+\textbf{Sinal recebido:} $r(t) = s(t) + n(t)$.
+
+\vspace{0.3cm}
+
+O ruído $n(t)$ é filtrado em torno de $f_c$ com banda $2W$. Podemos representá-lo na \textbf{forma em quadratura}:
+\[
+n(t) = n_c(t)\cos(2\pi f_c t) - n_s(t)\sin(2\pi f_c t)
+\]
+
+\textbf{Propriedades de $n_c$ e $n_s$:}
+\begin{itemize}
+\item são processos de banda base, independentes;
+\item cada um tem PSD bilateral $N_0$ em $[-W, W]$;
+\item potência de cada um: $\sigma^2_{n_c} = \sigma^2_{n_s} = N_0 W$;
+\item potência total do ruído passa-banda: $N_0 \cdot 2W$.
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demodulação coerente}
+
+Multiplicar $r(t)$ por $2\cos(2\pi f_c t)$ e passar por filtro PB com banda $W$:
+\begin{align*}
+r(t)\cdot 2\cos(2\pi f_c t)
+&= A_c m(t)[1 + \cos(4\pi f_c t)] \\
+&\quad + n_c(t)[1 + \cos(4\pi f_c t)] + n_s(t)\sin(4\pi f_c t)
+\end{align*}
+
+Após o filtro passa-baixas, ficam apenas as componentes de banda base:
+\[
+\boxed{y(t) = A_c\, m(t) + n_c(t)}
+\]
+
+\vspace{0.3cm}
+
+\textbf{Observação importante:} a componente em quadratura $n_s(t)$ foi \textbf{rejeitada}; apenas a componente em fase $n_c(t)$ aparece na saída.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{SNR de saída em DSB-SC}
+
+Da saída $y(t) = A_c m(t) + n_c(t)$:
+\begin{itemize}
+\item potência do sinal: $P_{\text{sig}} = A_c^2 P_m$;
+\item potência do ruído: $P_{\text{noise}} = N_0 W$.
+\end{itemize}
+
 \[
 \left(\frac{S}{N}\right)_o = \frac{A_c^2 P_m}{N_0 W}
 \]
 
-\textbf{Potência recebida} (sinal DSB-SC): $P_r = \frac{A_c^2 P_m}{2}$ (em 1$\Omega$). Assim $A_c^2 P_m = 2P_r$.
-
+A potência recebida do sinal modulado é:
 \[
-\left(\frac{S}{N}\right)_o = \frac{2P_r}{N_0 W} = 2\gamma
+P_r = \frac{A_c^2 P_m}{2} \quad\Rightarrow\quad A_c^2 P_m = 2 P_r
 \]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resultado em função de $\gamma$}
+
+Substituindo $A_c^2 P_m = 2 P_r$ na SNR:
 
 \begin{block}{Resultado}
-Para DSB-SC com demodulação coerente: $(S/N)_o = 2\gamma$. Ou seja, \textbf{3 dB melhor} que o sistema banda base de referência (que tem $(S/N)_o = \gamma$ quando $P_r = P_m$). Na prática, a comparação justa é mesma $P_r$: então banda base com $P_r$ tem $(S/N)_o = P_r/(N_0 W) = \gamma$; DSB-SC com mesma $P_r$ tem $(S/N)_o = 2P_r/(N_0 W) = 2\gamma$.
+\[
+\left(\frac{S}{N}\right)_o = \frac{2 P_r}{N_0 W} = 2\gamma
+\]
+DSB-SC coerente oferece $3$ dB de ganho sobre banda base com mesma $P_r$.
 \end{block}
 
+\vspace{0.3cm}
+
+Esse ganho aparece porque a demodulação coerente rejeita a componente $n_s$ do ruído em quadratura, ficando apenas com $n_c$ na saída.
+
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Comparação banda base vs.\ DSB-SC}
+\begin{frame}{Aplicação: enlace DSB-SC com perda de canal}
 
-\textbf{Banda base:} $(S/N)_o = P_m/(N_0 W)$. Se a potência recebida é $P_m$, então $(S/N)_o = \gamma$.
+\textbf{Enunciado.} Transmissor DSB-SC com $A_c = 10$ V, mensagem normalizada com $P_m = 0{,}5$, $f_c = 1$ MHz, banda $W = 4$ kHz. O enlace tem perda total $L = 60$ dB e o receptor opera com $N_0 = 10^{-15}$ W/Hz. Calcule $(S/N)_o$ em dB.
 
-\textbf{DSB-SC:} Potência transmitida em banda lateral é $P_r = A_c^2 P_m/2$. SNR na saída:
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, node distance=0.6cm,
+  block/.style={rectangle, draw, rounded corners, minimum height=0.7cm, minimum width=1.4cm, align=center}]
+\node[block] (mod) {Mod.\\DSB-SC};
+\node[block, right=of mod] (ch) {Canal\\$L\!=\!60$ dB};
+\node[block, right=of ch] (dem) {Demod.\\coerente};
+\node[left=0.1cm of mod] (m) {$m(t)$};
+\node[right=0.1cm of dem] (o) {$y(t)$};
+\draw[->] (m) -- (mod);
+\draw[->] (mod) -- node[above] {$s(t)$} (ch);
+\draw[->] (ch) -- node[above] {$r(t)$} (dem);
+\draw[->] (dem) -- (o);
+\node[below=0.05cm of mod] {\tiny $A_c\!=\!10$ V};
+\node[below=0.05cm of dem] {\tiny $N_0\!=\!10^{-15}$};
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: potências}
+
+\textbf{Passo 1.} Potência transmitida:
 \[
-\left(\frac{S}{N}\right)_o = \frac{A_c^2 P_m}{N_0 W} = \frac{2P_r}{N_0 W} = 2\gamma
+P_t = \frac{A_c^2 P_m}{2} = \frac{100 \cdot 0{,}5}{2} = 25 \text{ W}
 \]
 
-\textbf{Interpretação:} No DSB-SC, após multiplicação por portadora e filtragem, apenas a componente em fase do ruído ($n_c$) passa; a componente em quadratura ($n_s$) é rejeitada. O sinal útil é recuperado com ganho. O fator 2 em relação a $\gamma$ aparece porque $\gamma$ foi definido como $P_r/(N_0 W)$ e $P_r$ é a potência do sinal modulado (que é metade da potência na saída do demodulador em termos de contribuição útil $A_c^2 P_m = 2P_r$).
-
-\textbf{Em resumo:} Para mesma potência recebida $P_r$, o DSB-SC coerente oferece $(S/N)_o = 2\gamma$, ou seja, o dobro da SNR de um sistema banda base com a mesma potência de sinal na banda $W$.
+\textbf{Passo 2.} Potência recebida após $L = 10^6$:
+\[
+P_r = \frac{P_t}{L} = \frac{25}{10^{6}} = 25 \text{ } \mu\text{W}
+\]
 
 \end{frame}
 
 % ============================================
 
-\subsection{Ruído em SSB AM}
+\begin{frame}{Resolução: SNR final}
 
-\begin{frame}{Ruído em SSB AM}
+\textbf{Passo 3.} SNR de referência:
+\[
+\gamma = \frac{P_r}{N_0 W} = \frac{25 \times 10^{-6}}{10^{-15} \times 4 \times 10^{3}} \approx 6{,}25 \times 10^{6} \approx 68 \text{ dB}
+\]
 
-No SSB, o sinal ocupa apenas metade da banda do DSB (largura $W$ em vez de $2W$).
+\textbf{Passo 4.} Ganho de $3$ dB da demodulação coerente:
+\[
+\left(\frac{S}{N}\right)_o = 2\gamma \approx 71 \text{ dB}
+\]
 
-\textbf{Sinal recebido:} $r(t) = s_{\SSB}(t) + n(t)$, com $s_{\SSB}$ em banda $W$ (USB ou LSB).
+\end{frame}
 
-\textbf{Demodulação coerente:} Mesmo que DSB-SC (multiplicar por portadora em fase e filtrar em $W$).
+% ============================================
 
-\textbf{Análise:} O ruído em banda passante na banda do SSB tem as componentes $n_c$ e $n_s$; após demodulação coerente, apenas $n_c$ contribui na saída, com potência $N_0 W$ (a banda do filtro é $W$).
+\section{Ruído em SSB AM}
 
-\textbf{Potência do sinal:} $P_r = A_c^2 P_m/4$ (SSB tem metade da potência de um DSB com mesma amplitude de portadora, pois só uma banda lateral). Saída útil: proporcional a $A_c m(t)$, com potência $A_c^2 P_m/4 = P_r$.
+\begin{frame}{Sinal SSB com ruído}
 
+No SSB, o sinal ocupa apenas \textbf{metade da banda} do DSB: largura $W$ em torno de $f_c$.
+
+\textbf{Sinal recebido:} $r(t) = s_{\SSB}(t) + n(t)$, com o ruído filtrado apenas na banda $W$ ocupada pelo sinal.
+
+\vspace{0.3cm}
+
+A demodulação coerente é idêntica à do DSB-SC: multiplicar pela portadora em fase e filtrar em $W$.
+
+\vspace{0.3cm}
+
+\textbf{Diferenças em relação ao DSB-SC:}
+\begin{itemize}
+\item a banda de ruído na entrada é $W$, não $2W$;
+\item a potência recebida do sinal SSB, para mesma amplitude de portadora, é metade da do DSB.
+\end{itemize}
+
+Esses dois fatores se cancelam, e o resultado final é simples.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{SNR de saída em SSB}
+
+Após a álgebra, equivalente à do DSB-SC com banda $W$:
 \[
 \left(\frac{S}{N}\right)_o = \frac{P_r}{N_0 W} = \gamma
 \]
 
 \begin{block}{Resultado}
-Para SSB com demodulação coerente e mesma potência recebida $P_r$: $(S/N)_o = \gamma$ (igual ao sistema banda base de referência). Mesma performance que banda base, com economia de banda.
+SSB coerente alcança a \textbf{mesma SNR} do sistema banda base de referência, \textbf{usando metade da banda} do DSB-SC.
 \end{block}
 
-\end{frame}
-
-% ============================================
-
-\subsection{Ruído em AM convencional}
-
-\begin{frame}{Receptor AM convencional com ruído}
-
-Sinal AM: $s(t) = A_c[1 + \mu m_n(t)]\cos(2\pi f_c t)$. Receptor usa \textbf{detector de envelope}.
-
-Entrada do detector: $r(t) = s(t) + n(t)$. Escrevendo $n(t) = n_c(t)\cos(2\pi f_c t) - n_s(t)\sin(2\pi f_c t)$:
-\[
-r(t) = [A_c(1+\mu m_n) + n_c(t)]\cos(2\pi f_c t) - n_s(t)\sin(2\pi f_c t)
-\]
-
-\textbf{Envelope} de $r(t)$:
-\[
-E(t) = \sqrt{[A_c(1+\mu m_n) + n_c]^2 + n_s^2}
-\]
-
-Para \textbf{SNR de entrada alta} ($\gamma \gg 1$), o termo dominante é $A_c(1+\mu m_n)$ e o ruído perturba pouco. Aproximação linear mostra que a componente de ruído na saída é essencialmente $n_c(t)$ (em fase com a portadora).
-
-\textbf{Potência da portadora recebida:} $A_c^2/2$. Potência nas bandas laterais: $A_c^2 \mu^2 P_{m_n}/2$. Potência total:
-\[
-P_r = \frac{A_c^2}{2}\left(1 + \mu^2 P_{m_n}\right)
-\]
+\textbf{Conclusão prática:} SSB é eficiente em banda. O preço a pagar é a complexidade do receptor coerente.
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{SNR na saída do AM convencional}
+\begin{frame}{Aplicação: SSB versus DSB-SC}
 
-Para AM com detector de envelope e alta SNR, a análise mostra:
-\[
-\left(\frac{S}{N}\right)_o \approx \frac{\mu^2 P_{m_n}}{1 + \mu^2 P_{m_n}} \, \gamma
-\]
-
-Para tom único com $\mu$ (mensagem normalizada): $P_{m_n} = 1/2$,
-\[
-\left(\frac{S}{N}\right)_o \approx \frac{\mu^2}{2 + \mu^2} \, \gamma
-\]
-
-\begin{block}{Eficiência e SNR}
-O fator $\frac{\mu^2}{2+\mu^2}$ é exatamente a \textbf{eficiência de potência} $\eta$ do AM. Como $\eta \leq 1/3$ (máximo em $\mu=1$), temos $(S/N)_o \leq \gamma/3$. Ou seja, AM convencional é \textbf{pior} que banda base, DSB-SC e SSB para mesma $\gamma$.
-\end{block}
-
-\textbf{Exemplo:} $\mu = 0{,}8$, $\gamma = 1000$ (30 dB). $(S/N)_o \approx \frac{0{,}64}{2{,}64} \times 1000 \approx 242 \approx 24$ dB. Perda de cerca de 6 dB em relação a $\gamma$.
-
-\end{frame}
-
-% ============================================
-
-\subsection{Ruído em modulação angular (FM/PM)}
-
-\begin{frame}{Modelo de ruído em FM}
-
-Sinal FM recebido: $r(t) = A_c \cos[2\pi f_c t + \phi(t)] + n(t)$, com $\phi(t) = 2\pi k_f \int m(\tau)d\tau$.
-
-Ruído em banda passante: $n(t) = n_c(t)\cos(2\pi f_c t) - n_s(t)\sin(2\pi f_c t)$.
-
-\textbf{Representação de $r(t)$ em envelope e fase:}
-\[
-r(t) = E(t)\cos[2\pi f_c t + \psi(t)]
-\]
-onde $E(t)$ é o envelope e $\psi(t)$ a fase. Para \textbf{SNR de entrada alta}, $E(t) \approx A_c$ e a perturbação de fase devido ao ruído é
-\[
-\psi(t) \approx \phi(t) + \frac{n_s(t)}{A_c}
-\]
-(componente $n_s$ em quadratura modula a fase). O demodulador FM recupera $\frac{1}{2\pi}\frac{d\psi}{dt}$; o ruído na saída está relacionado a $\frac{1}{A_c}\frac{dn_s}{dt}$ (derivada do ruído), cuja PSD aumenta com $f^2$ na banda de mensagem.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{SNR na saída do FM (WBFM)}
-
-A análise completa (Proakis, Cap. 6) para FM com tom único $m(t) = A_m \cos(2\pi f_m t)$ e desvio $\Delta f = k_f A_m$ resulta em:
-\[
-\left(\frac{S}{N}\right)_o = 3\beta^2 \left(\frac{\Delta f}{f_m}\right)^2 \gamma = 3\beta^2 \gamma
-\]
-(pois $\beta = \Delta f/f_m$).
-
-\begin{block}{Relação SNR em FM}
-Para FM com índice de modulação $\beta$ e mesma $\gamma = P_r/(N_0 W)$ (usando $W$ como banda da mensagem):
-\[
-\boxed{\left(\frac{S}{N}\right)_o = 3\beta^2 \gamma}
-\]
-\end{block}
-
-\textbf{Observação:} A banda do sinal FM é $B \approx 2(\Delta f + f_m) = 2f_m(\beta+1)$. Para $\beta$ grande, FM troca \textbf{largura de banda} por \textbf{ganho de SNR}: $(S/N)_o$ cresce com $\beta^2$, enquanto a banda cresce aproximadamente com $\beta$. Isso é o trade-off clássico FM: mais banda $\Rightarrow$ mais imunidade a ruído.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo: SNR em FM}
-
-\textbf{Dados:} FM com $\beta = 5$, $\gamma = 100$ (20 dB). Banda da mensagem $f_m = 15$ kHz.
-
-\[
-\left(\frac{S}{N}\right)_o = 3 \times 25 \times 100 = 7500 \approx 38{,}75 \text{ dB}
-\]
-
-Ganho sobre banda base: $38{,}75 - 20 = 18{,}75$ dB (melhoria substancial).
-
-\textbf{Preço:} Banda FM $B \approx 2 \times 15 \times (5+1) = 180$ kHz, enquanto banda base seria $2 \times 15 = 30$ kHz. FM usa 6 vezes mais banda e ganha $\approx 3\beta^2 = 75$ em potência de SNR (cerca de 19 dB).
-
-\textbf{Comparação com AM:} Para mesmo $\gamma$, AM convencional daria $(S/N)_o \approx \eta \gamma \leq \gamma/3$; FM com $\beta=5$ dá $75\gamma$, ou seja, FM pode ser muito superior em SNR quando há banda disponível.
-
-\end{frame}
-
-% ============================================
-
-\subsection{Efeito de limiar em FM}
-
-\begin{frame}{Efeito de limiar na demodulação FM}
-
-Para \textbf{SNR de entrada baixa}, a aproximação $E(t) \approx A_c$ e $\psi(t) \approx \phi + n_s/A_c$ deixa de ser válida. O envelope e a fase sofrem distorções não lineares.
-
-\textbf{Comportamento típico:}
-\begin{itemize}
-\item Acima de um certo \textbf{SNR de entrada} (limiar), $(S/N)_o$ segue a curva $3\beta^2 \gamma$.
-\item Abaixo do limiar, $(S/N)_o$ cai rapidamente (degradação súbita).
-\end{itemize}
-
-O limiar depende de $\beta$: quanto maior $\beta$, maior tende a ser o SNR de entrada necessário para operar acima do limiar.
-
-\textbf{Causa:} Quando o ruído é forte, o vetor (sinal + ruído) pode “inverter” a fase; o discriminador FM interpreta isso como desvio de frequência espúrio, gerando picos de ruído (clique noise) e degradando $(S/N)_o$.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Curva de limiar (qualitativa)}
+\textbf{Enunciado.} Repita o problema anterior usando SSB no lugar de DSB-SC: $A_c = 10$ V, $P_m = 0{,}5$, $W = 4$ kHz, $L = 60$ dB, $N_0 = 10^{-15}$ W/Hz. Compare a banda ocupada e a SNR de saída com o caso DSB-SC.
 
 \begin{center}
-\IfFileExists{figures/cap5/fm_threshold.pdf}{%
-\includegraphics[width=\figHalf]{figures/cap5/fm_threshold.pdf}}{%
-\fbox{\parbox{0.7\textwidth}{\centering\vspace{2cm}$(S/N)_o$ vs.\ $(S/N)_i$ em FM (limiar). Rode \texttt{14\_fm\_threshold.py}\vspace{2cm}}}}
+\begin{tikzpicture}[font=\scriptsize]
+\draw[->] (-2.5,0) -- (2.5,0) node[right] {$f$};
+\draw[->] (0,-0.2) -- (0,1.8);
+\fill[blue!30] (-1.8,0) rectangle (-0.6,1.0);
+\fill[blue!30] (0.6,0) rectangle (1.8,1.0);
+\node[blue, above] at (0,1.0) {DSB: $2W$};
+\fill[red!30] (0.6,0) rectangle (1.8,0.5);
+\node[red] at (1.2,0.25) {USB};
+\node[below] at (-1.2,0) {$-f_c$};
+\node[below] at (1.2,0) {$f_c$};
+\end{tikzpicture}
 \end{center}
 
-\textbf{Região linear (acima do limiar):} $(S/N)_o = 3\beta^2 \gamma$. \textbf{Abaixo do limiar:} queda rápida de $(S/N)_o$. Em projetos práticos, escolhe-se $\beta$ e ganho de receptor para manter operação acima do limiar no pior caso de $\gamma$.
+SSB ocupa metade da banda. Como a SNR se compara?
 
 \end{frame}
 
 % ============================================
 
-\subsection{Pré-ênfase e pós-ênfase em FM}
+\begin{frame}{Resolução passo a passo}
 
-\begin{frame}{Motivação: ruído em FM e espectro}
+\textbf{Passo 1.} Em SSB com mesma $A_c$, só uma banda lateral é transmitida:
+\[
+P_r^{\SSB} = \tfrac{1}{2} P_r^{\DSB} = 12{,}5 \text{ } \mu\text{W}
+\]
 
-Na saída do demodulador FM, a PSD do ruído é aproximadamente \textbf{quadrática} em frequência: $S_{n_o}(f) \propto f^2$ na banda $[0, W]$. Assim, as \textbf{altas frequências} da mensagem sofrem mais ruído que as baixas.
+\textbf{Passo 2.} SNR de referência:
+\[
+\gamma = \frac{12{,}5 \times 10^{-6}}{10^{-15} \times 4 \times 10^{3}} \approx 3{,}1 \times 10^{6} \approx 65 \text{ dB}
+\]
 
-\textbf{Ideia:} Pré-ênfase no transmissor (amplificar altas frequências antes de modular) e pós-ênfase no receptor (atenuar altas frequências após demodular) de forma que a resposta global seja plana e o ruído seja “achatado” na banda, melhorando o SNR percebido para altas frequências.
+\textbf{Passo 3.} SNR de saída em SSB: $(S/N)_o = \gamma \approx 65$ dB.
+
+\begin{block}{Comparação}
+DSB-SC: $\approx 71$ dB com $8$ kHz. SSB: $\approx 65$ dB com $4$ kHz. SSB economiza banda mantendo SNR equivalente.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\section{Ruído em AM convencional}
+
+\begin{frame}{Detector de envelope com ruído}
+
+\textbf{Sinal AM:} $s(t) = A_c[1 + \mu\, m_n(t)]\cos(2\pi f_c t)$ com $m_n$ normalizada, $|m_n| \le 1$.
+
+\textbf{Sinal recebido:}
+\[
+r(t) = [A_c(1 + \mu m_n) + n_c(t)]\cos(2\pi f_c t) - n_s(t)\sin(2\pi f_c t)
+\]
+
+\textbf{Envelope:}
+\[
+E(t) = \sqrt{[A_c(1 + \mu m_n) + n_c]^2 + n_s^{\,2}}
+\]
+
+\vspace{0.2cm}
+
+Trata-se de uma expressão \textbf{não linear} no ruído. Para analisar, separamos dois regimes de operação.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Regime de SNR alta}
+
+Quando $A_c(1+\mu m_n) \gg \sqrt{n_c^{\,2} + n_s^{\,2}}$, a aproximação linear vale:
+\[
+E(t) \approx A_c(1 + \mu m_n) + n_c(t)
+\]
+
+A componente em quadratura $n_s$ é \textbf{rejeitada} pelo detector de envelope, igual ao caso DSB-SC.
+
+\vspace{0.3cm}
+
+\textbf{Potências:}
+\begin{itemize}
+\item Sinal útil (após bloquear DC): $A_c^2 \mu^2 P_{m_n}$;
+\item Ruído: $N_0 W$;
+\item Potência recebida total:
+\[
+P_r = \tfrac{A_c^2}{2}(1 + \mu^2 P_{m_n})
+\]
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{SNR de saída em AM convencional}
+
+Combinando os termos:
+\[
+\left(\frac{S}{N}\right)_o = \frac{\mu^2 P_{m_n}}{1 + \mu^2 P_{m_n}} \cdot \gamma = \eta\, \gamma
+\]
+
+O fator $\eta = \dfrac{\mu^2 P_{m_n}}{1 + \mu^2 P_{m_n}}$ é a \textbf{eficiência de potência} do AM.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Limite superior da eficiência}
+
+Para tom único $m_n(t) = \cos(2\pi f_m t)$ temos $P_{m_n} = 1/2$. O máximo de $\eta$ ocorre em $\mu = 1$:
+\[
+\eta_{\max} = \frac{1/2}{1 + 1/2} = \frac{1}{3}
+\]
+
+\begin{block}{Resultado}
+$(S/N)_o \le \gamma/3$ no melhor caso. AM convencional é cerca de $4{,}77$ dB pior que banda base. O preço da simplicidade do detector de envelope é uma SNR pior.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Efeito de limiar em AM por detector de envelope}
+
+Quando a SNR cai, a aproximação linear quebra. O ruído passa a dominar e o envelope é dado por uma combinação não linear.
+
+\vspace{0.3cm}
+
+\textbf{Consequência:} abaixo de uma SNR de entrada da ordem de 6--10 dB, a SNR de saída cai \textbf{muito mais rápido} do que prevê a fórmula linear.
+
+\vspace{0.3cm}
+
+\begin{itemize}
+\item Acima do limiar: $(S/N)_o \approx \eta\gamma$.
+\item Abaixo do limiar: $(S/N)_o$ degrada de forma abrupta.
+\end{itemize}
+
+\textbf{Implicação prática:} o detector de envelope só é útil enquanto a SNR de entrada se mantém suficientemente alta. Em enlaces fracos, prefere-se demodulação coerente, mesmo em AM convencional.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aplicação: eficiência e SNR em AM tom único}
+
+\textbf{Enunciado.} Um transmissor AM emite uma portadora modulada por um tom único com índice $\mu = 0{,}7$. O receptor com detector de envelope mede $\gamma = 40$ dB na entrada. Determine a eficiência $\eta$ e $(S/N)_o$ em dB.
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+\draw[->] (-0.2,0) -- (5,0) node[right] {$t$};
+\draw[->] (0,-1.3) -- (0,1.3);
+\draw[domain=0:4.5, smooth, samples=200, blue] plot (\x, {(1+0.7*cos(\x*60))*sin(\x*720)/1.7});
+\draw[domain=0:4.5, smooth, samples=100, red, thick] plot (\x, {(1+0.7*cos(\x*60))/1.7});
+\draw[domain=0:4.5, smooth, samples=100, red, thick] plot (\x, {-(1+0.7*cos(\x*60))/1.7});
+\node[red, right] at (4.5,1.0) {envelope};
+\node[blue, right] at (4.5,-0.3) {AM};
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: eficiência}
+
+\textbf{Passo 1.} Para tom único, $P_{m_n} = 1/2$. Eficiência:
+\[
+\eta = \frac{\mu^2 P_{m_n}}{1 + \mu^2 P_{m_n}} = \frac{0{,}49 \cdot 0{,}5}{1 + 0{,}49 \cdot 0{,}5} = \frac{0{,}245}{1{,}245} \approx 0{,}197
+\]
+
+\textbf{Passo 2.} Eficiência em dB:
+\[
+10\log_{10}(0{,}197) \approx -7{,}06 \text{ dB}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: SNR de saída}
+
+\textbf{Passo 3.} SNR de saída:
+\[
+\left(\frac{S}{N}\right)_o\Big|_{\text{dB}} = \eta\big|_{\text{dB}} + \gamma\big|_{\text{dB}} \approx -7{,}06 + 40 \approx 33 \text{ dB}
+\]
+
+\begin{block}{Interpretação}
+Cerca de $80\%$ da potência transmitida fica na portadora e não contribui para a SNR útil. Por isso o AM convencional perde para o DSB-SC e o SSB.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\section{Ruído em modulação angular (FM)}
+
+\begin{frame}{Sinal FM com ruído}
+
+\textbf{Sinal FM transmitido:}
+\[
+s(t) = A_c \cos\!\left[2\pi f_c t + \phi(t)\right], \qquad \phi(t) = 2\pi k_f \int_{-\infty}^{t} m(\tau)\, d\tau
+\]
+
+\textbf{Sinal recebido:}
+\[
+r(t) = A_c \cos[2\pi f_c t + \phi(t)] + n(t)
+\]
+
+Decompondo o ruído em quadratura,
+\[
+n(t) = n_c(t)\cos(2\pi f_c t) - n_s(t)\sin(2\pi f_c t),
+\]
+e reescrevendo $r(t)$ em envelope e fase:
+\[
+r(t) = E(t)\cos\!\left[2\pi f_c t + \psi(t)\right].
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aproximação para alta SNR}
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, scale=0.9]
+\draw[->] (-0.3,0) -- (4.5,0) node[right] {Re};
+\draw[->] (0,-0.3) -- (0,2.4) node[above] {Im};
+\draw[->, thick, blue] (0,0) -- (3.5,1.0) node[midway, below right] {$A_c$};
+\draw[->, thick, red] (3.5,1.0) -- (3.9,1.9) node[midway, right] {ruído};
+\draw[->, thick, black] (0,0) -- (3.9,1.9);
+\node at (4.3,2.0) {$\vec r$};
+\draw[dashed] (3.5,1.0) -- (3.5,1.9);
+\draw[dashed] (3.5,1.0) -- (3.9,1.0);
+\node[right] at (3.9,1.45) {$n_s$};
+\node[below] at (3.7,1.0) {$n_c$};
+\end{tikzpicture}
+\end{center}
+
+Quando $A_c \gg$ envelope do ruído, a fase do sinal recebido vale aproximadamente $\psi(t) \approx \phi(t) + n_s(t)/A_c$. A componente em quadratura $n_s$ é a única que perturba a fase.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{PSD do ruído na saída do demodulador FM}
+
+O demodulador FM recupera $\dfrac{1}{2\pi}\dfrac{d\psi}{dt}$. A parte de ruído na saída vale:
+\[
+n_o(t) = \frac{1}{2\pi A_c}\, \frac{d n_s(t)}{dt}
+\]
+
+Derivar no tempo equivale a multiplicar por $j2\pi f$ em frequência. Logo, a PSD do ruído na saída é \textbf{parabólica}:
+\[
+S_{n_o}(f) = \frac{f^2}{A_c^2}\, S_{n_s}(f) = \frac{N_0\, f^2}{A_c^2}, \quad |f| \le W
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{PSD parabólica: visualização}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.9, font=\scriptsize]
+\draw[->] (-2.5,0) -- (2.5,0) node[right] {$f$};
+\draw[->] (0,-0.2) -- (0,2.0) node[above] {$S_{n_o}(f)$};
+\draw[domain=-2:2, smooth, thick, blue] plot (\x, {0.4*\x*\x});
+\draw[dashed] (-2,0) -- (-2,1.6);
+\draw[dashed] (2,0) -- (2,1.6);
+\node[below] at (2,0) {$W$};
+\node[below] at (-2,0) {$-W$};
+\end{tikzpicture}
+\end{center}
+
+\textbf{Consequência:} altas frequências da mensagem são mais afetadas pelo ruído que as baixas. Isso motiva a pré/pós-ênfase, vista mais adiante.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{SNR de saída em FM}
+
+Potência total do ruído na saída:
+\[
+P_{\text{noise}} = \int_{-W}^{W} \frac{N_0 f^2}{A_c^2}\, df = \frac{2 N_0 W^3}{3 A_c^2}
+\]
+
+\textbf{Potência do sinal na saída} para tom $m(t) = A_m \cos(2\pi f_m t)$ com desvio $\Delta f = k_f A_m$:
+\[
+P_{\text{sig}} = \frac{(\Delta f)^2}{2}
+\]
+
+Aplicando a definição de $\gamma = A_c^2/(2 N_0 W)$ e tomando $W = f_m$ na banda da mensagem:
+\[
+\boxed{\left(\frac{S}{N}\right)_o = 3\beta^2\, \gamma}, \qquad \beta = \frac{\Delta f}{f_m}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{O grande trade-off do FM}
+
+\begin{itemize}
+\item SNR de saída cresce com $\beta^2$.
+\item Banda ocupada por Carson cresce com $\beta$: $B \approx 2(\beta + 1) f_m$.
+\end{itemize}
+
+\textbf{Logo:} dobrar o índice $\beta$ multiplica a SNR por 4 e a banda ocupada por aproximadamente 2.
+
+\vspace{0.3cm}
+
+\begin{block}{Princípio}
+Em FM, trocamos \textbf{largura de banda} por \textbf{ganho de SNR}. Isso só faz sentido se há banda disponível no canal e se a SNR de entrada está acima do limiar.
+\end{block}
+
+\textbf{Comparação com AM:} para $\beta = 5$ e $\gamma$ fixo, $(S/N)_o = 75 \gamma$ no FM, contra $\le \gamma/3$ no AM convencional. O FM pode estar \textbf{mais de 23 dB acima} do AM em SNR de saída.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aplicação: rádio FM broadcast}
+
+\textbf{Enunciado.} Estação de FM comercial transmite áudio com $f_m = 15$ kHz e desvio máximo $\Delta f = 75$ kHz. O receptor mede $\gamma = 20$ dB. Calcule o índice $\beta$, a banda ocupada por Carson e $(S/N)_o$.
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+\draw[->] (-3.2,0) -- (3.2,0) node[right] {$f$};
+\draw[->] (0,-0.2) -- (0,1.8) node[above] {$|S(f)|$};
+\fill[blue!30] (-2.5,0) rectangle (2.5,1.3);
+\draw[dashed] (-2.5,0) -- (-2.5,1.3);
+\draw[dashed] (2.5,0) -- (2.5,1.3);
+\draw[<->] (-2.5,1.55) -- (2.5,1.55);
+\node[above] at (0,1.55) {$B = 2(\Delta f + f_m)$};
+\node[below] at (-2.5,0) {$f_c - B/2$};
+\node[below] at (2.5,0) {$f_c + B/2$};
+\node[below] at (0,0) {$f_c$};
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: índice e banda}
+
+\textbf{Passo 1.} Índice de modulação:
+\[
+\beta = \frac{\Delta f}{f_m} = \frac{75}{15} = 5
+\]
+
+\textbf{Passo 2.} Banda ocupada por Carson:
+\[
+B = 2(\Delta f + f_m) = 2(75 + 15) = 180 \text{ kHz}
+\]
+
+A banda base do áudio seria $2 \cdot 15 = 30$ kHz. FM usa $6\times$ mais banda.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: SNR de saída}
+
+\textbf{Passo 3.} SNR de saída em FM:
+\[
+\left(\frac{S}{N}\right)_o = 3\beta^2 \gamma = 3 \cdot 25 \cdot 100 = 7500
+\]
+\[
+\left(\frac{S}{N}\right)_o\Big|_{\text{dB}} = 10\log_{10}(75) + 20 \approx 38{,}75 \text{ dB}
+\]
+
+\begin{block}{Trade-off}
+Ganho de $18{,}75$ dB pagando $6$ vezes mais banda.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\section{Efeito de limiar em FM}
+
+\begin{frame}{Quando a aproximação linear falha}
+
+A análise anterior usou $E(t) \approx A_c$ e $\psi(t) \approx \phi + n_s/A_c$. Essas aproximações são válidas apenas enquanto a SNR de entrada é \textbf{alta}.
+
+\vspace{0.3cm}
+
+Quando a SNR de entrada cai, o vetor de ruído pode ter envelope comparável a $A_c$. Nesse caso:
+\begin{itemize}
+\item o envelope total $E(t)$ pode passar perto de zero;
+\item o ponteiro de fase $\psi(t)$ pode dar uma \textbf{volta completa} em curto intervalo;
+\item o discriminador interpreta essa volta como um pulso de frequência espúrio.
+\end{itemize}
+
+Esses pulsos rápidos são chamados de \textbf{cliques de ruído} (click noise) e geram picos audíveis na saída.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Curva característica do limiar}
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, scale=0.9]
+\draw[->] (0,0) -- (6.5,0) node[right] {$\gamma$ (dB)};
+\draw[->] (0,0) -- (0,3.5) node[above] {$(S/N)_o$ (dB)};
+\draw[thick, blue] (3,1.2) -- (6,3.3);
+\draw[thick, blue] (1,0.2) .. controls (2,0.4) and (2.5,0.8) .. (3,1.2);
+\draw[dashed] (3,1.2) -- (6,2.3) node[right] {banda base};
+\draw[dashed, red] (3,0) -- (3,1.2);
+\node[below] at (3,0) {limiar};
+\node[right, blue] at (6,3.3) {$3\beta^2 \gamma$};
+\end{tikzpicture}
+\end{center}
+
+\textbf{Acima do limiar:} comportamento linear $3\beta^2 \gamma$, ganho real sobre banda base. \textbf{Abaixo do limiar:} colapso da SNR, dominado por cliques.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Critério prático de projeto}
+
+\begin{block}{Regra}
+Dimensionar o enlace para operar com $\gamma$ pelo menos $10$ dB acima do joelho da curva.
+\end{block}
+
+\vspace{0.3cm}
+
+\textbf{Como aplicar:}
+\begin{itemize}
+\item identificar $\gamma_{th}$ a partir de $\beta$ usado;
+\item estimar $\gamma$ nominal pelo orçamento do enlace;
+\item exigir $\gamma_{\text{nom}} - \gamma_{th} \ge 10$ dB;
+\item incluir margem para desvanecimentos e perdas adicionais.
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aplicação: margem de limiar em enlace FM}
+
+\textbf{Enunciado.} Receptor FM com $\beta = 5$ tem limiar em $\gamma_{th} = 10$ dB. O enlace nominal entrega $\gamma_{\text{nom}} = 22$ dB. Avalie a margem de operação e o que acontece se $\gamma$ cair para $8$ dB.
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, scale=0.85]
+\draw[->] (0,0) -- (5.5,0) node[right] {$\gamma$ (dB)};
+\draw[->] (0,0) -- (0,3.0) node[above] {$(S/N)_o$};
+\draw[thick, blue] (2.2,1.0) -- (5,2.8);
+\draw[thick, blue] (1.0,0.1) .. controls (1.8,0.3) and (2.0,0.7) .. (2.2,1.0);
+\draw[dashed, red] (2.2,0) -- (2.2,1.0);
+\fill[green!30, opacity=0.5] (2.2,0) rectangle (4.0,1.6);
+\draw[dashed, green!50!black] (4.0,0) -- (4.0,1.6);
+\node[below] at (2.2,0) {10};
+\node[below] at (4.0,0) {22};
+\node[above, green!50!black] at (3.1,1.6) {margem $12$ dB};
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: operação nominal}
+
+\textbf{Passo 1.} Margem nominal:
+\[
+M = \gamma_{\text{nom}} - \gamma_{th} = 22 - 10 = 12 \text{ dB}
+\]
+acima do critério de $10$ dB recomendado.
+
+\textbf{Passo 2.} SNR de saída nominal:
+\[
+\left(\frac{S}{N}\right)_o = 10\log(75) + 22 \approx 40{,}75 \text{ dB}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: cenário de desvanecimento}
+
+\textbf{Passo 3.} Se $\gamma$ cai para $8$ dB:
+\begin{itemize}
+\item $\gamma$ ficou $2$ dB \emph{abaixo} do limiar;
+\item a fórmula $3\beta^2 \gamma$ não vale mais;
+\item aparecem cliques audíveis e a SNR percebida cai bem mais do que $2$ dB.
+\end{itemize}
+
+\begin{block}{Lição}
+Em FM, descer abaixo do limiar não é uma queda gradual: é uma falha de qualidade brusca. Margem é essencial.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\section{Pré-ênfase e pós-ênfase em FM}
+
+\begin{frame}{Motivação: PSD parabólica}
+
+Vimos que o ruído na saída do demodulador FM tem PSD $\propto f^2$. Conclusão:
+
+\vspace{0.3cm}
+
+\begin{itemize}
+\item baixas frequências da mensagem: pouco ruído;
+\item altas frequências da mensagem: muito ruído;
+\item em áudio musical, isso degrada agudos e atapetes a chocalhos.
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Ideia:} amplificar as altas frequências da mensagem \textbf{antes} de modular, e atenuar as altas frequências \textbf{depois} de demodular. O sinal volta plano; o ruído sofre apenas a atenuação final.
 
 \end{frame}
 
@@ -337,130 +978,359 @@ Na saída do demodulador FM, a PSD do ruído é aproximadamente \textbf{quadrát
 
 \begin{frame}{Filtros de pré-ênfase e pós-ênfase}
 
-\textbf{Pré-ênfase} (no transmissor): filtro passa-altas suave, por exemplo
+\textbf{Pré-ênfase} no transmissor: filtro passa-altas suave,
 \[
-H_{pe}(f) = 1 + j\frac{f}{f_0} \quad \Rightarrow \quad |H_{pe}(f)|^2 = 1 + (f/f_0)^2
+H_{pe}(f) = 1 + j\, \frac{f}{f_0}, \qquad |H_{pe}(f)|^2 = 1 + (f/f_0)^2
 \]
-com $f_0$ da ordem de 2--3 kHz (áudio). Assim, altas frequências são enfatizadas antes da modulação FM.
 
-\textbf{Pós-ênfase} (no receptor): filtro inverso (passa-baixas) para equalizar:
+\textbf{Pós-ênfase} no receptor: filtro inverso,
 \[
-H_{de}(f) = \frac{1}{H_{pe}(f)} = \frac{1}{1 + j f/f_0}
+H_{de}(f) = \frac{1}{1 + j f/f_0}
 \]
-Após demodulação FM, o sinal passa por $H_{de}(f)$; a resposta global para o sinal é plana, e a PSD do ruído (que era $\propto f^2$) é multiplicada por $|H_{de}(f)|^2$, resultando em ruído mais uniforme na banda e melhor SNR médio, especialmente nas altas frequências.
+
+\textbf{FM broadcast:} $\tau = 1/(2\pi f_0) = 75\,\mu$s, ou seja $f_0 \approx 2{,}1$ kHz.
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Resposta em frequência típica}
+\begin{frame}{Resposta dos filtros}
 
 \begin{center}
-\IfFileExists{figures/cap5/preemphasis_deemphasis.pdf}{%
-\includegraphics[width=\figFull]{figures/cap5/preemphasis_deemphasis.pdf}}{%
-\fbox{\parbox{0.7\textwidth}{\centering\vspace{2cm}$|H_{pe}(f)|$ e $|H_{de}(f)|$. Rode \texttt{13\_preemphasis\_deemphasis.py}\vspace{2cm}}}}
+\begin{tikzpicture}[font=\footnotesize]
+\draw[->] (0,0) -- (5,0) node[right] {$f$};
+\draw[->] (0,0) -- (0,2.5) node[above] {$|H(f)|$};
+\draw[thick, blue, domain=0:4.5, samples=50] plot (\x, {sqrt(1+(\x/2)^2)});
+\draw[thick, red, domain=0:4.5, samples=50] plot (\x, {1/sqrt(1+(\x/2)^2)});
+\node[blue, right] at (4.5, 2.3) {$|H_{pe}|$};
+\node[red, right] at (4.5, 0.4) {$|H_{de}|$};
+\draw[dashed] (0,1) -- (4.5,1);
+\end{tikzpicture}
 \end{center}
 
-Constante de tempo $\tau = 1/(2\pi f_0)$ típica: 75 $\mu$s (FM broadcast), correspondendo a $f_0 \approx 2{,}1$ kHz.
+A pré-ênfase amplifica altas frequências antes da modulação. A pós-ênfase as atenua de volta no receptor, junto com o ruído acumulado.
 
 \end{frame}
 
 % ============================================
 
-\subsection{Comparação de sistemas analógicos}
+\begin{frame}{Ganho com pré/pós-ênfase}
 
-\begin{frame}{Tabela comparativa: SNR e banda}
-
-Para mesma potência recebida $P_r$ e mesma banda de mensagem $W$, definindo $\gamma = P_r/(N_0 W)$:
-
-\begin{center}
-\small
-\begin{tabular}{|l|c|c|}
-\hline
-\textbf{Sistema} & \textbf{$(S/N)_o$} & \textbf{Banda do sinal} \\
-\hline
-Banda base & $\gamma$ & $W$ \\
-\hline
-DSB-SC (coerente) & $2\gamma$ & $2W$ \\
-\hline
-SSB (coerente) & $\gamma$ & $W$ \\
-\hline
-AM convencional (envelope) & $\eta \gamma \leq \gamma/3$ & $2W$ \\
-\hline
-FM (WBFM, índice $\beta$) & $3\beta^2 \gamma$ & $\approx 2(\Delta f + f_m)$ \\
-\hline
-\end{tabular}
-\end{center}
-
-FM troca banda por SNR; AM convencional tem pior SNR que banda base e DSB-SC. SSB iguala banda base em SNR com metade da banda do DSB.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Gráfico comparativo (placeholder)}
-
-\begin{center}
-\IfFileExists{figures/cap5/snr_comparison.pdf}{%
-\includegraphics[width=\figHalf]{figures/cap5/snr_comparison.pdf}}{%
-\fbox{\parbox{0.7\textwidth}{\centering\vspace{2cm}$(S/N)_o$ vs.\ $\gamma$. Rode \texttt{11\_snr\_comparison.py}\vspace{2cm}}}}
-\end{center}
-
-\end{frame}
-
-% ============================================
-
-\subsection{Ruído térmico}
-
-\begin{frame}{Caracterização do ruído térmico}
-
-Ruído térmico em resistores e dispositivos: modelo de \textbf{ruído branco gaussiano} em banda limitada.
-
-\textbf{Densidade espectral de potência (bilateral):}
+Para mesma potência média transmitida, o ganho de SNR com pré/pós-ênfase é:
 \[
-S_n(f) = \frac{N_0}{2} \quad \text{(W/Hz)}
+G = \frac{(W/f_0)^3 / 3}{(W/f_0) - \arctan(W/f_0)}
 \]
-$N_0 = k T$ em W/Hz, com $k = 1{,}38 \times 10^{-23}$ J/K (Boltzmann) e $T$ a temperatura em Kelvin. Para $T = 290$ K: $N_0 \approx 4 \times 10^{-21}$ W/Hz.
 
-\textbf{Potência de ruído em banda $B$ (positiva):}
+Para FM broadcast com $W = 15$ kHz e $f_0 \approx 2{,}1$ kHz:
 \[
-N = \frac{N_0}{2} \times 2B = N_0 B
+G \approx 13 \text{ dB}
 \]
-(integrando de $-B$ a $B$ na forma bilateral).
 
-\begin{block}{Ruído térmico}
-Fonte térmica à temperatura $T$: PSD bilateral $N_0/2 = kT/2$; potência em banda $B$ = $N_0 B$.
+\vspace{0.3cm}
+
+\begin{block}{Resultado prático}
+A pré/pós-ênfase recupera mais de uma década de melhoria na SNR percebida em áudio FM, sem custo extra de banda.
 \end{block}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Figura: PSD do ruído térmico}
+\begin{frame}{Aplicação: cálculo do ganho com $\tau = 75\,\mu$s}
+
+\textbf{Enunciado.} FM broadcast usa constante de tempo de pré-ênfase $\tau = 75\,\mu$s. Para áudio com $W = 15$ kHz, calcule $f_0$ e o ganho $G$ proporcionado pela pré/pós-ênfase.
 
 \begin{center}
-\IfFileExists{figures/cap5/thermal_noise_psd.pdf}{%
-\includegraphics[width=\figHalf]{figures/cap5/thermal_noise_psd.pdf}}{%
-\fbox{\parbox{0.65\textwidth}{\centering\vspace{2cm}PSD $N_0/2$ e potência em banda $W$. Rode \texttt{15\_thermal\_noise\_psd.py}\vspace{2cm}}}}
+\begin{tikzpicture}[font=\scriptsize]
+\draw[->] (0,0) -- (5,0) node[right] {$f$ (kHz)};
+\draw[->] (0,0) -- (0,2.5);
+\draw[domain=0:4.5, smooth, samples=50, blue, thick] plot (\x, {0.1*\x*\x});
+\node[blue] at (3.5,2.0) {$S_{n_o}\propto f^2$};
+\draw[domain=0:4.5, smooth, samples=50, red, thick] plot (\x, {0.1*\x*\x/(1+(\x/2.1)^2)});
+\node[red] at (4.5,0.7) {com pós-\^enfase};
+\node[below] at (4.5,0) {15};
+\node[below] at (0.6,0) {2{,}1};
+\end{tikzpicture}
 \end{center}
 
 \end{frame}
 
 % ============================================
 
-\subsection{Figura de ruído e temperatura equivalente}
+\begin{frame}{Resolução: frequência de corte}
 
-\begin{frame}{Figura de ruído}
-
-Um amplificador (ou dispositivo) não é ideal: adiciona ruído interno. A \textbf{figura de ruído} $F$ mede a degradação de SNR.
-
-\textbf{Definição (ganho disponível):} Com entrada à temperatura de referência $T_0 = 290$ K,
+\textbf{Passo 1.} Frequência de corte da pré-ênfase:
 \[
-F = \frac{(S_i/N_i)}{(S_o/N_o)}
+f_0 = \frac{1}{2\pi \tau} = \frac{1}{2\pi \cdot 75 \times 10^{-6}} \approx 2122 \text{ Hz}
 \]
-onde $S_i/N_i$ é a SNR de entrada e $S_o/N_o$ a SNR de saída (ambas em potência). Para amplificador ideal, $F = 1$. Em dB: $\text{NF} = 10\log_{10} F$.
 
-\textbf{Interpretação:} $F$ é a razão entre a SNR de entrada e a SNR de saída. Quanto maior $F$, pior o bloco para o ruído.
+\textbf{Passo 2.} Razão entre a banda da mensagem e $f_0$:
+\[
+r = \frac{W}{f_0} = \frac{15\,000}{2122} \approx 7{,}07
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: ganho final}
+
+\textbf{Passo 3.} Aplicando a fórmula do ganho:
+\[
+G = \frac{r^3 / 3}{r - \arctan r} = \frac{117{,}8}{5{,}64} \approx 20{,}9
+\]
+\[
+G\big|_{\text{dB}} = 10\log_{10}(20{,}9) \approx 13{,}2 \text{ dB}
+\]
+
+\begin{block}{Resultado}
+O áudio FM ganha cerca de $13$ dB de SNR percebida graças à pré/pós-ênfase, sem aumentar potência nem banda.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\section{Comparação de sistemas analógicos}
+
+\begin{frame}{Tabela comparativa}
+
+Para mesma potência recebida $P_r$, mesma banda de mensagem $W$ e $\gamma = P_r/(N_0 W)$:
+
+\begin{center}
+\small
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Sistema} & $\boldsymbol{(S/N)_o}$ & \textbf{Banda do canal} \\
+\hline
+Banda base & $\gamma$ & $W$ \\
+\hline
+DSB-SC coerente & $2\gamma$ & $2W$ \\
+\hline
+SSB coerente & $\gamma$ & $W$ \\
+\hline
+AM convencional, envelope & $\eta\,\gamma \le \gamma/3$ & $2W$ \\
+\hline
+FM com $\beta$ & $3\beta^2 \gamma$ & $2(\beta+1)W$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.3cm}
+
+\textbf{Leituras úteis:}
+\begin{itemize}
+\item SSB iguala banda base com metade da banda do DSB.
+\item AM convencional é o pior em SNR, mas o receptor é o mais simples.
+\item FM troca banda por SNR; o ganho cresce quadraticamente com $\beta$.
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Visualizando o trade-off}
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, scale=0.85]
+\draw[->] (0,0) -- (7,0) node[right] {$\gamma$ (dB)};
+\draw[->] (0,0) -- (0,4.5) node[above] {$(S/N)_o$ (dB)};
+\foreach \x in {1,2,3,4,5,6} \draw (\x,0.05) -- (\x,-0.05) node[below] {\tiny \x0};
+\foreach \y in {1,2,3,4} \draw (0.05,\y) -- (-0.05,\y) node[left] {\tiny \y0};
+\draw[thick, black] (1,1) -- (6,4) node[right] {bb, SSB};
+\draw[thick, blue] (1,1.3) -- (6,4.3) node[right] {DSB-SC};
+\draw[thick, orange] (1.5,0.7) -- (6,3.4) node[right] {AM env.};
+\draw[thick, red] (3,1.5) -- (6,3.3);
+\draw[thick, red] (3,1.5) .. controls (2.5,1.0) and (2,0.5) .. (1.5,0.2);
+\node[right, red] at (6,3.3) {FM $\beta\!=\!5$};
+\end{tikzpicture}
+\end{center}
+
+Inclinação 1 para todas; FM acima das demais; AM abaixo; FM tem joelho de limiar.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aplicação: escolha de modulação}
+
+\textbf{Enunciado.} Enlace de áudio com $W = 10$ kHz, banda disponível $B_{\text{disp}} = 60$ kHz, $\gamma = 25$ dB e requisito $(S/N)_o \ge 32$ dB. Compare DSB-SC, AM e FM e escolha um esquema viável.
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+\foreach \i/\nm/\bw/\snr/\col in {
+  0/{Banda base}/10/25/black,
+  1/{DSB-SC}/20/28/blue,
+  2/{AM env.}/20/20/orange,
+  3/{FM $\beta\!=\!2$}/60/36/red,
+  4/{FM $\beta\!=\!5$}/120/44/purple}
+{
+  \draw[fill=\col!20, draw=\col] (1.3*\i,0) rectangle (1.3*\i+1.0,0.022*\bw);
+  \node[below, font=\tiny] at (1.3*\i+0.5,0) {\nm};
+  \node[above, font=\tiny] at (1.3*\i+0.5,0.022*\bw) {\snr\,dB};
+}
+\draw[dashed, red, thick] (-0.3,0.022*60) -- (6.7,0.022*60);
+\node[right, red, font=\tiny] at (6.7,1.32) {limite banda};
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: análise das opções}
+
+\textbf{Restrição:} $B \le 60$ kHz e $(S/N)_o \ge 32$ dB.
+
+\begin{itemize}
+\item DSB-SC: $B = 20$ kHz, $(S/N)_o = 25 + 3 = 28$ dB. \emph{Não atende.}
+\item AM: $B = 20$ kHz, $(S/N)_o \le 25 - 4{,}77 \approx 20$ dB. \emph{Não atende.}
+\item FM $\beta = 2$: $B = 60$ kHz, $(S/N)_o \approx 25 + 10{,}8 = 36$ dB. \emph{Atende.}
+\item FM $\beta = 5$: $B = 120$ kHz. \emph{Estoura banda.}
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: escolha final}
+
+\textbf{Escolha:} \textbf{FM com $\beta = 2$}.
+
+\vspace{0.3cm}
+
+Justificativa:
+\begin{itemize}
+\item ocupa exatamente $60$ kHz, dentro da banda disponível;
+\item entrega $36$ dB de SNR, acima dos $32$ dB exigidos;
+\item garante margem de $4$ dB acima do requisito.
+\end{itemize}
+
+\begin{block}{Lição}
+Quando há banda disponível, FM com $\beta$ moderado é a melhor combinação de SNR e ocupação espectral.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\section{Ruído térmico}
+
+\begin{frame}{Origem do ruído térmico}
+
+Em qualquer resistor real, agitação térmica de portadores gera um ruído de tensão. Modelado como \textbf{ruído branco gaussiano} com PSD bilateral:
+\[
+S_n(f) = \frac{N_0}{2}, \qquad N_0 = kT \quad \text{em W/Hz}
+\]
+$k = 1{,}38\times 10^{-23}$ J/K é a constante de Boltzmann.
+
+\textbf{Temperatura de referência $T_0 = 290$ K:}
+\[
+N_0 \approx 4 \times 10^{-21} \text{ W/Hz} = -174 \text{ dBm/Hz}
+\]
+
+\textbf{Potência em banda $B$ Hz:}
+\[
+P_{\text{noise}} = N_0 B
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aplicação: piso de ruído de receptores}
+
+\textbf{Enunciado.} Calcule o piso de ruído térmico em dBm para três sistemas a $T = 290$ K:
+\begin{enumerate}
+\item Wi-Fi: $B = 20$ MHz;
+\item LTE: $B = 10$ MHz;
+\item Voz: $B = 4$ kHz.
+\end{enumerate}
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, scale=0.85]
+\draw[->] (0,0) -- (5,0) node[right] {$B$ (log)};
+\draw[->] (0,0) -- (0,3.0) node[above] {$P_{\text{noise}}$ (dBm)};
+\draw[dashed, gray] (0,2.5) -- (5,2.5);
+\node[gray, right, font=\tiny] at (5,2.5) {$-174$};
+\draw[domain=0:4.5, smooth, samples=50, blue, thick] plot (\x, {2.5-\x*0.4});
+\filldraw[red] (3.7,1.02) circle (1.5pt) node[right] {\tiny Wi-Fi};
+\filldraw[red] (3.0,1.3) circle (1.5pt) node[right] {\tiny LTE};
+\filldraw[red] (0.7,2.22) circle (1.5pt) node[right] {\tiny voz};
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: aplicando a fórmula}
+
+\textbf{Fórmula geral:}
+\[
+P_{\text{noise}}\big|_{\text{dBm}} = -174 + 10\log_{10}(B)
+\]
+
+\vspace{0.3cm}
+
+\textbf{Caso 1: Wi-Fi, $B = 20$ MHz.}
+\[
+P_{\text{noise}} = -174 + 73 = -101 \text{ dBm}
+\]
+
+\textbf{Caso 2: LTE, $B = 10$ MHz.}
+\[
+P_{\text{noise}} = -174 + 70 = -104 \text{ dBm}
+\]
+
+\textbf{Caso 3: voz, $B = 4$ kHz.}
+\[
+P_{\text{noise}} = -174 + 36 = -138 \text{ dBm}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Conclusão: regra dos $10$ dB por década}
+
+\begin{block}{Lição}
+Cada década de banda custa $10$ dB de sensibilidade. Reduzir a banda do receptor é a forma mais barata de baixar o piso de ruído.
+\end{block}
+
+\vspace{0.3cm}
+
+\textbf{Comparação dos três casos:}
+\begin{itemize}
+\item $20$ MHz $\to -101$ dBm;
+\item $10$ MHz $\to -104$ dBm ($3$ dB melhor);
+\item $4$ kHz $\to -138$ dBm ($37$ dB melhor que Wi-Fi).
+\end{itemize}
+
+Por isso receptores de voz podem operar com potências muito menores que receptores de banda larga.
+
+\end{frame}
+
+% ============================================
+
+\section{Figura de ruído e temperatura equivalente}
+
+\begin{frame}{Figura de ruído $F$}
+
+Um amplificador real adiciona ruído próprio. A \textbf{figura de ruído} mede o quanto a SNR degrada ao passar pelo bloco.
+
+\textbf{Definição com entrada à temperatura $T_0 = 290$ K:}
+\[
+F = \frac{(S/N)_{\text{entrada}}}{(S/N)_{\text{saída}}} \ge 1
+\]
+
+Em dB: $\mathrm{NF} = 10\log_{10} F$.
+
+\vspace{0.3cm}
+
+\begin{block}{Interpretação}
+$F$ é o fator pelo qual a SNR se degrada no bloco. $F = 1$ corresponde a um bloco ideal sem ruído próprio.
+\end{block}
 
 \end{frame}
 
@@ -468,93 +1338,450 @@ onde $S_i/N_i$ é a SNR de entrada e $S_o/N_o$ a SNR de saída (ambas em potênc
 
 \begin{frame}{Temperatura equivalente de ruído}
 
-Em vez de $F$, pode-se usar a \textbf{temperatura equivalente de ruído} $T_e$:
+Alternativa a $F$, especialmente útil em sistemas de baixo ruído como antenas e LNAs:
 \[
-F = 1 + \frac{T_e}{T_0} \quad \Leftrightarrow \quad T_e = (F-1)T_0
+T_e = (F - 1)\, T_0
 \]
 
-Interpretação: o ruído interno do dispositivo equivale a colocar na entrada uma fonte térmica à temperatura $T_e$ (além de $T_0$). Ruído total de entrada equivalente: $N_0 B$ com $N_0 = k(T_0 + T_e)$.
+\textbf{Significado:} o ruído interno do bloco equivale a colocar uma fonte térmica à temperatura $T_e$ na entrada, em série com a temperatura do ambiente $T_0$.
 
-\textbf{Exemplo:} $F = 2$ (3 dB) $\Rightarrow$ $T_e = 290$ K. $F = 1{,}1$ $\Rightarrow$ $T_e = 29$ K.
+\vspace{0.3cm}
 
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Cascata de estágios (Fórmula de Friis)}
-
-Para estágios em cascata com ganhos disponíveis $G_1, G_2, \ldots$ e figuras de ruído $F_1, F_2, \ldots$, a figura de ruído total é
-\[
-F_{tot} = F_1 + \frac{F_2 - 1}{G_1} + \frac{F_3 - 1}{G_1 G_2} + \cdots
-\]
-
-O primeiro estágio domina se $G_1$ for alto: é importante ter baixo ruído (pequeno $F_1$) no primeiro estágio (ex.: LNA no receptor).
-
-\textbf{Exemplo:} Dois estágios: $F_1 = 2$, $G_1 = 10$; $F_2 = 4$. $F_{tot} = 2 + (4-1)/10 = 2{,}3$. Trocar a ordem (pior estágio primeiro) daria $F_{tot} = 4 + (2-1)/G_2$; se $G_2$ for pequeno, a figura total piora muito.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Figura: cascata e Friis}
-
+\textbf{Equivalências úteis:}
 \begin{center}
-\IfFileExists{figures/cap5/noise_figure_cascade.pdf}{%
-\includegraphics[width=\figHalf]{figures/cap5/noise_figure_cascade.pdf}}{%
-\fbox{\parbox{0.7\textwidth}{\centering\vspace{2cm}$F_{tot}$ vs.\ $G_1$ (Friis). Rode \texttt{12\_noise\_figure\_cascade.py}\vspace{2cm}}}}
+\small
+\begin{tabular}{|c|c|c|}
+\hline
+$F$ (linear) & $\mathrm{NF}$ (dB) & $T_e$ (K) \\
+\hline
+1{,}1 & 0{,}4 & 29 \\
+1{,}5 & 1{,}8 & 145 \\
+2 & 3 & 290 \\
+4 & 6 & 870 \\
+10 & 10 & 2610 \\
+\hline
+\end{tabular}
 \end{center}
 
 \end{frame}
 
 % ============================================
 
-\subsection{Perdas de transmissão}
+\begin{frame}{Demonstração: setup do problema}
 
-\begin{frame}{Atenuação e impacto na SNR}
+Dois blocos em cascata: $(G_1, F_1, T_1)$ seguido de $(G_2, F_2, T_2)$. Cada bloco adiciona ruído próprio, modelado por uma temperatura equivalente $T_i = (F_i - 1) T_0$ na entrada.
 
-Enlace com \textbf{perda de transmissão} $L$ (adimensional, $L > 1$): potência recebida $P_r = P_t / L$, onde $P_t$ é a potência transmitida.
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, node distance=0.6cm,
+  block/.style={rectangle, draw, rounded corners, minimum height=0.9cm, minimum width=1.5cm, align=center}]
+\node (in) {$T_0$};
+\node[block, right=of in, fill=green!10] (b1) {$G_1, F_1$\\\tiny $T_1$};
+\node[block, right=of b1, fill=yellow!10] (b2) {$G_2, F_2$\\\tiny $T_2$};
+\node[right=of b2] (out) {saída};
+\draw[->] (in) -- (b1);
+\draw[->] (b1) -- (b2);
+\draw[->] (b2) -- (out);
+\end{tikzpicture}
+\end{center}
 
-\textbf{Ruído:} Assume-se que o ruído é adicionado principalmente no receptor (temperatura de ruído do receptor). Então a potência de ruído na entrada do receptor não depende de $L$; apenas o sinal é atenuado.
+\textbf{Estratégia:} referir todo o ruído à \textbf{entrada} do bloco 1, somar as contribuições e comparar com o ruído da fonte $kT_0$.
 
-\textbf{SNR na entrada do receptor:}
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demonstração: ruído na saída}
+
+\textbf{Passo 1.} Ruído na saída devido à fonte $T_0$:
 \[
-\gamma = \frac{P_r}{N_0 W} = \frac{P_t/L}{N_0 W}
+N_{0,\text{out}} = k T_0\, G_1 G_2 B
 \]
-Ou seja, um aumento de $L$ (mais perda) reduz $\gamma$ na mesma proporção. Em dB: perda de 3 dB $\Rightarrow$ $\gamma$ cai 3 dB.
 
-\textbf{Tratamento como “bloco” de ruído:} Um atenuador à temperatura $T_0$ tem figura de ruído $F = L$ e temperatura equivalente $T_e = (L-1)T_0$, útil na cadeia de Friis.
+\textbf{Passo 2.} Ruído na saída devido ao bloco 1 (gerado em sua entrada com temperatura $T_1$, amplificado por $G_1 G_2$):
+\[
+N_{1,\text{out}} = k T_1\, G_1 G_2 B
+\]
 
-\end{frame}
+\textbf{Passo 3.} Ruído do bloco 2 (gerado em sua entrada com temperatura $T_2$, amplificado só por $G_2$):
+\[
+N_{2,\text{out}} = k T_2\, G_2 B
+\]
 
-% ============================================
-
-\subsection{Repetidores}
-
-\begin{frame}{Repetidores em enlaces analógicos}
-
-Para enlaces longos, a atenuação pode ser grande demais. \textbf{Repetidores} são usados para reamplificar o sinal.
-
-\textbf{Repetidor analógico (amplificador):} Amplifica sinal + ruído. O ruído é amplificado junto; cada repetidor adiciona ruído interno (figura de ruído). A SNR degrada a cada estágio. Em cascata de $n$ repetidores iguais, a figura total cresce e a SNR final pode ficar limitada.
-
-\textbf{Repetidor regenerativo} (digital): Detecta e regenera símbolos; o ruído não se acumula da mesma forma (cada regeneração “limpa” o sinal, desde que a taxa de erro seja baixa). Em sistemas digitais, repetidores regenerativos são preferidos para enlaces longos.
-
-\textbf{Resumo:} Em comunicação analógica, repetidores amplificadores degradam progressivamente a SNR; o número de repetidores é limitado pelo SNR mínimo aceitável no destino.
+\textbf{Passo 4.} Ruído total na saída:
+\[
+N_{\text{out}} = k B G_1 G_2 \left( T_0 + T_1 + \tfrac{T_2}{G_1} \right)
+\]
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Resumo: Efeito do ruído}
+\begin{frame}{Demonstração: temperatura equivalente da cascata}
+
+\textbf{Passo 5.} Reescrevendo $N_{\text{out}} = k\, G_1 G_2 B\, (T_0 + T_{e,\text{tot}})$, identificamos:
+\[
+\boxed{T_{e,\text{tot}} = T_1 + \frac{T_2}{G_1}}
+\]
+O ruído do bloco 2, referido à entrada, é \textbf{dividido} por $G_1$.
+
+\textbf{Passo 6.} Convertendo para figura de ruído via $F = 1 + T_e/T_0$:
+\[
+F_{\text{tot}} = 1 + \frac{T_1}{T_0} + \frac{T_2}{T_0 G_1} = 1 + (F_1 - 1) + \frac{F_2 - 1}{G_1}
+\]
+
+\begin{block}{Friis para dois estágios}
+\[
+F_{\text{tot}} = F_1 + \frac{F_2 - 1}{G_1}
+\]
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Generalização para $n$ estágios}
+
+Aplicando o mesmo raciocínio recursivamente, o ruído do estágio $k$ é referido à entrada dividindo por $G_1 G_2 \cdots G_{k-1}$:
+\[
+\boxed{F_{\text{tot}} = F_1 + \frac{F_2 - 1}{G_1} + \frac{F_3 - 1}{G_1 G_2} + \cdots + \frac{F_n - 1}{G_1 G_2 \cdots G_{n-1}}}
+\]
+
+\textbf{Implicações:}
+\begin{itemize}
+\item se $G_1$ é grande, o primeiro estágio \textbf{domina} a figura total;
+\item por isso o primeiro estágio do receptor é um LNA com $F_1$ baixo e $G_1$ alto;
+\item estágios ruidosos posteriores são tolerados, desde que o ganho prévio os mascare.
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aplicação: cadeia LNA + misturador + IF}
+
+\textbf{Enunciado.} Um front-end de receptor tem três blocos em cascata:
+\begin{itemize}
+\item LNA: $\mathrm{NF}_1 = 1{,}5$ dB, $G_1 = 20$ dB;
+\item Misturador: $\mathrm{NF}_2 = 8$ dB, $G_2 = 10$ dB;
+\item Amplificador de FI: $\mathrm{NF}_3 = 10$ dB.
+\end{itemize}
+Calcule a figura de ruído total da cadeia.
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, node distance=0.6cm,
+  block/.style={rectangle, draw, rounded corners, minimum height=0.7cm, minimum width=1.4cm, align=center}]
+\node[block, fill=green!10] (lna) {LNA\\\tiny 1{,}5 / 20};
+\node[block, right=of lna, fill=yellow!10] (mix) {Mistur.\\\tiny 8 / 10};
+\node[block, right=of mix, fill=orange!10] (ifa) {FI\\\tiny 10 / --};
+\node[left=0.1cm of lna] (in) {in};
+\node[right=0.1cm of ifa] (out) {out};
+\draw[->] (in) -- (lna);
+\draw[->] (lna) -- (mix);
+\draw[->] (mix) -- (ifa);
+\draw[->] (ifa) -- (out);
+\end{tikzpicture}
+\end{center}
+\centerline{\scriptsize Valores em dB: NF / G.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: conversão para escala linear}
+
+\textbf{Passo 1.} Figuras de ruído:
+\[
+F_1 = 10^{0{,}15} \approx 1{,}41
+\]
+\[
+F_2 = 10^{0{,}8} \approx 6{,}31, \qquad F_3 = 10
+\]
+
+\textbf{Passo 2.} Ganhos:
+\[
+G_1 = 10^{2} = 100, \qquad G_2 = 10
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: aplicação de Friis}
+
+\textbf{Passo 3.} Fórmula de Friis:
+\[
+F_{\text{tot}} = F_1 + \frac{F_2 - 1}{G_1} + \frac{F_3 - 1}{G_1 G_2}
+\]
+\[
+= 1{,}41 + \frac{5{,}31}{100} + \frac{9}{1000} \approx 1{,}47
+\]
+
+\textbf{Passo 4.} Em dB:
+\[
+\mathrm{NF}_{\text{tot}} = 10\log_{10}(1{,}47) \approx 1{,}68 \text{ dB}
+\]
+
+\begin{block}{Observação}
+A NF total ficou pouco acima da NF do LNA. O ganho de 20 dB do primeiro estágio mascara estágios ruidosos seguintes.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\section{Perdas de transmissão}
+
+\begin{frame}{Modelo de perda de canal}
+
+Um enlace com perda $L > 1$ (adimensional) entrega:
+\[
+P_r = \frac{P_t}{L}
+\]
+ao receptor. Em dB, $L_{\text{dB}} = 10\log_{10} L$ se subtrai diretamente.
+
+\vspace{0.3cm}
+
+\textbf{Hipótese:} ruído é adicionado no receptor; a potência de ruído na entrada do receptor não depende de $L$.
+
+\vspace{0.3cm}
+
+\textbf{Efeito na SNR de referência:}
+\[
+\gamma = \frac{P_r}{N_0 W} = \frac{P_t / L}{N_0 W}
+\]
+Cada decibel a mais de perda significa um decibel a menos de $\gamma$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Atenuador como bloco da cascata Friis}
+
+Um atenuador passivo à temperatura $T_0$ se comporta como um bloco com:
+\[
+G = \frac{1}{L}, \qquad F = L, \qquad T_e = (L - 1) T_0
+\]
+
+\textbf{Consequência grave:} se a perda do trecho entre antena e LNA é $L = 3$ dB, a figura efetiva já parte de $F = 2$, antes mesmo do LNA.
+
+\vspace{0.3cm}
+
+\begin{block}{Regra prática}
+Colocar o LNA \textbf{antes} de qualquer atenuação significativa: junto à antena, cabos curtos, conectores limpos.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aplicação: orçamento de enlace via satélite}
+
+\textbf{Enunciado.} Enlace descendente GEO:
+\begin{itemize}
+\item $f_c = 4$ GHz, distância $d = 36\,000$ km;
+\item $P_t = 100$ W, antenas $G_t = G_r = 30$ dBi;
+\item receptor com $T_{\text{sys}} = 100$ K, banda $B = 1$ MHz.
+\end{itemize}
+Calcule $P_r$ e $\gamma$.
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+\draw (0,0) ellipse (0.4 and 0.2);
+\node[below] at (0,-0.2) {Terra};
+\filldraw[gray] (4.0,1.6) rectangle (4.6,1.9);
+\node[above] at (4.3,1.9) {Satélite};
+\draw[->, dashed] (4.3,1.6) -- node[midway, right] {\tiny $d, L_{\text{FS}}$} (0.2,0.15);
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: potência recebida}
+
+\textbf{Passo 1.} Comprimento de onda:
+\[
+\lambda = \frac{c}{f} = \frac{3\times 10^{8}}{4\times 10^{9}} = 0{,}075 \text{ m}
+\]
+
+\textbf{Passo 2.} Perda de espaço livre:
+\[
+L_{\text{FS}}|_{\text{dB}} = 20\log_{10}\!\left(\frac{4\pi d}{\lambda}\right) \approx 195{,}6 \text{ dB}
+\]
+
+\textbf{Passo 3.} Potência recebida em dBm:
+\[
+P_r = P_t + G_t + G_r - L_{\text{FS}} = 50 + 30 + 30 - 195{,}6 \approx -85{,}6 \text{ dBm}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: piso de ruído e SNR}
+
+\textbf{Passo 4.} Piso de ruído com $T_{\text{sys}} = 100$ K, $B = 1$ MHz:
+\[
+P_{\text{noise}} = k T_{\text{sys}} B = 1{,}38\times 10^{-23} \cdot 100 \cdot 10^{6}
+\]
+\[
+\approx 1{,}38\times 10^{-15} \text{ W} \approx -118{,}6 \text{ dBm}
+\]
+
+\textbf{Passo 5.} SNR:
+\[
+\gamma = P_r - P_{\text{noise}} \approx -85{,}6 - (-118{,}6) = 33 \text{ dB}
+\]
+
+\begin{block}{Observação}
+Margem confortável para sistemas digitais; para FM analógico com $\beta$ alto, ainda é necessário verificar o limiar.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\section{Repetidores}
+
+\begin{frame}{Repetidor analógico amplificador}
+
+Para enlaces longos, a perda total inviabiliza uma única travessia. Solução: \textbf{repetidores}.
+
+\vspace{0.3cm}
+
+\textbf{Repetidor analógico} amplifica sinal e ruído juntos. Em $n$ saltos com $L$ e $F$ iguais:
+\[
+F_{\text{tot}} \approx n \cdot F
+\]
+
+A SNR final degrada \textbf{aproximadamente $10\log_{10} n$ dB} pela acumulação de ruído.
+
+\vspace{0.3cm}
+
+\textbf{Limitação fundamental:} o número de saltos é limitado pela SNR mínima aceitável no destino.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Repetidor regenerativo}
+
+Em sistemas digitais, o repetidor \textbf{detecta} os símbolos, \textbf{regenera} pulsos limpos e retransmite.
+
+\vspace{0.3cm}
 
 \begin{itemize}
-\item \textbf{Banda base:} $(S/N)_o = P_m/(N_0 W) = \gamma$ (referência).
-\item \textbf{DSB-SC (coerente):} $(S/N)_o = 2\gamma$.
-\item \textbf{SSB (coerente):} $(S/N)_o = \gamma$; mesma SNR que banda base, metade da banda do DSB.
-\item \textbf{AM convencional:} $(S/N)_o \approx \eta \gamma \leq \gamma/3$; pior que os demais.
-\item \textbf{FM (WBFM):} $(S/N)_o = 3\beta^2 \gamma$; ganho em SNR em troca de banda; efeito de limiar.
-\item \textbf{Pré/pós-ênfase:} Melhora SNR em altas frequências em FM.
-\item \textbf{Figura de ruído e Friis:} $F_{tot} = F_1 + (F_2-1)/G_1 + \cdots$; primeiro estágio crítico.
-\item \textbf{Perdas:} Reduzem $\gamma$; repetidores analógicos degradam SNR ao longo da cascata.
+\item o ruído \textbf{não se acumula} entre saltos, desde que cada detecção esteja com baixa probabilidade de erro;
+\item a degradação fica limitada pelas (poucas) decisões erradas ao longo da cadeia.
 \end{itemize}
+
+\vspace{0.3cm}
+
+\begin{block}{Por que digital ganhou}
+O repetidor regenerativo é uma das principais razões pelas quais as redes de longa distância migraram de analógico para digital ao longo do século XX.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aplicação: enlace com 5 saltos}
+
+\textbf{Enunciado.} Compare a SNR final em um enlace de longa distância com $n = 5$ saltos iguais, cada um com perda $L = 30$ dB e repetidor com $\mathrm{NF} = 4$ dB e $G = 30$ dB:
+\begin{enumerate}
+\item repetidor analógico amplificador;
+\item repetidor digital regenerativo com BER por salto de $10^{-9}$.
+\end{enumerate}
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, node distance=0.4cm,
+  rep/.style={circle, draw, fill=blue!20, minimum size=0.5cm, inner sep=0pt}]
+\node (tx) {Tx};
+\node[rep, right=0.5cm of tx] (r1) {\tiny R};
+\node[rep, right=0.6cm of r1] (r2) {\tiny R};
+\node[rep, right=0.6cm of r2] (r3) {\tiny R};
+\node[rep, right=0.6cm of r3] (r4) {\tiny R};
+\node[rep, right=0.6cm of r4] (r5) {\tiny R};
+\node[right=0.4cm of r5] (rx) {Rx};
+\draw[->] (tx) -- (r1);
+\draw[->] (r1) -- (r2);
+\draw[->] (r2) -- (r3);
+\draw[->] (r3) -- (r4);
+\draw[->] (r4) -- (r5);
+\draw[->] (r5) -- (rx);
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: caso analógico}
+
+\textbf{Passo A1.} Cada repetidor compensa exatamente a perda do trecho ($G = L$), mas o ruído de cada estágio é amplificado pelos seguintes.
+
+\textbf{Passo A2.} A figura total da cadeia cresce aproximadamente linear em $n$:
+\[
+F_{\text{tot}} \approx n \cdot F = 5 \cdot 10^{0{,}4} \approx 12{,}6 \Rightarrow \approx 11 \text{ dB}
+\]
+
+A SNR final degrada cerca de $7$ dB em relação a um único salto.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: caso digital regenerativo}
+
+\textbf{Passo D1.} A cada salto, o detector regenera o símbolo. O ruído \emph{não acumula em amplitude}.
+
+\textbf{Passo D2.} Apenas erros somam:
+\[
+\text{BER}_{\text{tot}} \le n \cdot \text{BER} = 5 \times 10^{-9}
+\]
+Degradação desprezível.
+
+\begin{block}{Conclusão}
+$5$ saltos analógicos perdem cerca de $7$ dB de SNR; o equivalente digital regenerativo permanece praticamente intacto.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\section{Resumo do capítulo}
+
+\begin{frame}{Síntese: SNR de cada sistema}
+
+Para $\gamma = P_r/(N_0 W)$ fixo:
+
+\begin{itemize}
+\item Banda base: $(S/N)_o = \gamma$.
+\item DSB-SC coerente: $(S/N)_o = 2\gamma$.
+\item SSB coerente: $(S/N)_o = \gamma$.
+\item AM convencional, envelope: $(S/N)_o \le \gamma/3$, com efeito de limiar.
+\item FM, $\beta$: $(S/N)_o = 3\beta^2 \gamma$, com efeito de limiar.
+\item Pré/pós-ênfase em FM acrescenta $\sim 13$ dB para áudio.
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Síntese: ruído de hardware e enlace}
+
+\begin{itemize}
+\item Ruído térmico: $N_0 = kT$; piso de $-174$ dBm/Hz a $290$ K.
+\item Figura de ruído $F$ e temperatura $T_e = (F-1)T_0$.
+\item Friis: $F_{\text{tot}} = F_1 + (F_2-1)/G_1 + \cdots$; primeiro estágio domina.
+\item Perdas reduzem $\gamma$ na mesma quantidade em dB.
+\item Atenuador passivo equivale a $F = L$, $T_e = (L-1)T_0$.
+\item Repetidor analógico acumula ruído; regenerativo digital não.
+\end{itemize}
+
+\vspace{0.3cm}
+
+\textbf{Mensagem final:} projetar um receptor analógico significa equilibrar três coisas: \textbf{potência}, \textbf{banda} e \textbf{ruído}. Cada esquema de modulação escolhe um ponto diferente nesse triângulo.
 
 \end{frame}
