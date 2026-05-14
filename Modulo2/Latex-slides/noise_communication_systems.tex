@@ -42,30 +42,40 @@ Todo canal real adiciona \textbf{ruído} ao sinal transmitido. O receptor recupe
 
 % ============================================
 
-\begin{frame}{Métrica: relação sinal-ruído}
+\begin{frame}{De onde vem o ruído?}
 
-A figura de mérito é a \textbf{relação sinal-ruído na saída do demodulador}:
-\[
-\left(\frac{S}{N}\right)_o = \frac{\text{potência de sinal útil}}{\text{potência de ruído}}
-\]
+Ruído é qualquer perturbação aleatória que se soma ao sinal e que o receptor não consegue prever. As fontes mais comuns são:
+
+\begin{itemize}
+\item ruído térmico: agitação dos elétrons em resistores, cabos e componentes acima do zero absoluto;
+\item ruído shot: flutuações na corrente em dispositivos semicondutores e válvulas;
+\item ruído de cintilação, do tipo $1/f$: dominante em baixas frequências em circuitos eletrônicos;
+\item ruído atmosférico: descargas elétricas e fenômenos naturais, importantes em HF;
+\item ruído cósmico e galáctico: radiação captada pela antena, relevante em micro-ondas;
+\item interferência de outros transmissores e equipamentos.
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Modelo agregado de ruído}
+
+Em vez de tratar cada fonte separadamente, somamos todas as contribuições em um único termo aleatório $n(t)$ visto na entrada do receptor.
 
 \vspace{0.3cm}
 
-Para comparar modulações de forma justa, fixamos:
+Esse termo agregado tem três propriedades que serão usadas ao longo do capítulo:
+
 \begin{itemize}
-\item mesma potência \textbf{recebida} $P_r$;
-\item mesma banda de mensagem $W$;
-\item mesma densidade espectral de ruído $N_0/2$.
+\item é aditivo: aparece somado ao sinal recebido;
+\item tem média nula e é estatisticamente estacionário no intervalo de interesse;
+\item é aproximadamente branco na banda do receptor, com densidade espectral de potência constante.
 \end{itemize}
 
 \vspace{0.3cm}
 
-Definimos a \textbf{SNR de referência}:
-\[
-\boxed{\gamma = \frac{P_r}{N_0 W}}
-\]
-
-Toda a comparação dos sistemas analógicos é feita em função de $\gamma$.
+Esse modelo é conhecido como ruído branco gaussiano aditivo, ou AWGN, e será nossa hipótese de trabalho.
 
 \end{frame}
 
@@ -203,7 +213,7 @@ Esta é a SNR de referência contra a qual mediremos todas as modulações.
 
 \vspace{0.3cm}
 
-Todas as fórmulas $(S/N)_o = 2\gamma$, $\gamma$, $\eta\gamma$, $3\beta^2 \gamma$ que veremos a seguir usam esse mesmo $\gamma$.
+Todas as fórmulas $(S/N)_o = \gamma$, $\eta\gamma$, $3\beta^2 \gamma$ que veremos a seguir usam esse mesmo $\gamma$.
 
 \end{frame}
 
@@ -268,24 +278,25 @@ Em condições ideais, a SNR de banda base é $\gamma = 64$ dB. Cada dB de perda
 
 \begin{frame}{Sinal recebido em DSB-SC}
 
-\textbf{Sinal transmitido:} $s(t) = A_c\, m(t)\cos(2\pi f_c t)$, ocupa banda $2W$ em torno de $f_c$.
-
-\textbf{Sinal recebido:} $r(t) = s(t) + n(t)$.
-
-\vspace{0.3cm}
-
-O ruído $n(t)$ é filtrado em torno de $f_c$ com banda $2W$. Podemos representá-lo na \textbf{forma em quadratura}:
+\textbf{Sinal transmitido:}
 \[
-n(t) = n_c(t)\cos(2\pi f_c t) - n_s(t)\sin(2\pi f_c t)
+u(t) = A_c\, m(t)\cos(2\pi f_c t), \quad \text{banda } 2W \text{ em torno de } f_c.
 \]
 
-\textbf{Propriedades de $n_c$ e $n_s$:}
-\begin{itemize}
-\item são processos de banda base, independentes;
-\item cada um tem PSD bilateral $N_0$ em $[-W, W]$;
-\item potência de cada um: $\sigma^2_{n_c} = \sigma^2_{n_s} = N_0 W$;
-\item potência total do ruído passa-banda: $N_0 \cdot 2W$.
-\end{itemize}
+\vspace{0.2cm}
+
+\textbf{Sinal recebido}, com o ruído passa-banda em quadratura:
+\[
+r(t) = A_c m(t)\cos(2\pi f_c t) + n_c(t)\cos(2\pi f_c t) - n_s(t)\sin(2\pi f_c t).
+\]
+
+\vspace{0.2cm}
+
+O receptor tem filtro passa-banda de largura $B_T = 2W$ centrado em $f_c$. O ruído após esse filtro tem PSD bilateral $N_0/2$ na faixa $|f-f_c|<W$ e potência total:
+\[
+P_n = \int_{-\infty}^{\infty} S_n(f)\,df = \tfrac{N_0}{2}\cdot 4W = 2 W N_0.
+\]
+As componentes em quadratura têm $\sigma^2_{n_c} = \sigma^2_{n_s} = P_n = 2 W N_0$.
 
 \end{frame}
 
@@ -293,41 +304,39 @@ n(t) = n_c(t)\cos(2\pi f_c t) - n_s(t)\sin(2\pi f_c t)
 
 \begin{frame}{Demodulação coerente}
 
-Multiplicar $r(t)$ por $2\cos(2\pi f_c t)$ e passar por filtro PB com banda $W$:
+Multiplicar $r(t)$ por $\cos(2\pi f_c t)$ e filtrar em $W$:
 \begin{align*}
-r(t)\cdot 2\cos(2\pi f_c t)
-&= A_c m(t)[1 + \cos(4\pi f_c t)] \\
-&\quad + n_c(t)[1 + \cos(4\pi f_c t)] + n_s(t)\sin(4\pi f_c t)
+r(t)\cos(2\pi f_c t)
+&= \tfrac{1}{2} A_c m(t) + \tfrac{1}{2} A_c m(t)\cos(4\pi f_c t) \\
+&\quad + \tfrac{1}{2} n_c(t) + \tfrac{1}{2}\bigl[n_c(t)\cos(4\pi f_c t) - n_s(t)\sin(4\pi f_c t)\bigr]
 \end{align*}
 
-Após o filtro passa-baixas, ficam apenas as componentes de banda base:
+O filtro passa-baixas rejeita os termos em $2f_c$:
 \[
-\boxed{y(t) = A_c\, m(t) + n_c(t)}
+\boxed{y(t) = \tfrac{1}{2}\bigl[A_c m(t) + n_c(t)\bigr]}
 \]
 
-\vspace{0.3cm}
+\vspace{0.2cm}
 
-\textbf{Observação importante:} a componente em quadratura $n_s(t)$ foi \textbf{rejeitada}; apenas a componente em fase $n_c(t)$ aparece na saída.
+A componente em quadratura $n_s(t)$ é eliminada; apenas $n_c(t)$ aparece na saída.
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{SNR de saída em DSB-SC}
+\begin{frame}{Potências na saída}
 
-Da saída $y(t) = A_c m(t) + n_c(t)$:
+Da saída $y(t) = \frac{1}{2}[A_c m(t) + n_c(t)]$:
 \begin{itemize}
-\item potência do sinal: $P_{\text{sig}} = A_c^2 P_m$;
-\item potência do ruído: $P_{\text{noise}} = N_0 W$.
+\item sinal: $P_o = \dfrac{A_c^2}{4} P_M$;
+\item ruído: $P_{n_o} = \dfrac{1}{4} P_{n_c} = \dfrac{1}{4} P_n = \dfrac{W N_0}{2}$.
 \end{itemize}
 
-\[
-\left(\frac{S}{N}\right)_o = \frac{A_c^2 P_m}{N_0 W}
-\]
+\vspace{0.2cm}
 
-A potência recebida do sinal modulado é:
+Razão direta:
 \[
-P_r = \frac{A_c^2 P_m}{2} \quad\Rightarrow\quad A_c^2 P_m = 2 P_r
+\left(\frac{S}{N}\right)_o = \frac{P_o}{P_{n_o}} = \frac{A_c^2 P_M / 4}{W N_0 / 2} = \frac{A_c^2 P_M}{2 W N_0}.
 \]
 
 \end{frame}
@@ -336,18 +345,18 @@ P_r = \frac{A_c^2 P_m}{2} \quad\Rightarrow\quad A_c^2 P_m = 2 P_r
 
 \begin{frame}{Resultado em função de $\gamma$}
 
-Substituindo $A_c^2 P_m = 2 P_r$ na SNR:
+A potência recebida do sinal DSB-SC é $P_R = A_c^2 P_M / 2$, logo $A_c^2 P_M = 2 P_R$.
 
 \begin{block}{Resultado}
 \[
-\left(\frac{S}{N}\right)_o = \frac{2 P_r}{N_0 W} = 2\gamma
+\left(\frac{S}{N}\right)_{o,\text{DSB}} = \frac{2 P_R}{2 W N_0} = \frac{P_R}{W N_0} = \gamma
 \]
-DSB-SC coerente oferece $3$ dB de ganho sobre banda base com mesma $P_r$.
+A SNR de saída do DSB-SC coerente é igual à SNR do sistema banda base de referência: não há ganho, mas também não há perda.
 \end{block}
 
-\vspace{0.3cm}
+\vspace{0.2cm}
 
-Esse ganho aparece porque a demodulação coerente rejeita a componente $n_s$ do ruído em quadratura, ficando apenas com $n_c$ na saída.
+A demodulação coerente rejeita $n_s(t)$, garantindo desempenho equivalente ao banda base apesar de o ruído passa-banda ter o dobro da potência total.
 
 \end{frame}
 
@@ -401,99 +410,10 @@ P_r = \frac{P_t}{L} = \frac{25}{10^{6}} = 25 \text{ } \mu\text{W}
 \gamma = \frac{P_r}{N_0 W} = \frac{25 \times 10^{-6}}{10^{-15} \times 4 \times 10^{3}} \approx 6{,}25 \times 10^{6} \approx 68 \text{ dB}
 \]
 
-\textbf{Passo 4.} Ganho de $3$ dB da demodulação coerente:
+\textbf{Passo 4.} SNR de saída em DSB-SC coerente:
 \[
-\left(\frac{S}{N}\right)_o = 2\gamma \approx 71 \text{ dB}
+\left(\frac{S}{N}\right)_o = \gamma \approx 68 \text{ dB}
 \]
-
-\end{frame}
-
-% ============================================
-
-\section{Ruído em SSB AM}
-
-\begin{frame}{Sinal SSB com ruído}
-
-No SSB, o sinal ocupa apenas \textbf{metade da banda} do DSB: largura $W$ em torno de $f_c$.
-
-\textbf{Sinal recebido:} $r(t) = s_{\SSB}(t) + n(t)$, com o ruído filtrado apenas na banda $W$ ocupada pelo sinal.
-
-\vspace{0.3cm}
-
-A demodulação coerente é idêntica à do DSB-SC: multiplicar pela portadora em fase e filtrar em $W$.
-
-\vspace{0.3cm}
-
-\textbf{Diferenças em relação ao DSB-SC:}
-\begin{itemize}
-\item a banda de ruído na entrada é $W$, não $2W$;
-\item a potência recebida do sinal SSB, para mesma amplitude de portadora, é metade da do DSB.
-\end{itemize}
-
-Esses dois fatores se cancelam, e o resultado final é simples.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{SNR de saída em SSB}
-
-Após a álgebra, equivalente à do DSB-SC com banda $W$:
-\[
-\left(\frac{S}{N}\right)_o = \frac{P_r}{N_0 W} = \gamma
-\]
-
-\begin{block}{Resultado}
-SSB coerente alcança a \textbf{mesma SNR} do sistema banda base de referência, \textbf{usando metade da banda} do DSB-SC.
-\end{block}
-
-\textbf{Conclusão prática:} SSB é eficiente em banda. O preço a pagar é a complexidade do receptor coerente.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Aplicação: SSB versus DSB-SC}
-
-\textbf{Enunciado.} Repita o problema anterior usando SSB no lugar de DSB-SC: $A_c = 10$ V, $P_m = 0{,}5$, $W = 4$ kHz, $L = 60$ dB, $N_0 = 10^{-15}$ W/Hz. Compare a banda ocupada e a SNR de saída com o caso DSB-SC.
-
-\begin{center}
-\begin{tikzpicture}[font=\scriptsize]
-\draw[->] (-2.5,0) -- (2.5,0) node[right] {$f$};
-\draw[->] (0,-0.2) -- (0,1.8);
-\fill[blue!30] (-1.8,0) rectangle (-0.6,1.0);
-\fill[blue!30] (0.6,0) rectangle (1.8,1.0);
-\node[blue, above] at (0,1.0) {DSB: $2W$};
-\fill[red!30] (0.6,0) rectangle (1.8,0.5);
-\node[red] at (1.2,0.25) {USB};
-\node[below] at (-1.2,0) {$-f_c$};
-\node[below] at (1.2,0) {$f_c$};
-\end{tikzpicture}
-\end{center}
-
-SSB ocupa metade da banda. Como a SNR se compara?
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Resolução passo a passo}
-
-\textbf{Passo 1.} Em SSB com mesma $A_c$, só uma banda lateral é transmitida:
-\[
-P_r^{\SSB} = \tfrac{1}{2} P_r^{\DSB} = 12{,}5 \text{ } \mu\text{W}
-\]
-
-\textbf{Passo 2.} SNR de referência:
-\[
-\gamma = \frac{12{,}5 \times 10^{-6}}{10^{-15} \times 4 \times 10^{3}} \approx 3{,}1 \times 10^{6} \approx 65 \text{ dB}
-\]
-
-\textbf{Passo 3.} SNR de saída em SSB: $(S/N)_o = \gamma \approx 65$ dB.
-
-\begin{block}{Comparação}
-DSB-SC: $\approx 71$ dB com $8$ kHz. SSB: $\approx 65$ dB com $4$ kHz. SSB economiza banda mantendo SNR equivalente.
-\end{block}
 
 \end{frame}
 
@@ -501,61 +421,84 @@ DSB-SC: $\approx 71$ dB com $8$ kHz. SSB: $\approx 65$ dB com $4$ kHz. SSB econo
 
 \section{Ruído em AM convencional}
 
-\begin{frame}{Detector de envelope com ruído}
+\begin{frame}{Sinal AM e ruído na entrada}
 
-\textbf{Sinal AM:} $s(t) = A_c[1 + \mu\, m_n(t)]\cos(2\pi f_c t)$ com $m_n$ normalizada, $|m_n| \le 1$.
-
-\textbf{Sinal recebido:}
+\textbf{Sinal AM:}
 \[
-r(t) = [A_c(1 + \mu m_n) + n_c(t)]\cos(2\pi f_c t) - n_s(t)\sin(2\pi f_c t)
+u(t) = A_c\bigl[1 + \mu\, m_n(t)\bigr]\cos(2\pi f_c t),
 \]
+com $m_n$ normalizada, $|m_n| \le 1$, e índice de modulação $\mu$.
 
-\textbf{Envelope:}
+\vspace{0.2cm}
+
+\textbf{Sinal recebido}, com o ruído passa-banda em quadratura:
 \[
-E(t) = \sqrt{[A_c(1 + \mu m_n) + n_c]^2 + n_s^{\,2}}
+r(t) = \bigl[A_c(1 + \mu m_n(t)) + n_c(t)\bigr]\cos(2\pi f_c t) - n_s(t)\sin(2\pi f_c t).
 \]
 
 \vspace{0.2cm}
 
-Trata-se de uma expressão \textbf{não linear} no ruído. Para analisar, separamos dois regimes de operação.
+Estrutura idêntica à do DSB-SC, trocando $m(t)$ por $1 + \mu m_n(t)$. Usaremos demodulação síncrona; o detector de envelope, em alta SNR, dá o mesmo resultado.
+
+\vspace{0.2cm}
+
+Banda passante do receptor: $B_T = 2W$, portanto $\sigma^2_{n_c} = \sigma^2_{n_s} = 2 N_0 W$.
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Regime de SNR alta}
+\begin{frame}{Demodulação síncrona}
 
-Quando $A_c(1+\mu m_n) \gg \sqrt{n_c^{\,2} + n_s^{\,2}}$, a aproximação linear vale:
+Multiplicando $r(t)$ por $\cos(2\pi f_c t)$ e filtrando em $W$:
 \[
-E(t) \approx A_c(1 + \mu m_n) + n_c(t)
+y_1(t) = \tfrac{1}{2}\bigl[A_c\bigl(1 + \mu m_n(t)\bigr) + n_c(t)\bigr].
 \]
 
-A componente em quadratura $n_s$ é \textbf{rejeitada} pelo detector de envelope, igual ao caso DSB-SC.
+A componente $n_s(t)$ é rejeitada, como no DSB-SC.
 
-\vspace{0.3cm}
+\vspace{0.2cm}
 
-\textbf{Potências:}
+O bloco de DC remove o termo constante $A_c/2$:
+\[
+\boxed{y(t) = \tfrac{1}{2} A_c\, \mu\, m_n(t) + \tfrac{n_c(t)}{2}}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Potências e potência recebida}
+
+Da saída $y(t) = \tfrac{1}{2} A_c \mu\, m_n(t) + \tfrac{n_c(t)}{2}$:
 \begin{itemize}
-\item Sinal útil (após bloquear DC): $A_c^2 \mu^2 P_{m_n}$;
-\item Ruído: $N_0 W$;
-\item Potência recebida total:
-\[
-P_r = \tfrac{A_c^2}{2}(1 + \mu^2 P_{m_n})
-\]
+\item sinal: $P_{\text{sig}} = \tfrac{1}{4} A_c^2 \mu^2 P_{m_n}$;
+\item ruído: $P_{\text{noise}} = \tfrac{1}{4} P_{n_c} = \tfrac{1}{4}\cdot 2 N_0 W = \tfrac{N_0 W}{2}$.
 \end{itemize}
 
+\vspace{0.2cm}
+
+A potência total recebida do sinal AM, supondo $m_n$ de média nula:
+\[
+P_r = \tfrac{A_c^2}{2}\bigl[1 + \mu^2 P_{m_n}\bigr].
+\]
+
 \end{frame}
 
 % ============================================
 
-\begin{frame}{SNR de saída em AM convencional}
+\begin{frame}{Derivação da SNR de saída em AM}
 
-Combinando os termos:
-\[
-\left(\frac{S}{N}\right)_o = \frac{\mu^2 P_{m_n}}{1 + \mu^2 P_{m_n}} \cdot \gamma = \eta\, \gamma
-\]
+\begin{align*}
+\left(\frac{S}{N}\right)_{o,\text{AM}}
+&= \frac{\tfrac{1}{4} A_c^2 \mu^2 P_{m_n}}{\tfrac{1}{4} P_{n_c}}
+ = \frac{A_c^2 \mu^2 P_{m_n}}{2 N_0 W} \\[3pt]
+&= \frac{\mu^2 P_{m_n}}{1+\mu^2 P_{m_n}} \cdot \frac{\tfrac{A_c^2}{2}\bigl[1+\mu^2 P_{m_n}\bigr]}{N_0 W} \\[3pt]
+&= \frac{\mu^2 P_{m_n}}{1+\mu^2 P_{m_n}} \cdot \frac{P_r}{N_0 W} \\[3pt]
+&= \eta\,\gamma
+\end{align*}
 
-O fator $\eta = \dfrac{\mu^2 P_{m_n}}{1 + \mu^2 P_{m_n}}$ é a \textbf{eficiência de potência} do AM.
+com $\eta = \dfrac{\mu^2 P_{m_n}}{1+\mu^2 P_{m_n}}$, a eficiência de potência do AM.
 
 \end{frame}
 
@@ -576,22 +519,81 @@ $(S/N)_o \le \gamma/3$ no melhor caso. AM convencional é cerca de $4{,}77$ dB p
 
 % ============================================
 
-\begin{frame}{Efeito de limiar em AM por detector de envelope}
+\begin{frame}{Detector de envelope com ruído}
 
-Quando a SNR cai, a aproximação linear quebra. O ruído passa a dominar e o envelope é dado por uma combinação não linear.
+A partir do sinal recebido em (6.1.29),
+\[
+r(t) = \bigl[A_c(1+\mu m_n(t)) + n_c(t)\bigr]\cos\omega_c t - n_s(t)\sin\omega_c t,
+\]
+o detector de envelope extrai
+\[
+V_r(t) = \sqrt{\bigl[A_c(1+\mu m_n(t)) + n_c(t)\bigr]^2 + n_s^2(t)}.
+\]
 
-\vspace{0.3cm}
+\vspace{0.2cm}
 
-\textbf{Consequência:} abaixo de uma SNR de entrada da ordem de 6--10 dB, a SNR de saída cai \textbf{muito mais rápido} do que prevê a fórmula linear.
+Expressão não linear no ruído. Analisamos dois regimes: alta SNR na entrada e baixa SNR.
 
-\vspace{0.3cm}
+\end{frame}
 
-\begin{itemize}
-\item Acima do limiar: $(S/N)_o \approx \eta\gamma$.
-\item Abaixo do limiar: $(S/N)_o$ degrada de forma abrupta.
-\end{itemize}
+% ============================================
 
-\textbf{Implicação prática:} o detector de envelope só é útil enquanto a SNR de entrada se mantém suficientemente alta. Em enlaces fracos, prefere-se demodulação coerente, mesmo em AM convencional.
+\begin{frame}{Regime de alta SNR}
+
+Quando $A_c\bigl(1 + \mu m_n(t)\bigr) \gg \sqrt{n_c^2(t) + n_s^2(t)}$ com alta probabilidade, vale
+\[
+V_r(t) \approx A_c\bigl(1 + \mu m_n(t)\bigr) + n_c(t).
+\]
+Após o bloqueio de DC,
+\[
+y(t) = A_c\,\mu\, m_n(t) + n_c(t),
+\]
+mesma estrutura do receptor síncrono, sem o coeficiente $1/2$. Esse coeficiente cancela na razão SNR.
+
+\vspace{0.2cm}
+
+\begin{block}{Conclusão}
+No regime de alta SNR, detector de envelope e demodulador síncrono entregam a mesma $(S/N)_o = \eta\gamma$.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Regime de baixa SNR: derivação}
+
+Expandindo o quadrado dentro da raiz em $V_r(t)$:
+\[
+V_r = \sqrt{A_c^2(1+\mu m_n)^2 + n_c^2 + n_s^2 + 2 A_c n_c (1+\mu m_n)}.
+\]
+
+\textbf{Passo 1.} Hipótese de baixa SNR: $A_c^2(1+\mu m_n)^2 \ll n_c^2 + n_s^2$. Descartamos o termo quadrático em $A_c$:
+\[
+V_r \approx \sqrt{(n_c^2 + n_s^2)\left[1 + \frac{2 A_c\, n_c}{n_c^2 + n_s^2}(1+\mu m_n)\right]}.
+\]
+
+\textbf{Passo 2.} Definindo $V_n(t) = \sqrt{n_c^2 + n_s^2}$ e usando $\sqrt{1+\epsilon} \approx 1 + \epsilon/2$ para $\epsilon$ pequeno:
+\[
+V_r \approx V_n\left[1 + \frac{A_c\, n_c}{V_n^2}(1+\mu m_n)\right] = V_n(t) + \frac{A_c\, n_c(t)}{V_n(t)}\bigl(1 + \mu m_n(t)\bigr).
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Efeito de limiar}
+
+Da expressão derivada,
+\[
+V_r(t) \approx V_n(t) + \frac{A_c\, n_c(t)}{V_n(t)}\bigl(1 + \mu m_n(t)\bigr),
+\]
+o sinal $m_n(t)$ aparece multiplicado por $n_c(t)/V_n(t)$, não somado. Sinal e ruído deixam de ser aditivos e a SNR perde sentido.
+
+\vspace{0.2cm}
+
+\begin{block}{Limiar do detector de envelope}
+Abaixo de uma SNR de entrada da ordem de $6$--$10$ dB, a aproximação linear quebra; a $(S/N)_o$ cai muito mais rápido do que $\eta\gamma$. Em enlaces fracos, prefere-se demodulação coerente mesmo no AM convencional.
+\end{block}
 
 \end{frame}
 
@@ -642,6 +644,144 @@ Quando a SNR cai, a aproximação linear quebra. O ruído passa a dominar e o en
 
 \begin{block}{Interpretação}
 Cerca de $80\%$ da potência transmitida fica na portadora e não contribui para a SNR útil. Por isso o AM convencional perde para o DSB-SC e o SSB.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\section{Ruído em SSB AM}
+
+\begin{frame}{Sinal recebido em SSB}
+
+\textbf{Sinal SSB:}
+\[
+u(t) = A_c m(t)\cos(2\pi f_c t) \mp A_c \hat m(t)\sin(2\pi f_c t),
+\]
+com $\hat m(t)$ a transformada de Hilbert de $m(t)$ e largura $W$ em torno de $f_c$.
+
+\vspace{0.2cm}
+
+\textbf{Sinal recebido}, agrupando o ruído em quadratura:
+\[
+r(t) = \bigl(A_c m(t) + n_c(t)\bigr)\cos(2\pi f_c t) + \bigl(\mp A_c \hat m(t) - n_s(t)\bigr)\sin(2\pi f_c t).
+\]
+
+\vspace{0.2cm}
+
+O filtro do receptor tem largura $W$. A potência total do ruído passa-banda é
+\[
+P_n = \int_{-\infty}^{\infty} S_n(f)\,df = \tfrac{N_0}{2}\cdot 2W = W N_0,
+\]
+com $\sigma^2_{n_c} = \sigma^2_{n_s} = P_n = W N_0$, metade do valor visto no DSB-SC.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demodulação coerente em SSB}
+
+Multiplicando $r(t)$ por $\cos(2\pi f_c t)$ e filtrando em $W$, o termo em $\sin(2\pi f_c t)$ é rejeitado e os termos em $2f_c$ desaparecem. Sobra apenas a componente em fase com coeficiente $1/2$:
+\[
+\boxed{y(t) = \tfrac{A_c}{2} m(t) + \tfrac{1}{2} n_c(t)}
+\]
+
+\vspace{0.2cm}
+
+A componente $n_s(t)$ é eliminada, mesma estrutura do DSB-SC.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Potências na saída}
+
+Da saída $y(t) = \tfrac{A_c}{2} m(t) + \tfrac{1}{2} n_c(t)$:
+\begin{itemize}
+\item sinal: $P_o = \dfrac{A_c^2}{4} P_M$;
+\item ruído: $P_{n_o} = \dfrac{1}{4} P_{n_c} = \dfrac{W N_0}{4}$.
+\end{itemize}
+
+\vspace{0.2cm}
+
+Razão direta:
+\[
+\left(\frac{S}{N}\right)_o = \frac{P_o}{P_{n_o}} = \frac{A_c^2 P_M / 4}{W N_0 / 4} = \frac{A_c^2 P_M}{W N_0}.
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Potência recebida no SSB}
+
+Da média temporal de $u^2(t)$, com $\langle\cos^2\rangle = \langle\sin^2\rangle = 1/2$, $\langle\sin\cos\rangle = 0$ e $P_{\hat m} = P_M$:
+\[
+P_R = \langle u^2\rangle = A_c^2\bigl[\tfrac{P_M}{2} + \tfrac{P_{\hat m}}{2}\bigr] = A_c^2 P_M.
+\]
+
+\vspace{0.2cm}
+
+Diferentemente do DSB-SC, onde $P_R = A_c^2 P_M/2$, no SSB toda a potência fica em uma única banda lateral.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resultado em função de $\gamma$}
+
+Substituindo $A_c^2 P_M = P_R$ na SNR de saída:
+
+\begin{block}{Resultado}
+\[
+\left(\frac{S}{N}\right)_{o,\text{SSB}} = \frac{P_R}{W N_0} = \gamma
+\]
+SSB coerente alcança a mesma SNR do sistema banda base, usando metade da banda do DSB-SC.
+\end{block}
+
+\vspace{0.2cm}
+
+Para um mesmo $P_R$, SSB e DSB-SC entregam exatamente a mesma SNR de saída; SSB economiza apenas no recurso de banda. O preço a pagar é a complexidade do receptor coerente.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aplicação: SSB versus DSB-SC}
+
+\textbf{Enunciado.} Considere um enlace SSB com o mesmo $P_R = 25\,\mu$W do exemplo DSB-SC anterior, $W = 4$ kHz e $N_0 = 10^{-15}$ W/Hz. Compare a banda ocupada e a SNR de saída com o caso DSB-SC.
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+\draw[->] (-2.5,0) -- (2.5,0) node[right] {$f$};
+\draw[->] (0,-0.2) -- (0,1.8);
+\fill[blue!30] (-1.8,0) rectangle (-0.6,1.0);
+\fill[blue!30] (0.6,0) rectangle (1.8,1.0);
+\node[blue, above] at (0,1.0) {DSB: $2W$};
+\fill[red!30] (0.6,0) rectangle (1.8,0.5);
+\node[red] at (1.2,0.25) {USB};
+\node[below] at (-1.2,0) {$-f_c$};
+\node[below] at (1.2,0) {$f_c$};
+\end{tikzpicture}
+\end{center}
+
+SSB ocupa metade da banda. Como a SNR se compara?
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução passo a passo}
+
+\textbf{Passo 1.} SNR de referência com $P_R = 25\,\mu$W:
+\[
+\gamma = \frac{P_R}{N_0 W} = \frac{25 \times 10^{-6}}{10^{-15} \times 4 \times 10^{3}} \approx 6{,}25 \times 10^{6} \approx 68 \text{ dB}
+\]
+
+\textbf{Passo 2.} SNR de saída em SSB coerente: $(S/N)_o = \gamma \approx 68$ dB.
+
+\begin{block}{Comparação}
+DSB-SC: $68$ dB com $8$ kHz. SSB: $68$ dB com $4$ kHz. Mesma SNR, metade da banda.
 \end{block}
 
 \end{frame}
@@ -1105,7 +1245,7 @@ Para mesma potência recebida $P_r$, mesma banda de mensagem $W$ e $\gamma = P_r
 \hline
 Banda base & $\gamma$ & $W$ \\
 \hline
-DSB-SC coerente & $2\gamma$ & $2W$ \\
+DSB-SC coerente & $\gamma$ & $2W$ \\
 \hline
 SSB coerente & $\gamma$ & $W$ \\
 \hline
@@ -1758,7 +1898,7 @@ Para $\gamma = P_r/(N_0 W)$ fixo:
 
 \begin{itemize}
 \item Banda base: $(S/N)_o = \gamma$.
-\item DSB-SC coerente: $(S/N)_o = 2\gamma$.
+\item DSB-SC coerente: $(S/N)_o = \gamma$.
 \item SSB coerente: $(S/N)_o = \gamma$.
 \item AM convencional, envelope: $(S/N)_o \le \gamma/3$, com efeito de limiar.
 \item FM, $\beta$: $(S/N)_o = 3\beta^2 \gamma$, com efeito de limiar.
