@@ -2,7 +2,7 @@
 % MODULAÇÃO ANGULAR: FM E PM
 % ============================================
 
-\subsection{Introdução}
+\section{Introdução}
 
 \begin{frame}{Modulação Angular vs. Modulação em Amplitude}
 
@@ -52,7 +52,7 @@ f_i(t) = \frac{1}{2\pi} \frac{d\theta(t)}{dt} = f_c + \frac{1}{2\pi}\frac{d\phi(
 
 % ============================================
 
-\subsection{Modulação em Frequência (FM)}
+\section{Modulação em Frequência (FM)}
 
 \begin{frame}{Definição de FM}
 
@@ -222,7 +222,7 @@ Na prática, FM é mais usada do que PM por ter melhor desempenho em ruído.
 
 % ============================================
 
-\subsection{Análise Espectral de FM}
+\section{Análise Espectral de FM}
 
 \begin{frame}{FM com Tom Único: substituição}
 
@@ -721,7 +721,7 @@ Número de canais: $(108-88)/0.2 = 100$ canais
 
 % ============================================
 
-\subsection{Demodulação FM}
+\section{Demodulação FM}
 
 \begin{frame}{Princípios de Demodulação FM}
 
@@ -1254,7 +1254,103 @@ A resposta linear do discriminador converte variação de frequência em variaç
 
 % ============================================
 
-\subsection{PLL (Phase-Locked Loop)}
+\begin{frame}{Demodulação de NBFM: decomposição em banda básica}
+
+Partindo do sinal FM genérico:
+\[
+s_{\FM}(t) = A_c \cos[2\pi f_c t + \phi(t)],
+\qquad \phi(t) = 2\pi k_f \int_{-\infty}^{t} m(\tau)\,d\tau
+\]
+
+\pause
+\textbf{Expandir o cosseno da soma:}
+\[
+s_{\FM}(t) = A_c \cos(2\pi f_c t)\cos\phi(t) - A_c \sin(2\pi f_c t)\sin\phi(t)
+\]
+
+\pause
+\textbf{Regime NBFM} ($\beta \ll 1 \Rightarrow |\phi(t)| \ll 1$):
+\[
+\cos\phi(t) \approx 1, \qquad \sin\phi(t) \approx \phi(t)
+\]
+
+\pause
+\begin{block}{Forma de banda básica}
+\[
+\boxed{\,s_{\NBFM}(t) \approx A_c \cos(2\pi f_c t) \;-\; A_c\,\phi(t)\,\sin(2\pi f_c t)\,}
+\]
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{NBFM tem a estrutura de AM convencional}
+
+\textbf{Lado a lado:}
+\[
+s_{\AM}(t) = A_c \cos(2\pi f_c t) \;+\; A_c\, \mu\, m(t)\, \cos(2\pi f_c t)
+\]
+\[
+s_{\NBFM}(t) \approx A_c \cos(2\pi f_c t) \;-\; A_c\, \phi(t)\, \sin(2\pi f_c t)
+\]
+
+\pause
+\textbf{Mesma anatomia:} portadora pura mais um termo DSB-SC modulado por um sinal de banda básica.
+
+\vspace{0.2cm}
+\textbf{Únicas diferenças:}
+\begin{itemize}\itemsep0pt
+\item AM modula em fase com a portadora; NBFM modula em quadratura.
+\item Em AM o sinal de banda básica é $m(t)$; em NBFM é $\phi(t) = 2\pi k_f \int m(\tau)d\tau$, a integral da mensagem.
+\end{itemize}
+
+\pause
+\vspace{0.2cm}
+\textbf{Consequência espectral:} as bandas laterais ocupam a mesma faixa que em AM, $B_{\NBFM} \approx 2W$, justificando a regra de Carson para $\beta \ll 1$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demodulador coerente para NBFM}
+
+\textbf{Ideia:} extrair o termo em quadratura por mistura coerente.
+
+\begin{center}
+\begin{tikzpicture}[>=latex, scale=0.9]
+\node[draw, circle, minimum size=0.7cm] (mix) at (0,0) {$\times$};
+\node[draw, rectangle, minimum width=1.8cm, minimum height=0.7cm] (lpf) at (2.6,0) {LPF};
+\node[draw, rectangle, minimum width=1.8cm, minimum height=0.7cm] (dif) at (5.4,0) {$d/dt$};
+
+\draw[->] (-2.2,0) -- node[above, font=\small] {$s_{\NBFM}(t)$} (mix);
+\draw[->] (mix) -- (lpf);
+\draw[->] (lpf) -- node[above, font=\footnotesize] {$\propto \phi(t)$} (dif);
+\draw[->] (dif) -- node[above, font=\small] {$\hat{m}(t)$} (7.6,0);
+
+\node[font=\small] at (0,-1.4) {$-\sin(2\pi f_c t)$};
+\draw[->] (0,-1.1) -- (mix);
+\end{tikzpicture}
+\end{center}
+
+\pause
+\textbf{Multiplicação por $-\sin(2\pi f_c t)$:}
+\begin{align*}
+&-A_c \cos(2\pi f_c t)\sin(2\pi f_c t) + A_c\,\phi(t)\sin^2(2\pi f_c t) \\
+&= -\tfrac{A_c}{2}\sin(4\pi f_c t) + \tfrac{A_c}{2}\phi(t)\bigl[1 - \cos(4\pi f_c t)\bigr]
+\end{align*}
+
+\pause
+\textbf{Após filtro passa-baixa} (remove $2f_c$): $\;\tfrac{A_c}{2}\phi(t)$.
+
+\pause
+\textbf{Derivando:} $\dfrac{d}{dt}\!\left[\tfrac{A_c}{2}\phi(t)\right] = \pi A_c k_f\, m(t)$.
+
+\end{frame}
+
+% ============================================
+
+\section{PLL (Phase-Locked Loop)}
 
 \begin{frame}{Conceito do PLL}
 
@@ -1299,123 +1395,240 @@ A resposta linear do discriminador converte variação de frequência em variaç
 
 % ============================================
 
-\begin{frame}{Análise do PLL}
+\begin{frame}{PLL: sinais de entrada e VCO}
 
-\textbf{Sinal de entrada FM:}
+\textbf{Entrada FM} (forma usada em análise PLL, equivalente a $\cos$ com 90° de defasagem):
 \[
-s(t) = A_c \cos[2\pi f_c t + \phi_i(t)]
+r(t) = A_c \sin[2\pi f_c t + \phi(t)], \quad \phi(t) = 2\pi k_f\!\int m(\tau)\,d\tau.
 \]
 
-\textbf{Saída do VCO:}
+\pause
+\textbf{Saída do VCO} (em quadratura com a entrada para que o detector entregue $\sin$ do erro):
 \[
-y(t) = A_v \cos[2\pi f_c t + \phi_o(t)]
+y_v(t) = A_v \cos[2\pi f_c t + \phi_v(t)],
 \]
-
-\textbf{Detector de fase (multiplicador):}
 \[
-e(t) = K_d \sin[\phi_i(t) - \phi_o(t)] \approx K_d[\phi_i(t) - \phi_o(t)]
+\boxed{\;\phi_v(t) = 2\pi k_v \int_0^t v(\tau)\,d\tau\;} \qquad (\text{Proakis 4.3.17})
 \]
+onde $k_v$ é a sensibilidade do VCO em Hz/V e $v(t)$ é a tensão de controle.
 
-para pequenos erros de fase.
-
-\textbf{VCO:}
-\[
-\frac{d\phi_o(t)}{dt} = 2\pi K_v v_c(t)
-\]
-
-onde $K_v$ é a sensibilidade do VCO (Hz/V).
+\pause
+\textbf{Comparador de fase:} multiplicador analógico seguido de filtro passa-baixa que rejeita o termo em $2 f_c$.
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Análise em regime travado}
+\begin{frame}{Detector de fase: derivação}
 
-\textbf{Filtro de loop:} $V_c(s) = F(s)\,E(s)$.
-
-\textbf{Hipótese de regime travado, ou \emph{locked}:}
+\textbf{Produto} $r(t)\,y_v(t)$ com $\omega_c \equiv 2\pi f_c$:
 \[
-\phi_o(t) \approx \phi_i(t)
+A_c A_v \sin[\omega_c t + \phi]\,\cos[\omega_c t + \phi_v]
 \]
 
 \pause
-Para FM, a fase de entrada é
+\textbf{Identidade:} $\sin A\,\cos B = \tfrac{1}{2}[\sin(A+B) + \sin(A-B)]$. Com $A = \omega_c t + \phi$, $B = \omega_c t + \phi_v$:
 \[
-\phi_i(t) = 2\pi k_f \int m(\tau)\,d\tau
-\quad\Rightarrow\quad \dot\phi_i(t) = 2\pi k_f m(t).
+r\,y_v = \tfrac{A_c A_v}{2}\Bigl\{\underbrace{\sin[2\omega_c t + \phi + \phi_v]}_{2f_c\;\to\;\text{LPF rejeita}} + \sin[\phi - \phi_v]\Bigr\}
 \]
 
 \pause
-Como $\phi_o \approx \phi_i$, vale também $\dot\phi_o(t) \approx 2\pi k_f m(t)$.
+\textbf{Após o LPF do comparador:}
+\[
+\boxed{\;e(t) = \tfrac{1}{2}A_v A_c\,\sin[\phi(t) - \phi_v(t)]\;} \qquad (\text{Proakis 4.3.18})
+\]
+
+\pause
+\textbf{Observação:} o seno aparece naturalmente da identidade $\sin\!\cdot\!\cos$. Garante $e = 0$ exatamente em $\phi = \phi_v$ -- condição de \emph{lock}.
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Saída do PLL como demodulador FM}
+\begin{frame}{Linearização e modelo do PLL}
 
-O VCO impõe:
-\[
-\frac{d\phi_o(t)}{dt} = 2\pi K_v v_c(t)
-\]
+\textbf{Erro de fase:} $\phi_e(t) \equiv \phi(t) - \phi_v(t)$.
 
 \pause
-Igualando às duas relações para $\dot\phi_o$:
+\textbf{Hipótese de PLL travado} ($|\phi_e| \ll 1$): pela expansão $\sin x \approx x$,
 \[
-2\pi K_v\, v_c(t) = 2\pi k_f\, m(t)
-\quad\Rightarrow\quad v_c(t) = \frac{k_f}{K_v}\, m(t).
+\sin[\phi(t) - \phi_v(t)] \approx \phi(t) - \phi_v(t) = \phi_e(t) \qquad (\text{Proakis 4.3.19})
 \]
+e o detector vira linear: $e(t) \approx \tfrac{1}{2}A_v A_c\,\phi_e(t)$.
 
 \pause
-\begin{block}{Saída do PLL para FM}
-\[
-\boxed{v_c(t) = K\, m(t)}
-\]
-onde $K = k_f/K_v$ é o ganho de demodulação.
-\end{block}
+\textbf{Modelo linearizado do PLL} (Proakis Fig 4.15):
 
-A tensão de controle do VCO é a mensagem demodulada.
+\begin{center}
+\begin{tikzpicture}[>=latex, every node/.style={font=\footnotesize}]
+\node[draw, circle, minimum size=0.6cm] (sum) at (0,0) {$+$};
+\node[draw, rectangle, minimum width=1.6cm, minimum height=0.7cm] (lf) at (3,0) {filtro $g(t)$};
+\node[draw, rectangle, minimum width=2cm, minimum height=0.7cm] (vco) at (3,-1.6) {$2\pi k_v\!\int_0^t v(\tau)d\tau$};
+
+\draw[->] (-1.7,0) -- node[above] {$\phi(t)$} (sum);
+\draw[->] (sum) -- node[above] {$\phi_e(t)$} (lf);
+\draw[->] (lf) -- ++(2,0) node[right] {$v(t)$};
+\draw (lf.east) -- ++(1,0) -- ++(0,-1.6) -- (vco.east);
+\draw[->] (vco.west) -- ++(-1.5,0) -- (sum.south);
+\node[font=\scriptsize] at (-0.6,-0.5) {$\phi_v(t)$};
+\end{tikzpicture}
+\end{center}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Função de Transferência do PLL}
+\begin{frame}{Equação integro-diferencial do erro de fase}
 
-\textbf{No domínio de Laplace:}
-\begin{align*}
-E(s) &= K_d[\Phi_i(s) - \Phi_o(s)] \\
-V_c(s) &= F(s)\,E(s) \\
-\Phi_o(s) &= \frac{2\pi K_v}{s}\,V_c(s)
-\end{align*}
+Substituindo $\phi_v(t) = 2\pi k_v \!\int_0^t v(\tau)d\tau$ em $\phi_e = \phi - \phi_v$:
+\[
+\phi_e(t) = \phi(t) - 2\pi k_v \int_0^t v(\tau)\,d\tau \qquad (\text{Proakis 4.3.20})
+\]
 
 \pause
-\textbf{Função de transferência em malha fechada:}
+\textbf{Diferenciando:}
 \[
-H(s) = \frac{\Phi_o(s)}{\Phi_i(s)} = \frac{K_d K_v F(s)}{s + K_d K_v F(s)}
+\frac{d\phi_e(t)}{dt} + 2\pi k_v\,v(t) = \frac{d\phi(t)}{dt} \qquad (\text{4.3.21})
+\]
+
+\pause
+\textbf{Filtro de loop:} $v(t) = \int_0^\infty \phi_e(\tau)\,g(t-\tau)\,d\tau$ -- convolução com $g(t)$.
+
+\pause
+\textbf{Substituindo:}
+\[
+\frac{d\phi_e}{dt} + 2\pi k_v\!\int_0^\infty\!\phi_e(\tau)\,g(t-\tau)\,d\tau = \frac{d\phi}{dt} \qquad (\text{4.3.22})
 \]
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Casos comuns de filtro}
+\begin{frame}{PLL no domínio da frequência}
 
-\textbf{Filtro proporcional} $F(s)=1$:
+\textbf{Transformada de Fourier} da equação integro-diferencial 4.3.22:
 \[
-H(s) = \frac{K_d K_v}{s + K_d K_v}
+(j2\pi f)\,\Phi_e(f) + 2\pi k_v\,\Phi_e(f)\,G(f) = (j2\pi f)\,\Phi(f) \qquad (\text{4.3.23})
 \]
 
-Sistema de 1ª ordem, com constante de tempo $\tau = 1/(K_d K_v)$.
-
-\vspace{0.4cm}
 \pause
-\textbf{Filtro lag-lead:}
+\textbf{Resolvendo para $\Phi_e(f)$:}
 \[
-F(s) = \frac{1 + s\tau_2}{1 + s\tau_1}
+\boxed{\;\Phi_e(f) = \frac{1}{1 + \dfrac{k_v}{jf}\,G(f)}\,\Phi(f)\;} \qquad (\text{4.3.24})
 \]
 
-Sistema de 2ª ordem, topologia mais usada em receptores reais. Permite ajustar separadamente o amortecimento e a frequência natural do loop.
+\pause
+\textbf{Tensão de controle $V(f) = \Phi_e(f)\,G(f)$:}
+\[
+V(f) = \frac{G(f)}{1 + \dfrac{k_v}{jf}\,G(f)}\,\Phi(f) \qquad (\text{4.3.25})
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demodulação FM via PLL}
+
+\textbf{Critério de projeto} (Proakis 4.3.26): para $|f| < W$ (banda da mensagem),
+\[
+\left|\dfrac{k_v\,G(f)}{jf}\right| \gg 1.
+\]
+
+\pause
+Nessa faixa o denominador de 4.3.25 fica $\approx (k_v/jf)\,G(f)$:
+\[
+V(f) \approx \dfrac{j2\pi f}{2\pi k_v}\,\Phi(f) \qquad (\text{4.3.27})
+\]
+
+\pause
+\textbf{No tempo:} $v(t) = \dfrac{1}{2\pi k_v}\,\dfrac{d\phi}{dt}$. Como $\dot\phi = 2\pi k_f\,m(t)$:
+\[
+\boxed{\;v(t) = \dfrac{k_f}{k_v}\,m(t)\;} \qquad (\text{4.3.28})
+\]
+
+A tensão de controle do VCO é proporcional à mensagem.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Filtro de loop $G(s)$ vs.\ transferência em malha fechada $H(s)$}
+
+\textbf{$G(s)$} é o \emph{filtro de loop} -- mesma função da derivação Proakis, com $s = j2\pi f$. É o que você \textbf{escolhe} no projeto.
+
+\pause
+\vspace{0.3cm}
+\textbf{$H(s) = \Phi_v(s)/\Phi(s)$} é a \emph{função de transferência em malha fechada}, calculada a partir de $G$ e do ganho do VCO:
+\[
+\boxed{\;H(s) = \frac{2\pi k_v\,G(s)}{s + 2\pi k_v\,G(s)}\;}
+\]
+
+\pause
+\vspace{0.3cm}
+$H$ é o que \textbf{resulta} -- a relação entre o sinal de entrada e o sinal travado pelo VCO. Determina a dinâmica do laço (rapidez, amortecimento, banda).
+
+\vspace{0.3cm}
+Próximos slides: dois casos comuns de $G$ e o $H$ correspondente.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Caso 1: filtro proporcional $G(s) = 1$}
+
+\textbf{Escolha mais simples:} $G(s) = 1$ (sem dinâmica adicional, só ganho unitário).
+
+\pause
+\textbf{Substituindo na fórmula de $H$:}
+\[
+H(s) = \frac{2\pi k_v}{s + 2\pi k_v}
+\]
+
+\textbf{Sistema de 1ª ordem.} Polo único em $s = -2\pi k_v$, constante de tempo $\tau = 1/(2\pi k_v)$.
+
+\pause
+\vspace{0.3cm}
+\textbf{Exemplo numérico} ($k_v = 50$\,kHz/V):
+\[
+2\pi k_v = 2\pi\cdot 50\,\text{kHz} = 3{,}14\!\times\!10^5\,\text{rad/s}
+\]
+\[
+\tau = \frac{1}{3{,}14\!\times\!10^5} = 3{,}2\,\mu\text{s}, \qquad B_L = \frac{2\pi k_v}{4\pi} = 25\,\text{kHz}
+\]
+
+\pause
+\textbf{Limitação:} 1ª ordem não permite ajustar amortecimento independentemente. Aumentar $k_v$ acelera resposta mas degrada margem de estabilidade.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Caso 2: filtro lag-lead $G(s) = (1 + s\tau_2)/(1 + s\tau_1)$}
+
+\textbf{Topologia mais usada em receptores reais:} permite ajustar $\zeta$ e $\omega_n$ separadamente.
+
+\pause
+\vspace{0.2cm}
+Substituindo na fórmula de $H$, obtém-se sistema de 2ª ordem padrão:
+\[
+\omega_n = \sqrt{\dfrac{2\pi k_v}{\tau_1}}, \qquad
+\zeta = \dfrac{\omega_n}{2}\!\left(\tau_2 + \dfrac{1}{2\pi k_v}\right)
+\]
+
+\pause
+\vspace{0.3cm}
+\textbf{Projeto:} dado $\zeta$ e $f_n$ desejados, resolve-se para $\tau_1$ e $\tau_2$.
+
+\pause
+\vspace{0.2cm}
+\textbf{Exemplo} ($k_v = 50$\,kHz/V, alvo $\zeta = 0{,}7$, $f_n = 30$\,kHz):
+\[
+\omega_n = 2\pi\cdot 30\,\text{kHz} = 1{,}88\!\times\!10^5\,\text{rad/s}
+\]
+\[
+\tau_1 = \frac{2\pi k_v}{\omega_n^2} \approx 88\,\mu\text{s}, \qquad
+\tau_2 = \frac{2\zeta}{\omega_n} - \frac{1}{2\pi k_v} \approx 7{,}3\,\mu\text{s}.
+\]
 
 \end{frame}
 
@@ -1445,36 +1658,104 @@ Sistema de 2ª ordem, topologia mais usada em receptores reais. Permite ajustar 
 
 \begin{frame}{Parâmetros do PLL: capture e lock}
 
-\textbf{Capture range} -- faixa onde o PLL adquire o travamento partindo do destravado:
+\textbf{Lock range} -- faixa onde o PLL \emph{mantém} o travamento já adquirido. Vale para qualquer ordem:
 \[
-\Delta f_{capture} \approx \frac{1}{2\pi}\sqrt{2 K_d K_v F(0)}
+\Delta f_{lock} \approx \frac{K_d K_v}{2\pi} \quad\text{(com $K_v$ em rad/s/V)}
 \]
 
 \pause
-\textbf{Lock range} -- faixa onde o PLL mantém o travamento já adquirido:
+\textbf{Capture range} -- faixa onde o PLL \emph{adquire} o travamento partindo do destravado. Aqui a ordem importa:
+\begin{itemize}\itemsep0pt
+\item \textbf{1ª ordem} ($G=1$): não há transitório de aquisição -- $\Delta f_{capture} = \Delta f_{lock}$.
+\item \textbf{2ª ordem} (lag-lead): há \emph{pull-in} com dinâmica de $\zeta, \omega_n$, e
 \[
-\Delta f_{lock} \approx \frac{K_d K_v}{2\pi}
+\Delta f_{capture} \approx 2\zeta f_n < \Delta f_{lock}
 \]
+\end{itemize}
 
 \pause
-Sempre vale $\Delta f_{lock} > \Delta f_{capture}$.
+\textbf{Exemplo} ($K_d = 1$\,V/rad, $k_v = 50$\,kHz/V): $\;\Delta f_{lock} = 50$\,kHz.
+
+Com lag-lead de $\zeta = 0{,}7$, $f_n = 30$\,kHz: $\Delta f_{capture} = 42$\,kHz $< 50$\,kHz.
+
+\pause
+\textbf{Para FM broadcast} ($\Delta f = 75$\,kHz): aumentar $k_v$ para $\sim$100\,kHz/V garante $\Delta f_{lock} > 75$\,kHz.
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Parâmetros do PLL: largura de banda do loop}
+\begin{frame}{Convenção dos ganhos do PLL}
 
-\textbf{Banda do loop} $B_L$ determina resposta dinâmica e rejeição de ruído.
+As três fórmulas de parâmetros ($\Delta f_{lock}$, $\Delta f_{capture}$, $B_L$) usam a mesma combinação $K_d K_v$. Antes dos exemplos numéricos, fixar unidades:
 
-Para filtro de 1ª ordem:
-\[
-B_L = \frac{K_d K_v}{4\pi}
-\]
+\pause
+\vspace{0.3cm}
+\begin{itemize}\itemsep0.3em
+\item \textbf{$K_d$} -- ganho do detector de fase, em \textbf{V/rad}.
+
+Vem da derivação: $K_d = \frac{1}{2}A_c A_v$.
+
+\pause
+\item \textbf{$K_v$} -- ganho do VCO, em \textbf{rad/s/V}.
+
+Relação com $k_v$ em Hz/V: $\;K_v = 2\pi k_v$.
+
+\pause
+\item \textbf{$K_d K_v$} -- \emph{ganho de loop em malha aberta}, em \textbf{rad/s}.
+
+Aparece em todas as fórmulas dinâmicas (lock range, banda, polos).
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Largura de banda do loop $B_L$}
+
+\textbf{$B_L$} determina resposta dinâmica e rejeição de ruído do PLL.
 
 \vspace{0.3cm}
+\textbf{Para 1ª ordem} (filtro proporcional):
+\[
+\boxed{\;B_L = \frac{K_d K_v}{4\pi}\;}
+\]
+
 \pause
-\textbf{Trade-off:} banda larga gera resposta rápida e mais ruído; banda estreita gera saída mais limpa porém PLL lento, que pode não acompanhar variações rápidas da mensagem.
+\vspace{0.3cm}
+\textbf{Exemplo numérico} ($K_d = 1$\,V/rad, $k_v = 50$\,kHz/V):
+\[
+K_d K_v = 1 \cdot 2\pi \cdot 50\,\text{kHz} = 3{,}14\!\times\!10^5\,\text{rad/s}
+\]
+\[
+B_L = \frac{3{,}14\!\times\!10^5}{4\pi} = 25\,\text{kHz}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Trade-off de banda do loop}
+
+\textbf{$B_L$ largo:}
+\begin{itemize}\itemsep0pt
+\item Resposta rápida -- PLL acompanha variações rápidas de fase.
+\item \textbf{Mais ruído} passa pela saída.
+\end{itemize}
+
+\pause
+\vspace{0.3cm}
+\textbf{$B_L$ estreito:}
+\begin{itemize}\itemsep0pt
+\item Saída mais limpa (ruído rejeitado).
+\item PLL \textbf{lento} -- pode não acompanhar variações rápidas da mensagem.
+\end{itemize}
+
+\pause
+\vspace{0.3cm}
+\textbf{Critério prático:} $B_L \gtrsim f_{m,\max}$ da mensagem para garantir tracking.
+
+\textbf{Exemplo:} áudio FM tem $f_{m,\max} = 15$\,kHz. O $B_L = 25$\,kHz do exemplo anterior acompanha confortavelmente, com margem para o ruído.
 
 \end{frame}
 
@@ -1519,7 +1800,7 @@ B_L = \frac{K_d K_v}{4\pi}
 
 % ============================================
 
-\subsection{Geração de FM}
+\section{Geração de FM}
 
 \begin{frame}{Geração Direta de FM}
 
@@ -1573,46 +1854,525 @@ f_c \to n f_c, \qquad \beta \to n\beta, \qquad \Delta f \to n\Delta f.
 
 % ============================================
 
-\begin{frame}{Método de Armstrong: exemplo numérico}
+\begin{frame}{Modulador NBFM: núcleo do Armstrong}
 
-\textbf{Meta:} gerar FM com $f_c = 100$\,MHz e $\Delta f = 75$\,kHz.
+\textbf{Sintetizar} $s_{\NBFM}(t) = A_c\cos(2\pi f_1 t) - A_c\,\phi(t)\sin(2\pi f_1 t)$ \textbf{com} $\phi(t) = 2\pi k_f\!\int m(\tau)d\tau$:
 
-\vspace{0.3cm}
-\pause
-\begin{enumerate}
-\item NBFM inicial: $f_1 = 200$\,kHz, $\Delta f_1 = 25$\,Hz.
-\item Multiplicar por $\times 64$: $f_2 = 12{,}8$\,MHz, $\Delta f_2 = 1{,}6$\,kHz.
-\item Multiplicar por $\times 48$: $f_3 = 614{,}4$\,MHz, $\Delta f_3 = 76{,}8$\,kHz.
-\item Misturar com 514,4\,MHz: $f_c = 100$\,MHz, $\Delta f \approx 75$\,kHz.
-\end{enumerate}
+\begin{center}
+\begin{tikzpicture}[>=latex, every node/.style={font=\footnotesize}]
+\node[draw, rectangle, minimum width=2.2cm, minimum height=0.7cm] (int) at (2.5,1.7) {$2\pi k_f\!\int dt$};
+\node[draw, circle, minimum size=0.75cm] (mul) at (5.8,1.7) {$\times$};
+\node[draw, circle, minimum size=0.75cm] (sum) at (8.2,0.85) {$+$};
+\node[draw, rectangle, minimum width=2cm, minimum height=0.7cm] (osc) at (0,0) {Cristal $f_1$};
+\node[draw, rectangle, minimum width=1.4cm, minimum height=0.7cm] (sh) at (5.8,0) {$-90^\circ$};
 
-\pause
-\vspace{0.3cm}
-\textbf{Por que funciona:} a multiplicação de frequência preserva a estabilidade de cristal do oscilador inicial e amplifica o desvio até o valor comercial.
+\draw[->] (-1.4,1.7) -- node[above] {$m(t)$} (int);
+\draw[->] (int) -- node[above] {$\phi(t)$} (mul);
+\draw[->] (mul) -- (sum);
+\draw[->] (osc) -- node[above] {$\cos(2\pi f_1 t)$} (sh);
+\draw[->] (sh) -- node[right] {$-\sin(2\pi f_1 t)$} (mul);
+\fill (3.2,0) circle (1.5pt);
+\draw (3.2,0) -- (3.2,-1.1) -- (8.2,-1.1);
+\draw[->] (8.2,-1.1) -- (sum);
+\draw[->] (sum) -- ++(1.4,0) node[right] {$s_{\NBFM}(t)$};
+\end{tikzpicture}
+\end{center}
+
+\textbf{Cristal} fornece $f_1$ estável; \textbf{integrador} converte $m(t)$ em $\phi(t)$; \textbf{defasador, multiplicador e somador} montam a soma em quadratura. Como $f_1$ não passa pelo modulador, sua estabilidade é preservada.
 
 \end{frame}
 
 % ============================================
 
-\subsection{Receptor Superheterodino}
+\begin{frame}{Cadeia Armstrong completa}
 
-\begin{frame}{Princípio do Receptor Superheterodino}
+\begin{center}
+\begin{tikzpicture}[>=latex, every node/.style={font=\footnotesize}]
+\node[draw, rectangle, minimum width=2cm, minimum height=0.9cm] (nbfm) at (0,0) {Mod.\ NBFM};
+\node[draw, rectangle, minimum width=1cm, minimum height=0.9cm] (n1) at (2.7,0) {$\times n_1$};
+\node[draw, circle, minimum size=0.8cm] (mix) at (4.6,0) {$\times$};
+\node[draw, rectangle, minimum width=1cm, minimum height=0.9cm] (bpf) at (6.4,0) {BPF};
+\node[draw, rectangle, minimum width=1cm, minimum height=0.9cm] (n2) at (8.3,0) {$\times n_2$};
+\node[draw, rectangle, minimum width=1.6cm, minimum height=0.8cm] (lo) at (4.6,-1.5) {Osc.\ $f_{LO}$};
 
-\textbf{Problema:} demodular diretamente em $f_c$ variável é complexo, pois o filtro precisaria ser ajustável e ainda muito seletivo.
+\draw[->] (-1.6,0) -- node[above] {$m(t)$} (nbfm);
+\draw[->] (nbfm) -- (n1);
+\draw[->] (n1) -- (mix);
+\draw[->] (mix) -- (bpf);
+\draw[->] (bpf) -- (n2);
+\draw[->] (n2) -- ++(1.5,0) node[right] {$s_{\FM}(t)$};
+\draw[->] (lo) -- (mix);
+\end{tikzpicture}
+\end{center}
 
-\vspace{0.3cm}
+\textbf{Em cada estágio:}
+\begin{itemize}\itemsep0pt
+\item Saída do NBFM: $f_1, \Delta f_1$ com $\beta_1 \ll 1$.
+\item Após $\times n_1$: $n_1 f_1,\, n_1 \Delta f_1,\, n_1\beta_1$.
+\item Mixer produz $f_2 \pm f_{LO}$; BPF seleciona uma das duas; $\Delta f$ inalterado.
+\item Após $\times n_2$: $n_2 f_3,\, n_1 n_2 \Delta f_1$.
+\end{itemize}
+
+\textbf{Liberdade de projeto:} produto $n_1 n_2$ ajusta $\Delta f_{\text{final}}$; $f_{LO}$ ajusta $f_c$ independentemente.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Cenário A: FM broadcast -- especificação e NBFM}
+
+\textbf{Meta:} $f_c = 100$\,MHz, $\Delta f = 75$\,kHz, $f_{m,\max} = 15$\,kHz.
+
 \pause
-\textbf{Solução:} converter todas as frequências recebidas para uma frequência intermediária IF fixa.
-
-\vspace{0.3cm}
-\pause
-\textbf{Relação fundamental:}
+\textbf{Estágio NBFM} (cristal de 200\,kHz, $\Delta f_1$ pequeno):
 \[
-f_{IF} = |f_{RF} - f_{LO}|
+f_1 = 200\,\text{kHz}, \quad \Delta f_1 = 25\,\text{Hz} \;\Rightarrow\; \beta_1 \approx 1{,}7\!\times\!10^{-3}.
 \]
 
 \pause
-Ajustando $f_{LO}$, qualquer $f_{RF}$ vai para $f_{IF}$ fixo. O filtro IF é projetado uma única vez para máxima seletividade.
+\textbf{Banda Carson após NBFM:}
+\[
+B_0 = 2(\Delta f_1 + f_{m,\max}) = 2(0{,}025 + 15)\,\text{kHz} \approx 30\,\text{kHz}.
+\]
+
+\pause
+\textbf{Multiplicação total:} $N = \dfrac{75\,000}{25} = 3000 = n_1\cdot n_2 = 60\cdot 50$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Cenário A: espectro após $\times n_1 = 60$}
+
+Não-linearidade do multiplicador gera comb $k f_1$, $k \in \{1, 2, 3, \ldots\}$. Filtro LC sintonizado em $60 f_1 = 12$\,MHz seleciona o 60º harmônico.
+
+\begin{center}
+\begin{tikzpicture}[>=latex, x=0.55cm, y=0.5cm, every node/.style={font=\footnotesize}]
+\draw[->] (-0.3,0) -- (15.5,0) node[right] {$f$\,[MHz]};
+\fill[green!15] (11.5,0) rectangle (12.5,2.6);
+\draw[thick, green!55!black] (11.5,0) -- (11.5,2.6) -- (12.5,2.6) -- (12.5,0);
+\node[green!55!black, anchor=south, font=\scriptsize] at (12,2.6) {Filtro LC};
+\foreach \k in {1,...,59,61,...,70} {
+  \pgfmathsetmacro{\xpos}{\k * 0.2}
+  \draw[gray!55, thin] (\xpos,0) -- (\xpos,1.5);
+}
+\draw[ultra thick, red!80!black] (12,0) -- (12,2.3);
+\node[red!80!black, anchor=south, font=\tiny] at (12,2.3) {$60 f_1$};
+\node[font=\tiny, gray!60!black, anchor=north] at (3,1.5) {harmônicos $k f_1$};
+\foreach \x in {0,2,4,6,8,10,12,14} {
+  \draw (\x,0) -- (\x,-0.1);
+  \node[anchor=north, font=\tiny] at (\x,-0.1) {\x};
+}
+\end{tikzpicture}
+\end{center}
+
+\textbf{Saída:} $f_2 = 12$\,MHz, $\Delta f_2 = 60\cdot 25 = 1{,}5$\,kHz.\quad
+\textbf{Banda:} $B_1 = 2(1{,}5 + 15) = 33$\,kHz (ainda dominada por $f_m$).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Cenário A: espectro na saída do mixer}
+
+\textbf{Necessidade:} $f_3 = 100/50 = 2$\,MHz.\quad
+\textbf{Escolha:} $f_{LO} = 10$\,MHz (subtrativo).
+
+\begin{center}
+\begin{tikzpicture}[>=latex, x=0.4cm, y=0.55cm, every node/.style={font=\footnotesize}]
+\draw[->] (-0.5,0) -- (25,0) node[right] {$f$\,[MHz]};
+\fill[green!15] (0.8,0) rectangle (3.2,2.5);
+\draw[thick, green!55!black] (0.8,0) -- (0.8,2.5) -- (3.2,2.5) -- (3.2,0);
+\node[green!55!black, anchor=south, font=\scriptsize] at (2,2.5) {BPF};
+\draw[ultra thick, red!80!black, ->] (2,0) -- (2,2.2);
+\node[red!80!black, anchor=south, font=\scriptsize] at (2,2.2) {$|f_2-f_{LO}|$};
+\node[red!80!black, anchor=north, font=\scriptsize] at (2,-0.6) {passa};
+\draw[ultra thick, gray, dashed, ->] (22,0) -- (22,2.2);
+\node[gray, anchor=south, font=\scriptsize] at (22,2.2) {$f_2+f_{LO}$};
+\node[gray, anchor=north, font=\scriptsize] at (22,-0.6) {rejeitado};
+\foreach \x in {2,5,10,15,20,22} {
+  \draw (\x,0) -- (\x,-0.12);
+  \node[anchor=north, font=\tiny] at (\x,-0.12) {\x};
+}
+\end{tikzpicture}
+\end{center}
+
+\textbf{BPF em 2\,MHz} entrega $f_3 = 2$\,MHz, $\Delta f_3 = 1{,}5$\,kHz.\quad
+\textbf{Banda:} $B_2 = 33$\,kHz (mixer não muda $\Delta f$ nem $f_m$).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Cenário A: espectro após $\times n_2 = 50$}
+
+Comb $k f_3$ para $k \in \{1, 2, 3, \ldots\}$. Filtro LC em $50 f_3 = 100$\,MHz seleciona o 50º harmônico.
+
+\begin{center}
+\begin{tikzpicture}[>=latex, x=0.085cm, y=0.5cm, every node/.style={font=\footnotesize}]
+\draw[->] (-2,0) -- (115,0) node[right] {$f$\,[MHz]};
+\fill[green!15] (97,0) rectangle (103,2.6);
+\draw[thick, green!55!black] (97,0) -- (97,2.6) -- (103,2.6) -- (103,0);
+\node[green!55!black, anchor=south, font=\scriptsize] at (100,2.6) {Filtro LC};
+\foreach \k in {1,...,49,51,...,55} {
+  \pgfmathsetmacro{\xpos}{\k * 2}
+  \draw[gray!55, thin] (\xpos,0) -- (\xpos,1.5);
+}
+\draw[ultra thick, red!80!black] (100,0) -- (100,2.3);
+\node[red!80!black, anchor=south, font=\tiny] at (100,2.3) {$50 f_3$};
+\node[font=\tiny, gray!60!black, anchor=north] at (30,1.5) {harmônicos $k f_3$};
+\foreach \x in {0,20,40,60,80,100} {
+  \draw (\x,0) -- (\x,-0.12);
+  \node[anchor=north, font=\tiny] at (\x,-0.12) {\x};
+}
+\end{tikzpicture}
+\end{center}
+
+\textbf{Saída final:} $f_c = 100$\,MHz \checkmark,\;\; $\Delta f = 75$\,kHz \checkmark,\;\; $\beta = 5$ (WBFM).
+
+\textbf{Banda:} $B_3 = 2(75 + 15) = 180$\,kHz -- agora dominada por $\Delta f$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Cenário B: NBFM de voz -- especificação e NBFM}
+
+\textbf{Meta:} $f_c = 100$\,MHz, $\Delta f = 5$\,kHz, $f_{m,\max} = 3$\,kHz (rádio comercial de voz).
+
+\pause
+\textbf{Estágio NBFM} (mesmo cristal de 200\,kHz):
+\[
+f_1 = 200\,\text{kHz}, \quad \Delta f_1 = 25\,\text{Hz} \;\Rightarrow\; \beta_1 \approx 8{,}3\!\times\!10^{-3}.
+\]
+
+\pause
+\textbf{Banda Carson após NBFM:} $B_0 = 2(0{,}025 + 3)\,\text{kHz} \approx 6\,\text{kHz}$.
+
+\pause
+\textbf{Multiplicação total} usando \emph{multiplicadores físicos} ($\times 2$ dobradores e $\times 5$ quintuplicadores):
+\[
+N = \frac{5000}{25} = 200 = n_1\cdot n_2 = \underbrace{8}_{\times 2\cdot\times 2\cdot\times 2}\cdot\underbrace{25}_{\times 5\cdot\times 5}.
+\]
+
+\textbf{Cadeia completa:} 3 dobradores $\to$ mixer $\to$ 2 quintuplicadores.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Cenário B: espectro após $\times n_1 = 8$}
+
+Cadeia $\times 2 \cdot \times 2 \cdot \times 2$: cada estágio Classe C gera comb $k f_{\text{in}}$ e o filtro LC seleciona o 2º harmônico. Resultado equivalente a um $\times 8$.
+
+\begin{center}
+\begin{tikzpicture}[>=latex, x=3.0cm, y=0.5cm, every node/.style={font=\footnotesize}]
+\draw[->] (-0.1,0) -- (2.8,0) node[right] {$f$\,[MHz]};
+\fill[green!15] (1.5,0) rectangle (1.7,2.6);
+\draw[thick, green!55!black] (1.5,0) -- (1.5,2.6) -- (1.7,2.6) -- (1.7,0);
+\node[green!55!black, anchor=south, font=\scriptsize] at (1.6,2.6) {Filtro LC};
+\foreach \k in {1,...,7,9,...,12} {
+  \pgfmathsetmacro{\xpos}{\k * 0.2}
+  \draw[gray!55, thin] (\xpos,0) -- (\xpos,1.5);
+}
+\draw[ultra thick, red!80!black] (1.6,0) -- (1.6,2.3);
+\node[red!80!black, anchor=south, font=\tiny] at (1.6,2.3) {$8 f_1$};
+\foreach \x in {0,0.5,1,1.5,2,2.5} {
+  \draw (\x,0) -- (\x,-0.12);
+  \node[anchor=north, font=\tiny] at (\x,-0.12) {\x};
+}
+\end{tikzpicture}
+\end{center}
+
+\textbf{Saída:} $f_2 = 8 \cdot 200\,\text{kHz} = 1{,}6$\,MHz,\;\; $\Delta f_2 = 8 \cdot 25\,\text{Hz} = 200$\,Hz.
+
+\textbf{Banda:} $B_1 = 2(0{,}2 + 3) = 6{,}4$\,kHz.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Cenário B: espectro na saída do mixer}
+
+\textbf{Necessidade:} $f_3 = 100/25 = 4$\,MHz.\quad
+Como $f_3 > f_2 = 1{,}6$\,MHz, escolhemos $f_{LO} = 2{,}4$\,MHz (\textbf{aditivo}).
+
+\begin{center}
+\begin{tikzpicture}[>=latex, x=1.4cm, y=0.55cm, every node/.style={font=\footnotesize}]
+\draw[->] (-0.2,0) -- (5.2,0) node[right] {$f$\,[MHz]};
+\fill[green!15] (3.6,0) rectangle (4.4,2.5);
+\draw[thick, green!55!black] (3.6,0) -- (3.6,2.5) -- (4.4,2.5) -- (4.4,0);
+\node[green!55!black, anchor=south, font=\scriptsize] at (4,2.5) {BPF};
+\draw[ultra thick, gray, dashed, ->] (0.8,0) -- (0.8,2.2);
+\node[gray, anchor=south, font=\scriptsize] at (0.8,2.2) {$|f_2-f_{LO}|$};
+\node[gray, anchor=north, font=\scriptsize] at (0.8,-0.6) {rejeitado};
+\draw[ultra thick, red!80!black, ->] (4,0) -- (4,2.2);
+\node[red!80!black, anchor=south, font=\scriptsize] at (4,2.2) {$f_2+f_{LO}$};
+\node[red!80!black, anchor=north, font=\scriptsize] at (4,-0.6) {passa};
+\foreach \x in {0.8,1.6,2.4,4} {
+  \draw (\x,0) -- (\x,-0.12);
+  \node[anchor=north, font=\tiny] at (\x,-0.12) {\x};
+}
+\end{tikzpicture}
+\end{center}
+
+\textbf{BPF em 4\,MHz} entrega $f_3 = 4$\,MHz, $\Delta f_3 = 200$\,Hz.\quad
+\textbf{Banda:} $B_2 = 6{,}4$\,kHz.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Cenário B: espectro após $\times n_2 = 25$}
+
+Cadeia $\times 5 \cdot \times 5$: cada estágio Classe C com filtro LC selecionando o 5º harmônico. Resultado equivalente a um $\times 25$.
+
+\begin{center}
+\begin{tikzpicture}[>=latex, x=0.085cm, y=0.5cm, every node/.style={font=\footnotesize}]
+\draw[->] (-2,0) -- (115,0) node[right] {$f$\,[MHz]};
+\fill[green!15] (97,0) rectangle (103,2.6);
+\draw[thick, green!55!black] (97,0) -- (97,2.6) -- (103,2.6) -- (103,0);
+\node[green!55!black, anchor=south, font=\scriptsize] at (100,2.6) {Filtro LC};
+\foreach \k in {1,...,24,26,27} {
+  \pgfmathsetmacro{\xpos}{\k * 4}
+  \draw[gray!55, thin] (\xpos,0) -- (\xpos,1.5);
+}
+\draw[ultra thick, red!80!black] (100,0) -- (100,2.3);
+\node[red!80!black, anchor=south, font=\tiny] at (100,2.3) {$25 f_3$};
+\foreach \x in {0,20,40,60,80,100} {
+  \draw (\x,0) -- (\x,-0.12);
+  \node[anchor=north, font=\tiny] at (\x,-0.12) {\x};
+}
+\end{tikzpicture}
+\end{center}
+
+\textbf{Saída final:} $f_c = 25 \cdot 4 = 100$\,MHz \checkmark,\;\; $\Delta f = 25 \cdot 200 = 5$\,kHz \checkmark,\;\; $\beta \approx 1{,}67$.
+
+\textbf{Banda:} $B_3 = 2(5 + 3) = 16$\,kHz.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}[shrink=10]{Expansão de banda na cadeia Armstrong}
+
+A multiplicação $\times n$ multiplica $\Delta f$ por $n$, mas \textbf{não} muda $f_m$. Logo, a banda Carson cresce conforme $\Delta f$ supera $f_m$.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+Estágio & $f_c$ & $\Delta f$ & $\beta$ & $B = 2(\Delta f + f_m)$ \\
+\midrule
+\multicolumn{5}{l}{\emph{Cenário A} ($f_m = 15$\,kHz)} \\
+NBFM             & 200\,kHz  & 25\,Hz     & 0{,}0017 & 30\,kHz  \\
+$\times 60$      & 12\,MHz   & 1{,}5\,kHz & 0{,}1    & 33\,kHz  \\
+mixer            & 2\,MHz    & 1{,}5\,kHz & 0{,}1    & 33\,kHz  \\
+$\times 50$      & 100\,MHz  & 75\,kHz    & 5        & \textbf{180\,kHz} \\
+\midrule
+\multicolumn{5}{l}{\emph{Cenário B} ($f_m = 3$\,kHz)} \\
+NBFM             & 200\,kHz   & 25\,Hz   & 0{,}0083 & 6\,kHz   \\
+$\times 8$       & 1{,}6\,MHz & 200\,Hz  & 0{,}067  & 6{,}4\,kHz \\
+mixer            & 4\,MHz     & 200\,Hz  & 0{,}067  & 6{,}4\,kHz \\
+$\times 25$      & 100\,MHz   & 5\,kHz   & 1{,}67   & \textbf{16\,kHz}  \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\small
+\textbf{Padrão:} enquanto $\beta \ll 1$ a banda quase não cresce ($\approx 2 f_m$). Só no estágio final, com $\beta \gtrsim 1$, a banda passa a ser dominada por $\Delta f$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resumo dos dois cenários}
+
+\begin{center}
+\footnotesize
+\begin{tabular}{lcc}
+\toprule
+Parâmetro & Cenário A (broadcast) & Cenário B (voz NBFM) \\
+\midrule
+$f_c$ final            & 100\,MHz       & 100\,MHz       \\
+$\Delta f$ final       & 75\,kHz        & 5\,kHz         \\
+$f_{m,\max}$           & 15\,kHz        & 3\,kHz         \\
+$\beta$ final          & 5 (WBFM)       & 1{,}67         \\
+\midrule
+$f_1, \Delta f_1$      & 200\,kHz, 25\,Hz & 200\,kHz, 25\,Hz \\
+$N = n_1 n_2$          & 3000 = 60$\cdot$50 & 200 = $2^3\cdot 5^2$ = 8$\cdot$25 \\
+Cadeia                 & --                 & 3 dobr. + 2 quint. \\
+$f_{LO}$               & 10\,MHz (subtr.)   & 2{,}4\,MHz (aditivo) \\
+BPF passa              & 2\,MHz             & 4\,MHz         \\
+BPF rejeita            & 22\,MHz            & 0{,}8\,MHz     \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\small
+\textbf{Observação:} mesmo cristal e mesma $f_c$ final, mas $\Delta f$ muito diferentes. A flexibilidade vem da escolha de $N$ e do sentido do mixer.
+
+\end{frame}
+
+% ============================================
+
+\section{Receptor Superheterodino}
+
+\begin{frame}{O problema: várias estações compartilham a antena}
+
+A antena recebe \textbf{toda} a faixa FM (88--108\,MHz), com canais espaçados de 200\,kHz. Para ouvir uma estação só, é preciso \emph{filtrar} apenas o canal desejado e rejeitar os adjacentes.
+
+\begin{center}
+\begin{tikzpicture}[>=latex, x=2.2cm, y=0.55cm, every node/.style={font=\footnotesize}]
+\draw[->] (-0.2,0) -- (3.4,0) node[right] {$f$\,[MHz]};
+% Estações vizinhas (azul)
+\foreach \k in {-5,-4,-3,-2,-1,1,2,3,4,5} {
+  \pgfmathsetmacro{\xpos}{1.6 + \k * 0.18}
+  \draw[blue!60, thick] (\xpos,0) -- (\xpos,1.2);
+}
+% Estação desejada em 100 MHz
+\draw[ultra thick, red!80!black] (1.6,0) -- (1.6,2.4);
+\node[red!80!black, anchor=south, font=\scriptsize] at (1.6,2.4) {$f_d = 100$};
+% Vizinhas marcadas
+\node[blue!60!black, font=\tiny, anchor=south] at (1.42,1.2) {99,8};
+\node[blue!60!black, font=\tiny, anchor=south] at (1.78,1.2) {100,2};
+% Espaçamento
+\draw[<->, thick] (1.42,1.7) -- (1.78,1.7);
+\node[font=\scriptsize] at (1.6,1.9) {200\,kHz};
+% Ticks
+\foreach \x/\lab in {0.6/{98},1.6/{100},2.6/{102}} {
+  \draw (\x,0) -- (\x,-0.12);
+  \node[anchor=north, font=\tiny] at (\x,-0.12) {\lab};
+}
+\end{tikzpicture}
+\end{center}
+
+\textbf{Objetivo do filtro RF:} passar 100\,MHz, atenuar 99,8 e 100,2\,MHz (vizinhas a apenas 200\,kHz).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}[shrink=8]{Por que filtrar direto em $f_c$ é difícil}
+
+\textbf{Seletividade exigida:} $Q = \dfrac{f_c}{B_{\text{canal}}} = \dfrac{100\,\text{MHz}}{200\,\text{kHz}} = 500$.
+
+\pause
+\textbf{Conflito $Q$ alto vs.\ sintonia.} Olhando as tecnologias de filtro:
+
+\begin{center}
+\footnotesize
+\begin{tabular}{lccc}
+\toprule
+Tecnologia & $Q$ típico & Sintonizável? & Comentário \\
+\midrule
+LC paralelo (varactor) & 50--200 & \textbf{sim}  & $Q$ insuficiente \\
+Cerâmico               & 200--1000 & não         & freq.\ fixa \\
+Cristal de quartzo     & $10^3$--$10^5$ & não    & freq.\ fixa \\
+SAW                    & 5000--20000 & não        & freq.\ fixa \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\pause
+\textbf{Quem tem $Q \geq 500$ não é tunável.}\quad \textbf{Quem é tunável (LC) não atinge $Q = 500$.}
+
+\pause
+\textbf{Visualização:} mover o filtro pelo eixo $f$ enquanto mantém $B = 200$\,kHz:
+\begin{center}
+\begin{tikzpicture}[>=latex, x=0.4cm, y=0.4cm, every node/.style={font=\footnotesize}]
+\draw[->] (-1,0) -- (22,0) node[right] {$f$\,[MHz]};
+\draw[thick, green!55!black, fill=green!12] plot[domain=-1.5:1.5, samples=40] (4 + \x, {1.6/(1+(\x/0.35)^2)}) -- (5.5,0) -- (2.5,0) -- cycle;
+\draw[thick, green!55!black, dashed, fill=green!12, opacity=0.5] plot[domain=-1.5:1.5, samples=40] (12 + \x, {1.6/(1+(\x/0.35)^2)}) -- (13.5,0) -- (10.5,0) -- cycle;
+\draw[thick, green!55!black, dashed, fill=green!12, opacity=0.3] plot[domain=-1.5:1.5, samples=40] (20 + \x, {1.6/(1+(\x/0.35)^2)}) -- (21.5,0) -- (18.5,0) -- cycle;
+\node[font=\tiny] at (4,2.0) {88\,MHz};
+\node[font=\tiny] at (12,2.0) {100\,MHz};
+\node[font=\tiny] at (20,2.0) {108\,MHz};
+\foreach \x in {0,4,8,12,16,20} {
+  \draw (\x,0) -- (\x,-0.1);
+  \pgfmathtruncatemacro{\flab}{\x + 88}
+  \node[anchor=north, font=\tiny] at (\x,-0.1) {\flab};
+}
+\end{tikzpicture}
+\end{center}
+
+\textbf{Conclusão:} filtro $Q=500$ e tunável de 88--108\,MHz é inviável.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Solução: trabalhar numa frequência intermediária fixa}
+
+\textbf{Ideia:} em vez de mover o filtro, \textbf{mover o sinal} até uma frequência intermediária IF \emph{fixa}, onde um único filtro de alto $Q$ basta.
+
+\begin{center}
+\begin{tikzpicture}[>=latex, x=0.4cm, y=0.5cm, every node/.style={font=\footnotesize}]
+% Eixo
+\draw[->] (-1,0) -- (22,0) node[right] {$f$\,[MHz]};
+% Estações na faixa RF
+\foreach \k in {0,4,8,12,16,20} {
+  \draw[blue!60, thick] (\k,0) -- (\k,1.0);
+}
+\draw[ultra thick, red!80!black] (12,0) -- (12,1.6);
+\node[red!80!black, anchor=south, font=\tiny] at (12,1.6) {$f_d = 100$};
+% Seta do mixer
+\draw[->, very thick, orange!80!black] (12,-0.6) -- (-3,-1.5);
+\node[orange!80!black, font=\scriptsize] at (5,-1.2) {mixer + $f_{LO}$};
+% IF axis (deslocada)
+\draw[->] (-12,-2.5) -- (3,-2.5) node[right] {$f$\,[MHz]};
+\draw[ultra thick, red!80!black] (-2.6,-2.5) -- (-2.6,-1.0);
+\node[red!80!black, anchor=south, font=\tiny] at (-2.6,-1.0) {$f_{IF} = 10{,}7$};
+% Filtro IF
+\fill[green!15] (-3.6,-2.5) rectangle (-1.6,-1.2);
+\draw[thick, green!55!black] (-3.6,-2.5) -- (-3.6,-1.2) -- (-1.6,-1.2) -- (-1.6,-2.5);
+\node[green!55!black, anchor=south, font=\tiny] at (-2.6,-1.2) {filtro IF (fixo)};
+% Ticks IF
+\foreach \x/\lab in {-12/0,-7/5,-2.6/{10,7},2/15} {
+  \draw (\x,-2.5) -- (\x,-2.6);
+  \node[anchor=north, font=\tiny] at (\x,-2.6) {\lab};
+}
+% Ticks RF
+\foreach \x in {0,4,8,12,16,20} {
+  \draw (\x,0) -- (\x,-0.1);
+  \pgfmathtruncatemacro{\flab}{\x + 88}
+  \node[anchor=north, font=\tiny] at (\x,-0.1) {\flab};
+}
+\end{tikzpicture}
+\end{center}
+
+\textbf{Trocou-se um problema por outro:} agora o filtro é fixo (fácil), e o que sintoniza é o oscilador local $f_{LO}$ (também fácil -- VCO ajustável).
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Relação fundamental do superheterodino}
+
+A mistura entre o sinal recebido e o oscilador local produz duas componentes; o filtro IF seleciona uma delas:
+\[
+\boxed{\;f_{IF} = |f_{RF} - f_{LO}|\;}
+\]
+
+\pause
+\textbf{Para sintonizar $f_{RF}$:} basta ajustar $f_{LO}$ tal que $f_{LO} = f_{RF} + f_{IF}$ (ou $f_{RF} - f_{IF}$).
+
+\pause
+\textbf{Exemplo: rádio FM com $f_{IF} = 10{,}7$\,MHz.}
+\begin{center}
+\footnotesize
+\begin{tabular}{ccc}
+\toprule
+$f_{RF}$ desejada & $f_{LO}$ (alto) & $f_{IF}$ \\
+\midrule
+88\,MHz   & 98{,}7\,MHz   & 10{,}7\,MHz \\
+100\,MHz  & 110{,}7\,MHz  & 10{,}7\,MHz \\
+108\,MHz  & 118{,}7\,MHz  & 10{,}7\,MHz \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{$f_{LO}$ tunável de 98,7 a 118,7\,MHz} (oscilador é fácil de variar); \textbf{filtro IF fixo em 10,7\,MHz} (filtro de cristal/cerâmico de alto $Q$, projetado uma vez).
 
 \end{frame}
 
@@ -1663,21 +2423,14 @@ Ajustando $f_{LO}$, qualquer $f_{RF}$ vai para $f_{IF}$ fixo. O filtro IF é pro
    \item Melhor controle de ganho (AGC)
    \end{itemize}
 
-\item \textbf{Estabilidade:}
+\item \textbf{Estabilidade do caminho IF:}
    \begin{itemize}
-   \item Osciladores em frequência fixa são mais estáveis
+   \item Filtro IF, amp IF e demodulador operam em frequência fixa $\to$ deriva térmica e tolerâncias previsíveis e calibráveis
+   \item O LO continua variável; sua estabilidade é tratada à parte (cristal, PLL, AFC)
    \end{itemize}
 \end{enumerate}
 
-\textbf{Problema: Frequência Imagem}
-
-Duas frequências produzem mesmo $f_{IF}$:
-\begin{itemize}
-\item Desejada: $f_s = f_{LO} + f_{IF}$
-\item Imagem: $f_{im} = f_{LO} - f_{IF}$
-\end{itemize}
-
-\textbf{Solução:} Filtro de RF rejeita frequência imagem antes do mixer
+\textbf{Próximo problema:} a mistura cria uma \textbf{frequência imagem} que precisa ser rejeitada antes do mixer.
 
 \end{frame}
 
@@ -1721,11 +2474,92 @@ Fora da banda FM (88-108 MHz) $\rightarrow$ filtro RF facilmente rejeita
 
 \begin{frame}{Visualização: Problema da Frequência Imagem}
 
+\textbf{Receptor com} $f_{IF} = 10{,}7$\,MHz, $f_{LO} = 110{,}7$\,MHz. Sinal desejado em $f_d = 100$\,MHz; \textbf{imagem} em $f_i = f_{LO} + f_{IF} = 121{,}4$\,MHz.
+
 \begin{center}
-\includegraphics[height=0.72\textheight,keepaspectratio]{figures/cap4/superheterodyne_image.pdf}
+\begin{tikzpicture}[>=latex, x=0.36cm, y=0.5cm, every node/.style={font=\footnotesize}]
+\draw[->] (-1,0) -- (32,0) node[right] {$f$\,[MHz]};
+% Sinal desejado em 100 MHz (x = 5)
+\draw[ultra thick, blue!80!black] (5,0) -- (5,2.8);
+\node[blue!80!black, anchor=south, font=\scriptsize] at (5,2.8) {$f_d = 100$};
+% LO em 110.7 MHz (x = 15.7)
+\draw[thick, green!55!black, dashed] (15.7,0) -- (15.7,3.3);
+\node[green!55!black, anchor=south, font=\scriptsize] at (15.7,3.3) {$f_{LO} = 110{,}7$};
+% Imagem em 121.4 MHz (x = 26.4)
+\draw[ultra thick, red!80!black] (26.4,0) -- (26.4,2.8);
+\node[red!80!black, anchor=south, font=\scriptsize] at (26.4,2.8) {$f_i = 121{,}4$};
+% Setas mostrando 10.7 MHz de cada lado de f_LO
+\draw[<->, blue!80!black, thick] (5,1.6) -- (15.7,1.6);
+\node[blue!80!black, anchor=south, font=\tiny] at (10.35,1.6) {$f_{LO}-f_d = 10{,}7$};
+\draw[<->, red!80!black, thick] (15.7,1) -- (26.4,1);
+\node[red!80!black, anchor=south, font=\tiny] at (21.05,1) {$f_i-f_{LO} = 10{,}7$};
+% Ticks (95, 100, 105, ..., 125)
+\foreach \k in {0,5,...,30} {
+  \pgfmathtruncatemacro{\flab}{\k + 95}
+  \draw (\k,0) -- (\k,-0.12);
+  \node[anchor=north, font=\tiny] at (\k,-0.12) {\flab};
+}
+\end{tikzpicture}
 \end{center}
 
-\small O filtro RF deve rejeitar a frequência imagem antes do mixer.
+\textbf{Após o mixer:} tanto $f_d$ quanto $f_i$ caem em $f_{IF} = 10{,}7$\,MHz e se somam, gerando interferência. \textbf{Filtro de RF antes do mixer} atenua $f_i$ preservando $f_d$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Como o filtro RF atua sobre a imagem}
+
+\only<1>{\textbf{Sem filtro:} $f_d = 100$\,MHz e $f_i = 121{,}4$\,MHz chegam ambos ao mixer e colidem em $f_{IF}$.}
+\only<2>{\textbf{Inserindo filtro RF:} passa-faixa largo cobrindo 88--108\,MHz da banda comercial.}
+\only<3>{\textbf{Resultado:} $f_d$ está dentro da passagem (passa); $f_i$ está fora (atenuada).}
+
+\begin{center}
+\begin{tikzpicture}[>=latex, x=0.32cm, y=0.55cm, every node/.style={font=\footnotesize}]
+\draw[->] (-1,0) -- (37,0) node[right] {$f$\,[MHz]};
+
+% Filtro RF aparece a partir do estágio 2
+\only<2->{
+  \fill[green!12] plot[domain=-3.5:3.5, samples=80] (10+\x*3, {2.5/(1+(\x/2.5)^6)}) -- (21,0) -- (-1,0) -- cycle;
+  \draw[thick, green!55!black] plot[domain=-3.5:3.5, samples=80] (10+\x*3, {2.5/(1+(\x/2.5)^6)});
+  \node[green!55!black, anchor=south, font=\scriptsize] at (10,2.55) {filtro RF};
+  \draw[<->, thick, green!55!black] (0,-0.55) -- (20,-0.55);
+  \node[green!55!black, font=\tiny, anchor=north] at (10,-0.55) {$B_{RF} = 20$\,MHz};
+}
+
+% Sinal desejado em 100 MHz - sempre presente, altura cheia
+\draw[ultra thick, blue!80!black] (12,0) -- (12,2.3);
+\node[blue!80!black, anchor=south, font=\scriptsize] at (12,2.3) {$f_d = 100$};
+
+% LO em 110.7 - sempre tracejado
+\draw[thick, gray!40!black, dashed] (22.7,0) -- (22.7,1.6);
+\node[gray!40!black, anchor=south, font=\tiny] at (22.7,1.6) {$f_{LO}$};
+
+% Imagem em 121.4 - cheia nos estágios 1-2, atenuada no estágio 3
+\only<1-2>{
+  \draw[ultra thick, red!80!black] (33.4,0) -- (33.4,2.3);
+  \node[red!80!black, anchor=south, font=\scriptsize] at (33.4,2.3) {$f_i = 121{,}4$};
+}
+\only<3>{
+  \draw[ultra thick, red!80!black, dashed] (33.4,0) -- (33.4,2.3);
+  \draw[ultra thick, red!80!black] (33.4,0) -- (33.4,0.3);
+  \node[red!80!black, anchor=south, font=\scriptsize] at (33.4,2.3) {$f_i$ atenuada};
+}
+
+% Ticks sempre presentes
+\foreach \x/\lab in {0/88, 12/100, 20/108, 33.4/121.4} {
+  \draw (\x,0) -- (\x,-0.12);
+  \node[anchor=north, font=\tiny] at (\x,-0.16) {\lab};
+}
+\end{tikzpicture}
+\end{center}
+
+\only<3>{
+\textbf{Especificação do filtro RF:} rejeitar acima de 108\,MHz. A imagem está a $121{,}4 - 108 = 13{,}4$\,MHz da borda -- distância confortável.\quad
+\textbf{$Q$ exigido:} $\sim f_c / 2 f_{IF} \approx 5$.
+
+\textbf{Divisão de trabalho:} filtro RF (largo, $Q\sim 5$) cuida da imagem; filtro IF (estreito, $Q = 50$ em 10,7\,MHz) cuida da seleção de canal de 200\,kHz.
+}
 
 \end{frame}
 
@@ -1745,7 +2579,7 @@ Fora da banda FM (88-108 MHz) $\rightarrow$ filtro RF facilmente rejeita
 
 % ============================================
 
-\subsection{FDM}
+\section{FDM}
 
 \begin{frame}{Multiplexação por Divisão de Frequência}
 
