@@ -8,6 +8,7 @@
 \usepackage{float}
 \usepackage{enumitem}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{xcolor}
 \usepackage{tcolorbox}
 \geometry{margin=2.5cm}
@@ -75,17 +76,56 @@
       que no AM convencional com detector de envoltória.
     \end{nota}
 
-  \item \textbf{Como o SSB se comporta em relação ao DSB-SC quando há erro de fase no oscilador local?}
+  \item \textbf{Por que a demodulação do SSB é mais sensível ao erro de frequência do oscilador local do que a do DSB-SC? O que acontece no domínio da frequência quando há um pequeno desvio $\Delta f$ na portadora local?}
 
-    \textbf{Resposta esperada:} No DSB-SC, um erro de fase $\theta$ atenua o sinal
-    recuperado por $\cos\theta$ sem distorção de forma de onda. No SSB, um erro de fase
-    distorce a forma de onda além de atenuar, porque a transformada de Hilbert e a
-    portadora devem estar em perfeita quadratura. Um erro de fase gera mistura das
-    componentes I e Q, causando distorção harmônica audível em sinais de voz.
+    \textbf{Resposta esperada:} Demodulando com LO em $f_c + \Delta f$ e aplicando o passa-baixas,
+    obtém-se:
+
+    \textit{DSB-SC:} $s(t) = m(t)\cos(2\pi f_c t)$ fornece
+    \[
+      y_{\text{DSB}}(t) = m(t)\cos(2\pi \Delta f\, t),
+      \qquad
+      Y(f) = \tfrac{1}{2}\bigl[M(f-\Delta f) + M(f+\Delta f)\bigr].
+    \]
+    O espectro recebe duas cópias deslocadas de $\pm\Delta f$ (\emph{duplicação espectral}).
+    Cada tom em $f_k$ aparece em $f_k - \Delta f$ \emph{e} $f_k + \Delta f$ com metade da
+    amplitude, produzindo batimento/intermodulação.
+
+    \textit{SSB-USB:} $s(t) = m(t)\cos(2\pi f_c t) - \hat{m}(t)\sin(2\pi f_c t)$ fornece
+    \[
+      y_{\text{SSB}}(t) = m(t)\cos(2\pi \Delta f\, t) + \hat{m}(t)\sin(2\pi \Delta f\, t)
+                       = \mathrm{Re}\bigl\{m_+(t)\,e^{-j2\pi \Delta f\, t}\bigr\}.
+    \]
+    Como $m_+(t) = m(t) + j\hat{m}(t)$ tem espectro unilateral, o resultado é uma
+    \emph{translação rígida} do espectro da mensagem por $-\Delta f$: cada componente
+    $f_k$ vai exatamente para $f_k - \Delta f$ com amplitude preservada.
+
+    \textbf{Por que SSB é mais crítico?} A translação rígida destrói a relação harmônica
+    do sinal: se $m(t)$ é voz com fundamental $f_0$ e harmônicos $n f_0$, o resultado
+    $n f_0 - \Delta f$ não é mais múltiplo inteiro do novo fundamental $f_0 - \Delta f$.
+    O efeito audível é o ``Donald Duck'' / ``Mickey Mouse'' característico do SSB
+    dessintonizado. Já no DSB-SC, ainda que o sinal sofra batimento, as frequências
+    presentes guardam relação com as originais. Critério prático: para voz inteligível,
+    SSB exige $|\Delta f| \lesssim 10$\,Hz; DSB-SC tolera valores algo maiores.
+
+    \begin{nota}[Simulação numérica de referência]
+      Para uma mensagem com tons em 300, 600 e 900\,Hz e $\Delta f = 50$\,Hz:
+      \begin{itemize}
+        \item DSB-SC produz picos em 250/350, 550/650, 850/950\,Hz (cada um com metade
+          da amplitude original);
+        \item SSB-USB produz picos únicos em 250, 550, 850\,Hz (amplitude original
+          preservada) -- claramente não-harmônicos do novo fundamental 250\,Hz.
+      \end{itemize}
+      Veja \texttt{simular\_erro\_freq.py} e \texttt{grafico\_erro\_freq\_lo.png}
+      nesta pasta.
+    \end{nota}
 
     \begin{nota}[Erros comuns]
-      Afirmar que SSB e DSB-SC têm a mesma sensibilidade ao erro de fase, ignorando
-      que no SSB o erro de fase causa distorção de forma de onda, não apenas atenuação.
+      Confundir erro de \emph{frequência} ($\Delta f$, deslocamento espectral) com erro
+      de \emph{fase} ($\theta$, atenuação por $\cos\theta$ ou mistura I/Q). Ou afirmar
+      que SSB e DSB-SC têm a mesma sensibilidade ao $\Delta f$, ignorando que no SSB o
+      espectro é transladado rigidamente (destruindo harmônicos), enquanto no DSB-SC
+      ele é duplicado.
     \end{nota}
 
   \item \textbf{Compare o método de filtragem com o método da transformada de Hilbert para geração de SSB.}
@@ -113,7 +153,7 @@
   Q1 -- Identificação correta de USB/LSB com frequências numéricas         & 1,0 ponto \\
   Q2 -- $B_\text{SSB} = f_m$ e $B_\text{DSB} = 2f_m$ com valores medidos  & 1,0 ponto \\
   Q3 -- Vantagens e desvantagens com menção à complexidade de demodulação  & 1,0 ponto \\
-  Q4 -- Distorção de forma de onda no SSB vs.\ atenuação simples no DSB-SC & 1,0 ponto \\
+  Q4 -- Translação rígida do espectro no SSB vs.\ duplicação no DSB-SC      & 1,0 ponto \\
   Q5 -- Comparação dos dois métodos com limitações de cada um              & 1,0 ponto \\
   \midrule
   \textbf{Total} & \textbf{5,0 pontos} \\
