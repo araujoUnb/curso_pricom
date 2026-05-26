@@ -57,29 +57,30 @@
 
 \begin{itemize}
   \item Compreender a estrutura do PLL: detector de fase, filtro de laço
-    e oscilador controlado por tensão (VCO).
+    e oscilador controlado por tensão.
   \item Observar a convergência do erro de fase e o processo de
     \textit{lock} no GNU Radio.
-  \item Analisar o efeito da largura de banda do laço (\textit{loop
-    bandwidth}) no tempo de convergência e na sensibilidade ao ruído.
-  \item Determinar experimentalmente a faixa de captura
-    (\textit{capture range}) do PLL.
+  \item Analisar o efeito da largura de banda do laço no tempo de
+    convergência e na sensibilidade ao ruído.
+  \item Determinar experimentalmente a faixa de captura do PLL.
   \item Observar a degradação do PLL em presença de ruído gaussiano.
 \end{itemize}
 
 % ======================================================
-\section{Fundamentos teóricos (síntese)}
+\section{Fundamentos teóricos}
 
-O PLL é um sistema realimentado que trava a fase (e frequência) do seu
-oscilador interno na fase do sinal de entrada. Seus três blocos essenciais são:
+O PLL é um sistema realimentado que trava a fase e a frequência do seu
+oscilador interno na fase do sinal de entrada. Seus três blocos essenciais
+são:
 
 \begin{enumerate}
-  \item \textbf{Detector de fase (PD):} compara as fases do sinal de entrada
-    $\phi_i$ e do VCO $\phi_o$. Saída $\propto \sin(\phi_i - \phi_o)$.
-  \item \textbf{Filtro de laço (LF):} filtro passa-baixas que suaviza a saída
-    do PD. Define a largura de banda do laço $\omega_n$.
-  \item \textbf{VCO:} oscilador cuja frequência instantânea é controlada
-    pelo sinal de erro: $\omega_\text{VCO}(t) = \omega_0 + K_v\,e(t)$.
+  \item Detector de fase: compara as fases do sinal de entrada
+    $\phi_i$ e do VCO $\phi_o$. Saída proporcional a
+    $\sin(\phi_i - \phi_o)$.
+  \item Filtro de laço: filtro passa-baixas que suaviza a saída do
+    detector de fase. Define a largura de banda do laço $\omega_n$.
+  \item VCO: oscilador cuja frequência instantânea é controlada pelo sinal
+    de erro filtrado, $\omega_\text{VCO}(t) = \omega_0 + K_v\,e(t)$.
 \end{enumerate}
 
 A equação em malha fechada para pequenos erros de fase é:
@@ -87,8 +88,8 @@ A equação em malha fechada para pequenos erros de fase é:
   \frac{d}{dt}\phi_e(t) = \omega_i - \omega_0 - K_v K_d\,\phi_e(t),
 \end{equation}
 onde $K_d$ é o ganho do detector de fase e $K_v$ é o ganho do VCO.
-O sistema converge (trava) se $|\omega_i - \omega_0|$ estiver dentro
-da \textbf{faixa de captura} $\Delta\omega_\text{cap} \approx 2\omega_n$.
+O sistema trava quando $|\omega_i - \omega_0|$ está dentro da faixa de
+captura $\Delta\omega_\text{cap} \approx 2\omega_n$.
 
 % ======================================================
 \section{Materiais e blocos GNU Radio}
@@ -97,18 +98,17 @@ da \textbf{faixa de captura} $\Delta\omega_\text{cap} \approx 2\omega_n$.
   \centering
   \begin{tabular}{l l l}
     \toprule
-    \textbf{Bloco GRC} & \textbf{Localização} & \textbf{Função} \\
+    Bloco GRC & Localização & Função \\
     \midrule
-    \texttt{Variable}          & Miscellaneous       & Parâmetros globais \\
-    \texttt{Signal Source}     & Waveform Generators & Sinal de referência \\
-    \texttt{Noise Source}      & Waveform Generators & Ruído gaussiano \\
-    \texttt{Add}               & Math Operators      & Somar ruído \\
-    \texttt{PLL Freq Det}      & Synchronizers       & PLL com saída de frequência \\
-    \texttt{PLL CarrierTracking}& Synchronizers      & PLL com saída de fase \\
-    \texttt{Throttle}          & Misc Operators      & Controle de CPU \\
-    \texttt{QT GUI Time Sink}  & Instrumentation     & Formas de onda \\
-    \texttt{QT GUI Freq Sink}  & Instrumentation     & Espectros \\
-    \texttt{QT GUI Range}      & GUI Widgets         & Controles deslizantes \\
+    \texttt{Variable}               & Variables           & Parâmetros globais \\
+    \texttt{QT GUI Range}           & GUI Widgets         & Controle deslizante \\
+    \texttt{Signal Source}          & Waveform Generators & Sinal de referência \\
+    \texttt{Noise Source}           & Waveform Generators & Ruído gaussiano \\
+    \texttt{Add}                    & Math Operators      & Soma sinal + ruído \\
+    \texttt{PLL Frequency Detector} & Synchronizers       & PLL com saída de frequência \\
+    \texttt{Throttle}               & Misc                & Controle de CPU \\
+    \texttt{QT GUI Time Sink}       & Instrumentation     & Formas de onda \\
+    \texttt{QT GUI Frequency Sink}  & Instrumentation     & Espectro \\
     \bottomrule
   \end{tabular}
   \caption{Blocos utilizados na Prática 06.}
@@ -121,37 +121,35 @@ da \textbf{faixa de captura} $\Delta\omega_\text{cap} \approx 2\omega_n$.
 
 \begin{center}
 \begin{tabular}{l l}
-  \texttt{samp\_rate} = 32\,000\,Hz & Frequência de entrada: 1\,000\,Hz \\
-  Loop bandwidth: $2\pi \times 50$ rad/s & Max/Min freq: $\pm$2\,000\,Hz \\
+  \texttt{samp\_rate} = 32000\,Hz & Frequência de entrada: 1000\,Hz \\
+  \texttt{loop\_bw} = 0{,}062 rad/amostra & Limites de fase: $\pm\,2\pi \times 2000/f_s$ \\
 \end{tabular}
 \end{center}
 
-\subsection*{Etapa 1 -- Flowgraph básico com PLL Freq Det (0--12 min)}
+\subsection*{Etapa 1 -- Flowgraph básico com PLL Frequency Detector (0--12 min)}
 
 \begin{instrucao}[Construção do PLL básico]
 \begin{enumerate}[label=\arabic*.]
-  \item Crie variável \texttt{samp\_rate = 32000}.
-  \item Crie variável \texttt{loop\_bw} como \texttt{QT GUI Range}:
-    min = 0.01, max = 0.628, passo = 0.01, padrão = 0.062
-    (\textit{loop bandwidth} em radianos/amostra).
-  \item Adicione \textbf{Signal Source}: Complex, Cosine, freq = 1000,
-    amplitude = 1.0.
-  \item Adicione \texttt{PLL Freq Det}:
+  \item Crie variável \texttt{samp\_rate} com valor \texttt{32000}.
+  \item Crie variável \texttt{loop\_bw} como \texttt{QT GUI Range} com
+    \texttt{Start} = 0{,}01, \texttt{Stop} = 0{,}628, \texttt{Step} = 0{,}01,
+    \texttt{Default Value} = 0{,}062. A grandeza é a largura de banda do
+    laço em rad/amostra.
+  \item Adicione \texttt{Signal Source} com \texttt{Output Type} = Complex,
+    \texttt{Waveform} = Cosine, \texttt{Frequency} = 1000, \texttt{Amplitude}
+    = 1{,}0.
+  \item Adicione \texttt{PLL Frequency Detector} e preencha os campos
+    exatamente como aparecem no bloco:
     \begin{itemize}
-      \item Loop BW = \texttt{loop\_bw}
-      \item Max Freq = $2\pi \times 2000 / \texttt{samp\_rate}$ (rad/amostra)
-      \item Min Freq = $-2\pi \times 2000 / \texttt{samp\_rate}$
+      \item \texttt{Loop Bandwidth} = \texttt{loop\_bw}
+      \item \texttt{Max Phase/sample} = \texttt{2*3.14159*2000/samp\_rate}
+      \item \texttt{Min Phase/sample} = \texttt{-2*3.14159*2000/samp\_rate}
     \end{itemize}
-
-    \textbf{Dica:} no GRC, use as expressões: \\
-    Max Freq = \texttt{2 * 3.14159 * 2000 / samp\_rate} \\
-    Min Freq = \texttt{-2 * 3.14159 * 2000 / samp\_rate}
-
-  \item Adicione \texttt{Throttle} e \texttt{QT GUI Time Sink} (Float,
-    2 canais).
-  \item Conecte: Signal Source $\to$ PLL Freq Det $\to$ Throttle
-    $\to$ Time Sink.
-  \item Execute. Observe a saída do PLL: deve convergir para uma constante
+  \item Adicione \texttt{Throttle} com \texttt{Type} = Float e
+    \texttt{QT GUI Time Sink} com \texttt{Type} = Float, 1 canal.
+  \item Conecte Signal Source $\to$ PLL Frequency Detector $\to$ Throttle
+    $\to$ QT GUI Time Sink.
+  \item Execute. A saída do PLL deve convergir para uma constante
     proporcional à frequência de entrada.
 \end{enumerate}
 \end{instrucao}
@@ -160,32 +158,45 @@ da \textbf{faixa de captura} $\Delta\omega_\text{cap} \approx 2\omega_n$.
 
 \begin{instrucao}[Visualização da convergência de fase]
 \begin{enumerate}[label=\arabic*.]
-  \item Pause a execução. Altere a frequência do \texttt{Signal Source} para
-    1200\,Hz (fora da frequência central) e execute novamente.
-  \item Observe a saída do PLL convergindo para o novo valor. Isso é o
-    processo de \textit{lock}.
-  \item Experimente mudar a frequência em tempo de execução (usando um
-    \texttt{QT GUI Range} para a frequência do sinal de entrada):
-    \begin{itemize}
-      \item Defina variável \texttt{freq\_in} como \texttt{QT GUI Range}
-        (min: 200, max: 1800, passo: 50, padrão: 1000).
-    \end{itemize}
-  \item Observe a resposta transitória do PLL ao passo de frequência.
+  \item Defina a variável \texttt{freq\_in} como \texttt{QT GUI Range} com
+    \texttt{Start} = 200, \texttt{Stop} = 1800, \texttt{Step} = 50,
+    \texttt{Default Value} = 1000. Em seguida, no bloco
+    \texttt{Signal Source}, troque o campo \texttt{Frequency} de 1000
+    para \texttt{freq\_in}.
+  \item Execute. Mova o slider de \texttt{freq\_in} entre os valores
+    indicados na Tabela~\ref{tab:lock} e meça o valor de regime
+    permanente da saída do PLL.
+  \item Preencha a Tabela~\ref{tab:lock} com os valores numéricos
+    observados.
 \end{enumerate}
 \end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    $f_\text{in}$ (Hz) & Valor de regime (rad/amostra) & Locked (1 = sim, 0 = não) \\
+    \midrule
+    500  & & \\
+    800  & & \\
+    1000 & & \\
+    1200 & & \\
+    1500 & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Valor de regime permanente da saída do PLL em função de $f_\text{in}$, com \texttt{loop\_bw} = 0{,}062.}
+  \label{tab:lock}
+\end{table}
 
 \subsection*{Etapa 3 -- Efeito da largura de banda do laço (22--35 min)}
 
 \begin{instrucao}[Variar loop bandwidth]
 \begin{enumerate}[label=\arabic*.]
-  \item Com o slider de \texttt{loop\_bw}, teste os valores:
-    0.01 (estreita), 0.062 (moderada), 0.2 (larga) e 0.5 (muito larga).
-  \item Para cada valor, introduza um degrau de frequência (mude
-    \texttt{freq\_in}) e observe:
-    \begin{itemize}
-      \item Velocidade de convergência (tempo de lock).
-      \item Presença de oscilações/sobresinal na resposta transitória.
-    \end{itemize}
+  \item Fixe \texttt{freq\_in} = 1000 Hz. Com o slider de \texttt{loop\_bw}
+    teste os valores 0{,}010, 0{,}062, 0{,}200 e 0{,}500.
+  \item Para cada valor, reinicie o flowgraph, meça o tempo até a saída
+    atingir 95\% do valor final \(t_\text{conv}\) em ms, o sobresinal
+    percentual e o desvio padrão da saída após a convergência.
   \item Preencha a Tabela~\ref{tab:pll}.
 \end{enumerate}
 \end{instrucao}
@@ -194,16 +205,15 @@ da \textbf{faixa de captura} $\Delta\omega_\text{cap} \approx 2\omega_n$.
   \centering
   \begin{tabular}{c c c c}
     \toprule
-    \textbf{loop\_bw} & \textbf{Tempo de lock (aprox.)} &
-      \textbf{Sobresinal} & \textbf{Ruído residual} \\
+    \texttt{loop\_bw} & $t_\text{conv}$ (ms) & Overshoot (\%) & Desvio padrão pós-lock \\
     \midrule
-    0.01  & & &  \\
-    0.062 & & &  \\
-    0.2   & & &  \\
-    0.5   & & &  \\
+    0{,}010 & & & \\
+    0{,}062 & & & \\
+    0{,}200 & & & \\
+    0{,}500 & & & \\
     \bottomrule
   \end{tabular}
-  \caption{Comportamento do PLL vs.\ largura de banda do laço.}
+  \caption{Métricas quantitativas do PLL em função de \texttt{loop\_bw}.}
   \label{tab:pll}
 \end{table}
 
@@ -211,52 +221,98 @@ da \textbf{faixa de captura} $\Delta\omega_\text{cap} \approx 2\omega_n$.
 
 \begin{instrucao}[Determinar os limites de captura]
 \begin{enumerate}[label=\arabic*.]
-  \item Use \texttt{loop\_bw = 0.062}. Com a frequência de entrada em
-    1000\,Hz (travado), incremente gradualmente \texttt{freq\_in} até o
-    PLL perder o lock (saída começa a variar sem convergir).
-  \item Anote a frequência máxima antes da perda de lock.
-  \item Repita para frequências abaixo de 1000\,Hz.
-  \item Calcule a faixa de captura medida: $\Delta f_\text{cap} = f_\text{max} - f_\text{min}$.
+  \item Fixe \texttt{loop\_bw} = 0{,}062. Varra \texttt{freq\_in} entre
+    200 e 1800 Hz nos pontos indicados na Tabela~\ref{tab:capture}.
+  \item Para cada $f_\text{in}$, registre o valor de regime e marque 1
+    se houver lock e 0 se a saída não estabilizar.
+  \item Calcule a faixa de captura medida
+    $\Delta f_\text{cap} = f_\text{max,lock} - f_\text{min,lock}$ e
+    compare com a previsão teórica $\Delta f_\text{cap} \approx
+    \texttt{loop\_bw}\cdot f_s/\pi$ Hz.
 \end{enumerate}
 \end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    $f_\text{in}$ (Hz) & Valor de regime (rad/amostra) & Locked (1/0) \\
+    \midrule
+    200  & & \\
+    600  & & \\
+    1000 & & \\
+    1400 & & \\
+    1800 & & \\
+    \midrule
+    \multicolumn{2}{l}{$\Delta f_\text{cap}$ medida (Hz)} &  \\
+    \multicolumn{2}{l}{$\Delta f_\text{cap}$ teórica (Hz)} &  \\
+    \bottomrule
+  \end{tabular}
+  \caption{Faixa de captura medida do PLL com \texttt{loop\_bw} = 0{,}062.}
+  \label{tab:capture}
+\end{table}
 
 \subsection*{Etapa 5 -- Efeito do ruído (44--50 min)}
 
 \begin{instrucao}[Adicionar ruído e observar degradação]
 \begin{enumerate}[label=\arabic*.]
-  \item Adicione \texttt{Noise Source} (Complex, Gaussian) e \texttt{Add}
-    entre o \texttt{Signal Source} e o \texttt{PLL Freq Det}.
-  \item Crie variável \texttt{noise\_amp} como slider (min: 0, max: 1,
-    passo: 0.05, padrão: 0).
-  \item Observe como o jitter de fase aumenta com o ruído.
-  \item Com \texttt{loop\_bw = 0.2}, o PLL tolera mais ruído do que com
-    \texttt{loop\_bw = 0.01}? Por quê?
+  \item Adicione \texttt{Noise Source} com \texttt{Output Type} = Complex,
+    \texttt{Noise Type} = Gaussian, \texttt{Amplitude} = \texttt{noise\_amp}
+    e \texttt{Seed} = 0.
+  \item Adicione \texttt{Add} com \texttt{IO Type} = Complex,
+    \texttt{Num Inputs} = 2, entre o \texttt{Signal Source} e o
+    \texttt{PLL Frequency Detector}.
+  \item Crie variável \texttt{noise\_amp} como \texttt{QT GUI Range}
+    com \texttt{Start} = 0, \texttt{Stop} = 1{,}0, \texttt{Step} = 0{,}05,
+    \texttt{Default Value} = 0.
+  \item Fixe $f_\text{in}$ = 1000 Hz. Para cada par
+    \texttt{(noise\_amp, loop\_bw)} indicado na Tabela~\ref{tab:ruido},
+    meça o desvio padrão da saída do PLL no regime permanente.
 \end{enumerate}
 \end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \texttt{noise\_amp} & Jitter std \texttt{loop\_bw}=0{,}062 & Jitter std \texttt{loop\_bw}=0{,}200 \\
+    \midrule
+    0{,}0 & & \\
+    0{,}1 & & \\
+    0{,}3 & & \\
+    0{,}5 & & \\
+    1{,}0 & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Jitter de fase do PLL em função da amplitude do ruído e da largura de banda do laço.}
+  \label{tab:ruido}
+\end{table}
 
 % ======================================================
 \section{Perguntas para o relatório}
 
 \begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
 
-  \item Descreva a função de cada um dos três componentes do PLL (detector
-    de fase, filtro de laço e VCO). Como eles interagem para travar a fase?
+  \item Descreva a função de cada um dos três componentes do PLL:
+    detector de fase, filtro de laço e VCO. Como eles interagem para
+    travar a fase?
 
-  \item Como você detectou que o PLL travou (\textit{locked})? Qual é o
-    critério visual na forma de onda do sinal de saída?
+  \item Como você detectou que o PLL travou? Qual o critério numérico
+    aplicado à saída do bloco \texttt{PLL Frequency Detector}?
 
   \item Com base na Tabela~\ref{tab:pll}, como a largura de banda do laço
     afeta o tempo de convergência e o sobresinal? Existe um valor ótimo?
     Justifique o compromisso entre velocidade de lock e sensibilidade ao
     ruído.
 
-  \item Qual foi a faixa de captura medida? Ela corresponde à previsão
-    teórica $\Delta\omega_\text{cap} \approx 2\omega_n$? Discuta possíveis
-    razões para eventuais discrepâncias.
+  \item Qual foi a faixa de captura medida na Tabela~\ref{tab:capture}?
+    Ela corresponde à previsão teórica $\Delta f_\text{cap} \approx
+    \texttt{loop\_bw}\cdot f_s/\pi$? Discuta possíveis razões para
+    eventuais discrepâncias.
 
-  \item Como o ruído afeta o desempenho do PLL? Por que uma largura de
-    banda de laço mais larga resulta em maior jitter de fase na presença
-    de ruído?
+  \item A partir da Tabela~\ref{tab:ruido}, como o ruído afeta o
+    desempenho do PLL? Por que uma largura de banda de laço mais larga
+    resulta em maior jitter de fase na presença de ruído?
 
 \end{enumerate}
 
@@ -266,16 +322,20 @@ da \textbf{faixa de captura} $\Delta\omega_\text{cap} \approx 2\omega_n$.
 O entregável é o relatório no modelo definido no SIGAA contendo:
 
 \begin{itemize}
-  \item Captura da convergência de fase, processo de lock.
-  \item Capturas para dois valores distintos de \texttt{loop\_bw}.
-  \item Tabela do PLL preenchida.
+  \item Captura do \texttt{QT GUI Time Sink} mostrando a convergência da
+    saída do PLL em regime permanente.
+  \item Capturas para dois valores distintos de \texttt{loop\_bw} no mesmo
+    degrau de \texttt{freq\_in}.
+  \item Tabelas \ref{tab:lock}, \ref{tab:pll}, \ref{tab:capture} e
+    \ref{tab:ruido} preenchidas.
   \item Respostas às 5 questões.
 \end{itemize}
 
 \begin{atencao}[Atenção -- unidades do PLL]
-No GNU Radio, o \texttt{loop\_bw} e os limites \texttt{max\_freq}/
-\texttt{min\_freq} são expressos em \textbf{radianos por amostra}
-(não em Hz).  Para converter: $\omega = 2\pi f / f_s$.
+No bloco \texttt{PLL Frequency Detector} do GNU Radio, os campos
+\texttt{Loop Bandwidth}, \texttt{Max Phase/sample} e
+\texttt{Min Phase/sample} são todos expressos em radianos por amostra,
+não em Hz. A conversão é $\omega = 2\pi f / f_s$.
 \end{atencao}
 
 \end{document}
