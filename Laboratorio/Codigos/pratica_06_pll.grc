@@ -224,7 +224,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: 'PLL Frequency Detector'
-    freq: loop_bw
+    w: loop_bw
     max_freq: max_freq
     maxoutbuf: '0'
     min_freq: min_freq
