@@ -1,0 +1,153 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{circuitikz}
+\usepackage{tikz}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Exercícios em Sala -- Módulo 2}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Exercícios em Sala de Aula}}\\[0.15cm]
+  {\Large\textbf{Módulo 2 -- FM, Ruído e Projeto de Sistema}}\\[0.15cm]
+  {\large\textit{Preparatório para a Prova 02}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Semestre:} 2026/1 \hfill \textbf{Referência:} Proakis \& Salehi, $2^{\text{a}}$ ed., Caps.~4 e 6.
+
+\bigskip
+
+\begin{instrucao}[Orientações]
+\small
+Lista de revisão para resolver em sala, alinhada com o estilo da Prova 02. As três questões cobrem os eixos centrais do Módulo 2: análise espectral de FM, desempenho com ruído no limiar de FM, e projeto do receptor superheteródino FM broadcast. Apresente o desenvolvimento completo.
+
+\textbf{Formulário FM e ruído:}
+$\Delta f = k_f\,\max|m(t)|$, $\beta = \Delta f/f_m$, $B_c = 2(\Delta f + f_m) = 2(\beta+1)W$,
+$\sum_n J_n^2(\beta) = 1$, $(S/N)_o|_{\text{FM}} = 3\beta^2 P_{m_n}\gamma$,
+$\gamma_{\text{th}} = 20(\beta+1)$, $(S/N)_o|_{\text{th}} = 60\beta^2(\beta+1)P_{m_n}$.
+\end{instrucao}
+
+% ======================================================
+\section*{Questão 1 -- Sinal FM com mensagem senoidal}
+
+Um modulador FM tem constante de sensibilidade $k_f = 25\;\text{kHz/V}$ e portadora $c(t) = 10\cos(2\pi f_c\,t)$ com $f_c = 100\;\text{MHz}$. A mensagem é
+\[
+  m(t) = 4\cos(2\pi \times 5 \times 10^3\,t)\quad\text{V}.
+\]
+A potência é medida em carga normalizada de $1\;\Omega$.
+
+\begin{enumerate}[label=\alph*)]
+  \item Escreva a expressão temporal completa $u(t)$ do sinal FM transmitido. Identifique a fase $\phi(t)$ e a frequência instantânea $f_i(t)$.
+  \item Determine o desvio máximo de frequência $\Delta f$, o índice de modulação $\beta$ e classifique o sistema como NBFM ou WBFM.
+  \item Calcule a largura de banda pela regra de Carson e o número mínimo de harmônicas necessárias para conter $98\%$ da potência transmitida.
+  \item Calcule a potência média total transmitida em $u(t)$ e a potência da componente espectral na portadora $f_c$. Qual a razão de potência entre a portadora e o sinal total?
+  \item Repita os itens (b) e (c) se a amplitude da mensagem for dobrada para $8$\,V. Comente o impacto na banda ocupada.
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 2 -- Efeito de limiar e projeto de $\beta_{\max}$}
+
+Um sistema FM deve atender à especificação $(S/N)_o = 40\;\text{dB}$, com mensagem de tom único ($P_{m_n} = 1/2$) e largura $W = 10\;\text{kHz}$. A banda do canal é $B_{\text{canal}} = 150\;\text{kHz}$ e o ruído no receptor tem $N_0 = 10^{-8}\;\text{W/Hz}$. A atenuação total do canal é $50\;\text{dB}$.
+
+\begin{enumerate}[label=\alph*)]
+  \item Determine $\beta_{\max}^{\text{banda}}$ permitido pela restrição $B_c \le B_{\text{canal}}$.
+  \item Determine $\beta_{\max}^{\text{pot}}$ a partir da fórmula do joelho $(S/N)_o\big|_{\text{th}} = 60\beta^2(\beta+1)P_{m_n} \ge 10^4$. Resolva analiticamente a cúbica resultante e indique qual restrição é dominante: banda ou potência.
+  \item Para o $\beta$ escolhido, calcule a potência recebida $P_R$ necessária para operar exatamente no limiar, e a potência transmitida correspondente $P_T$. Adicione $10\;\text{dB}$ de margem ao limiar e recalcule $P_T$.
+  \item Explique fisicamente o efeito de limiar: o que ocorre com o fasor recebido quando a SNR cai abaixo do joelho? Por que isso gera \emph{cliques} audíveis na saída do FM comercial?
+  \item Se incluirmos pré-ênfase com constante de tempo $\tau = 75\;\mu\text{s}$ (padrão FM broadcast), e a mensagem tiver PSD aproximadamente plana, qual o ganho adicional em SNR esperado? Considere o resultado de Proakis para pré-ênfase, $G_{\text{pre}} \approx \dfrac{(W/W_1)^3}{3[W/W_1 - \arctan(W/W_1)]}$, com $W_1 = 1/(2\pi\tau)$.
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 3 -- Receptor superheteródino para FM broadcast}
+
+Um receptor comercial precisa sintonizar todas as estações da banda $88$--$108\;\text{MHz}$, com canais de $200\;\text{kHz}$, atendendo às normas FCC. O receptor é do tipo superheteródino com IF $f_{\text{IF}} = 10{,}7\;\text{MHz}$ e injeção por cima ($f_{\text{LO}} > f_{\text{RF}}$).
+
+\begin{center}
+\begin{circuitikz}[scale=0.85, transform shape]
+  \draw (0,0) node[left]{Ant.} -- (1.0,0);
+  \draw (1.0,-0.5) rectangle (2.6,0.5) node[midway]{\footnotesize RF amp};
+  \draw (2.6,0) -- (3.5,0);
+  \draw (3.5,-0.5) rectangle (4.7,0.5) node[midway]{\footnotesize Mixer};
+  \draw (4.1,-1.6) node[below]{$f_{\text{LO}}$} -- (4.1,-0.5);
+  \draw (4.7,0) -- (5.5,0);
+  \draw (5.5,-0.5) rectangle (7.1,0.5) node[midway]{\footnotesize IF $10{,}7$ MHz};
+  \draw (7.1,0) -- (7.9,0);
+  \draw (7.9,-0.5) rectangle (9.5,0.5) node[midway]{\footnotesize Limitador};
+  \draw (9.5,0) -- (10.3,0);
+  \draw (10.3,-0.5) rectangle (12.2,0.5) node[midway]{\footnotesize Discrim.};
+  \draw (12.2,0) -- (13.2,0) node[right]{áudio};
+\end{circuitikz}
+\end{center}
+
+\begin{enumerate}[label=\alph*)]
+  \item Determine a faixa de operação do oscilador local $f_{\text{LO}}$ para varrer toda a banda comercial.
+  \item Determine a faixa de frequências da \emph{imagem}, $f_{\text{img}} = f_{\text{LO}} + f_{\text{IF}}$. Especifique a banda de rejeição que o filtro RF de entrada deve providenciar. Esboce o gabarito do filtro com mínimo $40\;\text{dB}$ de rejeição na frequência de imagem.
+  \item O filtro IF deve passar a banda Carson do FM transmitido. Estabeleça a largura de banda mínima $B_{\text{IF}}$ considerando $\Delta f = 75\;\text{kHz}$, $W = 15\;\text{kHz}$ e $\Delta f$ de oscilador local de $\pm 5\;\text{kHz}$. Inclua o piloto-tom de estéreo de $19\;\text{kHz}$.
+  \item Justifique a função do \emph{limitador} antes do discriminador. Por que essa etapa não é necessária em receptores AM?
+  \item Esboce a curva de resposta $|H(f)|$ do discriminador balanceado e indique a região linear de operação. Como o discriminador é projetado para acomodar a banda IF inteira sem distorção?
+\end{enumerate}
+
+% ======================================================
+\vfill
+
+\begin{instrucao}[Tabela de funções de Bessel $J_n(\beta)$]
+\centering\small
+\begin{tabular}{c|ccccccccc}
+\toprule
+$\beta$ & $J_0$ & $J_1$ & $J_2$ & $J_3$ & $J_4$ & $J_5$ & $J_6$ & $J_7$ & $J_8$ \\
+\midrule
+$0{,}25$ & $0{,}984$ & $0{,}124$ & $0{,}008$ & --- & --- & --- & --- & --- & --- \\
+$0{,}5$  & $0{,}938$ & $0{,}242$ & $0{,}031$ & $0{,}003$ & --- & --- & --- & --- & --- \\
+$1$      & $0{,}765$ & $0{,}440$ & $0{,}115$ & $0{,}020$ & $0{,}002$ & --- & --- & --- & --- \\
+$2$      & $0{,}224$ & $0{,}577$ & $0{,}353$ & $0{,}129$ & $0{,}034$ & $0{,}007$ & --- & --- & --- \\
+$2{,}4$  & $0{,}003$ & $0{,}520$ & $0{,}431$ & $0{,}198$ & $0{,}064$ & $0{,}016$ & $0{,}003$ & --- & --- \\
+$5$      & $-0{,}178$ & $-0{,}328$ & $0{,}047$ & $0{,}365$ & $0{,}391$ & $0{,}261$ & $0{,}131$ & $0{,}053$ & $0{,}018$ \\
+$8$      & $0{,}172$ & $0{,}235$ & $-0{,}113$ & $-0{,}291$ & $-0{,}105$ & $0{,}186$ & $0{,}338$ & $0{,}321$ & $0{,}224$ \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.2cm}\small\textit{Para $\beta = 20$ (Q1d): $J_0(20) \approx 0{,}1670$.}
+\end{instrucao}
+
+\vfill
+\begin{center}
+  \small\textit{Bom trabalho!}
+\end{center}
+
+\end{document}

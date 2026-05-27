@@ -1,0 +1,304 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{cancel}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{resolucao}[1][]{colback=green!5,colframe=green!40!black,
+  fonttitle=\bfseries, title={#1}, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Gabarito -- Exercícios em Sala (Módulo 2)}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Gabarito -- Exercícios em Sala}}\\[0.15cm]
+  {\Large\textbf{Módulo 2 -- FM, Ruído e Projeto}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Semestre:} 2026/1
+
+\bigskip
+
+% ======================================================================
+\section*{Questão 1 -- Sinal FM com mensagem senoidal}
+
+\begin{resolucao}[Item a -- Expressão temporal]
+
+Dados: $A_c = 10$\,V, $f_c = 10^8$\,Hz, $A_m = 4$\,V, $f_m = 5\times 10^3$\,Hz, $k_f = 25\times 10^3$\,Hz/V.
+
+A fase modulada é
+\[
+  \phi(t) = 2\pi k_f \int_{-\infty}^{t} m(\tau)\,d\tau
+         = 2\pi k_f A_m \frac{\sin(2\pi f_m t)}{2\pi f_m}
+         = \frac{k_f A_m}{f_m}\sin(2\pi f_m t).
+\]
+
+Substituindo os valores:
+\[
+  \phi(t) = \frac{25{\,000} \times 4}{5{\,000}}\sin(2\pi \times 5{\,000}\,t) = 20\sin(2\pi \times 5{\,000}\,t).
+\]
+
+Sinal FM completo:
+\[
+  \boxed{u(t) = 10\cos\!\big[2\pi \times 10^8\,t + 20\sin(2\pi \times 5{\,000}\,t)\big]\;\text{V}}
+\]
+
+Frequência instantânea:
+\[
+  f_i(t) = f_c + k_f\,m(t) = 10^8 + 10^5\cos(2\pi \times 5{\,000}\,t)\;\text{Hz},
+\]
+oscilando entre $99{,}9\;\text{MHz}$ e $100{,}1\;\text{MHz}$.
+\end{resolucao}
+
+\begin{resolucao}[{Item b -- Desvio, índice e classificação}]
+
+Desvio máximo de frequência:
+\[
+  \Delta f = k_f\,\max|m(t)| = 25{\,000}\times 4 = \boxed{100\;\text{kHz}}
+\]
+
+Índice de modulação:
+\[
+  \boxed{\beta = \frac{\Delta f}{f_m} = \frac{100}{5} = 20}
+\]
+
+Como $\beta = 20 \gg 1$, o sistema é claramente \textbf{WBFM}.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Banda e harmônicas significativas]
+
+Regra de Carson:
+\[
+  B_c = 2(\Delta f + f_m) = 2(100 + 5) = \boxed{210\;\text{kHz}}
+\]
+
+Para $98\%$ da potência, o número de pares de bandas laterais é aproximado por $n_{\max} \approx \beta + 1 = 21$. Portanto, o sinal contém $2\beta + 3 = 43$ raias significativas no espectro. A largura espectral correspondente é $2 n_{\max} f_m = 2 \times 21 \times 5 = 210\;\text{kHz}$, em concordância com a regra de Carson.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Potência total e na portadora]
+
+Potência total transmitida (sinal FM tem envelope constante $A_c$):
+\[
+  \boxed{P_T = \frac{A_c^2}{2} = \frac{100}{2} = 50\;\text{W}}
+\]
+
+Pela identidade $\sum_n J_n^2(\beta) = 1$, a potência total se distribui em todas as raias.
+
+A componente na portadora $f_c$ tem amplitude $A_c\,J_0(\beta) = 10\,J_0(20)$. Com $J_0(20) \approx 0{,}1670$:
+\[
+  P_{f_c} = \frac{[A_c\,J_0(\beta)]^2}{2} = \frac{100 \times J_0^2(20)}{2} \approx 50 \times 0{,}0279 \approx 1{,}39\;\text{W}.
+\]
+
+Razão de potência:
+\[
+  \frac{P_{f_c}}{P_T} = J_0^2(20) \approx 0{,}028 \;\;(\text{ou } -15{,}5\;\text{dB}).
+\]
+
+Apenas $2{,}8\%$ da potência fica na portadora em WBFM; a maior parte é levada pelas bandas laterais, em contraste com AM convencional.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Dobrando a amplitude]
+
+Com $A_m' = 8$\,V:
+\[
+  \Delta f' = 25{\,000} \times 8 = 200\;\text{kHz}, \qquad \beta' = \frac{200}{5} = 40.
+\]
+\[
+  B_c' = 2(\Delta f' + f_m) = 2(200 + 5) = 410\;\text{kHz}.
+\]
+
+Para $\beta \gg 1$, $B_c \approx 2\Delta f$, ou seja, varia \emph{linearmente} com a amplitude da mensagem. Dobrar $A_m$ quase dobrou a banda. Esse é o comportamento característico da WBFM: a banda ocupada é controlada pelo desvio de frequência, e o desvio é proporcional à amplitude da mensagem.
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 2 -- Efeito de limiar e $\beta_{\max}$}
+
+\begin{resolucao}[Item a -- $\beta_{\max}^{\text{banda}}$]
+
+\[
+  B_c = 2(\beta + 1) W \le 150\;\text{kHz}, \;\; W = 10\;\text{kHz}
+  \;\Rightarrow\; \boxed{\beta_{\max}^{\text{banda}} = \frac{150}{20} - 1 = 6{,}5.}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item b -- $\beta_{\max}^{\text{pot}}$ e restrição dominante]
+
+No joelho: $60\beta^2(\beta+1)P_{m_n} = 10^4$. Com $P_{m_n} = 1/2$:
+\[
+  30\,\beta^2(\beta+1) = 10^4 \;\Rightarrow\; \beta^3 + \beta^2 = 333{,}3.
+\]
+
+\textbf{Aproximação inicial:} $\beta_0 \approx \sqrt[3]{333{,}3} \approx 6{,}933$.
+
+\textbf{Iteração:} usando $\beta \leftarrow \sqrt[3]{333{,}3 - \beta^2}$:
+\begin{align*}
+  \beta_1 &= \sqrt[3]{333{,}3 - 48{,}07} = \sqrt[3]{285{,}26} \approx 6{,}580, \\
+  \beta_2 &= \sqrt[3]{333{,}3 - 43{,}30} = \sqrt[3]{290{,}00} \approx 6{,}616, \\
+  \beta_3 &= \sqrt[3]{333{,}3 - 43{,}77} = \sqrt[3]{289{,}53} \approx 6{,}613.
+\end{align*}
+
+\[
+  \boxed{\beta_{\max}^{\text{pot}} \approx 6{,}61.}
+\]
+
+Como $\beta_{\max}^{\text{banda}} = 6{,}5 < \beta_{\max}^{\text{pot}} = 6{,}61$, o sistema está \textbf{limitado pela banda}. Adotamos $\beta = 6{,}5$.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Potências no limiar e com margem]
+
+Para $\beta = 6{,}5$:
+\[
+  \gamma_{\text{th}} = 20(\beta + 1) = 20 \times 7{,}5 = 150 \;(\approx 21{,}76\;\text{dB}).
+\]
+
+\textbf{Potência recebida no limiar:}
+\[
+  P_R^{\text{th}} = \gamma_{\text{th}} \cdot N_0\, W = 150 \cdot 10^{-8} \cdot 10^4 = 1{,}5 \times 10^{-2}\;\text{W} = 15\;\text{mW}.
+\]
+
+\textbf{Potência transmitida no limiar} (com $L = 10^5$):
+\[
+  P_T^{\text{th}} = P_R^{\text{th}}\cdot L = 15\;\text{mW}\cdot 10^5 = 1{,}5\;\text{kW}.
+\]
+
+\textbf{Com $10\;\text{dB}$ de margem:} $\gamma_{\text{nom}} = 1500$:
+\[
+  P_R^{\text{nom}} = 150\;\text{mW}, \quad P_T^{\text{nom}} = 15\;\text{kW}.
+\]
+
+Valores compatíveis com estações de FM comercial de média potência.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Mecanismo físico do limiar]
+
+Abaixo do limiar, $V_n(t) \sim A_c$. No plano fasorial complexo, o vetor recebido $A_c e^{j\phi} + V_n e^{j\Phi_n}$ pode passar próximo da origem. Quando isso ocorre, pequenas variações do ruído provocam saltos rápidos da fase resultante de $\sim 2\pi$ radianos.
+
+O discriminador, que extrai $\tfrac{1}{2\pi}\,d\psi/dt$, interpreta cada salto de fase como um \textbf{pulso} de frequência espúrio. Esses pulsos têm duração curta e amplitude alta. Filtrados pelo passa-baixas do receptor, aparecem como \textbf{cliques audíveis} de duração de microssegundos, fenomenologicamente parecidos com \emph{pipocas} no áudio do receptor.
+
+A taxa de cliques cresce exponencialmente conforme $\gamma$ se aproxima do limiar, daí a transição abrupta na curva $(S/N)_o\times\gamma$.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Ganho da pré-ênfase]
+
+$W_1 = 1/(2\pi\tau) = 1/(2\pi\cdot 75\times 10^{-6}) = 2122\;\text{Hz}$. $W/W_1 = 10\,000/2122 = 4{,}71$.
+
+$\arctan(4{,}71) = 1{,}361$\,rad.
+
+Aplicando a fórmula:
+\[
+  G_{\text{pre}} = \frac{(W/W_1)^3}{3\big[(W/W_1) - \arctan(W/W_1)\big]}
+                = \frac{4{,}71^3}{3(4{,}71 - 1{,}361)}
+                = \frac{104{,}5}{10{,}05}
+                = 10{,}40.
+\]
+\[
+  \boxed{G_{\text{pre, dB}} \approx 10{,}2\;\text{dB}.}
+\]
+
+A pré-ênfase pré-realça frequências altas no transmissor; no receptor, a deênfase as atenua junto com o ruído parabólico do FM, levando ganho líquido de $\sim 10\;\text{dB}$ em SNR. Padrão FCC para FM broadcast.
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 3 -- Receptor superheteródino para FM broadcast}
+
+\begin{resolucao}[Item a -- Faixa do oscilador local]
+
+Injeção por cima: $f_{\text{LO}} = f_{\text{RF}} + f_{\text{IF}}$.
+\[
+  f_{\text{RF}} \in [88, 108]\;\text{MHz} \;\Rightarrow\; f_{\text{LO}} \in [98{,}7,\;118{,}7]\;\text{MHz}.
+\]
+
+Faixa de varredura do VCO: $20\;\text{MHz}$, ou cerca de $20{,}3\%$ da frequência central.
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Imagem e filtro RF]
+
+Imagem: $f_{\text{img}} = f_{\text{LO}} + f_{\text{IF}} = f_{\text{RF}} + 2 f_{\text{IF}}$.
+\[
+  f_{\text{img}} \in [88 + 21{,}4,\;108 + 21{,}4] = [109{,}4,\;129{,}4]\;\text{MHz}.
+\]
+
+\textbf{Gabarito do filtro RF:}
+\begin{itemize}\itemsep0pt
+  \item Banda de passagem: $[88, 108]\;\text{MHz}$, ondulação $\le 1\;\text{dB}$.
+  \item Banda de rejeição: a partir de $109\;\text{MHz}$ até $130\;\text{MHz}$, atenuação $\ge 40\;\text{dB}$.
+  \item Em $f_{\text{img}}$, a separação relativa ao centro é $\approx 20\%$, viável com filtro LC ou cerâmico de ordem $5$--$7$.
+\end{itemize}
+
+Sem essa rejeição, sinais em $109$--$129\;\text{MHz}$ (faixa aeronáutica $108$--$137\;\text{MHz}$) contaminariam toda a recepção FM comercial.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Banda IF]
+
+Carson para FM comercial: $B_c = 2(\Delta f + W) = 2(75 + 15) = 180\;\text{kHz}$.
+
+Tolerâncias do oscilador local: $\pm 5\;\text{kHz}$ adicionam $2 \times 5 = 10\;\text{kHz}$ à banda.
+
+Banda mínima:
+\[
+  B_{\text{IF}} \ge 180 + 10 = 190\;\text{kHz}.
+\]
+
+Padrão FCC reserva $200\;\text{kHz}$ por canal, casando com $B_{\text{IF}} = 200\;\text{kHz}$. O piloto-tom de $19\;\text{kHz}$ em estéreo está dentro do baseband demodulado, em $[0, 53]\;\text{kHz}$; ele \emph{não} afeta a banda IF, pois é uma componente da mensagem composta antes da modulação FM.
+
+\[
+  \boxed{B_{\text{IF}} = 200\;\text{kHz}.}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Função do limitador]
+
+O limitador é um amplificador de ganho alto com saturação simétrica em $\pm V_{\text{sat}}$. Ele \emph{remove variações de amplitude} do sinal IF antes do discriminador. Em FM, toda a informação está na fase, então qualquer variação de envelope, oriunda de ruído ou desvanecimento por multipercurso, é \emph{ruído puro} e deve ser eliminada.
+
+Em AM, a informação \emph{é} a amplitude. Limitar amplitude destruiria o sinal. Logo, AM \emph{não} pode usar limitador; daí a maior sensibilidade do AM ao ruído de amplitude e ao desvanecimento.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Discriminador balanceado]
+
+A curva $|H(f)|$ do discriminador é a diferença entre as respostas de dois ressonadores RLC ligeiramente dessintonizados:
+\[
+  |H(f)| = |H_1(f)| - |H_2(f)|,
+\]
+onde $H_1$ tem pico em $f_r = f_{\text{IF}} + \Delta$ e $H_2$ em $f_r' = f_{\text{IF}} - \Delta$. A diferença é uma curva em ``S'' com cruzamento em $f_{\text{IF}}$ e inclinação aproximadamente constante na região central.
+
+\textbf{Projeto:} escolha $\Delta$ e $Q$ dos ressonadores tais que a região linear (definida por desvio quadrático menor que $1\%$) cubra $\pm B_{\text{IF}}/2 = \pm 100\;\text{kHz}$. Tipicamente $\Delta \approx B_{\text{IF}}/2$ e $Q \sim f_{\text{IF}}/\Delta$, neste caso $Q \sim 100$.
+
+O par é seguido por dois detectores de envelope cujas saídas são subtraídas, fornecendo um sinal proporcional à frequência instantânea: o áudio recuperado.
+\end{resolucao}
+
+\vfill
+\begin{center}
+  \small\textit{Fim do gabarito.}
+\end{center}
+
+\end{document}
