@@ -43,24 +43,45 @@
 
 \begin{frame}{Unipolar NRZ e Polar NRZ}
   \textbf{Unipolar NRZ} (\textit{Non-Return-to-Zero}):
-  \[
-    a_k = \begin{cases} A, & b_k = 1 \\ 0, & b_k = 0 \end{cases}
-  \]
+  \quad $a_k = A$ se $b_k=1$;\; $a_k = 0$ se $b_k=0$.
   \begin{itemize}
     \item Simples, mas tem \alert{componente DC} — ineficiente.
     \item Longas sequências de 0s → perda de sincronismo.
   \end{itemize}
 
-  \vspace{0.4cm}
+  \vspace{0.5cm}
   \textbf{Polar NRZ:}
-  \[
-    a_k = \begin{cases} +A, & b_k = 1 \\ -A, & b_k = 0 \end{cases}
-  \]
+  \quad $a_k = +A$ se $b_k=1$;\; $a_k = -A$ se $b_k=0$.
   \begin{itemize}
     \item Sem DC \textit{na média} (bits equiprováveis).
     \item Primeiro nulo do espectro em $f = R_b = 1/T_b$.
     \item Ainda tem problema de sincronismo em sequências longas.
   \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Forma de Onda: Unipolar NRZ}
+  \begin{center}
+    \includegraphics[width=0.82\textwidth]{figures/cap6/lc_unipolar_nrz}
+  \end{center}
+  \vspace{0.1cm}
+  {\footnotesize Bit \texttt{1} $\to$ nível $A$; bit \texttt{0} $\to$
+  nível $0$. O nível médio é positivo $\Rightarrow$ \alert{componente DC};
+  longas sequências de \texttt{0} ficam paradas em zero, dificultando o
+  sincronismo.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Forma de Onda: Polar NRZ}
+  \begin{center}
+    \includegraphics[width=0.82\textwidth]{figures/cap6/lc_polar_nrz}
+  \end{center}
+  \vspace{0.1cm}
+  {\footnotesize Bit \texttt{1} $\to +A$; bit \texttt{0} $\to -A$. Sem DC
+  na média (bits equiprováveis), mas sequências longas de bits iguais
+  continuam sem transições.}
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -93,6 +114,30 @@
 
 % ------------------------------------------------------------------
 
+\begin{frame}{Forma de Onda: Polar RZ}
+  \begin{center}
+    \includegraphics[width=0.82\textwidth]{figures/cap6/lc_polar_rz}
+  \end{center}
+  \vspace{0.1cm}
+  {\footnotesize Pulso de \textbf{meia duração}: $\pm A$ na 1ª metade,
+  retorna a $0$ na 2ª metade. Há transição a cada bit (bom sincronismo),
+  ao custo do \alert{dobro da banda}.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Forma de Onda: Manchester}
+  \begin{center}
+    \includegraphics[width=0.82\textwidth]{figures/cap6/lc_manchester}
+  \end{center}
+  \vspace{0.1cm}
+  {\footnotesize Transição \textbf{no meio} de cada bit (\texttt{1}:
+  $+A\!\to\!-A$; \texttt{0}: $-A\!\to\!+A$). Garante \alert{DC nulo} e
+  sincronismo ótimo; ocupa o dobro da banda.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
 \begin{frame}{AMI — Inversão de Marca Alternada}
   No código \textbf{AMI} (\textit{Alternate Mark Inversion}):
   \[
@@ -116,6 +161,19 @@
   sincronismo (o sinal fica em zero). \\
   \textit{Solução: usar \textbf{scrambling} (embaralhamento) ou
   códigos derivados como HDB3 e B8ZS.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Forma de Onda: AMI}
+  \begin{center}
+    \includegraphics[width=0.82\textwidth]{figures/cap6/lc_ami}
+  \end{center}
+  \vspace{0.1cm}
+  {\footnotesize Bit \texttt{0} $\to 0$; cada \texttt{1} \alert{alterna} a
+  polaridade ($+A,\,-A,\,+A,\dots$). Resulta em DC nulo e detecção de erro
+  por violação da alternância; sequências longas de \texttt{0} ainda
+  perdem sincronismo.}
 \end{frame}
 
 % ------------------------------------------------------------------

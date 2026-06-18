@@ -188,8 +188,88 @@ def gen_line_coding_psd():
     print("  [OK] line_coding_psd.pdf")
 
 
+# ===========================================================================
+# Figura 3: Uma forma de onda por código (slides individuais)
+# ===========================================================================
+def gen_individual_waveforms():
+    bits = [1, 0, 1, 1, 0, 0, 1]
+    Tb = 1.0
+    N = len(bits)
+    spb = 200
+    total = N * spb
+    t = np.linspace(0, N * Tb, total, endpoint=False)
+
+    def make_signal(bits, encoding):
+        sig = np.zeros(total)
+        half = spb // 2
+        if encoding == 'unipolar_nrz':
+            for i, b in enumerate(bits):
+                sig[i*spb:(i+1)*spb] = b
+        elif encoding == 'polar_nrz':
+            for i, b in enumerate(bits):
+                sig[i*spb:(i+1)*spb] = 1 if b == 1 else -1
+        elif encoding == 'polar_rz':
+            for i, b in enumerate(bits):
+                val = 1 if b == 1 else -1
+                sig[i*spb:i*spb + half] = val
+        elif encoding == 'manchester':
+            for i, b in enumerate(bits):
+                if b == 1:
+                    sig[i*spb:i*spb + half] = 1
+                    sig[i*spb + half:(i+1)*spb] = -1
+                else:
+                    sig[i*spb:i*spb + half] = -1
+                    sig[i*spb + half:(i+1)*spb] = 1
+        elif encoding == 'ami':
+            last = -1
+            for i, b in enumerate(bits):
+                if b == 1:
+                    last *= -1
+                    sig[i*spb:(i+1)*spb] = last
+        return sig
+
+    encodings = [
+        ('unipolar_nrz', 'Unipolar NRZ', UNB_BLUE),
+        ('polar_nrz', 'Polar NRZ', UNB_GREEN),
+        ('polar_rz', 'Polar RZ', UNB_GOLD),
+        ('manchester', 'Manchester', RED),
+        ('ami', 'AMI', PURPLE),
+    ]
+
+    for enc, label, color in encodings:
+        fig, (axb, ax) = plt.subplots(
+            2, 1, figsize=(8, 2.7),
+            gridspec_kw={'height_ratios': [0.35, 1]})
+        # cabeçalho com os bits
+        axb.set_xlim(0, N * Tb)
+        axb.set_ylim(0, 1)
+        axb.axis('off')
+        for i, b in enumerate(bits):
+            axb.text((i + 0.5) * Tb, 0.3, str(b), fontsize=15,
+                     fontweight='bold', ha='center', va='center', color=UNB_BLUE)
+            axb.axvline(i * Tb, color='gray', linewidth=0.5, linestyle='--')
+        axb.axvline(N * Tb, color='gray', linewidth=0.5, linestyle='--')
+        axb.set_title(label, fontweight='bold', fontsize=13, color=color)
+        # forma de onda
+        sig = make_signal(bits, enc)
+        ax.plot(t, sig, color=color, linewidth=2.2)
+        ax.set_ylim(-1.5, 1.5)
+        ax.set_xlim(0, N * Tb)
+        ax.set_yticks([-1, 0, 1])
+        ax.axhline(0, color='black', linewidth=0.5)
+        for i in range(N + 1):
+            ax.axvline(i * Tb, color='gray', linewidth=0.5, linestyle='--')
+        ax.set_xlabel(r'Tempo ($t / T_b$)', fontsize=11)
+        ax.set_xticks(np.arange(0, N + 1))
+        plt.tight_layout()
+        plt.savefig(f'../lc_{enc}.pdf', bbox_inches='tight')
+        plt.close()
+        print(f"  [OK] lc_{enc}.pdf")
+
+
 if __name__ == '__main__':
     print("Gerando figuras de codificação de linha...")
     gen_line_coding_waveforms()
     gen_line_coding_psd()
+    gen_individual_waveforms()
     print("Concluído!\n")

@@ -83,7 +83,7 @@
            = \sum_{n=-\infty}^{\infty} g(t)\,\delta(t - nT_s)
   \]
 
-  \vspace{0.35cm}
+  \vspace{0.15cm}
   Usamos a \textbf{propriedade de filtragem} da delta de Dirac:
   \[
     x(t)\,\delta(t - t_0) = x(t_0)\,\delta(t - t_0)
@@ -91,73 +91,65 @@
   O impulso em $t_0$ ``captura'' o valor $x(t_0)$ e descarta todo o
   resto do sinal.
 
-  \vspace{0.35cm}
+  \vspace{0.15cm}
   Aplicando a cada termo da soma:
   \[
     g_s(t) = \sum_{n=-\infty}^{\infty} g(nT_s)\,\delta(t - nT_s)
   \]
 
+  \vspace{-0.15cm}
   Uma sequência de impulsos ponderados pelos valores das amostras $g(nT_s)$.
 \end{frame}
 
 % ------------------------------------------------------------------
 
-\begin{frame}{Derivação — Passo 2: Transformada de Fourier e Convolução}
-  No domínio da frequência, \textbf{multiplicação no tempo} equivale a
-  \textbf{convolução na frequência}:
+\begin{frame}{Derivação — Passo 2: Série de Fourier do Trem de Impulsos}
+  O trem de impulsos é \textbf{periódico} com período $T_s$; logo, admite
+  uma \textbf{série de Fourier exponencial}:
   \[
-    G_s(f) = \FT{g_s(t)}
-           = \FT{g(t) \cdot \delta_{T_s}(t)}
-           = G(f) \ast \FT{\delta_{T_s}(t)}
+    \delta_{T_s}(t) = \sum_{k=-\infty}^{\infty} c_k\, e^{\,j 2\pi k f_s t},
+    \qquad f_s = \frac{1}{T_s}.
   \]
 
-  \vspace{0.4cm}
-  Para completar, precisamos calcular
-  $\FT{\delta_{T_s}(t)}$ — a transformada do trem de impulsos.
-
-  \vspace{0.4cm}
-  \textbf{Passo 3 — Transformada do Trem de Impulsos}
-
-  O trem de impulsos é periódico com período $T_s$. Desenvolvendo-o
-  em Série de Fourier exponencial, todos os coeficientes têm o mesmo
-  módulo $1/T_s = f_s$. Portanto:
+  Os coeficientes vêm da integral sobre \emph{um} período
+  $[-T_s/2,\, T_s/2]$, que contém um único impulso $\delta(t)$:
   \[
-    \FT{\sum_{n=-\infty}^{\infty}\delta(t - nT_s)}
-    = f_s \sum_{k=-\infty}^{\infty} \delta(f - k\,f_s)
+    c_k = \frac{1}{T_s}\!\int_{-T_s/2}^{T_s/2}\!
+          \delta(t)\, e^{-j 2\pi k f_s t}\, dt
+        \;\overset{\text{filtragem}}{=}\;
+          \frac{1}{T_s}\, e^{0}
+        = \frac{1}{T_s} = f_s.
   \]
 
-  \medskip
-  \textit{Conclusão elegante: um trem de impulsos no tempo gera outro
-  trem de impulsos na frequência, com espaçamento $f_s = 1/T_s$.}
+  Como $c_k = f_s$ para \textbf{todo} $k$:
+  \[
+    \boxed{\;\delta_{T_s}(t) = f_s \sum_{k=-\infty}^{\infty}
+           e^{\,j 2\pi k f_s t}\;}
+  \]
 \end{frame}
 
 % ------------------------------------------------------------------
 
-\begin{frame}{Derivação — Passo 4: Convolução com o Trem de Impulsos}
-  Substituindo em $G_s(f) = G(f) \ast \FT{\delta_{T_s}(t)}$:
+\begin{frame}{Derivação — Passo 3: Transformada e Deslocamentos}
+  Substituímos a série de Fourier de $\delta_{T_s}(t)$ no sinal amostrado
+  $g_s(t) = g(t)\,\delta_{T_s}(t)$:
   \[
-    G_s(f)
-    = G(f) \ast \left(\, f_s \sum_{k=-\infty}^{\infty} \delta(f - k\,f_s) \right)
+    g_s(t) = f_s \sum_{k=-\infty}^{\infty} g(t)\, e^{\,j 2\pi k f_s t}.
   \]
 
-  \vspace{0.3cm}
-  Pela \textbf{distributividade} da convolução, levamos $\ast$ para
-  dentro do somatório:
+  \vspace{0.2cm}
+  Aplicamos a transformada de Fourier termo a termo. Pela
+  \textbf{propriedade do deslocamento em frequência} (modulação),
+  multiplicar por $e^{\,j 2\pi k f_s t}$ desloca o espectro de $k f_s$:
   \[
-    G_s(f)
-    = f_s \sum_{k=-\infty}^{\infty} G(f) \ast \delta(f - k\,f_s)
+    \FT{g(t)\, e^{\,j 2\pi k f_s t}} = G(f - k f_s)
+    \;\Longrightarrow\;
+    G_s(f) = f_s \sum_{k=-\infty}^{\infty} G(f - k f_s).
   \]
 
-  \vspace{0.3cm}
-  Aplicamos a propriedade de \textbf{deslocamento por convolução}:
-  \[
-    X(f) \ast \delta(f - f_0) = X(f - f_0)
-  \]
-
-  Portanto, cada termo desloca $G(f)$ de $k\,f_s$:
-  \[
-    G_s(f) = f_s \sum_{k=-\infty}^{\infty} G(f - k\,f_s)
-  \]
+  \vspace{0.1cm}
+  \textit{Os deslocamentos surgem \textbf{naturalmente} da modulação: cada
+  termo da série gera uma cópia de $G(f)$ centrada em $k f_s$.}
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -171,15 +163,115 @@
     de $G(f)$, cada uma deslocada de $k\,f_s$ e escalada por $f_s$.
   \end{block}
 
-  \vspace{0.3cm}
-  \textbf{Consequências imediatas:}
-  \begin{itemize}
-    \item A amostragem \alert{repete o espectro} a cada $f_s$ Hz.
-    \item Se as réplicas não se sobrepõem, $G(f)$ pode ser isolada
-          com um filtro passa-baixas ideal de corte em $W$.
-    \item Se houver sobreposição $\Rightarrow$ \alert{aliasing}
-          — distorção irrecuperável.
-  \end{itemize}
+  \vspace{0.0cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, scale=0.9, every node/.style={font=\scriptsize}]
+    \draw[->,gray!55] (-3.7,0) -- (3.9,0) node[right,black]{$f$};
+    \draw[->,gray!55] (0,-0.12) -- (0,1.35);
+    % réplica central (banda-base, k=0)
+    \draw[UNB_GOLD, very thick, fill=UNB_GOLD!25]
+         (-0.7,0) -- (0,1) -- (0.7,0);
+    \node[UNB_GOLD!85!black] at (0,1.2) {$k{=}0$};
+    % réplicas laterais (k = ±1)
+    \foreach \c/\k in {-2.6/{-1}, 2.6/{+1}}{
+      \draw[UNB_GREEN, very thick, fill=UNB_GREEN!18]
+           (\c-0.7,0) -- (\c,1) -- (\c+0.7,0);
+      \node[UNB_GREEN!70!black] at (\c,1.2) {$k{=}\k$};
+    }
+    % marcações de fs e largura de banda
+    \draw[densely dashed,gray!70] (2.6,0) -- (2.6,1.05);
+    \draw[densely dashed,gray!70] (-2.6,0) -- (-2.6,1.05);
+    \draw[<->,gray] (0,-0.34) -- (2.6,-0.34) node[midway,below,black]{$f_s$};
+    \draw[<->,gray] (-0.7,0.45) -- (0.7,0.45) node[midway,above,black]{$2W$};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{-0.1cm}
+  {\footnotesize
+  Réplicas separadas $\Rightarrow$ um filtro passa-baixas isola $G(f)$;
+  réplicas sobrepostas $\Rightarrow$ \alert{aliasing} irrecuperável.}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Periodicidade do Espectro Amostrado}
+% ------------------------------------------------------------------
+
+\begin{frame}{Amostrar no Tempo $\equiv$ Periodizar na Frequência}
+  A série de Fourier mostrou que o trem de impulsos no tempo corresponde
+  a um trem de impulsos na frequência. É isso que \textbf{periodiza} o
+  espectro ao amostrar:
+
+  \vspace{0.25cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, scale=0.95, every node/.style={font=\scriptsize}]
+    % ----- Domínio do tempo -----
+    \begin{scope}
+      \draw[->,gray!55] (-0.3,0) -- (3.9,0) node[right,black]{$t$};
+      \draw[->,gray!55] (0,-0.15) -- (0,1.45);
+      \foreach \x in {0,0.8,1.6,2.4,3.2}
+        \draw[->,UNB_BLUE,very thick] (\x,0) -- (\x,1.05);
+      \draw[<->,gray] (1.6,-0.32) -- (2.4,-0.32)
+           node[midway,below,black]{$T_s$};
+      \node[UNB_BLUE] at (1.9,1.42) {$\delta_{T_s}(t)$};
+    \end{scope}
+    % ----- Seta da transformada -----
+    \draw[->,very thick,UNB_GOLD] (4.4,0.55) -- (5.7,0.55)
+         node[midway,above,black]{$\mathcal{F}\{\cdot\}$};
+    % ----- Domínio da frequência -----
+    \begin{scope}[xshift=6.1cm]
+      \draw[->,gray!55] (-0.3,0) -- (3.9,0) node[right,black]{$f$};
+      \draw[->,gray!55] (0,-0.15) -- (0,1.45);
+      \foreach \x in {0,0.8,1.6,2.4,3.2}
+        \draw[->,RED,very thick] (\x,0) -- (\x,1.05);
+      \draw[<->,gray] (1.6,-0.32) -- (2.4,-0.32)
+           node[midway,below,black]{$f_s$};
+      \node[RED] at (2.1,1.42) {$f_s\,\delta_{f_s}(f)$};
+    \end{scope}
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.1cm}
+  {\footnotesize\textit{Espaçamento recíproco: $T_s$ grande no tempo
+  $\Rightarrow$ réplicas próximas na frequência ($f_s = 1/T_s$ pequeno),
+  e vice-versa.}}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{O Espectro se Repete a Cada $f_s$}
+  Cada termo $k$ da série coloca uma cópia de $G(f)$ centrada em $k f_s$.
+  O resultado é um espectro \textbf{periódico} com período $f_s$:
+  \[
+    G_s(f + f_s) = G_s(f).
+  \]
+
+  \vspace{0.1cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, scale=0.92, every node/.style={font=\scriptsize}]
+    \draw[->,gray!55] (-5.6,0) -- (5.9,0) node[right,black]{$f$};
+    \draw[->,gray!55] (0,-0.12) -- (0,1.35);
+    % réplica central k=0
+    \draw[UNB_GOLD, very thick, fill=UNB_GOLD!25] (-0.6,0) -- (0,1) -- (0.6,0);
+    \node[UNB_GOLD!85!black] at (0,1.18) {$k{=}0$};
+    % réplicas laterais
+    \foreach \c/\k in {-2.4/{-1}, 2.4/{+1}, -4.8/{-2}, 4.8/{+2}}{
+      \draw[UNB_GREEN, very thick, fill=UNB_GREEN!18]
+           (\c-0.6,0) -- (\c,1) -- (\c+0.6,0);
+      \node[UNB_GREEN!70!black] at (\c,1.18) {$k{=}\k$};
+    }
+    % período fs
+    \draw[<->, thick, UNB_BLUE] (0,-0.34) -- (2.4,-0.34)
+        node[midway,below,black]{$f_s$ (período)};
+    \draw[<->, thick, UNB_BLUE] (2.4,-0.34) -- (4.8,-0.34)
+        node[midway,below,black]{$f_s$};
+    \draw[densely dashed,gray!70] (2.4,0) -- (2.4,1.05);
+    \draw[densely dashed,gray!70] (4.8,0) -- (4.8,1.05);
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.05cm}
+  {\footnotesize O par de Fourier é simétrico: amostrar (período $T_s$ no
+  tempo) $\;\Longleftrightarrow\;$ periodizar (período $f_s$ na frequência).}
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -187,16 +279,24 @@
 % ------------------------------------------------------------------
 
 \begin{frame}{Visualização do Espectro Amostrado}
-  \begin{center}
-    \includegraphics[width=0.80\textwidth]{figures/cap7/sampling_spectrum}
-  \end{center}
-  \vspace{-0.2cm}
-  {\footnotesize
-    \textit{(a)} Sem aliasing ($f_s > 2W$): réplicas bem separadas;
-    o filtro passa-baixas (corte em $\pm W$) recupera $G(f)$ exatamente.\\
-    \textit{(b)} Com aliasing ($f_s < 2W$): réplicas sobrepostas (vermelho);
-    $G(f)$ é distorcida de forma irrecuperável.
-  }
+  \begin{columns}[c]
+    \column{0.64\textwidth}
+    \begin{center}
+      \includegraphics[width=\textwidth,height=0.72\textheight,keepaspectratio]{figures/cap7/sampling_spectrum}
+    \end{center}
+
+    \column{0.36\textwidth}
+    {\footnotesize
+      \textit{(a)} Sem aliasing ($f_s > 2W$):
+      réplicas bem separadas; o filtro passa-baixas com corte em
+      $\pm W$ recupera $G(f)$ exatamente.
+
+      \vspace{0.35cm}
+      \textit{(b)} Com aliasing ($f_s < 2W$):
+      réplicas sobrepostas (vermelho); $G(f)$ é distorcida de forma
+      irrecuperável.
+    }
+  \end{columns}
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -204,21 +304,25 @@
 \begin{frame}{Condição de Nyquist — Derivação}
   Para reconstrução perfeita, as réplicas \textbf{não podem se sobrepor}.
 
-  \vspace{0.4cm}
+  \vspace{0.5cm}
   \begin{itemize}
     \item Réplica em $k = 0$: ocupa $\left[-W,\;+W\right]$
     \item Réplica em $k = 1$: ocupa $\left[f_s - W,\;f_s + W\right]$
   \end{itemize}
 
-  \vspace{0.3cm}
+  \vspace{0.5cm}
   Para que as réplicas em $k=0$ e $k=1$ não se sobreponham,
   o início da réplica em $f_s$ deve estar além do fim da réplica em $0$:
   \[
     f_s - W > W
     \quad\Longrightarrow\quad
-    f_s > 2W
+    \boxed{\,f_s > 2W\,}
   \]
+\end{frame}
 
+% ------------------------------------------------------------------
+
+\begin{frame}{Teorema de Nyquist-Shannon}
   \begin{block}{Teorema de Nyquist-Shannon}
     Um sinal $g(t)$ com espectro limitado a $[-W, W]$ Hz pode ser
     \textbf{perfeitamente reconstruído} a partir de suas amostras
@@ -228,6 +332,16 @@
     \]
     A taxa mínima $f_{\mathrm{Nyquist}} = 2W$ é a \textbf{taxa de Nyquist}.
   \end{block}
+
+  \vspace{0.2cm}
+  {\footnotesize
+  \textbf{Leitura de engenharia:}
+  \begin{itemize}
+    \item $f_s = 2W$ é o limite teórico; na prática usa-se $f_s > 2W$
+          com uma \textbf{banda de guarda} para o filtro real.
+    \item Telefonia: voz até $3{,}4$ kHz amostrada a $8$ kHz.
+          Áudio: banda de $20$ kHz amostrada a $44{,}1$ kHz.
+  \end{itemize}}
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -262,28 +376,41 @@
 
 \begin{frame}{Aliasing — Demonstração Visual}
   \begin{center}
-    \includegraphics[width=0.80\textwidth]{figures/cap7/aliasing_demo}
+    \includegraphics[width=\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap7/aliasing_demo}
   \end{center}
-  \vspace{-0.2cm}
+  \vspace{-0.05cm}
   {\footnotesize
-    \textit{(a)} Amostragem adequada: os pontos descrevem corretamente o
-    sinal original.
-    \textit{(b)} Subamostragem: os mesmos pontos amostrados
-    ({\color[HTML]{F2A900}laranja}) coincidem com uma senóide de
-    frequência muito mais baixa ({\color[HTML]{C0392B}vermelho}) — o alias.
+    \textit{(a)} Amostragem adequada: os pontos descrevem o sinal original.\quad
+    \textit{(b)} Subamostragem: os mesmos pontos
+    ({\color[HTML]{F2A900}laranja}) coincidem com uma senóide muito mais
+    lenta ({\color[HTML]{C0392B}vermelho}) — o alias.
   }
 \end{frame}
 
 % ------------------------------------------------------------------
 
-\begin{frame}{Amostragem no Domínio do Tempo}
+\begin{frame}{Amostragem no Domínio do Tempo (1/2)}
   \begin{center}
-    \includegraphics[width=0.76\textwidth]{figures/cap7/sampling_time_domain}
+    \includegraphics[width=0.72\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap7/sampling_time_domain_ab}
   \end{center}
+  \vspace{0.0cm}
   {\footnotesize
-    (a)~Sinal original contínuo.\ \
-    (b)~Trem de impulsos espaçados de $T_s$.\ \
-    (c)~Sinal amostrado = impulsos ponderados pelas amostras $g(nT_s)$.
+    (a)~Sinal original $g(t)$ contínuo no tempo.\quad
+    (b)~Trem de impulsos $\delta_{T_s}(t)$ espaçados de $T_s = 1/f_s$.
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Amostragem no Domínio do Tempo (2/2)}
+  \begin{center}
+    \includegraphics[width=0.74\textwidth]{figures/cap7/sampling_time_domain_c}
+  \end{center}
+  \vspace{0.0cm}
+  {\footnotesize
+    (c)~Sinal amostrado $g_s(t) = g(t)\cdot\delta_{T_s}(t)$: impulsos
+    ponderados pelas amostras $g(nT_s)$ (verde), sobre o sinal original
+    (azul tracejado).
   }
 \end{frame}
 
@@ -300,19 +427,388 @@
     \hat{G}(f) = G_s(f) \cdot H(f) = G(f)
   \]
 
-  \vspace{0.3cm}
-  No domínio do tempo, o filtro ideal corresponde a um pulso sinc:
+  \vspace{0.5cm}
+  No domínio do tempo, o filtro ideal corresponde a um \textbf{pulso sinc}:
   \[
     h(t) = \IFT{H(f)} = \frac{2W}{f_s}\,\sinc(2Wt)
   \]
 
-  \vspace{0.3cm}
-  A reconstrução completa do sinal contínuo é a
-  \textbf{interpolação sinc}:
+  \vspace{0.5cm}
+  Convoluir $g_s(t)$ com este $h(t)$ equivale a interpolar as amostras
+  — o que detalhamos no próximo slide.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Reconstrução: Interpolação Sinc}
+  A reconstrução completa do sinal contínuo é a \textbf{interpolação sinc}:
   \[
-    g(t) = \sum_{n=-\infty}^{\infty} g(nT_s)\,\sinc\!\left(\frac{t - nT_s}{T_s}\right)
+    g(t) = \sum_{n=-\infty}^{\infty}
+           g(nT_s)\,\sinc\!\left(\frac{t - nT_s}{T_s}\right)
   \]
 
-  \textit{Intuição:} cada amostra gera um pulso sinc centrado em $nT_s$;
-  a superposição de todos os sincs reconstrói o sinal contínuo original.
+  \vspace{0.5cm}
+  \textit{Intuição:} cada amostra $g(nT_s)$ gera um pulso sinc centrado
+  em $nT_s$; a \textbf{superposição} de todos os sincs reconstrói o sinal
+  contínuo original.
+
+  \vspace{0.5cm}
+  \begin{itemize}
+    \item Em $t = nT_s$, apenas o sinc da amostra $n$ vale 1; todos os
+          outros se anulam $\Rightarrow$ a curva passa exatamente pelas
+          amostras.
+    \item Entre as amostras, a soma ponderada dos sincs preenche os
+          valores intermediários.
+  \end{itemize}
+\end{frame}
+
+% ==================================================================
+\subsection{Não Idealidades dos Filtros}
+% ==================================================================
+
+\begin{frame}{Filtros Ideais Não São Realizáveis}
+  Toda a teoria anterior supõe \textbf{filtros ideais} — que não existem
+  na prática.
+
+  \vspace{0.2cm}
+  \begin{columns}[c]
+    \column{0.55\textwidth}
+    {\footnotesize
+    \textbf{Filtro ideal} ($h(t) = \sinc(2Wt)$):
+    \begin{itemize}
+      \item Estende-se de $-\infty$ a $+\infty$ no tempo
+      \item \alert{Não causal}: responde antes da entrada
+      \item Duração infinita $\Rightarrow$ irrealizável
+    \end{itemize}
+    \vspace{0.15cm}
+    \textbf{Filtro real} (causal):
+    \begin{itemize}
+      \item \textbf{Banda de transição} (corte não abrupto)
+      \item Atenuação finita na rejeição; \textit{ripple} e fase
+    \end{itemize}}
+
+    \column{0.45\textwidth}
+    \begin{tikzpicture}[>=stealth, scale=0.82, every node/.style={font=\scriptsize}]
+      \draw[->,gray!55] (-0.2,0) -- (5.4,0) node[right,black]{$f$};
+      \draw[->,gray!55] (0,-0.1) -- (0,1.5);
+      \draw[UNB_BLUE, very thick] (0,1.1) -- (2,1.1) -- (2,0) -- (5.2,0);
+      \node[UNB_BLUE] at (1.0,1.3) {ideal};
+      \draw[RED, very thick, densely dashed]
+        (0,1.0) .. controls (1.6,1.0) and (2.0,0.95) .. (2.0,0.55)
+        .. controls (2.0,0.2) and (3.0,0.08) .. (5.2,0.04);
+      \node[RED] at (3.6,0.55) {real};
+      \draw[densely dotted,gray] (2,0) -- (2,1.2) node[above,black]{$W$};
+      \draw[<->,gray] (2,-0.28) -- (3.3,-0.28) node[midway,below,black]{transição};
+    \end{tikzpicture}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Não Idealidade na Reconstrução: Segurador de Ordem Zero}
+  Um DAC real não gera impulsos: ele \textbf{segura} cada amostra durante
+  $T_s$ (\textit{zero-order hold}, ZOH).
+
+  \vspace{0.25cm}
+  \begin{columns}[c]
+    \column{0.5\textwidth}
+    A resposta ao impulso é um pulso retangular de largura $T_s$:
+    \[
+      h_{\text{ZOH}}(t) = \rect\!\left(\frac{t - T_s/2}{T_s}\right)
+    \]
+    cuja transformada é
+    \[
+      |H_{\text{ZOH}}(f)| = T_s\,\bigl|\sinc(f T_s)\bigr|.
+    \]
+
+    \column{0.5\textwidth}
+    \begin{tikzpicture}[>=stealth, scale=0.9, every node/.style={font=\scriptsize}]
+      \draw[->,gray!55] (-0.1,0) -- (4.4,0) node[right,black]{$t$};
+      \draw[->,gray!55] (0,-0.1) -- (0,1.5);
+      % staircase (ZOH) over a smooth curve
+      \draw[UNB_BLUE, thick, domain=0:4, samples=80, smooth]
+        plot (\x, {0.55+0.45*sin(deg(\x*1.1))});
+      \foreach \k in {0,1,2,3}{
+        \pgfmathsetmacro\xa{\k}
+        \pgfmathsetmacro\yy{0.55+0.45*sin(deg((\xa+0.5)*1.1))}
+        \draw[UNB_GREEN, very thick] (\xa,\yy) -- (\xa+1,\yy);
+        \draw[UNB_GREEN!50, thin] (\xa+1,\yy) -- (\xa+1, {0.55+0.45*sin(deg((\xa+1.5)*1.1))});
+      }
+      \node[UNB_GREEN!70!black] at (2,1.55) {saída ZOH (escada)};
+    \end{tikzpicture}
+  \end{columns}
+
+  \vspace{0.2cm}
+  O envelope $\sinc(f T_s)$ \alert{atenua as altas frequências}
+  (\textit{aperture effect}). No pior caso ($f = W$, $f_s = 2W$):
+  $|\sinc(0{,}5)| = 2/\pi \approx -3{,}9$ dB. Corrige-se com um filtro
+  de compensação $\propto 1/\sinc(f T_s)$.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Equalização do Efeito de Abertura (ZOH)}
+  \textbf{Objetivo:} compensar a queda $\sinc(f T_s)$ para que a resposta
+  total fique \textbf{plana} na banda $[0, W]$.
+
+  \vspace{0.1cm}
+  Basta cascatear um \textbf{equalizador} cujo ganho seja o inverso do
+  envelope do ZOH:
+  \[
+    H_{\text{eq}}(f) = \frac{1}{\sinc(f T_s)}
+                     = \frac{\pi f T_s}{\sin(\pi f T_s)},
+    \qquad |f| \le W,
+  \]
+  de modo que
+  $\;|H_{\text{ZOH}}(f)|\cdot|H_{\text{eq}}(f)| = T_s\;$ (constante).
+
+  \vspace{0.0cm}
+  \begin{columns}[c]
+    \column{0.54\textwidth}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, scale=0.9, every node/.style={font=\scriptsize}]
+      \draw[->,gray!55] (-0.2,0) -- (4.3,0) node[right,black]{$f$};
+      \draw[->,gray!55] (0,-0.1) -- (0,2.1) node[above,black]{ganho};
+      \draw[densely dotted,gray] (0,1) -- (4.0,1);
+      % ZOH droop
+      \draw[UNB_GREEN, very thick]
+        (0,1) .. controls (1.8,0.97) and (2.7,0.85) .. (3.6,0.64);
+      \node[UNB_GREEN!70!black] at (2.6,0.5) {ZOH $\sinc(fT_s)$};
+      % equalizer 1/sinc
+      \draw[RED, very thick, densely dashed]
+        (0,1) .. controls (1.8,1.04) and (2.7,1.20) .. (3.6,1.57);
+      \node[RED] at (2.4,1.86) {$1/\sinc(fT_s)$};
+      % product (flat)
+      \draw[UNB_BLUE, very thick] (0,1) -- (3.6,1);
+      \node[UNB_BLUE] at (1.2,1.2) {produto};
+      \draw[densely dotted,gray] (3.6,0) -- (3.6,1.57);
+      \node[below,black] at (3.6,0) {$W$};
+    \end{tikzpicture}
+    \end{center}
+
+    \column{0.46\textwidth}
+    {\footnotesize
+    \textbf{Onde aplicar:}
+    \begin{itemize}
+      \item \textbf{Digital} (pré-equalização): um filtro com resposta
+            crescente \emph{antes} do DAC — solução usual hoje.
+      \item \textbf{Analógico}: equalizador passa-altas suave \emph{após}
+            o DAC.
+    \end{itemize}
+    Sobe $+3{,}9$ dB na borda, cancelando a queda do ZOH.}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Não Idealidade na Aquisição: Filtro Anti-Aliasing Real}
+  O filtro anti-aliasing real não corta abruptamente em $W$: ele tem uma
+  \textbf{banda de transição} entre $W$ e o início da banda de rejeição.
+
+  \vspace{0.2cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, scale=1.0, every node/.style={font=\scriptsize}]
+    \draw[->,gray!55] (-0.2,0) -- (7.4,0) node[right,black]{$f$};
+    \draw[->,gray!55] (0,-0.1) -- (0,1.5);
+    % banda-base
+    \draw[UNB_GOLD, very thick, fill=UNB_GOLD!22] (0,0) -- (0,1) -- (1.4,1) -- (1.6,0);
+    % primeira réplica (centrada em fs)
+    \draw[UNB_GREEN, very thick, fill=UNB_GREEN!18]
+        (4.4,0) -- (4.6,1) -- (6.0,1) -- (6.2,0);
+    % máscara do filtro real
+    \draw[RED, very thick, densely dashed]
+        (0,1.05) -- (1.4,1.05) .. controls (2.2,1.05) and (2.6,0.1) .. (3.4,0.06) -- (7.2,0.04);
+    \node[RED] at (2.9,0.9) {filtro real};
+    % marcações
+    \draw[densely dotted,gray] (1.4,0) -- (1.4,1.15) node[above,black]{$W$};
+    \draw[densely dotted,gray] (3.0,0) -- (3.0,1.0);
+    \draw[densely dotted,gray] (4.6,0) -- (4.6,1.15) node[above,black]{$f_s{-}W$};
+    \draw[<->,gray] (1.4,-0.3) -- (3.0,-0.3) node[midway,below,black]{transição};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.1cm}
+  {\footnotesize
+  Para não haver aliasing, a réplica (que começa em $f_s - W$) deve cair
+  na banda já atenuada do filtro. Duas saídas de projeto:}
+  \begin{itemize}\footnotesize
+    \item \textbf{Banda de guarda / oversampling:} aumentar $f_s$ para
+          alargar a transição disponível $f_s - 2W$.
+    \item \textbf{Filtro mais seletivo:} maior ordem $\Rightarrow$ corte
+          mais íngreme, ao custo de complexidade e distorção de fase.
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Por Que o Filtro Anti-Aliasing? Sem vs.\ Com Filtro}
+  Como o sinal real tem caudas além de $W$, o efeito de amostrar
+  \emph{sem} e \emph{com} o filtro anti-aliasing é bem diferente:
+
+  \vspace{0.15cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, scale=0.92, every node/.style={font=\scriptsize}]
+    % ============ PAINEL SUPERIOR: SEM FILTRO ============
+    \begin{scope}[yshift=1.9cm]
+      \draw[->,gray!55] (-4.7,0) -- (4.9,0) node[right,black]{$f$};
+      % réplicas (com caudas largas)
+      \draw[UNB_GREEN, very thick, fill=UNB_GREEN!14] plot[smooth] coordinates
+        {(0.6,0.10)(1.6,0.24)(2.5,0.58)(3.4,1)(4.3,0.58)(4.85,0.32)};
+      \draw[UNB_GREEN, very thick, fill=UNB_GREEN!14] plot[smooth] coordinates
+        {(-0.6,0.10)(-1.6,0.24)(-2.5,0.58)(-3.4,1)(-4.3,0.58)(-4.85,0.32)};
+      % banda-base (com caudas largas)
+      \draw[UNB_GOLD, very thick, fill=UNB_GOLD!22] plot[smooth] coordinates
+        {(-2.9,0.10)(-1.8,0.24)(-0.9,0.58)(0,1)(0.9,0.58)(1.8,0.24)(2.9,0.10)};
+      % zonas de sobreposição destacadas
+      \fill[RED!35, opacity=0.5] (1.75,0.17) ellipse (1.15 and 0.27);
+      \fill[RED!35, opacity=0.5] (-1.75,0.17) ellipse (1.15 and 0.27);
+      \node[UNB_GOLD!85!black] at (0,1.2) {$G(f)$};
+      \node[UNB_GREEN!60!black] at (3.4,1.2) {réplica};
+      \node[RED!80!black] at (0,-0.42)
+        {\textbf{Sem filtro:} caudas se sobrepõem dentro da banda $\Rightarrow$ \textbf{aliasing severo}};
+    \end{scope}
+    % ============ PAINEL INFERIOR: COM FILTRO ============
+    \begin{scope}[yshift=-1.3cm]
+      \draw[->,gray!55] (-4.7,0) -- (4.9,0) node[right,black]{$f$};
+      % réplicas filtradas (compactas)
+      \draw[UNB_GREEN, very thick, fill=UNB_GREEN!14] plot[smooth] coordinates
+        {(2.0,0.05)(2.5,0.5)(2.95,0.86)(3.4,1)(3.85,0.86)(4.3,0.5)(4.8,0.08)};
+      \draw[UNB_GREEN, very thick, fill=UNB_GREEN!14] plot[smooth] coordinates
+        {(-2.0,0.05)(-2.5,0.5)(-2.95,0.86)(-3.4,1)(-3.85,0.86)(-4.3,0.5)(-4.8,0.08)};
+      % banda-base filtrada (caudas cortadas em ~W)
+      \draw[UNB_GOLD, very thick, fill=UNB_GOLD!22] plot[smooth] coordinates
+        {(-1.6,0.05)(-1.05,0.5)(-0.5,0.86)(0,1)(0.5,0.86)(1.05,0.5)(1.6,0.05)};
+      \node[UNB_GREEN!55!black, font=\tiny] at (1.8,0.16) {sem sobreposição};
+      \node[UNB_GREEN!60!black] at (0,-0.42)
+        {\textbf{Com filtro:} caudas atenuadas antes de amostrar $\Rightarrow$ \textbf{aliasing reduzido}};
+    \end{scope}
+  \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% ==================================================================
+\subsection{Problema Aplicado de Engenharia}
+% ==================================================================
+
+\begin{frame}{Problema Aplicado: Front-End de Aquisição}
+  \begin{block}{Enunciado}
+    Um front-end deve digitalizar um sinal de voz com banda útil
+    $W = 4$ kHz. O filtro anti-aliasing é um \textbf{Butterworth} com
+    frequência de corte $f_c = W$. Exige-se que a \textbf{primeira réplica
+    espectral}, que se inicia em $f_s - W$, esteja atenuada em pelo menos
+    $A_s = 40$ dB. Adotou-se $f_s = 16$ kHz.
+  \end{block}
+
+  \vspace{0.2cm}
+  \textbf{Pede-se:}
+  \begin{enumerate}
+    \item[(a)] A banda de transição disponível para o filtro.
+    \item[(b)] A ordem mínima $N$ do Butterworth para garantir $A_s$.
+  \end{enumerate}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Solução — Passo (a): Banda de Transição}
+  O espectro repete $G(f)$ a cada $f_s$; a réplica vizinha começa em
+  $f_s - W = 12$ kHz. O filtro deve sair da banda de passagem
+  ($f_c = W = 4$ kHz) e atingir os $40$ dB em $f_s - W$. A
+  \textbf{banda de transição disponível} é:
+  \[
+    \Delta f_{\text{trans}} = (f_s - W) - W = f_s - 2W = 16 - 8
+    = \boxed{8\ \text{kHz}.}
+  \]
+
+  \vspace{0.05cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, every node/.style={font=\scriptsize}]
+    % eixo (x em cm = kHz * 0.32)
+    \draw[->,gray!55] (-1.7,0) -- (7.0,0) node[right,black]{$f$ (kHz)};
+    \draw[->,gray!55] (0,-0.12) -- (0,1.5);
+    % banda-base G(f) -- NÃO limitada em banda: caudas além de W
+    \draw[UNB_GOLD, very thick, fill=UNB_GOLD!22]
+        plot[smooth] coordinates
+        {(-3.0,0.03) (-2.0,0.11) (-1.28,0.34) (-0.7,0.74) (0,1)
+         (0.7,0.74) (1.28,0.34) (2.0,0.13) (3.0,0.05)};
+    \node[UNB_GOLD!85!black] at (0,1.18) {$G(f)$};
+    % réplica vizinha (centrada em f_s) -- também com caudas
+    \draw[UNB_GREEN, very thick, fill=UNB_GREEN!16]
+        plot[smooth] coordinates
+        {(2.3,0.05) (3.12,0.13) (3.84,0.34) (4.42,0.74) (5.12,1)
+         (5.82,0.74) (6.4,0.34) (6.9,0.16)};
+    \node[UNB_GREEN!70!black] at (5.12,1.18) {réplica};
+    % caudas que se sobrepõem -> aliasing residual
+    \node[RED!80!black, font=\tiny] at (2.65,0.42) {caudas};
+    % máscara do filtro anti-aliasing real
+    \draw[RED, very thick, densely dashed]
+        (-1.7,1.06) -- (1.28,1.06)
+        .. controls (2.4,1.06) and (3.0,0.12) .. (3.84,0.07) -- (7.0,0.05);
+    \node[RED] at (1.55,0.86) {filtro};
+    % marcações verticais
+    \draw[densely dotted,gray] (1.28,0) -- (1.28,1.18);
+    \draw[densely dotted,gray] (3.84,0) -- (3.84,1.18);
+    \node[below,black] at (1.28,-0.04) {$W{=}4$};
+    \node[below,black] at (3.84,-0.04) {$f_s{-}W{=}12$};
+    \node[below,gray] at (5.12,-0.04) {$f_s{=}16$};
+    % rótulos de atenuação
+    \node[RED, anchor=west] at (0.18,1.24) {$0$ dB};
+    \node[RED, anchor=west] at (3.95,0.30) {$\ge 40$ dB};
+    % banda de transição
+    \draw[<->, thick, UNB_BLUE] (1.28,-0.5) -- (3.84,-0.5)
+        node[midway, below, black]{$\Delta f_{\text{trans}} = f_s - 2W = 8$ kHz};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{-0.05cm}
+  {\footnotesize Sinais reais \textbf{não} são estritamente limitados em
+  banda: o espectro tem \textbf{caudas} além de $W$. O filtro anti-aliasing
+  atenua essas caudas; o que ainda se sobrepõe gera \textit{aliasing
+  residual}.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Solução — Passo (b): Ordem do Butterworth}
+  A magnitude de um Butterworth de ordem $N$ com corte $f_c$ é:
+  \[
+    |H(f)|^2 = \frac{1}{1 + \left(f/f_c\right)^{2N}}
+    \;\Longrightarrow\;
+    A(f) = 10\log_{10}\!\left[\,1 + \left(\frac{f}{f_c}\right)^{2N}\right]\ \text{dB}.
+  \]
+
+  \vspace{0.2cm}
+  Avaliando em $f = f_s - W = 12$ kHz, com $f_c = 4$ kHz
+  $\Rightarrow f/f_c = 3$, e como $(f/f_c)^{2N} \gg 1$:
+  \[
+    A \approx 10\log_{10}\!\left(3^{2N}\right)
+      = 20\,N \log_{10} 3
+      = 9{,}54\,N\ \text{dB}.
+  \]
+
+  \vspace{0.2cm}
+  Impondo $A \ge A_s = 40$ dB:
+  \[
+    9{,}54\,N \ge 40
+    \;\Longrightarrow\;
+    N \ge 4{,}19
+    \;\Longrightarrow\;
+    \boxed{N = 5.}
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Solução — Conclusão}
+  \begin{block}{Síntese do projeto}
+    \begin{itemize}
+      \item Banda de transição disponível: $f_s - 2W = 8$ kHz.
+      \item Filtro anti-aliasing: Butterworth de ordem $N = 5$.
+    \end{itemize}
+  \end{block}
+
+  \vspace{0.4cm}
+  \textit{Compromisso de engenharia:} aumentar $f_s$ alargaria a banda de
+  transição e permitiria um filtro de ordem menor, mais barato. Reduzir
+  $f_s$ aproximaria a réplica da banda útil e exigiria um filtro mais
+  íngreme (ordem maior).
 \end{frame}

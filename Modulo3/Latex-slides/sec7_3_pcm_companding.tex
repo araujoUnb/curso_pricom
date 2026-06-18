@@ -58,7 +58,7 @@
   Após a quantização, cada nível $\hat{g}[n]$ recebe uma
   \textbf{palavra binária de $n$ bits} (representação PCM).
 
-  \vspace{0.3cm}
+  \vspace{0.2cm}
   Com $n$ bits podemos representar $L = 2^n$ níveis:
   \[
     L = 2^n
@@ -66,10 +66,10 @@
     n = \log_2 L
   \]
 
-  \vspace{0.3cm}
+  \vspace{0.15cm}
   \textbf{Exemplo com $n = 3$ bits ($L = 8$ níveis):}
 
-  \vspace{0.2cm}
+  \vspace{0.1cm}
   \begin{center}
   \begin{tabular}{ccc}
     \hline
@@ -113,6 +113,86 @@
 
 % ------------------------------------------------------------------
 
+\begin{frame}{De Onde Vem o Fator 2? — Critério de Nyquist}
+  O fator $2$ vem da \textbf{sinalização no canal}: um canal de banda $B$
+  transmite até \textbf{$2B$ pulsos/s} sem interferência entre símbolos
+  (ISI).
+
+  \vspace{0.05cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, every node/.style={font=\scriptsize},
+      declare function={ms(\t)= abs(\t)<0.0008 ? 1 : sin(180*\t)/(pi*\t);}]
+    \def\T{1.35}\def\A{0.82}
+    \draw[->,gray!55] (-2.3,0) -- (5.9,0) node[right,black]{$t$};
+    \draw[->,gray!55] (0,-0.4) -- (0,1.08);
+    % três pulsos sinc (símbolos vizinhos)
+    \draw[gray!55, thick]
+       plot[domain=-2.7:2.5, samples=130] (\x*\T, {\A*ms(\x+1)});
+    \draw[UNB_BLUE, very thick]
+       plot[domain=-1.7:3.5, samples=130] (\x*\T, {\A*ms(\x)});
+    \draw[UNB_GREEN!70!black, thick]
+       plot[domain=-0.7:4.5, samples=130] (\x*\T, {\A*ms(\x-1)});
+    % instantes de símbolo
+    \foreach \k in {-1,0,1} \draw[densely dotted,gray] (\k*\T,-0.1) -- (\k*\T,1.05);
+    \fill[UNB_BLUE] (0,\A) circle (1.7pt);
+    \fill (-\T,0) circle (1.3pt);  \fill (\T,0) circle (1.3pt);
+    % espaçamento entre símbolos
+    \draw[<->,thick,black] (0,-0.35) -- (\T,-0.35)
+       node[midway,below]{$T=\dfrac{1}{2B}$};
+    \node[UNB_BLUE] at (0.35,1.18) {1};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{-0.05cm}
+  Os \textbf{cruzamentos por zero} ficam a $T = 1/(2B)$ um do outro.
+  Pondo um símbolo em cada zero, nenhum interfere no vizinho, logo a taxa
+  máxima é $R_s = 1/T = 2B$ símbolos/s:
+  \[
+    R_s \le 2B \;\Longrightarrow\; B \ge \frac{R_s}{2}
+    \;\xrightarrow{\;R_s = R_b\;}\;
+    B_{\min} = \frac{R_b}{2} = \frac{n f_s}{2}.
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Dualidade: Amostragem $\leftrightarrow$ Sinalização}
+  O mesmo fator $2$ aparece na amostragem e na transmissão — é a
+  \textbf{dualidade tempo $\leftrightarrow$ frequência}:
+
+  \vspace{0.3cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth,
+      box/.style={draw, rounded corners=4pt, align=center,
+                  minimum width=5.2cm, minimum height=1.7cm, font=\small}]
+    \node[box, fill=UNB_BLUE!10, draw=UNB_BLUE] (a)
+      {\textbf{Amostragem}\\[2pt]
+       sinal de banda $W$ exige\\
+       $f_s \ge 2W$ amostras/s};
+    \node[box, fill=UNB_GREEN!10, draw=UNB_GREEN, right=1.6cm of a] (b)
+      {\textbf{Sinalização}\\[2pt]
+       banda $B$ comporta\\
+       $R_s \le 2B$ símbolos/s};
+    \draw[<->, very thick, UNB_GOLD] (a) -- (b)
+       node[midway, above, font=\scriptsize\itshape, black] {dual};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item Amostrar: preciso de \textbf{2 amostras por ciclo} da maior
+          frequência $W$.
+    \item Transmitir: cabem \textbf{2 símbolos por ciclo} da banda $B$ do
+          canal.
+  \end{itemize}
+
+  \vspace{0.15cm}
+  {\footnotesize O critério de sinalização é detalhado no Capítulo 6
+  (pulsos de Nyquist e diagrama de olho).}
+\end{frame}
+
+% ------------------------------------------------------------------
+
 \begin{frame}{Exemplo de Projeto PCM: Telefonia Digital}
   \textbf{Parâmetros do canal de voz (ITU-T G.711):}
 
@@ -141,34 +221,228 @@
 \end{frame}
 
 % ------------------------------------------------------------------
+
+\begin{frame}{Exemplo Atual: Voz HD na Telefonia Móvel (VoLTE)}
+  \textbf{Parâmetros da voz \emph{wideband}} (``HD Voice'', base do
+  codec AMR-WB usado no 4G/5G):
+
+  \vspace{0.15cm}
+  \begin{itemize}
+    \item Largura de banda da voz: $W = 7\,\text{kHz}$
+          \quad (vs.\ $3{,}4$ kHz na telefonia fixa)
+    \item Taxa de amostragem: $f_s = 16\,\text{kHz}$
+    \item Resolução PCM de entrada: $n = 16$ bits/amostra
+  \end{itemize}
+
+  \vspace{0.25cm}
+  \textbf{Taxa de bits PCM bruta:}
+  \[
+    R_b = n \cdot f_s = 16 \times 16\,000 = 256\,\text{kb/s}
+    \qquad (\SQNR \approx 1{,}76 + 6{,}02 \times 16 \approx 98\,\text{dB})
+  \]
+
+  \vspace{0.1cm}
+  \textbf{Observação:} $256$ kb/s é alto demais para o rádio móvel. A voz
+  é então \textbf{comprimida} por um codec — AMR-WB ($\sim$12--24 kb/s) ou
+  EVS no 5G — que preserva a qualidade percebida com uma fração dos bits.
+\end{frame}
+
+% ------------------------------------------------------------------
 \subsection{Companding}
 % ------------------------------------------------------------------
 
-\begin{frame}{Por Que Companding? Motivação}
-  \textbf{Problema com quantização uniforme para a voz:}
+\begin{frame}{A Voz Não Ocupa a Faixa Uniformemente}
+  Num sinal de voz a amplitude fica \textbf{quase sempre pequena}, com
+  \textbf{poucos picos} grandes:
+
+  \vspace{0.1cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, every node/.style={font=\scriptsize},
+     declare function={
+        env(\t)= 0.10 + 0.78*exp(-(\t-2)^2/0.35) + 0.55*exp(-(\t-4.6)^2/0.25);
+        vz(\t)= env(\t)*sin(720*\t);}]
+    % ----- forma de onda -----
+    \draw[->,gray!55] (-0.2,0) -- (6.6,0) node[right,black]{$t$};
+    \draw[->,gray!55] (0,-1.15) -- (0,1.2) node[left,black]{ampl.};
+    \draw[UNB_BLUE, thick] plot[domain=0:6.3, samples=260] (\x, {vz(\x)});
+    \node[gray!60!black] at (0.95,0.4) {silêncio};
+    \node[UNB_BLUE!70!black] at (2.0,1.05) {pico};
+    % ----- PDF lateral (concentrada em zero) -----
+    \begin{scope}[xshift=7.6cm]
+      \draw[->,gray!55] (0,-1.15) -- (0,1.2) node[left,black]{ampl.};
+      \draw[->,gray!55] (-0.05,0) -- (2.7,0)
+            node[right,black]{$p(\text{ampl.})$};
+      \fill[UNB_GOLD!22] plot[domain=-1:1,samples=90] ({2.2*exp(-abs(\x)/0.22)},\x)
+            -- (0,1) -- (0,-1) -- cycle;
+      \draw[UNB_GOLD!85!black, very thick]
+            plot[domain=-1:1,samples=90] ({2.2*exp(-abs(\x)/0.22)},\x);
+      \node[UNB_GOLD!80!black, align=center] at (1.55,0.6)
+            {densidade de\\probabilidade};
+    \end{scope}
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.05cm}
+  {\footnotesize $p(\text{ampl.})$ é a \textbf{densidade de probabilidade}
+  da amplitude: quanto maior, mais frequente é aquele valor. A distribuição
+  é \textbf{concentrada perto de zero} — longe de ser uniforme.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Uniforme É Ruim para Sinais Fracos}
+  Os níveis uniformes se espalham por \textbf{toda} a faixa, mas o sinal
+  vive \textbf{perto de zero} — só uns poucos níveis são realmente usados:
+
+  \vspace{0.1cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, every node/.style={font=\scriptsize}]
+    \draw[->,gray!55] (0,-1.25) -- (0,1.35) node[above,black]{amplitude};
+    % níveis uniformes
+    \foreach \y in {-0.875,-0.625,-0.375,-0.125,0.125,0.375,0.625,0.875}{
+       \draw[UNB_GREEN!70!black, densely dashed] (0,\y) -- (3.0,\y);
+       \fill[UNB_GREEN] (0,\y) circle (1.3pt);
+    }
+    % PDF lateral
+    \fill[UNB_GOLD!18] plot[domain=-1:1,samples=90] ({2.6*exp(-abs(\x)/0.24)},\x)
+          -- (0,1) -- (0,-1) -- cycle;
+    \draw[UNB_GOLD!85!black, very thick]
+          plot[domain=-1:1,samples=90] ({2.6*exp(-abs(\x)/0.24)},\x);
+    \node[UNB_GOLD!80!black] at (2.0,0.6) {$p(\text{ampl.})$};
+    % regiao de alta densidade com poucos niveis
+    \draw[<->,RED,thick] (3.25,-0.18) -- (3.25,0.18);
+    \node[RED!80!black, right, align=left] at (3.35,0) {muitas amostras,\\poucos níveis};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.05cm}
+  {\footnotesize Para sinais fracos sobram poucos níveis $\Rightarrow$ erro
+  relativo alto $\Rightarrow$ \alert{SQNR baixo}. Os níveis das amplitudes
+  grandes quase não são usados.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Solução: Quantização Não-Uniforme}
+  Colocamos \textbf{mais níveis onde o sinal é mais provável} (perto de
+  zero) e menos onde é raro (amplitudes grandes):
+
+  \vspace{0.1cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, every node/.style={font=\scriptsize}]
+    \draw[->,gray!55] (0,-1.25) -- (0,1.35) node[above,black]{amplitude};
+    % níveis não-uniformes (densos perto de zero)
+    \foreach \y in {-0.92,-0.5,-0.27,-0.09,0.09,0.27,0.5,0.92}{
+       \draw[UNB_GREEN!70!black, densely dashed] (0,\y) -- (3.0,\y);
+       \fill[UNB_GREEN] (0,\y) circle (1.3pt);
+    }
+    % PDF lateral
+    \fill[UNB_GOLD!18] plot[domain=-1:1,samples=90] ({2.6*exp(-abs(\x)/0.24)},\x)
+          -- (0,1) -- (0,-1) -- cycle;
+    \draw[UNB_GOLD!85!black, very thick]
+          plot[domain=-1:1,samples=90] ({2.6*exp(-abs(\x)/0.24)},\x);
+    \node[UNB_GOLD!80!black] at (2.0,0.6) {$p(\text{ampl.})$};
+    \draw[<->,UNB_GREEN!60!black,thick] (3.25,-0.18) -- (3.25,0.18);
+    \node[UNB_GREEN!55!black, right, align=left] at (3.35,0) {níveis finos\\onde importa};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.05cm}
+  {\footnotesize Assim o \textbf{erro relativo} fica aproximadamente
+  constante $\Rightarrow$ \textbf{SQNR quase constante} em toda a faixa
+  dinâmica.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Como Calcular os Níveis Ótimos: Lloyd-Max}
+  O quantizador ótimo minimiza o erro quadrático médio
+  $E\!\left[(x-\hat{x})^2\right]$ dada a densidade $p(x)$, satisfazendo
+  \textbf{duas condições}:
+
+  \vspace{0.15cm}
+  \textbf{1. Cada nível é o centróide (média) do seu intervalo:}
+  \[
+    \hat{y}_k = \frac{\displaystyle\int_{b_{k-1}}^{b_k} x\,p(x)\,dx}
+                     {\displaystyle\int_{b_{k-1}}^{b_k} p(x)\,dx}
+  \]
+
+  \textbf{2. Cada fronteira é o ponto médio entre níveis vizinhos:}
+  \[
+    b_k = \frac{\hat{y}_k + \hat{y}_{k+1}}{2}
+  \]
+
+  \vspace{-0.05cm}
+  {\footnotesize \textbf{Algoritmo de Lloyd:} alterna entre as duas
+  condições até convergir.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Demonstração — Condição 1: Nível é o Centróide}
+  A distorção (erro quadrático médio) é a soma sobre os intervalos:
+  \[
+    D = \sum_{k} \int_{b_{k-1}}^{b_k} \left(x - \hat{y}_k\right)^2 p(x)\,dx.
+  \]
+
+  Com as fronteiras fixas, fazemos $\partial D / \partial \hat{y}_k = 0$:
+  \[
+    \int_{b_{k-1}}^{b_k} -2\left(x - \hat{y}_k\right) p(x)\,dx = 0
+    \;\Longrightarrow\;
+    \int_{b_{k-1}}^{b_k}\! x\,p(x)\,dx = \hat{y}_k \int_{b_{k-1}}^{b_k}\! p(x)\,dx.
+  \]
+
+  Isolando $\hat{y}_k$, obtemos o \textbf{centróide}:
+  \[
+    \boxed{\;\hat{y}_k = \left.\int_{b_{k-1}}^{b_k} x\,p(x)\,dx \;\middle/\;
+             \int_{b_{k-1}}^{b_k} p(x)\,dx\;\right.}
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Demonstração — Condição 2: Fronteira é o Ponto Médio}
+  A fronteira $b_k$ separa os níveis $\hat{y}_k$ e $\hat{y}_{k+1}$,
+  aparecendo em \textbf{dois} termos da soma:
+  \[
+    D_k = \int_{b_{k-1}}^{b_k}\!\!\left(x-\hat{y}_k\right)^2 p(x)\,dx
+        + \int_{b_k}^{b_{k+1}}\!\!\left(x-\hat{y}_{k+1}\right)^2 p(x)\,dx.
+  \]
+
+  Derivando em relação a $b_k$ (regra de Leibniz):
+  \[
+    \frac{\partial D}{\partial b_k}
+    = \left(b_k-\hat{y}_k\right)^2 p(b_k)
+    - \left(b_k-\hat{y}_{k+1}\right)^2 p(b_k) = 0.
+  \]
+
+  Como $p(b_k) > 0$ e $\hat{y}_k < b_k < \hat{y}_{k+1}$, resta
+  $b_k-\hat{y}_k = \hat{y}_{k+1}-b_k$ — o \textbf{ponto médio}:
+  \[
+    \boxed{\;b_k = \frac{\hat{y}_k + \hat{y}_{k+1}}{2}\;}
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Exemplo: Nível Ótimo de Um Intervalo}
+  Seja o intervalo $[0, a]$ com densidade \textbf{decrescente}
+  $p(x) = \dfrac{2(a-x)}{a^2}$ (amplitudes pequenas mais prováveis).
 
   \vspace{0.2cm}
-  A amplitude da voz humana \textbf{não tem distribuição uniforme} —
-  amplitudes pequenas são muito mais frequentes do que amplitudes grandes.
+  O nível ótimo é o \textbf{centróide} do intervalo:
+  \[
+    \hat{y} = \frac{\displaystyle\int_0^a x\,p(x)\,dx}
+                   {\displaystyle\int_0^a p(x)\,dx}
+            = \frac{\dfrac{2}{a^2}\displaystyle\int_0^a x\,(a-x)\,dx}{1}
+            = \frac{2}{a^2}\cdot\frac{a^3}{6}
+            = \boxed{\dfrac{a}{3}}
+  \]
 
-  \vspace{0.35cm}
-  Com quantização uniforme:
-  \begin{itemize}
-    \item Os poucos níveis disponíveis se distribuem \textbf{igualmente}
-          por toda a faixa
-    \item A maioria das amostras (pequena amplitude) usa apenas
-          uma \alert{pequena fração} dos níveis
-    \item Para sinais fracos, o SQNR cai drasticamente
-  \end{itemize}
-
-  \vspace{0.35cm}
-  \textbf{Solução:} usar passos $\Delta$ \textbf{menores perto de zero}
-  e maiores para amplitudes altas.\\
-  Isso é a \alert{quantização não-uniforme}.
-
-  \vspace{0.25cm}
-  Na prática, implementada via \textbf{companding}:
-  \textbf{comp}ression + exp\textbf{anding}.
+  \vspace{0.15cm}
+  \textbf{Interpretação:} o nível ótimo cai em $a/3$, \textbf{deslocado
+  para perto de zero} — e não no meio geométrico $a/2$ — acompanhando a
+  concentração da densidade.
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -272,50 +546,21 @@
     \column{0.49\textwidth}
     \textbf{Curvas de compressão}
     \begin{center}
-      \includegraphics[width=\textwidth]{figures/cap7/companding_curves}
+      \includegraphics[width=\textwidth,height=0.50\textheight,keepaspectratio]{figures/cap7/companding_curves}
     \end{center}
     {\scriptsize
-      Curva côncava: maior resolução perto de zero,
-      menor para grandes amplitudes.
-      Linha tracejada = linear (sem compressão).}
+      Curva côncava: maior resolução perto de zero. Tracejado = linear
+      (sem compressão).}
 
     \column{0.49\textwidth}
     \textbf{SQNR: Uniforme vs.\ $\mu$-law}
     \begin{center}
-      \includegraphics[width=\textwidth]{figures/cap7/companding_sqnr_comparison}
+      \includegraphics[width=\textwidth,height=0.50\textheight,keepaspectratio]{figures/cap7/companding_sqnr_comparison}
     \end{center}
     {\scriptsize
-      Com $\mu$-law, o SQNR permanece quase constante
-      em ampla faixa dinâmica — ideal para a voz humana.}
+      Com $\mu$-law, o SQNR fica quase constante em ampla faixa
+      dinâmica — ideal para voz.}
   \end{columns}
-\end{frame}
-
-% ------------------------------------------------------------------
-
-\begin{frame}[fragile]{Implementação em Python: $\mu$-law Companding}
-\begin{lstlisting}[language=Python]
-import numpy as np
-
-def mu_law_compress(x, mu=255):
-    return np.sign(x) * np.log(1 + mu*np.abs(x)) / np.log(1 + mu)
-
-def mu_law_expand(y, mu=255):
-    return np.sign(y) * (1/mu) * ((1+mu)**np.abs(y) - 1)
-
-def quantize_uniform(x, n_bits, v_min=-1.0, v_max=1.0):
-    L   = 2**n_bits
-    d   = (v_max - v_min) / L
-    idx = np.clip(np.floor((np.clip(x, v_min, v_max)-v_min)/d), 0, L-1)
-    return v_min + (idx.astype(int) + 0.5) * d
-
-# Pipeline de companding
-g        = 0.05 * np.sin(2*np.pi*np.linspace(0,100,1_000_000))
-g_comp   = mu_law_compress(g)          # compressao
-g_q_comp = quantize_uniform(g_comp, 8) # quantizacao uniforme
-g_rec    = mu_law_expand(g_q_comp)     # expansao
-sqnr_mu  = 10*np.log10(np.mean(g**2)/np.mean((g_rec - g)**2))
-print(f"SQNR mu-law: {sqnr_mu:.1f} dB")
-\end{lstlisting}
 \end{frame}
 
 % ------------------------------------------------------------------
