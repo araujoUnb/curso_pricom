@@ -36,9 +36,7 @@ RED       = '#C0392B'
 # ===========================================================================
 # Figura 1: Amostragem no Domínio do Tempo
 # ===========================================================================
-def gen_sampling_time_domain():
-    fig, axes = plt.subplots(3, 1, figsize=(8, 7))
-
+def _time_domain_data():
     t = np.linspace(0, 0.5, 8000)
     g = 0.8 * np.cos(2*np.pi*7*t) + 0.45 * np.cos(2*np.pi*12*t)
 
@@ -46,17 +44,17 @@ def gen_sampling_time_domain():
     Ts = 1 / fs
     t_n = np.arange(0, 0.5 + Ts/2, Ts)
     g_n = 0.8 * np.cos(2*np.pi*7*t_n) + 0.45 * np.cos(2*np.pi*12*t_n)
+    return t, g, fs, Ts, t_n, g_n
 
-    # ---- Sinal original ----
-    ax = axes[0]
+
+def _plot_original(ax, t, g):
     ax.plot(t, g, color=UNB_BLUE, linewidth=2)
     ax.set_ylabel(r'$g(t)$', fontsize=13)
     ax.set_title(r'(a) Sinal original $g(t)$  —  contínuo no tempo', fontweight='bold')
     ax.set_xlim([0, 0.5])
-    ax.tick_params(labelbottom=False)
 
-    # ---- Trem de impulsos ----
-    ax = axes[1]
+
+def _plot_impulse_train(ax, fs, Ts, t_n):
     for ti in t_n:
         ax.annotate('', xy=(ti, 1.0), xytext=(ti, 0),
                     arrowprops=dict(arrowstyle='->', color=UNB_GOLD, lw=2.5))
@@ -65,10 +63,9 @@ def gen_sampling_time_domain():
                  fontweight='bold')
     ax.set_xlim([0, 0.5])
     ax.set_ylim([0, 1.6])
-    ax.tick_params(labelbottom=False)
 
-    # ---- Sinal amostrado ----
-    ax = axes[2]
+
+def _plot_sampled(ax, t, g, fs, t_n, g_n):
     ax.plot(t, g, color=UNB_BLUE, linewidth=1, alpha=0.25, linestyle='--',
             label=r'$g(t)$ original')
     ml, sl, bl = ax.stem(t_n, g_n,
@@ -84,10 +81,37 @@ def gen_sampling_time_domain():
     ax.legend(fontsize=9, loc='upper right')
     ax.set_xlim([0, 0.5])
 
+
+def gen_sampling_time_domain():
+    # ---- Versão combinada (3 painéis) — mantida por compatibilidade ----
+    t, g, fs, Ts, t_n, g_n = _time_domain_data()
+    fig, axes = plt.subplots(3, 1, figsize=(8, 7))
+    _plot_original(axes[0], t, g);         axes[0].tick_params(labelbottom=False)
+    _plot_impulse_train(axes[1], fs, Ts, t_n); axes[1].tick_params(labelbottom=False)
+    _plot_sampled(axes[2], t, g, fs, t_n, g_n)
     plt.tight_layout()
     plt.savefig('../sampling_time_domain.pdf', bbox_inches='tight')
     plt.close()
     print("  [OK] sampling_time_domain.pdf")
+
+    # ---- Versão dividida: (a)+(b) em um slide ----
+    t, g, fs, Ts, t_n, g_n = _time_domain_data()
+    fig, axes = plt.subplots(2, 1, figsize=(8, 4.8))
+    _plot_original(axes[0], t, g);             axes[0].tick_params(labelbottom=False)
+    _plot_impulse_train(axes[1], fs, Ts, t_n); axes[1].set_xlabel('Tempo (s)', fontsize=12)
+    plt.tight_layout()
+    plt.savefig('../sampling_time_domain_ab.pdf', bbox_inches='tight')
+    plt.close()
+    print("  [OK] sampling_time_domain_ab.pdf")
+
+    # ---- Versão dividida: (c) em outro slide ----
+    t, g, fs, Ts, t_n, g_n = _time_domain_data()
+    fig, ax = plt.subplots(1, 1, figsize=(8, 3.6))
+    _plot_sampled(ax, t, g, fs, t_n, g_n)
+    plt.tight_layout()
+    plt.savefig('../sampling_time_domain_c.pdf', bbox_inches='tight')
+    plt.close()
+    print("  [OK] sampling_time_domain_c.pdf")
 
 
 # ===========================================================================

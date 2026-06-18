@@ -41,9 +41,9 @@
 
 \begin{frame}{Visualização da ISI}
   \begin{center}
-    \includegraphics[width=0.78\textwidth]{figures/cap6/pulse_shaping_isi}
+    \includegraphics[width=0.78\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/pulse_shaping_isi}
   \end{center}
-  \vspace{-0.2cm}
+  \vspace{-0.1cm}
   {\footnotesize
     (a) Pulsos sinc ideais têm zeros em $t = nT$ ($n \neq 0$) → sem ISI.
     (b) Pulsos mais ``gordos'' geram sobreposição → ISI nos instantes de decisão.}
@@ -59,32 +59,32 @@
     p(nT) = \begin{cases} 1, & n = 0 \\ 0, & n \neq 0 \end{cases}
   \]
 
-  \vspace{0.2cm}
+  \vspace{0.1cm}
   Isso equivale, no domínio da frequência, ao \alert{Critério de Nyquist}:
   \[
     \sum_{k=-\infty}^{\infty} P\!\left(f - \frac{k}{T}\right) = T
     \quad \forall\, f
   \]
 
-  \vspace{0.3cm}
-  \textit{Interpretação:} quando ``dobramos'' (somamos réplicas de) $P(f)$
-  com espaçamento $1/T$, o resultado deve ser \textbf{constante}.
-
   \vspace{0.2cm}
-  O pulso mais simples que satisfaz isso é o $\sinc$:
-  \[
-    p(t) = \sinc\!\left(\frac{t}{T}\right) \quad \Longleftrightarrow \quad
-    P(f) = T\,\rect(fT)
-  \]
-  Banda mínima: $W = \dfrac{1}{2T}$ (filtro retangular ideal).
+  \textit{Interpretação:} somando réplicas de $P(f)$ com espaçamento $1/T$,
+  o resultado deve ser \textbf{constante} — só assim $p(nT)=0$ para
+  $n\neq 0$.
 \end{frame}
 
 % ------------------------------------------------------------------
 
 \begin{frame}{Problema do Pulso Sinc Puro}
-  O pulso $\sinc(t/T)$ é \textbf{matematicamente perfeito}, mas na prática:
+  O pulso mais simples que satisfaz o critério de Nyquist é o $\sinc$:
+  \[
+    p(t) = \sinc\!\left(\frac{t}{T}\right) \;\Longleftrightarrow\;
+    P(f) = T\,\rect(fT),
+    \qquad W = \frac{1}{2T}.
+  \]
 
-  \vspace{0.3cm}
+  Matematicamente perfeito, mas na prática:
+
+  \vspace{0.2cm}
   \begin{itemize}
     \item \textbf{Decaimento lento} — caudas decaem como $1/t$ apenas.
     \item Pequeno \alert{erro de temporização} $\epsilon$ causa ISI severa

@@ -18,7 +18,7 @@
   Após a amostragem, temos $g[n] = g(nT_s)$:
   discreto no tempo, mas com \textbf{amplitude ainda contínua}.
 
-  \vspace{0.35cm}
+  \vspace{0.15cm}
   \begin{columns}[T]
     \column{0.50\textwidth}
     \textbf{O problema:}
@@ -37,7 +37,7 @@
     \end{itemize}
   \end{columns}
 
-  \vspace{0.4cm}
+  \vspace{0.15cm}
   \textbf{A questão central:}
   \begin{enumerate}
     \item Quanto ruído a quantização introduz?
@@ -47,42 +47,223 @@
 
 % ------------------------------------------------------------------
 
-\begin{frame}{O Quantizador Uniforme}
-  Seja $g[n]$ com faixa de amplitude $[V_{\min}, V_{\max}]$.
+\begin{frame}{Quantização Uniforme: A Ideia}
+  \begin{columns}[c]
+    \column{0.46\textwidth}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, every node/.style={font=\scriptsize}]
+      \def\h{0.45}
+      \draw[->,gray!55] (0,-0.2) -- (0,3.95)
+           node[above,black,font=\tiny]{amplitude};
+      \foreach \k/\code in {0/000,1/001,2/010,3/011,4/100,5/101,6/110,7/111}{
+        \pgfmathsetmacro\yb{\k*\h}
+        \pgfmathsetmacro\ym{(\k+0.5)*\h}
+        \draw[densely dotted,gray!50] (0,\yb) -- (3.2,\yb);
+        \draw[UNB_GREEN, very thick] (0.15,\ym) -- (1.25,\ym);
+        \fill[UNB_GREEN] (0.15,\ym) circle (1.1pt);
+        \node[anchor=west, font=\tiny\ttfamily, gray!55!black]
+             at (1.32,\ym) {\code};
+      }
+      \draw[densely dotted,gray!50] (0,8*\h) -- (3.2,8*\h);
+      \node[left,font=\tiny] at (0,0) {$V_{\min}$};
+      \node[left,font=\tiny] at (0,8*\h) {$V_{\max}$};
+      % passo Delta
+      \draw[<->, UNB_BLUE, thick] (2.75,3*\h) -- (2.75,4*\h);
+      \node[UNB_BLUE, right, font=\scriptsize] at (2.75,3.5*\h) {$\Delta$};
+      % amostra contínua -> nível mais próximo
+      \fill[RED] (-0.95,2.18) circle (1.7pt);
+      \node[left,font=\tiny,black] at (-0.95,2.18) {amostra};
+      \draw[->,RED,thick] (-0.88,2.18) -- (0.12,2.025);
+    \end{tikzpicture}
+    \end{center}
 
-  \vspace{0.3cm}
-  Dividindo a faixa total $V_{pp} = V_{\max} - V_{\min}$ em
-  $L$ intervalos \textbf{iguais}, o tamanho de cada degrau é:
+    \column{0.54\textwidth}
+    A quantização divide a faixa $[V_{\min}, V_{\max}]$ em
+    \textbf{$L$ níveis igualmente espaçados}.
+
+    \vspace{0.3cm}
+    Cada amostra é \textbf{arredondada ao nível mais próximo} (o ponto
+    médio do intervalo) e recebe um \textbf{código binário}.
+
+    \vspace{0.3cm}
+    Com $n$ bits há $L = 2^n$ níveis; o passo $\Delta$ é a distância
+    entre níveis vizinhos.
+
+    \vspace{0.3cm}
+    \textit{A seguir, formalizamos $\Delta$ e os níveis com fórmulas.}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{O Quantizador Uniforme — Passo 1: A Faixa de Amplitude}
+  O sinal amostrado $g[n]$ assume valores dentro de uma faixa finita
+  $[V_{\min}, V_{\max}]$. A largura total é a tensão \textbf{pico a pico}:
   \[
-    \Delta = \frac{V_{pp}}{L}
+    V_{pp} = V_{\max} - V_{\min}.
   \]
 
-  O $k$-ésimo intervalo cobre $\bigl[V_{\min} + k\Delta,\;
-  V_{\min} + (k+1)\Delta\bigr)$ e é mapeado para o seu
-  \textbf{ponto médio}:
+  \vspace{0.4cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, every node/.style={font=\scriptsize}]
+    \draw[->,gray!55] (-0.5,0) -- (7.4,0) node[right,black]{$g$};
+    \fill[UNB_GOLD!16] (0,0) rectangle (6.4,0.7);
+    \draw[UNB_BLUE,very thick] (0,-0.12) -- (0,0.95);
+    \draw[UNB_BLUE,very thick] (6.4,-0.12) -- (6.4,0.95);
+    \node[below,black] at (0,-0.14) {$V_{\min}$};
+    \node[below,black] at (6.4,-0.14) {$V_{\max}$};
+    \draw[<->,thick,black] (0,1.25) -- (6.4,1.25)
+        node[midway,above]{$V_{pp} = V_{\max}-V_{\min}$};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.3cm}
+  \textit{Toda a informação de amplitude está contida nessa faixa; é ela
+  que vamos dividir em níveis discretos.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{O Quantizador Uniforme — Passo 2: Particionar em $L$ Intervalos}
+  Dividimos a faixa $V_{pp}$ em \textbf{$L$ intervalos de mesma largura}.
+  Como os $L$ degraus, somados, cobrem toda a faixa:
   \[
-    \hat{g}[n] = V_{\min} + \Bigl(k + \tfrac{1}{2}\Bigr)\Delta,
-    \quad k = 0, 1, \ldots, L-1
+    L \cdot \Delta = V_{pp}
+    \quad\Longrightarrow\quad
+    \boxed{\;\Delta = \dfrac{V_{pp}}{L}\;}
   \]
 
-  \vspace{0.3cm}
-  A saída é uma \textbf{função escada}: cada amplitude de entrada é
-  arredondada para o nível de quantização mais próximo.
+  \vspace{0.35cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, every node/.style={font=\scriptsize}]
+    \draw[->,gray!55] (-0.5,0) -- (7.4,0) node[right,black]{$g$};
+    \fill[UNB_GOLD!12] (0,0) rectangle (6.4,0.7);
+    \foreach \i in {0,...,8}
+      \draw[gray!70, thick] (\i*0.8,0) -- (\i*0.8,0.7);
+    \draw[UNB_BLUE,very thick] (0,-0.12)--(0,0.7);
+    \draw[UNB_BLUE,very thick] (6.4,-0.12)--(6.4,0.7);
+    \node[below,black] at (0,-0.14) {$V_{\min}$};
+    \node[below,black] at (6.4,-0.14) {$V_{\max}$};
+    \draw[<->,thick,UNB_BLUE] (0,1.0) -- (0.8,1.0)
+        node[midway,above,black]{$\Delta$};
+    \node[gray!60!black] at (3.2,-0.5) {$L$ intervalos iguais\, (aqui $L=8$)};
+  \end{tikzpicture}
+  \end{center}
+\end{frame}
 
-  \vspace{0.3cm}
-  Com $n$ bits podemos representar $L = 2^n$ níveis.
+% ------------------------------------------------------------------
+
+\begin{frame}{O Quantizador Uniforme — Passo 3: Os Níveis de Quantização}
+  Cada intervalo é representado por um único valor: o seu \textbf{ponto
+  médio}. O $k$-ésimo intervalo
+  $[V_{\min}+k\Delta,\; V_{\min}+(k{+}1)\Delta)$ recebe o nível
+  \[
+    \hat{g} = V_{\min} + \left(k+\tfrac12\right)\Delta,
+    \qquad k = 0,1,\dots,L-1.
+  \]
+
+  \vspace{0.25cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, every node/.style={font=\scriptsize}]
+    \draw[->,gray!55] (-0.5,0) -- (7.4,0) node[right,black]{$g$};
+    \foreach \i in {0,...,8}
+      \draw[gray!55] (\i*0.8,0) -- (\i*0.8,0.7);
+    \foreach \k in {0,...,7}{
+      \pgfmathsetmacro\xm{(\k+0.5)*0.8}
+      \draw[UNB_GREEN,very thick] (\xm,0.12)--(\xm,0.58);
+      \fill[UNB_GREEN] (\xm,0.35) circle (2pt);
+    }
+    \node[below,black] at (0,-0.12) {$V_{\min}$};
+    \node[below,black] at (6.4,-0.12) {$V_{\max}$};
+    \node[UNB_GREEN!60!black] at (3.2,-0.5) {níveis $\hat{g}$ = pontos médios};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.05cm}
+  {\footnotesize Com $n$ bits há $L = 2^n$ níveis, cada um com seu próprio
+  código binário.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{O Quantizador Uniforme — Detalhe de Um Intervalo}
+  Ampliando o $k$-ésimo intervalo: ele vai do \textbf{limite inferior}
+  ao \textbf{limite superior}, e o nível
+  $\hat{g}=V_{\min}+\left(k+\tfrac12\right)\Delta$ fica exatamente no meio.
+
+  \vspace{0.5cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, every node/.style={font=\scriptsize}]
+    \def\xa{1.1}\def\xb{5.5}\def\xm{3.3}
+    \fill[UNB_GOLD!18] (\xa,0) rectangle (\xb,0.85);
+    \draw[->,gray!55] (-0.2,0) -- (6.8,0) node[right,black]{$g$};
+    \draw[UNB_BLUE,very thick] (\xa,-0.15)--(\xa,0.85);
+    \draw[UNB_BLUE,very thick] (\xb,-0.15)--(\xb,0.85);
+    \draw[UNB_GREEN,very thick] (\xm,-0.15)--(\xm,0.85);
+    \fill[UNB_GREEN] (\xm,0.42) circle (2.4pt);
+    \node[UNB_GREEN!60!black, right] at (\xm+0.12,0.62) {$\hat{g}$};
+    % passo Delta
+    \draw[<->,thick,black] (\xa,1.15)--(\xb,1.15) node[midway,above]{$\Delta$};
+    % rótulos dos limites
+    \node[below,UNB_BLUE,align=center] at (\xa,-0.16)
+        {$V_{\min}{+}k\Delta$\\(limite inf.)};
+    \node[below,UNB_BLUE,align=center] at (\xb,-0.16)
+        {$V_{\min}{+}(k{+}1)\Delta$\\(limite sup.)};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.45cm}
+  {\footnotesize Qualquer amostra que caia neste intervalo é arredondada
+  para o \textbf{mesmo} nível $\hat{g}$.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{O Quantizador Uniforme — Exemplo Numérico}
+  Sejam $V_{\min}=0$, $V_{\max}=8$ V e $L=8$ níveis ($n=3$ bits),
+  logo $\Delta = 8/8 = 1$ V. Quantizemos a amostra $g[n] = 5{,}3$ V.
+
+  \vspace{0.2cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, every node/.style={font=\scriptsize}]
+    \draw[->,gray!55] (-0.3,0) -- (8.8,0) node[right,black]{$g$ (V)};
+    % intervalo destacado [5,6)
+    \fill[UNB_GOLD!28] (5,0) rectangle (6,0.7);
+    \foreach \i in {0,...,8}{
+      \draw[gray!55] (\i,0)--(\i,0.7);
+      \node[below,gray!70!black,font=\tiny] at (\i,-0.02) {\i};
+    }
+    % níveis (midpoints)
+    \foreach \k in {0,...,7}
+      \fill[UNB_GREEN!45] (\k+0.5,0.35) circle (1.4pt);
+    % nível do intervalo destacado
+    \draw[UNB_GREEN,very thick] (5.5,0.08)--(5.5,0.62);
+    \fill[UNB_GREEN] (5.5,0.35) circle (2.3pt);
+    % amostra e seta
+    \fill[RED] (5.3,1.0) circle (2pt);
+    \node[above,RED!80!black] at (5.3,1.08) {$g=5{,}3$ V};
+    \draw[->,RED,thick] (5.3,0.92) -- (5.5,0.42);
+    \node[below,UNB_GREEN!58!black] at (5.5,-0.42) {$\hat{g}=5{,}5$ V};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.1cm}
+  {\footnotesize A amostra $5{,}3$ cai no intervalo $[5,6)$
+  $\Rightarrow$ nível $\hat{g}=5{,}5$ V, com erro
+  $e_q = \hat{g}-g = +0{,}2$ V.}
 \end{frame}
 
 % ------------------------------------------------------------------
 
 \begin{frame}{Característica do Quantizador}
   \begin{center}
-    \includegraphics[width=0.82\textwidth]{figures/cap7/quantization_illustration}
+    \includegraphics[width=0.70\textwidth]{figures/cap7/quantization_illustration}
   \end{center}
+  \vspace{-0.05cm}
   {\footnotesize
-    \textit{(a)} Função entrada-saída (escada). O passo $\Delta$ é
-    o tamanho de cada degrau.
-    \textit{(b)} Sinal original (azul) vs.\ quantizado (verde); as barras
+    \textit{(a)} Função entrada-saída (escada); o passo $\Delta$ é o
+    tamanho de cada degrau.\quad
+    \textit{(b)} Sinal original (azul) vs.\ quantizado (verde); barras
     roxas indicam o erro em cada amostra.
   }
 \end{frame}
@@ -148,13 +329,34 @@
 
 \begin{frame}{PDF do Erro de Quantização}
   \begin{center}
-    \includegraphics[width=0.72\textwidth]{figures/cap7/quantization_error_pdf}
+    \includegraphics[width=0.60\textwidth]{figures/cap7/quantization_error_pdf}
   \end{center}
-  \vspace{-0.1cm}
-  Verificações rápidas: \;
-  $\int_{-\Delta/2}^{\Delta/2}\frac{1}{\Delta}\,de_q = 1$ \;(\checkmark)\;
-  e \;
-  $E[e_q] = \int e_q \cdot\frac{1}{\Delta}\,de_q = 0$ \;(\checkmark)
+  \begin{center}
+  {\footnotesize Erro $e_q$ uniformemente distribuído em
+  $[-\Delta/2,\,+\Delta/2]$, com densidade constante $p(e_q) = 1/\Delta$.}
+  \end{center}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{PDF do Erro de Quantização — Verificações}
+  O modelo uniforme $p(e_q) = 1/\Delta$ em $[-\Delta/2,\,+\Delta/2]$
+  satisfaz as duas propriedades esperadas de uma densidade:
+
+  \vspace{0.6cm}
+  \textbf{1. Área unitária} (é uma densidade de probabilidade válida):
+  \[
+    \int_{-\Delta/2}^{\Delta/2}\frac{1}{\Delta}\,de_q = 1
+    \qquad(\checkmark)
+  \]
+
+  \vspace{0.4cm}
+  \textbf{2. Média nula} (erro sem viés — tão provável para cima quanto
+  para baixo):
+  \[
+    E[e_q] = \int_{-\Delta/2}^{\Delta/2} e_q \cdot\frac{1}{\Delta}\,de_q = 0
+    \qquad(\checkmark)
+  \]
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -195,17 +397,23 @@
     P_q = \int_{-\Delta/2}^{+\Delta/2} e_q^2 \cdot \frac{1}{\Delta} \; de_q
   \]
 
-  \vspace{0.4cm}
-  \textbf{Passo 3 — Resolver a integral}
-
-  A constante $1/\Delta$ sai da integral:
+  \vspace{0.6cm}
+  A constante $1/\Delta$ não depende de $e_q$ e pode sair da integral:
   \[
     P_q = \frac{1}{\Delta}
           \int_{-\Delta/2}^{+\Delta/2} e_q^2 \; de_q
   \]
+\end{frame}
 
-  A primitiva de $e_q^2$ é $e_q^3/3$. Aplicando o teorema fundamental
-  do cálculo:
+% ------------------------------------------------------------------
+
+\begin{frame}{Derivação de $P_q$ — Passo 3: Resolver a Integral}
+  Partindo de
+  $P_q = \dfrac{1}{\Delta}\displaystyle\int_{-\Delta/2}^{+\Delta/2} e_q^2 \, de_q$,
+  a primitiva de $e_q^2$ é $e_q^3/3$.
+
+  \vspace{0.5cm}
+  Aplicando o teorema fundamental do cálculo:
   \[
     P_q = \frac{1}{\Delta}
           \left[\frac{e_q^3}{3}\right]_{-\Delta/2}^{+\Delta/2}
@@ -236,18 +444,32 @@
   \]
 
   \vspace{0.3cm}
-  Cancelando um fator $\Delta$:
+  Cancelando um fator $\Delta$, chegamos ao resultado:
   \[
-    P_q = \frac{\Delta^2}{12}
+    \boxed{\,P_q = \frac{\Delta^2}{12}\,}
   \]
+\end{frame}
 
+% ------------------------------------------------------------------
+
+\begin{frame}{Potência do Ruído de Quantização — Interpretação}
   \begin{block}{Potência do Ruído de Quantização}
     \[
       P_q = \frac{\Delta^2}{12}
     \]
-    Para reduzir $P_q$ à metade ($-3$ dB), é preciso reduzir $\Delta$
-    por $\sqrt{2}$, ou seja, dobrar $L$ — adicionar \textbf{1 bit}.
+    O ruído depende \textbf{apenas} do passo $\Delta$ — quanto mais fino
+    o degrau, menor a potência do erro.
   \end{block}
+
+  \vspace{0.4cm}
+  \textbf{Consequência prática:}
+  \begin{itemize}
+    \item Para reduzir $P_q$ à metade ($-3$ dB), reduz-se $\Delta$ por
+          $\sqrt{2}$, ou seja, dobra-se o número de níveis $L$.
+    \item Dobrar $L$ corresponde a adicionar \textbf{1 bit} de resolução.
+    \item Exemplo: um ADC de 12 bits tem $\Delta$ 16$\times$ menor que um
+          de 8 bits $\Rightarrow$ $P_q$ é $256\times$ menor ($-24$ dB).
+  \end{itemize}
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -333,23 +555,39 @@
     \]
     Cada bit adicional eleva o SQNR em \textbf{$\approx 6$ dB}.
   \end{block}
+\end{frame}
 
-  \vspace{0.2cm}
-  \textbf{Exemplos práticos:}
+% ------------------------------------------------------------------
+
+\begin{frame}{Regra dos 6 dB/bit — Exemplos de Engenharia}
+  Aplicando $\SQNR_{\mathrm{dB}} \approx 1{,}76 + 6{,}02\,n$ a sistemas reais:
+
+  \vspace{0.3cm}
   \begin{itemize}
-    \item $n = 8$ bits: \;\;$\SQNR \approx 50\,\text{dB}$ \quad(telefonia PCM)
-    \item $n = 16$ bits: $\SQNR \approx 98\,\text{dB}$ \quad(CD de áudio)
-    \item $n = 24$ bits: $\SQNR \approx 146\,\text{dB}$ \,(estúdio profissional)
+    \item \textbf{Telefonia PCM} ($n = 8$ bits): $\SQNR \approx 50\,\text{dB}$
+          — suficiente para voz inteligível na rede telefônica.
+    \item \textbf{CD de áudio} ($n = 16$ bits): $\SQNR \approx 98\,\text{dB}$
+          — cobre toda a faixa dinâmica da audição humana.
+    \item \textbf{Estúdio profissional} ($n = 24$ bits):
+          $\SQNR \approx 146\,\text{dB}$ — margem para edição e mixagem
+          sem acúmulo audível de ruído.
   \end{itemize}
+
+  \vspace{0.3cm}
+  \begin{block}{Critério de projeto}
+    Para atingir um SQNR-alvo, o número de bits necessário é
+    $n \ge \dfrac{\SQNR_{\mathrm{dB}} - 1{,}76}{6{,}02}$.
+    Ex.: para 70 dB $\Rightarrow$ $n \ge 11{,}3 \Rightarrow$ 12 bits.
+  \end{block}
 \end{frame}
 
 % ------------------------------------------------------------------
 
 \begin{frame}{SQNR vs.\ Número de Bits — Confirmação Numérica}
   \begin{center}
-    \includegraphics[width=0.80\textwidth]{figures/cap7/sqnr_vs_bits}
+    \includegraphics[width=0.68\textwidth]{figures/cap7/sqnr_vs_bits}
   \end{center}
-  \vspace{-0.2cm}
+  \vspace{0.0cm}
   {\footnotesize
     Simulação com senoide de $10^6$ amostras confirma a fórmula
     $1{,}76 + 6{,}02\,n$ dB com excelente precisão para $n \ge 4$ bits.
@@ -393,9 +631,27 @@ for n in [4, 8, 16]:
     teo  = 1.76 + 6.02*n
     print(f"n={n:2d}: SQNR = {sqnr:.1f} dB  (teoria: {teo:.1f} dB)")
 \end{lstlisting}
-\vspace{0.05cm}
-{\ttfamily\scriptsize
-n= 4: SQNR = ~25.9 dB \; (teoria: 25.8 dB)\\
-n= 8: SQNR = ~49.9 dB \; (teoria: 49.9 dB)\\
-n=16: SQNR = ~98.1 dB \; (teoria: 98.1 dB)}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}[fragile]{Implementação em Python — Resultado}
+  Saída do script para $n \in \{4, 8, 16\}$ bits:
+
+  \vspace{0.4cm}
+  \begin{center}
+  \begin{minipage}{0.7\textwidth}
+  {\ttfamily\small
+  n=\phantom{0}4: SQNR = 25.9 dB \;\; (teoria: 25.8 dB)\\
+  n=\phantom{0}8: SQNR = 49.9 dB \;\; (teoria: 49.9 dB)\\
+  n=16: SQNR = 98.1 dB \;\; (teoria: 98.1 dB)}
+  \end{minipage}
+  \end{center}
+
+  \vspace{0.4cm}
+  \begin{itemize}
+    \item A simulação reproduz a teoria com erro $< 0{,}1$ dB.
+    \item Cada salto de 8 bits adiciona $\approx 48$ dB
+          ($8 \times 6{,}02$ dB) — consistente com a regra dos 6 dB/bit.
+  \end{itemize}
 \end{frame}
