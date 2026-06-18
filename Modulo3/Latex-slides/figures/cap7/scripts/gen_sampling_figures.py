@@ -262,9 +262,240 @@ def gen_aliasing_demo():
     print("  [OK] aliasing_demo.pdf")
 
 
+def gen_sinc_interpolation():
+    Ts = 1.0
+    n = np.arange(-1, 8)
+    def sig(t):
+        return 0.7*np.sin(2*np.pi*0.11*t) + 0.4*np.sin(2*np.pi*0.06*t + 1.0)
+    samples = sig(n*Ts)
+    t = np.linspace(-1, 7, 2500)
+    recon = np.zeros_like(t)
+
+    fig, ax = plt.subplots(figsize=(9, 3.3))
+    for ni, sval in zip(n, samples):
+        s = sval*np.sinc((t - ni*Ts)/Ts)
+        ax.plot(t, s, color=UNB_GOLD, linewidth=0.9, alpha=0.55)
+        recon += s
+    ax.plot(t, recon, color=UNB_BLUE, linewidth=2.3,
+            label=r'reconstrução = soma dos sincs')
+    ax.vlines(n*Ts, 0, samples, color=UNB_GREEN, linewidth=1.0, alpha=0.5)
+    ax.plot(n*Ts, samples, 'o', color=UNB_GREEN, markersize=7,
+            label=r'amostras $g(nT_s)$', zorder=5)
+    ax.axhline(0, color='black', linewidth=0.5)
+    ax.set_xlim(-1, 7)
+    ax.set_ylim(-1.2, 1.25)
+    ax.set_xlabel(r'tempo ($t / T_s$)')
+    # rotular um sinc individual
+    ax.annotate(r'um $\mathrm{sinc}$ por amostra',
+                xy=(2.0, 0.62), xytext=(3.5, 1.0),
+                fontsize=9, color=UNB_GOLD, ha='center',
+                arrowprops=dict(arrowstyle='->', color=UNB_GOLD, lw=1.3))
+    ax.legend(loc='lower center', fontsize=9, ncol=2)
+    plt.tight_layout()
+    plt.savefig('../sinc_interpolation.pdf', bbox_inches='tight')
+    plt.close()
+    print("  [OK] sinc_interpolation.pdf")
+
+
+def gen_zoh_effect():
+    Ts = 1.0
+    n = np.arange(0, 8)
+
+    def sig(t):
+        return 0.6*np.sin(2*np.pi*0.10*t) + 0.35*np.sin(2*np.pi*0.17*t + 0.5)
+
+    samples = sig(n*Ts)
+    t = np.linspace(0, 7, 2000)
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.2))
+
+    # (a) tempo: saída em escada (ZOH)
+    ax = axes[0]
+    ax.plot(t, sig(t), color=UNB_BLUE, linewidth=2.0, label='sinal original')
+    ne = np.append(n, n[-1] + 1) * Ts
+    se = np.append(samples, samples[-1])
+    ax.step(ne, se, where='post', color=UNB_GREEN, linewidth=1.9,
+            label='saída ZOH (escada)')
+    ax.plot(n*Ts, samples, 'o', color=UNB_GREEN, markersize=6)
+    ax.axhline(0, color='black', linewidth=0.5)
+    ax.set_title('(a) Saída do DAC: escada (ZOH)', fontsize=11, fontweight='bold')
+    ax.set_xlabel(r'tempo ($t/T_s$)')
+    ax.set_xlim(0, 7)
+    ax.legend(fontsize=8, loc='upper right')
+
+    # (b) frequência: envelope sinc(f Ts)
+    ax = axes[1]
+    f = np.linspace(0.001, 2.5, 1200)            # f * Ts
+    HdB = 20*np.log10(np.abs(np.sinc(f)))
+    ax.plot(f, HdB, color=UNB_GOLD, linewidth=2.3)
+    edge_dB = 20*np.log10(2/np.pi)
+    ax.axvline(0.5, color='gray', linestyle='--', linewidth=1)
+    ax.plot(0.5, edge_dB, 'o', color=RED, markersize=6)
+    ax.annotate(r'$-3{,}9$ dB em $f=f_s/2$',
+                xy=(0.5, edge_dB), xytext=(0.78, -7.5),
+                fontsize=9, color=RED,
+                arrowprops=dict(arrowstyle='->', color=RED, lw=1.2))
+    ax.set_title(r'(b) Envelope $|H_{ZOH}|=|\mathrm{sinc}(fT_s)|$',
+                 fontsize=11, fontweight='bold')
+    ax.set_xlabel(r'$f \cdot T_s$')
+    ax.set_ylabel('dB')
+    ax.set_xlim(0, 2.5)
+    ax.set_ylim(-25, 2)
+
+    plt.tight_layout()
+    plt.savefig('../zoh_effect.pdf', bbox_inches='tight')
+    plt.close()
+    print("  [OK] zoh_effect.pdf")
+
+
+def gen_zoh_equalization():
+    # frequência normalizada à borda da banda fs/2  (borda = 1)
+    x = np.linspace(0.001, 1.0, 700)
+    fTs = 0.5 * x                                  # f*Ts, com fs = 2W
+    droop = 20*np.log10(np.abs(np.sinc(fTs)))      # ZOH
+    eq = -droop                                    # equalizador 1/sinc
+    prod = np.zeros_like(x)                         # produto (plano)
+
+    fig, ax = plt.subplots(figsize=(8.5, 3.1))
+    ax.plot(x, droop, color=UNB_GREEN, linewidth=2.3,
+            label=r'ZOH: $\mathrm{sinc}(fT_s)$')
+    ax.plot(x, eq, color=RED, linewidth=2.3, linestyle='--',
+            label=r'equalizador: $1/\mathrm{sinc}(fT_s)$')
+    ax.plot(x, prod, color=UNB_BLUE, linewidth=2.6,
+            label='produto (plano)')
+    ax.axhline(0, color='black', linewidth=0.4)
+    ax.annotate(r'$+3{,}9$ dB', xy=(1.0, 3.92), xytext=(0.66, 3.1),
+                fontsize=9, color=RED)
+    ax.annotate(r'$-3{,}9$ dB', xy=(1.0, -3.92), xytext=(0.66, -3.4),
+                fontsize=9, color=UNB_GREEN)
+    ax.set_xlabel(r'frequência normalizada  $f/(f_s/2)$')
+    ax.set_ylabel('ganho (dB)')
+    ax.set_xlim(0, 1)
+    ax.set_ylim(-4.6, 4.6)
+    ax.legend(fontsize=9, loc='upper left', framealpha=0.9)
+    plt.tight_layout()
+    plt.savefig('../zoh_equalization.pdf', bbox_inches='tight')
+    plt.close()
+    print("  [OK] zoh_equalization.pdf")
+
+
+def gen_zoh_spectrum():
+    # frequência em unidades de fs (fs = 1, Ts = 1)
+    f = np.linspace(-2.6, 2.6, 6000)
+    W = 0.32                                   # meia-banda em unidades de fs
+
+    def tri(fc):
+        return np.clip(1 - np.abs(f - fc)/W, 0, None)
+
+    Gs = sum(tri(c) for c in (-2, -1, 0, 1, 2))   # espectro amostrado (réplicas)
+    Hz = np.abs(np.sinc(f))                        # |sinc(f Ts)|, nulos em k fs
+    out = Gs * Hz                                  # saída do ZOH
+
+    fig, ax = plt.subplots(figsize=(9.2, 3.3))
+    ax.fill_between(f, 0, Gs, color='gray', alpha=0.20,
+                    label=r'espectro amostrado $|G_s(f)|$ (réplicas)')
+    ax.plot(f, Gs, color='gray', linewidth=0.8, alpha=0.5)
+    ax.plot(f, Hz, color=UNB_GOLD, linewidth=2.3,
+            label=r'$|H_{ZOH}(f)| = |\mathrm{sinc}(fT_s)|$')
+    ax.fill_between(f, 0, out, color=UNB_BLUE, alpha=0.55,
+                    label='saída $= |G_s(f)|\\cdot|H_{ZOH}|$')
+    ax.plot(f, out, color=UNB_BLUE, linewidth=1.4)
+    for k in (-2, -1, 1, 2):
+        ax.axvline(k, color='gray', linestyle=':', linewidth=0.8, alpha=0.5)
+    ax.set_xticks([-2, -1, 0, 1, 2])
+    ax.set_xticklabels([r'$-2f_s$', r'$-f_s$', r'$0$', r'$f_s$', r'$2f_s$'])
+    ax.set_xlabel('frequência')
+    ax.set_xlim(-2.6, 2.6)
+    ax.set_ylim(0, 1.18)
+    ax.legend(fontsize=8, loc='upper right')
+    plt.tight_layout()
+    plt.savefig('../zoh_spectrum.pdf', bbox_inches='tight')
+    plt.close()
+    print("  [OK] zoh_spectrum.pdf")
+
+
+def gen_aa_filter_order():
+    W = 1.0
+
+    def tri(f, c):
+        return np.clip(1 - np.abs(f - c)/W, 0, None)
+
+    def butter(f, fc, N):
+        return 1.0/np.sqrt(1 + (np.abs(f)/fc)**(2*N))
+
+    # (a) fs grande -> transição larga -> ordem baixa
+    # (b) fs pequeno -> transição estreita -> ordem alta
+    configs = [(4.0, 5, '(a) $f_s$ grande: transição larga'),
+               (2.5, 12, '(b) $f_s$ pequeno: transição estreita')]
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 3.4), sharey=True)
+    for ax, (fs, N, title) in zip(axes, configs):
+        f = np.linspace(-0.3, fs + W + 0.4, 4000)
+        base = tri(f, 0)
+        rep = tri(f, fs)
+        ax.fill_between(f, 0, base, color=UNB_GOLD, alpha=0.30)
+        ax.plot(f, base, color=UNB_GOLD, linewidth=1.4)
+        ax.fill_between(f, 0, rep, color=UNB_GREEN, alpha=0.22)
+        ax.plot(f, rep, color=UNB_GREEN, linewidth=1.4)
+        # filtro anti-aliasing (Butterworth, corte W, ordem N)
+        ax.plot(f, butter(f, W, N), color=RED, linewidth=2.0, linestyle='--',
+                label=f'filtro ($N={N}$)')
+        # banda de transição [W, fs-W]
+        ax.axvspan(W, fs - W, color='gray', alpha=0.13)
+        ax.annotate('', xy=(W, 1.12), xytext=(fs - W, 1.12),
+                    arrowprops=dict(arrowstyle='<->', color='black', lw=1.1))
+        ax.text((fs)/2, 1.18, 'transição', ha='center', fontsize=8.5)
+        ax.set_title(title, fontsize=10.5, fontweight='bold')
+        ax.set_xticks([0, W, fs - W, fs])
+        ax.set_xticklabels(['0', r'$W$', r'$f_s\!-\!W$', r'$f_s$'], fontsize=9)
+        ax.set_xlabel('frequência')
+        ax.set_ylim(0, 1.35)
+        ax.legend(fontsize=9, loc='center right')
+    plt.tight_layout()
+    plt.savefig('../aa_filter_order.pdf', bbox_inches='tight')
+    plt.close()
+    print("  [OK] aa_filter_order.pdf")
+
+
+def gen_zoh_passband():
+    W = 1.0
+    fs = 2.0                                   # fs = 2W
+    f = np.linspace(0, W, 900)
+    ideal = np.ones_like(f)
+    sincf = np.abs(np.sinc(f/fs))              # |sinc(f Ts)|, Ts = 1/fs
+
+    fig, ax = plt.subplots(figsize=(8, 3.1))
+    ax.fill_between(f, sincf, ideal, color=RED, alpha=0.16, label='deformação')
+    ax.fill_between(f, 0, sincf, color=UNB_GREEN, alpha=0.28)
+    ax.plot(f, ideal, color=UNB_BLUE, linewidth=1.8, linestyle=':',
+            label=r'$|G(f)|$ desejado (plano)')
+    ax.plot(f, sincf, color=UNB_GREEN, linewidth=2.4,
+            label=r'após ZOH: $|G(f)|\,\mathrm{sinc}(fT_s)$')
+    ax.plot(W, sincf[-1], 'o', color=RED, markersize=6)
+    ax.annotate(r'$2/\pi \approx -3{,}9$ dB', xy=(W, sincf[-1]),
+                xytext=(0.42, 0.50), color=RED, fontsize=10,
+                arrowprops=dict(arrowstyle='->', color=RED, lw=1.2))
+    ax.set_xticks([0, W])
+    ax.set_xticklabels(['0', r'$W$'])
+    ax.set_xlabel('frequência (banda útil)')
+    ax.set_xlim(0, W)
+    ax.set_ylim(0, 1.15)
+    ax.legend(fontsize=9, loc='lower left')
+    plt.tight_layout()
+    plt.savefig('../zoh_passband.pdf', bbox_inches='tight')
+    plt.close()
+    print("  [OK] zoh_passband.pdf")
+
+
 if __name__ == '__main__':
     print("Gerando figuras de amostragem...")
     gen_sampling_time_domain()
+    gen_sinc_interpolation()
+    gen_zoh_effect()
+    gen_zoh_equalization()
+    gen_zoh_spectrum()
+    gen_aa_filter_order()
+    gen_zoh_passband()
     gen_sampling_spectrum()
     gen_aliasing_demo()
     print("Concluído!\n")

@@ -47,6 +47,17 @@
 
 % ------------------------------------------------------------------
 
+\begin{frame}{Amostrador Ideal: Visualização}
+  O amostrador ideal \textbf{multiplica} o sinal contínuo $g(t)$ por um
+  \textbf{trem de impulsos} $\delta_{T_s}(t)$, gerando o \textbf{sinal
+  amostrado} $g_s(t)$:
+  \begin{center}
+    \includegraphics[height=0.70\textheight]{figures/cap7/sampling_time_domain}
+  \end{center}
+\end{frame}
+
+% ------------------------------------------------------------------
+
 \begin{frame}{Modelo Matemático do Amostrador Ideal}
   Seja $g(t)$ um sinal \textbf{passa-baixas limitado em banda}:
   \[
@@ -374,6 +385,47 @@
 
 % ------------------------------------------------------------------
 
+\begin{frame}{Aliasing no Espectro: Dobramento de Frequência}
+  Uma componente acima de $f_s/2$ \textbf{dobra} (reflete) em torno da
+  frequência de Nyquist e reaparece na banda como
+  $f_{\text{alias}} = |f_0 - f_s|$. Ex.: $f_0 = 800$, $f_s = 900$ Hz.
+
+  \vspace{0.1cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, x=0.72cm, y=1cm, every node/.style={font=\scriptsize}]
+    % banda útil [0, fs/2]
+    \fill[UNB_GREEN!10] (0,0) rectangle (4.5,1.0);
+    \node[UNB_GREEN!50!black, font=\tiny] at (2.25,0.3) {banda útil};
+    \draw[->,gray!55] (-0.3,0) -- (10.6,0) node[right,black]{$f$ (Hz)};
+    \draw[->,gray!55] (0,-0.1) -- (0,1.35);
+    % referências verticais
+    \draw[UNB_BLUE, densely dashed, thick] (4.5,0) -- (4.5,1.22);
+    \draw[gray!55, densely dotted] (9,0) -- (9,1.0);
+    % setas de tom
+    \draw[->,RED,very thick] (8,0) -- (8,1.0);
+    \node[RED,font=\tiny,above] at (8,1.0) {$f_0{=}800$};
+    \draw[->,UNB_GREEN!70!black,very thick] (1,0) -- (1,0.9);
+    \node[UNB_GREEN!55!black,font=\tiny,above] at (1,0.9) {$f_{\text{alias}}{=}100$};
+    % arco de dobramento (bem acima das setas)
+    \draw[->,RED!65,thick,densely dashed]
+         (8,1.42) .. controls (6,2.05) and (3,2.05) .. (1,1.18);
+    \node[RED!70!black,font=\tiny] at (4.7,2.12) {dobra em torno de $f_s/2$};
+    % rótulos no eixo (abaixo)
+    \draw (1,0.05)--(1,-0.05) node[below,font=\tiny,black]{$100$};
+    \draw (4.5,0.05)--(4.5,-0.05) node[below,font=\tiny,text=UNB_BLUE]{$f_s/2{=}450$};
+    \draw (8,0.05)--(8,-0.05) node[below,font=\tiny,black]{$800$};
+    \draw (9,0.05)--(9,-0.05) node[below,font=\tiny,text=gray]{$f_s$};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.05cm}
+  {\footnotesize O tom de $800$ Hz reflete em torno de $450$ Hz e cai em
+  $2\times 450 - 800 = 100$ Hz. O receptor não distingue um $100$ Hz
+  verdadeiro de um $800$ Hz disfarçado.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
 \begin{frame}{Aliasing — Demonstração Visual}
   \begin{center}
     \includegraphics[width=\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap7/aliasing_demo}
@@ -462,6 +514,19 @@
   \end{itemize}
 \end{frame}
 
+% ------------------------------------------------------------------
+
+\begin{frame}{Interpolação Sinc: Visualização no Tempo}
+  Cada amostra (verde) gera um $\sinc$ (dourado) centrado em $nT_s$;
+  a soma de todos reconstrói o sinal contínuo (azul):
+  \begin{center}
+    \includegraphics[width=0.80\textwidth]{figures/cap7/sinc_interpolation}
+  \end{center}
+  \vspace{-0.05cm}
+  {\footnotesize Cada $\sinc$ vale 1 na sua amostra e 0 nas outras — por
+  isso a curva passa exatamente pelos pontos.}
+\end{frame}
+
 % ==================================================================
 \subsection{Não Idealidades dos Filtros}
 % ==================================================================
@@ -547,6 +612,48 @@
 
 % ------------------------------------------------------------------
 
+\begin{frame}{Efeito ZOH: Exemplo Gráfico}
+  \begin{center}
+    \includegraphics[width=\textwidth]{figures/cap7/zoh_effect}
+  \end{center}
+  \vspace{-0.05cm}
+  {\footnotesize \textit{(a)} A saída real do DAC é uma \textbf{escada}
+  (segura cada amostra por $T_s$). \textit{(b)} Isso equivale a multiplicar
+  o espectro pelo envelope $|\sinc(fT_s)|$, que \textbf{atenua} as altas
+  frequências — no pior caso $-3{,}9$ dB na borda da banda.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{ZOH como Filtro: Espectro e Resultado}
+  O ZOH multiplica o espectro por $|H_{ZOH}(f)|$; como os
+  \textbf{nulos do $\sinc$ caem em $k f_s$}, ele já \textbf{atenua as imagens}:
+  \begin{center}
+    \includegraphics[width=0.73\textwidth]{figures/cap7/zoh_spectrum}
+  \end{center}
+  \vspace{-0.05cm}
+  {\footnotesize A banda-base (azul) é preservada com leve queda; as
+  réplicas em $\pm f_s, \pm 2f_s$ são fortemente suprimidas — resta um
+  filtro analógico para limpar o que sobra.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Deformação da Banda Útil $[0,W]$}
+  Mesmo \emph{dentro} da banda útil, o envelope $\sinc(fT_s)$ não é plano:
+  ele \textbf{atenua mais as frequências altas}, \textbf{deformando} o
+  espectro do sinal:
+  \begin{center}
+    \includegraphics[width=0.66\textwidth]{figures/cap7/zoh_passband}
+  \end{center}
+  \vspace{-0.05cm}
+  {\footnotesize A queda chega a $-3{,}9$ dB na borda ($f=W$, com
+  $f_s=2W$). Essa deformação \textbf{precisa ser corrigida} — é o papel
+  do equalizador $1/\sinc(fT_s)$ (próximo slide).}
+\end{frame}
+
+% ------------------------------------------------------------------
+
 \begin{frame}{Equalização do Efeito de Abertura (ZOH)}
   \textbf{Objetivo:} compensar a queda $\sinc(f T_s)$ para que a resposta
   total fique \textbf{plana} na banda $[0, W]$.
@@ -601,42 +708,16 @@
 
 % ------------------------------------------------------------------
 
-\begin{frame}{Não Idealidade na Aquisição: Filtro Anti-Aliasing Real}
-  O filtro anti-aliasing real não corta abruptamente em $W$: ele tem uma
-  \textbf{banda de transição} entre $W$ e o início da banda de rejeição.
-
-  \vspace{0.2cm}
+\begin{frame}{Equalização Aplicada ao Exemplo}
+  Aplicando ao mesmo exemplo: o equalizador $1/\sinc(fT_s)$ sobe
+  exatamente o que o ZOH abaixa, deixando a resposta total \textbf{plana}:
   \begin{center}
-  \begin{tikzpicture}[>=stealth, scale=1.0, every node/.style={font=\scriptsize}]
-    \draw[->,gray!55] (-0.2,0) -- (7.4,0) node[right,black]{$f$};
-    \draw[->,gray!55] (0,-0.1) -- (0,1.5);
-    % banda-base
-    \draw[UNB_GOLD, very thick, fill=UNB_GOLD!22] (0,0) -- (0,1) -- (1.4,1) -- (1.6,0);
-    % primeira réplica (centrada em fs)
-    \draw[UNB_GREEN, very thick, fill=UNB_GREEN!18]
-        (4.4,0) -- (4.6,1) -- (6.0,1) -- (6.2,0);
-    % máscara do filtro real
-    \draw[RED, very thick, densely dashed]
-        (0,1.05) -- (1.4,1.05) .. controls (2.2,1.05) and (2.6,0.1) .. (3.4,0.06) -- (7.2,0.04);
-    \node[RED] at (2.9,0.9) {filtro real};
-    % marcações
-    \draw[densely dotted,gray] (1.4,0) -- (1.4,1.15) node[above,black]{$W$};
-    \draw[densely dotted,gray] (3.0,0) -- (3.0,1.0);
-    \draw[densely dotted,gray] (4.6,0) -- (4.6,1.15) node[above,black]{$f_s{-}W$};
-    \draw[<->,gray] (1.4,-0.3) -- (3.0,-0.3) node[midway,below,black]{transição};
-  \end{tikzpicture}
+    \includegraphics[width=0.72\textwidth]{figures/cap7/zoh_equalization}
   \end{center}
-
-  \vspace{0.1cm}
-  {\footnotesize
-  Para não haver aliasing, a réplica (que começa em $f_s - W$) deve cair
-  na banda já atenuada do filtro. Duas saídas de projeto:}
-  \begin{itemize}\footnotesize
-    \item \textbf{Banda de guarda / oversampling:} aumentar $f_s$ para
-          alargar a transição disponível $f_s - 2W$.
-    \item \textbf{Filtro mais seletivo:} maior ordem $\Rightarrow$ corte
-          mais íngreme, ao custo de complexidade e distorção de fase.
-  \end{itemize}
+  \vspace{-0.05cm}
+  {\footnotesize O ZOH (\textcolor{UNB_GREEN}{verde}) cai $-3{,}9$ dB na
+  borda; o equalizador (\textcolor{RED}{vermelho}) sobe $+3{,}9$ dB; o
+  \textcolor{UNB_BLUE}{produto} fica em $0$ dB em toda a banda.}
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -685,6 +766,48 @@
   \end{tikzpicture}
   \end{center}
 \end{frame}
+
+
+\begin{frame}{Não Idealidade na Aquisição: Filtro Anti-Aliasing Real}
+  O filtro anti-aliasing real não corta abruptamente em $W$: ele tem uma
+  \textbf{banda de transição} entre $W$ e o início da banda de rejeição.
+
+  \vspace{0.2cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, scale=1.0, every node/.style={font=\scriptsize}]
+    \draw[->,gray!55] (-0.2,0) -- (7.4,0) node[right,black]{$f$};
+    \draw[->,gray!55] (0,-0.1) -- (0,1.5);
+    % banda-base
+    \draw[UNB_GOLD, very thick, fill=UNB_GOLD!22] (0,0) -- (0,1) -- (1.4,1) -- (1.6,0);
+    % primeira réplica (centrada em fs)
+    \draw[UNB_GREEN, very thick, fill=UNB_GREEN!18]
+        (4.4,0) -- (4.6,1) -- (6.0,1) -- (6.2,0);
+    % máscara do filtro real
+    \draw[RED, very thick, densely dashed]
+        (0,1.05) -- (1.4,1.05) .. controls (2.2,1.05) and (2.6,0.1) .. (3.4,0.06) -- (7.2,0.04);
+    \node[RED] at (2.9,0.9) {filtro real};
+    % marcações
+    \draw[densely dotted,gray] (1.4,0) -- (1.4,1.15) node[above,black]{$W$};
+    \draw[densely dotted,gray] (3.0,0) -- (3.0,1.0);
+    \draw[densely dotted,gray] (4.6,0) -- (4.6,1.15) node[above,black]{$f_s{-}W$};
+    \draw[<->,gray] (1.4,-0.3) -- (3.0,-0.3) node[midway,below,black]{transição};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.1cm}
+  {\footnotesize
+  Para não haver aliasing, a réplica (que começa em $f_s - W$) deve cair
+  na banda já atenuada do filtro. Duas saídas de projeto:}
+  \begin{itemize}\footnotesize
+    \item \textbf{Banda de guarda / oversampling:} aumentar $f_s$ para
+          alargar a transição disponível $f_s - 2W$.
+    \item \textbf{Filtro mais seletivo:} maior ordem $\Rightarrow$ corte
+          mais íngreme, ao custo de complexidade e distorção de fase.
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------
+
 
 % ==================================================================
 \subsection{Problema Aplicado de Engenharia}
@@ -811,4 +934,18 @@
   transição e permitiria um filtro de ordem menor, mais barato. Reduzir
   $f_s$ aproximaria a réplica da banda útil e exigiria um filtro mais
   íngreme (ordem maior).
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Banda de Transição vs.\ Ordem do Filtro}
+  Diminuir $f_s$ aproxima a réplica (verde) da banda-base (laranja),
+  \textbf{estreitando a transição} $f_s - 2W$ — o filtro fica mais íngreme:
+  \begin{center}
+    \includegraphics[width=0.80\textwidth]{figures/cap7/aa_filter_order}
+  \end{center}
+  \vspace{-0.05cm}
+  {\footnotesize Mesma banda útil $W$ e mesma atenuação: ao reduzir $f_s$,
+  a ordem do Butterworth sobe de $N=5$ para $N=12$ — compromisso entre
+  taxa de amostragem e complexidade do filtro.}
 \end{frame}
