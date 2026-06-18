@@ -1,0 +1,223 @@
+% ============================================
+% SEÇÃO 7.4: CODIFICAÇÃO PREDITIVA E DE FONTE
+% Delta Modulation, DPCM e Vocoder.
+% ============================================
+
+% ------------------------------------------------------------------
+\subsection{Codificação Preditiva}
+% ------------------------------------------------------------------
+
+\begin{frame}{Além do PCM: Explorar a Redundância}
+  O PCM quantiza \textbf{cada amostra de forma independente} — ignora que
+  amostras vizinhas de voz e áudio são \textbf{muito correlacionadas}.
+
+  \vspace{0.3cm}
+  \textbf{Ideia da codificação preditiva:} prever a amostra atual a partir
+  do passado e quantizar apenas o \textbf{erro de predição}:
+  \[
+    e[n] = x[n] - \hat{x}[n], \qquad
+    \hat{x}[n] = \text{predição a partir de } x[n-1],\, x[n-2],\dots
+  \]
+
+  Como $e[n]$ tem variância \textbf{muito menor} que $x[n]$, bastam
+  \textbf{menos bits} para o mesmo SQNR.
+
+  \vspace{0.2cm}
+  \begin{itemize}
+    \item \textbf{Modulação Delta (DM):} 1 bit por amostra.
+    \item \textbf{DPCM:} vários bits, com preditor.
+    \item \textbf{Vocoder:} vai além — transmite \emph{parâmetros} da voz.
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Modulação Delta (DM)}
+  Caso mais simples: \textbf{1 bit por amostra}. Transmite apenas se o
+  sinal \textbf{subiu} ($+\delta$) ou \textbf{desceu} ($-\delta$):
+  \[
+    b[n] = \operatorname{sgn}\!\big(x[n] - \hat{x}[n-1]\big),
+    \qquad
+    \hat{x}[n] = \hat{x}[n-1] + \delta\,b[n].
+  \]
+
+  \vspace{0.15cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth,
+     blk/.style={draw, rounded corners=3pt, minimum height=0.72cm,
+                 font=\scriptsize, fill=unbprimary!10, draw=unbprimary},
+     sm/.style={draw, circle, inner sep=1.5pt, font=\scriptsize}]
+    \node[sm] (s) at (0,0) {$\Sigma$};
+    \node[blk] (q) at (2.2,0) {Quant.\ 1 bit};
+    \node[blk] (int) at (2.2,-1.3) {Integrador};
+    \draw[->] (-1.5,0) node[left,font=\scriptsize]{$x[n]$} -- (s);
+    \node[font=\tiny] at (-0.28,0.22) {$+$};
+    \draw[->] (s) -- (q);
+    \draw[->] (q) -- (4.6,0) node[right,font=\scriptsize]{$b[n]$};
+    \draw[->] (3.4,0) |- (int);
+    \draw[->] (int) -| (s);
+    \node[font=\tiny] at (-0.22,-0.30) {$-$};
+    \node[font=\tiny,gray] at (1.1,-1.55) {$\hat{x}[n]$};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.05cm}
+  {\footnotesize O receptor \textbf{acumula} (integra) os $\pm\delta$,
+  reconstruindo o sinal como uma escada. Exige \textbf{sobreamostragem}
+  ($f_s \gg 2W$) para a escada acompanhar o sinal.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Modulação Delta: Os Dois Tipos de Erro}
+  \begin{center}
+    \includegraphics[width=0.76\textwidth]{figures/cap7/dm_tracking}
+  \end{center}
+  \vspace{-0.05cm}
+  \begin{itemize}\footnotesize
+    \item \textbf{\textcolor{RED}{Sobrecarga de inclinação}:} o sinal sobe
+          mais rápido do que a escada ($\delta/T_s <$ inclinação máxima) —
+          pede $\delta$ \emph{maior}.
+    \item \textbf{\textcolor{UNB_GOLD}{Ruído granular}:} em trechos planos,
+          a escada \emph{oscila} em torno do valor — pede $\delta$
+          \emph{menor}.
+  \end{itemize}
+  \vspace{0.03cm}
+  {\footnotesize Compromisso no passo $\delta$; a \textbf{DM adaptativa}
+  (ADM) ajusta $\delta$ dinamicamente.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{DPCM — PCM Diferencial}
+  Generaliza a DM: um \textbf{quantizador de $N$ bits} sobre o erro de
+  predição, com um \textbf{preditor} (linear) realimentado.
+
+  \vspace{0.1cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth,
+     blk/.style={draw, rounded corners=3pt, minimum height=0.72cm,
+                 font=\scriptsize, fill=unbprimary!10, draw=unbprimary},
+     sm/.style={draw, circle, inner sep=1.5pt, font=\scriptsize}]
+    \node[sm] (s1) at (0,0) {$\Sigma$};
+    \node[blk] (q) at (2.0,0) {Quant.\ $N$ bits};
+    \node[sm] (s2) at (4.2,0) {$\Sigma$};
+    \node[blk] (pred) at (4.2,-1.4) {Preditor};
+    \draw[->] (-1.4,0) node[left,font=\scriptsize]{$x[n]$} -- (s1);
+    \node[font=\tiny] at (-0.28,0.22) {$+$};
+    \draw[->] (s1) -- (q) node[midway,above,font=\tiny]{$e[n]$};
+    \draw[->] (q) -- (s2);
+    \draw[->] (q) -- ++(0,1.0) -| (6.1,0.0)
+         node[pos=0.25,above,font=\tiny]{$e_q[n]$}
+         node[right,font=\scriptsize]{canal};
+    \draw[->] (s2) -- (pred) node[midway,right,font=\tiny]{$x_r[n]$};
+    \draw[->] (pred) -| (s1);
+    \node[font=\tiny] at (-0.22,-0.30) {$-$};
+    \draw[->] (pred.west) -- ++(-0.6,0) |- (s2.south);
+    \node[font=\tiny,gray] at (3.2,-1.65) {$\hat{x}[n]$};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.05cm}
+  {\footnotesize \textbf{Ganho de predição:} $G_p = \sigma_x^2/\sigma_e^2 > 1$
+  — o erro tem variância menor, economizando bits. A \textbf{DM é o caso
+  de 1 bit} com preditor de uma amostra. O ADPCM (G.726) usa DPCM
+  adaptativo: voz a 32 kb/s com qualidade do PCM de 64 kb/s.}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Codificação de Fonte (Vocoder)}
+% ------------------------------------------------------------------
+
+\begin{frame}{Vocoder: Codificar a \emph{Fonte}, não a Onda}
+  PCM, DPCM e DM são \textbf{codificadores de forma de onda} — reproduzem
+  o sinal. O \textbf{vocoder} faz \textbf{codificação de fonte}: em vez da
+  onda, transmite \textbf{parâmetros} de um modelo de produção da voz.
+
+  \vspace{0.1cm}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth,
+     blk/.style={draw, rounded corners=3pt, minimum height=0.72cm,
+                 font=\scriptsize, align=center, fill=unbprimary!10, draw=unbprimary}]
+    \node[blk] (pulse) at (0,0.65) {Trem de pulsos\\(pitch $T_0$)};
+    \node[blk] (noise) at (0,-0.65) {Ruído};
+    \node[draw, circle, inner sep=1pt, font=\scriptsize] (sw) at (2.0,0) {V/UV};
+    \node[draw, circle, inner sep=1pt, font=\scriptsize] (g) at (3.3,0) {$\times G$};
+    \node[blk] (lpc) at (5.2,0) {Filtro LPC\\(trato vocal)};
+    \draw[->] (pulse) -- (sw);
+    \draw[->] (noise) -- (sw);
+    \draw[->] (sw) -- (g);
+    \draw[->] (g) -- (lpc);
+    \draw[->] (lpc) -- ++(1.7,0) node[right,font=\scriptsize]{voz sintética};
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.05cm}
+  {\footnotesize Transmite \textbf{pitch}, \textbf{vozeado/não-vozeado},
+  \textbf{ganho} e os \textbf{coeficientes LPC} do filtro — pouquíssimos
+  bits. O receptor \emph{ressintetiza} a voz a partir desses parâmetros.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Forma de Onda vs.\ Parâmetros: Taxas Típicas}
+  \begin{center}
+  \renewcommand{\arraystretch}{1.3}
+  \footnotesize
+  \begin{tabular}{l l c}
+    \hline
+    \textbf{Técnica} & \textbf{Tipo} & \textbf{Taxa típica} \\
+    \hline
+    PCM (G.711)            & forma de onda            & $64$ kb/s \\
+    ADPCM (G.726)          & forma de onda (preditiva)& $16$–$40$ kb/s \\
+    Modulação Delta        & forma de onda (1 bit)    & $\sim 32$ kb/s \\
+    CELP (AMR / EVS)        & híbrido                  & $5$–$13$ kb/s \\
+    Vocoder LPC-10         & paramétrico (fonte)      & $2{,}4$ kb/s \\
+    \hline
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item \textbf{Forma de onda:} alta qualidade, taxa alta — reproduz o
+          sinal fielmente.
+    \item \textbf{Paramétrico:} taxa baixíssima, voz mais ``sintética'' —
+          modela a produção da fala.
+    \item \textbf{Híbrido (CELP):} o melhor dos dois — base dos codecs
+          celulares modernos.
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Resumo}
+% ------------------------------------------------------------------
+
+\begin{frame}{Resumo: Conversão Analógico-Digital}
+  \begin{block}{Resultado 1 — Amostragem (Nyquist-Shannon)}
+    \[
+      f_s > 2W
+      \qquad\Longrightarrow\qquad
+      G_s(f) = f_s\sum_{k=-\infty}^{\infty} G(f - k\,f_s)
+    \]
+  \end{block}
+
+  \vspace{0.15cm}
+
+  \begin{block}{Resultado 2 — Quantização e SQNR}
+    \[
+      P_q = \frac{\Delta^2}{12},
+      \qquad
+      \SQNR_{\mathrm{dB}} \approx 1{,}76 + 6{,}02\,n \;\text{dB}
+      \quad (6\text{ dB/bit})
+    \]
+  \end{block}
+
+  \vspace{0.15cm}
+  \begin{itemize}\footnotesize
+    \item \textbf{Companding} ($\mu$/A-law) mantém o SQNR quase constante
+          para sinais não-uniformes (voz).
+    \item \textbf{DM / DPCM} exploram a correlação entre amostras
+          (codificação de forma de onda).
+    \item \textbf{Vocoder} transmite parâmetros da fonte — taxa muito baixa.
+  \end{itemize}
+\end{frame}
