@@ -1,7 +1,7 @@
 =================================================================
-PRATICA 08 -- AMOSTRAGEM E ALIASING (NYQUIST-SHANNON)
+PRATICA 08 -- CONVERSAO A/D: AMOSTRAGEM, ALIASING E QUANTIZACAO PCM
 GABARITO DO PROFESSOR
-Data: 2026-03-20 08:06
+Data: 2026-06-20 11:00
 GNU Radio: 3.10.12.0
 Sample Rate: 48000 Hz | Amostras: 48000
 Saida: /home/daniel/Documentos/UnB/Aulas/curso_pricom/Laboratorio/Codigos/pratica_08_gabarito
@@ -108,33 +108,115 @@ ETAPA 5: Aliasing com multiplos tons
     decimacao. Apenas f1=1000 Hz aparece no espectro.
 
 =================================================================
+ETAPA 6: Quantizacao PCM -- SQNR x numero de bits
+=================================================================
+  Senoide de fundo de escala: f = 997 Hz, amplitude = 1.0 V
+  Faixa do quantizador: [-1.0, +1.0] V  =>  Vpp = 2.0 V
+  Amostras por medicao: 1000000
+
+    n |      L | Delta(mV) |     Pq(V^2) | SQNR_teo | SQNR_med | erro(dB)
+  ----+--------+-----------+-------------+----------+----------+---------
+    2 |      4 |  500.0000 |   2.083e-02 |    13.80 |    12.81 |    -0.99
+    3 |      8 |  250.0000 |   5.208e-03 |    19.82 |    19.09 |    -0.73
+    4 |     16 |  125.0000 |   1.302e-03 |    25.84 |    25.31 |    -0.53
+    6 |     64 |   31.2500 |   8.138e-05 |    37.88 |    37.61 |    -0.27
+    8 |    256 |    7.8125 |   5.086e-06 |    49.92 |    49.79 |    -0.13
+   10 |   1024 |    1.9531 |   3.179e-07 |    61.96 |    61.90 |    -0.06
+   12 |   4096 |    0.4883 |   1.987e-08 |    74.00 |    73.98 |    -0.02
+   16 |  65536 |    0.0305 |   7.761e-11 |    98.08 |    98.09 |    +0.01
+
+  -> etapa6_sqnr_vs_bits.png
+  -> etapa6_formas_de_onda.png
+  -> dados/etapa6_sqnr_vs_bits.csv
+
+=================================================================
+ETAPA 7: Projeto PCM -- bits necessarios e taxa de bits
+=================================================================
+
+  (a) Numero minimo de bits: n >= (SQNR - 1,76)/6,02
+      SQNR >=  50 dB  ->  n >=  8.01  ->  9 bits
+      SQNR >=  60 dB  ->  n >=  9.67  ->  10 bits
+      SQNR >=  70 dB  ->  n >= 11.34  ->  12 bits
+      SQNR >=  90 dB  ->  n >= 14.66  ->  15 bits
+
+  (b) Taxa de bits PCM: R = fs * n * (n_canais)
+      Voz VoIP wideband (HD Voice)     : fs=16000 Hz, n=16 bits, canais=1  ->  R = 256000 bps = 256.0 kbps = 0.256 Mbps
+      Audio de alta resolucao (Hi-Res) : fs=96000 Hz, n=24 bits, canais=2  ->  R = 4608000 bps = 4608.0 kbps = 4.608 Mbps
+
+  (c) Passo e ruido de quantizacao (Vpp = 2 V):
+        n |      L |        Delta |  Pq=Delta^2/12
+        2 |      4 |  500.0000 mV |     2.0833e-02
+        4 |     16 |  125.0000 mV |     1.3021e-03
+        8 |    256 |    7.8125 mV |     5.0863e-06
+       16 |  65536 |    0.0305 mV |     7.7610e-11
+
+=================================================================
+ETAPA 8: Reconstrucao ZOH e equalizacao
+=================================================================
+  fs_low = 6000 Hz, N_ZOH = 8, fs_high = 48000 Hz, borda da banda = 3000 Hz
+  H_ZOH(f) = sinc(f/fs_low); droop na borda = 20log10(sinc 0,5) = -3.92 dB
+
+   f(Hz) | sinc^2 teo(dB) | ZOH med(dB) | equaliz med(dB)
+  -------+----------------+-------------+----------------
+     300 |          -0.04 |       -0.27 |           -0.23
+    1500 |          -0.91 |       -1.04 |           -0.12
+    2400 |          -2.42 |       -2.47 |           -0.51
+    2700 |          -3.11 |       -2.88 |           -6.69
+    3000 |          -3.92 |       -4.06 |          -33.10
+
+  Imagens espectrais (nulos do sinc em k*fs_low):
+    f=5400 Hz: ZOH=-19.2 dB, equalizado=-82.8 dB
+    f=6000 Hz: ZOH=-58.6 dB, equalizado=-122.9 dB
+    f=6600 Hz: ZOH=-20.8 dB, equalizado=-86.7 dB
+
+  -> etapa8_zoh_espectro.png
+  -> etapa8_zoh_escada.png
+  -> dados/etapa8_zoh_droop.csv
+
+=================================================================
 RESPOSTAS ESPERADAS
 =================================================================
 
-  Q1: Cenarios A, B, D satisfazem Nyquist (f < fs/2).
-      Cenarios C, E, F violam. As frequencias de alias
-      observadas correspondem ao calculo analitico:
-      f_alias = fs_eff - f_sinal (quando f_sinal < fs_eff).
+  Q1: Tabela de Nyquist (fs/2 = Nyquist; alias = |f0 - n*fs|):
+      A (1000, fs=12000): Nyquist OK (1000 < 6000); sem alias.
+      B (5000, fs=12000): Nyquist OK (5000 < 6000); sem alias.
+      C (7000, fs=12000): VIOLA; f_alias = |7000-12000| = 5000 Hz.
+      D (1000, fs=4800):  Nyquist OK (1000 < 2400); sem alias.
+      E (2500, fs=4800):  VIOLA; f_alias = |2500-4800| = 2300 Hz.
+      F (3500, fs=4800):  VIOLA; f_alias = |3500-4800| = 1300 Hz.
 
-  Q2: No dominio do tempo, o sinal com alias aparece como
-      uma frequencia mais baixa. Um sinal de 7000 Hz
-      amostrado a 12000 Hz parece um sinal de 5000 Hz.
-      As amostras sao identicas nos dois casos.
+  Q2: Cenario C: f_aparente = 5000 Hz. Em 1 ms o sinal decimado
+      aparenta 5 ciclos (5000 Hz * 1 ms), enquanto o original de
+      7000 Hz teria 7 ciclos. As amostras sao identicas as de 5000 Hz.
 
-  Q3: Apos a subamostragem, um sinal real em f1 e um
-      alias em f1 sao indistinguiveis. Sem conhecimento
-      previo do sinal original, nao ha como diferencia-los.
+  Q3: Vpp = 2 V; L = 2^n; Delta = 2/L; Pq = Delta^2/12:
+      n=2 : L=4    Delta=500,0000 mV  Pq=2,083e-02 V^2
+      n=4 : L=16   Delta=125,0000 mV  Pq=1,302e-03 V^2
+      n=8 : L=256  Delta=  7,8125 mV  Pq=5,086e-06 V^2
+      n=16: L=65536 Delta=0,030518 mV Pq=7,761e-11 V^2
 
-  Q4: O filtro anti-aliasing funciona para o cenario C
-      (atenua 7000 Hz antes da decimacao por 4).
-      Para o cenario E, o sinal em 2500 Hz esta muito
-      proximo do Nyquist (2400 Hz), e o LPF atenua o
-      proprio sinal.
+  Q4: SQNR_teorico = 1,76 + 6,02 n  (ver tabela da Etapa 6):
+      n=4 -> 25,84 dB | n=8 -> 49,92 dB | n=12 -> 74,00 dB |
+      n=16 -> 98,08 dB. O medido no GNU Radio coincide (erro < 1 dB).
 
-  Q5: Keep 1 in N simplesmente descarta amostras (sem
-      filtragem analogica). Um ADC real tem sample-and-hold.
-      Na pratica, um filtro anti-aliasing analogico eh
-      necessario antes do ADC para evitar aliasing.
+  Q5: n >= (SQNR - 1,76)/6,02:
+      SQNR >= 60 dB -> n >= 9,67  -> 10 bits.
+      SQNR >= 90 dB -> n >= 14,66 -> 15 bits.
+
+  Q6: R = fs * n * canais:
+      Voz VoIP wideband (16000 Hz, 16 bits, 1 canal)
+        -> 256000 bps = 256 kbps = 0,256 Mbps.
+      Audio Hi-Res streaming (96000 Hz, 24 bits, 2 canais)
+        -> 4608000 bps = 4608 kbps = 4,608 Mbps.
+
+  Q7: Atenuacao do ZOH = 20log10|sinc(f/fs_low)|, fs_low=6000 Hz:
+      f=1500 Hz -> -0,91 dB | f=2400 Hz -> -2,42 dB |
+      f=3000 Hz -> -3,92 dB. Coincide com o piso de PSD medido.
+
+  Q8: Na borda f=fs_low/2=3000 Hz o droop do ZOH e -3,92 dB.
+      O equalizador inverse-sinc achata a banda de passagem para
+      menos de ~0,5 dB ate ~0,4 fs_low e ainda atenua as imagens
+      espectrais em torno de fs_low de ~-19 dB para abaixo de -80 dB.
 
 =================================================================
 GABARITO COMPLETO GERADO COM SUCESSO

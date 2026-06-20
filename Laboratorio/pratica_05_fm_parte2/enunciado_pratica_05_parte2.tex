@@ -123,7 +123,7 @@ para validar a fidelidade dos demoduladores construídos manualmente.
     \texttt{Add}               & Math Operators       & Inserção de ruído \\
     \texttt{Band Pass Filter}  & Filters              & Filtros de inclinação \\
     \texttt{Complex to Mag}    & Type Converters      & Detector de envelope \\
-    \texttt{Sub}               & Math Operators       & Subtração balanceada \\
+    \texttt{Subtract}          & Math Operators       & Subtração balanceada \\
     \texttt{DC Blocker}        & Filters              & Remoção de nível CC \\
     \texttt{Low Pass Filter}   & Filters              & Filtragem de áudio e decimação \\
     \texttt{QT GUI Freq Sink}  & Instrumentation      & Espectro \\
@@ -171,7 +171,9 @@ funcionamento do discriminador balanceado em banda base.
     \begin{itemize}
       \item \texttt{fm\_freq}: min 200, max 5000, passo 100, padrão 1000.
       \item \texttt{max\_dev}: min 5000, max 50000, passo 1000, padrão 25000.
-      \item \texttt{noise\_amp}: min 0, max 0.5, passo 0.01, padrão 0.
+      \item \texttt{noise\_amp}: min 0, max 2.0, passo 0.05, padrão 0.
+        O limiar de FM ocorre em torno de \texttt{noise\_amp} $\approx 1{,}0$
+        (SNR$_i \approx 0$\,dB), portanto o slider precisa atingir esse valor.
     \end{itemize}
   \item Adicione \texttt{Signal Source} float, cosseno, freq = \texttt{fm\_freq},
     amplitude = 1.0, samp\_rate = \texttt{audio\_rate}.
@@ -195,7 +197,7 @@ funcionamento do discriminador balanceado em banda base.
       \item high\_cutoff\_freq = \texttt{3*max\_dev/2}
       \item width = \texttt{max\_dev/4}
       \item samp\_rate = \texttt{samp\_rate}
-      \item decimation = 1
+      \item decim = 1
     \end{itemize}
   \item Adicione \texttt{Complex to Mag} para extrair a envoltória
     da saída do filtro.
@@ -208,11 +210,11 @@ funcionamento do discriminador balanceado em banda base.
       \item decim = \texttt{int(samp\_rate/audio\_rate)} = 10
       \item samp\_rate = \texttt{samp\_rate}
     \end{itemize}
+  \item Configure o \texttt{QT GUI Time Sink} com 4 canais. Conecte
+    \texttt{src\_mensagem} ao canal 0 (mensagem original de referência).
   \item Conecte: \texttt{Throttle} $\to$ \texttt{bpf\_pos} $\to$
     \texttt{Complex to Mag} $\to$ \texttt{DC Blocker} $\to$
-    \texttt{Low Pass Filter} $\to$ \texttt{QT GUI Time Sink} canal 0.
-  \item Adicione um segundo canal no Time Sink ligado em
-    \texttt{src\_mensagem} para comparar com a mensagem original.
+    \texttt{Low Pass Filter} $\to$ \texttt{QT GUI Time Sink} canal 1.
   \item Execute. Observe a forma de onda recuperada e identifique:
     \begin{itemize}
       \item presença de distorção harmônica;
@@ -233,14 +235,14 @@ funcionamento do discriminador balanceado em banda base.
       \item high\_cutoff\_freq = \texttt{-max\_dev/2}
       \item width = \texttt{max\_dev/4}
       \item samp\_rate = \texttt{samp\_rate}
-      \item decimation = 1
+      \item decim = 1
     \end{itemize}
   \item Adicione um segundo \texttt{Complex to Mag} na saída de
     \texttt{bpf\_neg}.
-  \item Adicione \texttt{Sub} float, 2 entradas. Conecte a saída de
+  \item Adicione \texttt{Subtract} float, 2 entradas. Conecte a saída de
     \texttt{Complex to Mag} de \texttt{bpf\_pos} na entrada 0 e a saída
     de \texttt{Complex to Mag} de \texttt{bpf\_neg} na entrada 1.
-  \item Reaproveite a configuração da Etapa 2: \texttt{Sub} $\to$
+  \item Reaproveite a configuração da Etapa 2: \texttt{Subtract} $\to$
     \texttt{DC Blocker} $\to$ \texttt{Low Pass Filter} $\to$
     \texttt{QT GUI Time Sink} canal 2.
   \item Execute. Compare a saída balanceada com a saída do detector simples

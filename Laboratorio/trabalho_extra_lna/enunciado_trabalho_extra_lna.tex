@@ -1,0 +1,552 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{entrega}[1][]{colback=green!5,colframe=green!50!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Avaliação 2 -- Caracterização de LNA}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.3cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.1cm]
+  {\normalsize Curso: Engenharia de Eletrônica}\\
+  {\normalsize Disciplina: FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  {\Large\textbf{Avaliação -- Caracterização de LNA}}\\[0.2cm]
+  {\large Ganho, figura de ruído e temperatura equivalente pelo método Y}\\[0.2cm]
+  {\small Pontuação: até $+1{,}0$ ponto extra na nota da segunda prova \quad|\quad Entrega em dupla}
+\end{center}
+
+\hrule
+\vspace{0.4em}
+
+\section*{1. Contexto e objetivo}
+
+Em sistemas de comunicação RF, o LNA, \emph{Low-Noise Amplifier}, é o primeiro estágio ativo após a antena e
+domina a figura de ruído de toda a cadeia, pela fórmula de Friis. Caracterizar corretamente o
+ganho $G$ e a figura de ruído $F$ desse bloco é parte da rotina de qualquer engenheiro de RF.
+
+Esta avaliação propõe a caracterização experimental de um LNA real disponível no laboratório,
+pelo método Y, ou \emph{Y-factor method}, com fonte de ruído calibrada e analisador de espectro,
+em três frequências distintas da faixa de operação do amplificador.
+
+Após a sessão de bancada, espera-se que o aluno saiba:
+\begin{itemize}[leftmargin=1.5em]
+  \item planejar a sequência de medidas de ruído com calibração de duas etapas;
+  \item extrair $G_{\text{DUT}}$, $F_{\text{DUT}}$, $\mathrm{NF}_{\text{DUT}}$ e $T_{e,\text{DUT}}$ a partir das leituras brutas em dBm do analisador;
+  \item identificar e discutir as principais fontes de erro da medida.
+\end{itemize}
+
+\section*{2. Equipamento de bancada}
+
+\begin{instrucao}[Material disponível na sala]
+\begin{itemize}[leftmargin=1.5em]
+  \item LNA sob teste, cuja faixa de operação deve ser identificada pelos alunos a partir do \emph{datasheet} do componente;
+  \item fonte de ruído calibrada, com tabela ou polinômio de $\mathrm{ENR}(f)$ acompanhando o equipamento;
+  \item analisador de espectro com banda de resolução ajustável e função de média;
+  \item termômetro de bancada para registrar $T_C$.
+\end{itemize}
+\end{instrucao}
+
+\textbf{Parâmetros sugeridos de medida:}
+\begin{itemize}[leftmargin=1.5em]
+  \item três frequências de teste dentro da faixa do LNA, fixadas em $f_1 = 500$ MHz, $f_2 = 1$ GHz e $f_3 = 2$ GHz e já indicadas nas tabelas deste enunciado;
+  \item banda de resolução do analisador $B_{RBW} = 100$ kHz;
+  \item detector RMS, $B_{VBW} = 10$ kHz, no mínimo 32 médias por leitura;
+  \item temperatura ambiente $T_C \approx T_0 = 290$ K, a ser conferida com o termômetro.
+\end{itemize}
+
+\subsection*{2.1 Identificação dos equipamentos}
+
+Preencha com os dados lidos nos próprios instrumentos antes de iniciar as medidas.
+
+{\renewcommand{\arraystretch}{1.6}
+\begin{center}
+\begin{tabular}{|l|p{4.5cm}|p{4.5cm}|}
+\hline
+\textbf{Equipamento} & \textbf{Fabricante / modelo} & \textbf{Faixa de operação} \\
+\hline
+LNA & & \\
+\hline
+Fonte de ruído & & \\
+\hline
+Analisador de espectro & & \\
+\hline
+Fonte DC & & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+\subsection*{2.2 Especificações do LNA no datasheet}
+
+Consulte o \emph{datasheet} do LNA e preencha os valores nominais. Esses dados serão a referência para a comparação com a medida.
+
+{\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Parâmetro} & \textbf{$f_1 = 500$ MHz} & \textbf{$f_2 = 1$ GHz} & \textbf{$f_3 = 2$ GHz} \\
+\hline
+Ganho típico $G$ (dB)              & & & \\
+\hline
+Figura de ruído típica NF (dB)     & & & \\
+\hline
+\end{tabular}
+
+\vspace{0.4em}
+
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Parâmetro global do LNA} & \textbf{Valor} \\
+\hline
+Faixa de operação (GHz)            & \\
+\hline
+Tensão de alimentação $V_{DD}$ (V) & \\
+\hline
+Corrente típica $I_{DD}$ (mA)      & \\
+\hline
+Ponto de compressão $P_{1\text{dB}}$ (dBm) & \\
+\hline
+Impedância de entrada / saída ($\Omega$) & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+\subsection*{2.3 Curva de ENR da fonte de ruído}
+
+Leia a tabela ou polinômio de calibração da fonte e registre a ENR nas três frequências escolhidas.
+
+{\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Frequência} & \textbf{ENR (dB)} & \textbf{ENR (linear)} \\
+\hline
+$f_1 = 500$ MHz & & \\
+\hline
+$f_2 = 1$ GHz & & \\
+\hline
+$f_3 = 2$ GHz & & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+\subsection*{2.4 Cabos, adaptadores e alimentação do LNA}
+
+Liste os cabos coaxiais e adaptadores efetivamente utilizados na bancada e a configuração da fonte DC que alimenta o LNA. Mantenha esta mesma cadeia entre as etapas CAL e MEAS.
+
+{\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{tabular}{|l|p{3.0cm}|c|c|p{3.0cm}|}
+\hline
+\textbf{Item} & \textbf{Conectores} & \textbf{Comprimento (cm)} & \textbf{Quantidade} & \textbf{Observações} \\
+\hline
+Cabo coaxial 1 & & & & \\
+\hline
+Cabo coaxial 2 & & & & \\
+\hline
+Adaptador 1 & & --- & & \\
+\hline
+Adaptador 2 & & --- & & \\
+\hline
+\end{tabular}
+
+\vspace{0.4em}
+
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Configuração da fonte DC} & \textbf{Valor} \\
+\hline
+Tensão ajustada $V_{DD}$ (V)                 & \\
+\hline
+Corrente medida $I_{DD}$ (mA)                & \\
+\hline
+Limite de corrente configurado (mA)          & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+\section*{3. Roteiro experimental}
+
+\subsection*{Parte A --- Familiarização e aquecimento}
+
+A.1) Antes de iniciar as medidas, preencha todas as tabelas das subseções 2.1 a 2.4: dados dos equipamentos, especificações do LNA no datasheet, curva de ENR da fonte e descrição da cadeia de cabos/adaptadores e da configuração da fonte DC.
+
+A.2) Ligue o analisador e a fonte de ruído com pelo menos 15 minutos de antecedência. Estabilidade térmica reduz o \emph{drift} entre as leituras hot e cold.
+
+A.3) Configure o analisador centrado em $f_1$, span de 10 MHz, $B_{RBW} = 100$ kHz, detector RMS, médias ativadas. Para as leituras em $f_2$ e $f_3$, basta alterar apenas a frequência central; os demais parâmetros permanecem fixos.
+
+\subsection*{Parte B --- Calibração do receptor, etapa CAL}
+
+Sem o LNA no caminho, conecte a fonte de ruído diretamente à entrada do analisador conforme a Figura~\ref{fig:cal}. Execute cada passo abaixo nas três frequências e preencha a tabela correspondente antes de seguir para o próximo passo.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  block/.style={draw, thick, minimum width=2.4cm, minimum height=1.2cm, align=center, fill=white},
+  dcblock/.style={draw, thick, minimum width=2.4cm, minimum height=1.0cm, align=center, fill=gray!10},
+  arrow/.style={-{Latex[length=2.5mm]}, thick},
+  node distance=1.6cm
+]
+\node[block] (src) {Fonte de\\ ruído};
+\node[block, right=of src] (sa) {Analisador\\ de espectro};
+\draw[arrow] (src) -- node[above, font=\small]{cabo $50\,\Omega$} (sa);
+
+\node[dcblock, below=0.9cm of src] (dc) {Fonte DC\\ {\footnotesize (HOT / COLD)}};
+\draw[arrow] (dc) -- (src);
+\end{tikzpicture}
+\caption{Montagem da etapa CAL: fonte de ruído conectada diretamente ao analisador, sem o LNA.}
+\label{fig:cal}
+\end{figure}
+
+B.1) Ligue a fonte DC da fonte de ruído, estado HOT. Registre a potência média $N_{1H}(f_i)$ em dBm.
+
+\textbf{Tabela B.1 -- Potência HOT do receptor.}
+
+{\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Frequência} & \textbf{$N_{1H}$ (dBm)} \\
+\hline
+$f_1 = 500$ MHz & \\
+\hline
+$f_2 = 1$ GHz & \\
+\hline
+$f_3 = 2$ GHz & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+B.2) Desligue a fonte DC, estado COLD. Registre $N_{1C}(f_i)$ em dBm.
+
+\textbf{Tabela B.2 -- Potência COLD do receptor.}
+
+{\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Frequência} & \textbf{$N_{1C}$ (dBm)} \\
+\hline
+$f_1 = 500$ MHz & \\
+\hline
+$f_2 = 1$ GHz & \\
+\hline
+$f_3 = 2$ GHz & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+B.3) Copie a $\mathrm{ENR}(f_i)$ correspondente da Tabela 2.3, em valor linear, para uso nas contas dos próximos passos.
+
+B.4) Compute a razão $Y_{\text{cal}}(f_i)$ em escala linear, a figura de ruído do receptor e o valor em dB:
+\[
+Y_{\text{cal}}(f_i) = 10^{(N_{1H}-N_{1C})/10},
+\quad
+F_{\text{rec}}(f_i) = \frac{\mathrm{ENR}_{\text{lin}}(f_i)}{Y_{\text{cal}}(f_i)-1},
+\quad
+\mathrm{NF}_{\text{rec}}(f_i) = 10\log_{10} F_{\text{rec}}(f_i).
+\]
+
+\textbf{Tabela B.3 -- Resultados da etapa CAL.}
+
+{\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Frequência} & \textbf{$Y_{\text{cal}}$ (linear)} & \textbf{$F_{\text{rec}}$ (linear)} & \textbf{$\mathrm{NF}_{\text{rec}}$ (dB)} \\
+\hline
+$f_1 = 500$ MHz & & & \\
+\hline
+$f_2 = 1$ GHz & & & \\
+\hline
+$f_3 = 2$ GHz & & & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+\subsection*{Parte C --- Medida com DUT, etapa MEAS}
+
+Insira o LNA entre a fonte de ruído e o analisador conforme a Figura~\ref{fig:meas}. Alimente a fonte DC do LNA com a tensão e o limite de corrente registrados na subseção 2.4. Mantenha exatamente a mesma cadeia de cabos e adaptadores da Parte B e repita os passos a seguir, preenchendo cada tabela antes de avançar.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  block/.style={draw, thick, minimum width=2.2cm, minimum height=1.2cm, align=center, fill=white},
+  dcblock/.style={draw, thick, minimum width=2.4cm, minimum height=1.0cm, align=center, fill=gray!10},
+  arrow/.style={-{Latex[length=2.5mm]}, thick},
+  node distance=1.1cm
+]
+\node[block] (src) {Fonte de\\ ruído};
+\node[block, right=of src] (lna) {LNA\\ (DUT)};
+\node[block, right=of lna] (sa) {Analisador\\ de espectro};
+\draw[arrow] (src) -- node[above, font=\small]{cabo} (lna);
+\draw[arrow] (lna) -- node[above, font=\small]{cabo} (sa);
+
+\node[dcblock, below=0.9cm of src] (dcsrc) {Fonte DC\\ {\footnotesize (HOT / COLD)}};
+\node[dcblock, below=0.9cm of lna] (dclna) {Fonte DC\\ {\footnotesize $V_{DD}$ do LNA}};
+\draw[arrow] (dcsrc) -- (src);
+\draw[arrow] (dclna) -- (lna);
+\end{tikzpicture}
+\caption{Montagem da etapa MEAS: o LNA (DUT) é inserido entre a fonte de ruído e o analisador, mantendo-se os mesmos cabos da etapa CAL.}
+\label{fig:meas}
+\end{figure}
+
+C.1) HOT: registre $N_{2H}(f_i)$ em dBm.
+
+\textbf{Tabela C.1 -- Potência HOT com o LNA inserido.}
+
+{\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Frequência} & \textbf{$N_{2H}$ (dBm)} \\
+\hline
+$f_1 = 500$ MHz & \\
+\hline
+$f_2 = 1$ GHz & \\
+\hline
+$f_3 = 2$ GHz & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+C.2) COLD: registre $N_{2C}(f_i)$ em dBm.
+
+\textbf{Tabela C.2 -- Potência COLD com o LNA inserido.}
+
+{\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Frequência} & \textbf{$N_{2C}$ (dBm)} \\
+\hline
+$f_1 = 500$ MHz & \\
+\hline
+$f_2 = 1$ GHz & \\
+\hline
+$f_3 = 2$ GHz & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+C.3) Compute a razão $Y_{\text{med}}(f_i)$ e a figura de ruído contaminada:
+\[
+Y_{\text{med}}(f_i) = 10^{(N_{2H}-N_{2C})/10},
+\qquad
+F_{\text{med}}(f_i) = \frac{\mathrm{ENR}_{\text{lin}}(f_i)}{Y_{\text{med}}(f_i)-1}.
+\]
+
+\textbf{Tabela C.3 -- Resultados da etapa MEAS.}
+
+{\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Frequência} & \textbf{$Y_{\text{med}}$ (linear)} & \textbf{$F_{\text{med}}$ (linear)} \\
+\hline
+$f_1 = 500$ MHz & & \\
+\hline
+$f_2 = 1$ GHz & & \\
+\hline
+$f_3 = 2$ GHz & & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+\subsection*{Parte D --- Pós-processamento}
+
+Execute as contas a seguir na ordem indicada. Cada passo tem sua tabela de resultados, alimentada pelas leituras das Partes B e C.
+
+D.1) \textbf{Ganho do LNA.} Em escala linear de potência, com $N^{\text{lin}} = 10^{N_{\text{dBm}}/10}$,
+\[
+G_{\text{DUT}}(f_i) = \frac{N_{2H}^{\text{lin}}(f_i) - N_{2C}^{\text{lin}}(f_i)}{N_{1H}^{\text{lin}}(f_i) - N_{1C}^{\text{lin}}(f_i)}.
+\]
+Os fatores comuns à cadeia receptora cancelam no quociente. Converta para dB ao apresentar.
+
+\textbf{Tabela D.1 -- Ganho do LNA.}
+
+{\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Frequência} & \textbf{$G_{\text{DUT}}$ (linear)} & \textbf{$G_{\text{DUT}}$ (dB)} \\
+\hline
+$f_1 = 500$ MHz & & \\
+\hline
+$f_2 = 1$ GHz & & \\
+\hline
+$f_3 = 2$ GHz & & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+D.2) \textbf{Correção de Friis.} Isole o LNA do receptor:
+\[
+F_{\text{DUT}}(f_i) = F_{\text{med}}(f_i) - \frac{F_{\text{rec}}(f_i) - 1}{G_{\text{DUT}}(f_i)},
+\qquad
+\mathrm{NF}_{\text{DUT}}(f_i) = 10\log_{10} F_{\text{DUT}}(f_i).
+\]
+
+\textbf{Tabela D.2 -- Figura de ruído do LNA após correção de Friis.}
+
+{\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Frequência} & \textbf{$F_{\text{DUT}}$ (linear)} & \textbf{$\mathrm{NF}_{\text{DUT}}$ (dB)} \\
+\hline
+$f_1 = 500$ MHz & & \\
+\hline
+$f_2 = 1$ GHz & & \\
+\hline
+$f_3 = 2$ GHz & & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+D.3) \textbf{Temperatura equivalente.}
+\[
+T_{e,\text{DUT}}(f_i) = T_0\,\bigl(F_{\text{DUT}}(f_i) - 1\bigr).
+\]
+
+\textbf{Tabela D.3 -- Temperatura equivalente de ruído do LNA.}
+
+{\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Frequência} & \textbf{$T_{e,\text{DUT}}$ (K)} \\
+\hline
+$f_1 = 500$ MHz & \\
+\hline
+$f_2 = 1$ GHz & \\
+\hline
+$f_3 = 2$ GHz & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+D.4) Construa três gráficos no relatório: $G_{\text{DUT}}$ em dB, $\mathrm{NF}_{\text{DUT}}$ em dB e $T_{e,\text{DUT}}$ em K, todos em função de $f$.
+
+D.5) \textbf{Comparação com o datasheet.} Confronte os valores medidos com os nominais lidos na subseção 2.2. Use $\Delta = \text{medido} - \text{datasheet}$.
+
+\textbf{Tabela D.4 -- Comparação datasheet versus medido.}
+
+{\renewcommand{\arraystretch}{1.5}
+\begin{center}
+\footnotesize
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{Frequência} & \textbf{$G_{\text{ds}}$ (dB)} & \textbf{$G_{\text{med}}$ (dB)} & \textbf{$\Delta G$ (dB)} & \textbf{$\mathrm{NF}_{\text{ds}}$ (dB)} & \textbf{$\mathrm{NF}_{\text{med}}$ (dB)} & \textbf{$\Delta\mathrm{NF}$ (dB)} \\
+\hline
+$f_1 = 500$ MHz & & & & & & \\
+\hline
+$f_2 = 1$ GHz & & & & & & \\
+\hline
+$f_3 = 2$ GHz & & & & & & \\
+\hline
+\end{tabular}
+\end{center}
+}
+
+D.6) Discuta os seguintes pontos:
+\begin{itemize}[leftmargin=1.5em]
+  \item comparação dos valores medidos com a folha de especificação do LNA;
+  \item magnitude relativa da correção de Friis em cada frequência. Quanto $F_{\text{rec}}$ contaminava $F_{\text{med}}$?
+  \item principais fontes de erro: instabilidade térmica, perdas dos cabos, casamento de impedância, ruído de quantização do detector, número de médias.
+\end{itemize}
+
+\section*{4. Entregáveis e prazo}
+
+\begin{entrega}[Pacote de entrega]
+Relatório em PDF, de 4 a 6 páginas, contendo:
+\begin{itemize}[leftmargin=1.5em]
+  \item diagrama da bancada montada, com fotos dos blocos;
+  \item todas as tabelas preenchidas das subseções 2.1 a 2.4 (identificação dos equipamentos, datasheet do LNA, ENR da fonte e cadeia de cabos/alimentação);
+  \item todas as tabelas preenchidas das Partes B, C e D do roteiro experimental, com as leituras brutas e os resultados derivados ($G_{\text{DUT}}$, $F_{\text{rec}}$, $F_{\text{med}}$, $F_{\text{DUT}}$, $\mathrm{NF}_{\text{DUT}}$ e $T_e$);
+  \item os três gráficos do item D.4;
+  \item discussão dos resultados confrontando com a folha de especificação do LNA;
+  \item seção explícita sobre as fontes de erro identificadas.
+\end{itemize}
+\end{entrega}
+
+Prazo: duas semanas após a sessão de bancada.\\
+Forma de entrega: PDF pelo SIGAA. O relatório deve seguir o mesmo modelo utilizado nos demais relatórios da disciplina.
+
+\section*{5. Critério de avaliação}
+
+\begin{center}
+\begin{tabular}{lc}
+\toprule
+\textbf{Item} & \textbf{Peso} \\
+\midrule
+Tabelas de leitura brutas completas e consistentes                          & 0{,}2 \\
+Cálculo correto de $G_{\text{DUT}}$, $F_{\text{DUT}}$ e $T_e$ com correção de Friis & 0{,}3 \\
+Gráficos legíveis, com eixos rotulados e escalas apropriadas                & 0{,}2 \\
+Discussão das fontes de erro e comparação com a folha do LNA                & 0{,}2 \\
+Qualidade do relatório, clareza e linguagem técnica                         & 0{,}1 \\
+\midrule
+\textbf{Total}                                                              & \textbf{1{,}0} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{6. Observações}
+
+\begin{atencao}[Cuidados de bancada e armadilhas comuns]
+\begin{itemize}[leftmargin=1.5em]
+  \item As leituras do analisador estão em dBm. Para o método Y é obrigatório converter para mW antes de operar diferenças e razões; reconverter para dB apenas no final.
+  \item Reuse exatamente a mesma cadeia de cabos e conectores entre as etapas CAL e MEAS, para que as perdas se cancelem na correção de Friis.
+  \item Não exceda os limites de tensão e corrente especificados nas folhas da fonte de ruído e do LNA. Configure o limite de corrente da fonte DC antes de energizar o LNA. Aterre o corpo antes de manusear conectores RF.
+  \item Anote temperatura ambiente, umidade relativa e hora de cada leitura; pequenas variações afetam a estabilidade da ENR e o piso de ruído.
+  \item Se o LNA tiver ganho $\gtrsim 20$ dB e o analisador uma NF razoável, a correção de Friis será pequena, mas ainda assim deve ser aplicada e quantificada no relatório.
+\end{itemize}
+\end{atencao}
+
+\end{document}

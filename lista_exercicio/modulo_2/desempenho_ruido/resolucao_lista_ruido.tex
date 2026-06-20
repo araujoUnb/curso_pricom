@@ -1,0 +1,513 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{cancel}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{resolucao}[1][]{colback=green!5,colframe=green!40!black,
+  fonttitle=\bfseries, title={#1}, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Resolução -- Desempenho com Ruído}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Resolução -- Lista de Exercícios}}\\[0.15cm]
+  {\Large\textbf{Desempenho sob Ruído -- AM e FM}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Semestre:} 2026/1
+
+\bigskip
+
+% ======================================================================
+\section*{Questão 1 -- Comparação direta: DSB-SC, SSB e AM convencional}
+
+\begin{resolucao}[Item a -- Potências transmitidas]
+
+Dados: $A_c = 100$\,V, $P_M = 0{,}5$\,W, $\max|m| = 2$\,V, $\mu = 0{,}8$.
+
+\textbf{DSB-SC:} $u(t) = A_c m(t)\cos(2\pi f_c t)$,
+\[
+  P_T^{\text{DSB}} = \frac{A_c^2 P_M}{2} = \frac{10\,000 \times 0{,}5}{2} = \boxed{2500\;\text{W}}.
+\]
+
+\textbf{SSB-USB:} $u(t) = A_c m(t)\cos(\omega_c t) - A_c \hat m(t)\sin(\omega_c t)$. Como $P_{\hat m} = P_M$:
+\[
+  P_T^{\text{SSB}} = A_c^2 P_M = 10\,000 \times 0{,}5 = \boxed{5000\;\text{W}}.
+\]
+
+\textbf{AM convencional:} mensagem normalizada $m_n = m/\max|m| = m/2$, com $P_{m_n} = P_M / 4 = 0{,}125$:
+\[
+  P_T^{\text{AM}} = \frac{A_c^2}{2}\bigl[1 + \mu^2 P_{m_n}\bigr] = 5000\,(1 + 0{,}64 \times 0{,}125) = 5000 \times 1{,}08 = \boxed{5400\;\text{W}}.
+\]
+\end{resolucao}
+
+\begin{resolucao}[{Item b -- $P_R$, $\gamma$ e $(S/N)_o$}]
+
+Atenuação $L = 10^8$, $N_0 = 2\times 10^{-15}$\,W/Hz, $W = 5\,000$\,Hz. Logo $N_0 W = 10^{-11}$\,W.
+
+\begin{center}
+\small
+\begin{tabular}{lccc}
+\toprule
+& DSB-SC & SSB & AM ($\mu=0{,}8$) \\
+\midrule
+$P_T$ (W) & $2500$ & $5000$ & $5400$ \\
+$P_R = P_T/L$ ($\mu$W) & $25$ & $50$ & $54$ \\
+$\gamma = P_R/(N_0 W)$ & $2{,}5\times 10^6$ & $5{,}0\times 10^6$ & $5{,}4\times 10^6$ \\
+$\gamma$ (dB) & $64{,}0$ & $67{,}0$ & $67{,}3$ \\
+$\eta$ (dB) & $0$ & $0$ & $-11{,}3$ \\
+$(S/N)_o$ (dB) & $\mathbf{64{,}0}$ & $\mathbf{67{,}0}$ & $\mathbf{56{,}0}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Para AM: $\eta = \mu^2 P_{m_n}/(1 + \mu^2 P_{m_n}) = 0{,}08/1{,}08 = 0{,}0741$, ou $-11{,}3$\,dB.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Eficiência espectral e de potência]
+
+\textbf{Banda ocupada:}
+\begin{center}
+\begin{tabular}{lc}
+\toprule
+& Banda (kHz) \\
+\midrule
+DSB-SC & $2W = 10$ \\
+SSB & $W = 5$ \\
+AM convencional & $2W = 10$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Eficiência espectral:} SSB é o vencedor incontestável, com metade da banda dos demais.
+
+\textbf{Eficiência de potência} (razão SNR$/P_T$ em dB):
+\begin{center}
+\begin{tabular}{lc}
+\toprule
+& $(S/N)_o - 10\log P_T$ (dB/W) \\
+\midrule
+DSB-SC & $64 - 34 = 30$ \\
+SSB & $67 - 37 = 30$ \\
+AM & $56 - 37{,}3 = 18{,}7$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+DSB-SC e SSB empatam; ambos não desperdiçam potência em portadora. AM perde cerca de $11\;\text{dB}$ por ineficiência ($\eta < 1$).
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Meta de $(S/N)_o \ge 30\;\text{dB}$]
+
+Os três sistemas atingem a meta com folga: $64$, $67$ e $56\;\text{dB}$ contra $30\;\text{dB}$ exigidos. Nenhum aumento de $A_c$ é necessário.
+
+Caso a meta fosse, hipoteticamente, $60\;\text{dB}$, apenas o AM ficaria abaixo (\,$56\;\text{dB}$\,). Como $(S/N)_o \propto A_c^2$ em todos os esquemas, um aumento de $4\;\text{dB}$ em $A_c^2$, isto é, $2\;\text{dB}$ em $A_c$, fecharia o gap.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Limiar do detector de envelope]
+
+A banda do receptor é $B_T = 2W = 10\;\text{kHz}$. A SNR de entrada (na largura $B_T$) é
+\[
+  \gamma_{\text{in}} = \frac{P_R}{N_0 B_T} = \frac{5{,}4\times 10^{-5}}{2\times 10^{-15}\times 10^4} = 2{,}7\times 10^6 \approx 64{,}3\;\text{dB}.
+\]
+
+Muito acima do limiar típico do detector de envelope, $6$ a $10\;\text{dB}$. A aproximação $V_r \approx A_c[1 + \mu m_n] + n_c$ é válida e o detector opera linearmente. Para cair abaixo do limiar, a atenuação do canal teria que aumentar em mais de $54\;\text{dB}$ adicionais.
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 2 -- AM com mensagem real}
+
+\begin{resolucao}[Item a -- Eficiência e maximização]
+
+\[
+  \eta(\mu) = \frac{\mu^2 P_{m_n}}{1 + \mu^2 P_{m_n}}, \qquad
+  \frac{d\eta}{d\mu} = \frac{2\mu P_{m_n}}{(1 + \mu^2 P_{m_n})^2} > 0\;\;\forall\,\mu \in [0,1].
+\]
+
+$\eta$ é monótona crescente, máxima em $\mu = 1$:
+\[
+  \eta_{\max} = \frac{P_{m_n}}{1 + P_{m_n}} = \frac{0{,}1}{1{,}1} = \boxed{0{,}0909 \;\;(-10{,}4\;\text{dB}).}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item b -- $(S/N)_o$ para vários $\mu$]
+
+Com $\gamma = 25\;\text{dB} = 316{,}2$:
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+$\mu$ & $\eta$ & $\eta$ (dB) & $(S/N)_o$ (dB) \\
+\midrule
+$0{,}3$ & $0{,}00892$ & $-20{,}5$ & $4{,}5$ \\
+$0{,}7$ & $0{,}0467$ & $-13{,}3$ & $11{,}7$ \\
+$1$ & $0{,}0909$ & $-10{,}4$ & $14{,}6$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Ganho marginal de $0{,}7 \to 1$: $\approx 3\;\text{dB}$. O risco de $\mu = 1$ é que qualquer transiente do sinal ultrapasse $|m_n| > 1$ momentaneamente, causando \textbf{sobremodulação}: $1 + \mu m_n$ cruza zero, distorce o envelope, e gera espúrios fora da banda. Por isso, transmissores comerciais operam com $\mu \le 0{,}85$ tipicamente.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Voz versus tom único]
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Mensagem & $P_{m_n}$ & $\eta_{\max}$ (dB) \\
+\midrule
+Tom único & $1/2$ & $1/3 = -4{,}77$ \\
+Voz & $0{,}1$ & $0{,}0909 = -10{,}4$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Perda:} $-10{,}4 - (-4{,}77) = -5{,}6\;\text{dB}$.
+
+A voz tem fator de crista elevado (picos esparsos), o que reduz $P_{m_n}$ e a fração de potência útil. Em transmissão comercial, isso motivou o uso de \emph{compressão de áudio} no transmissor (e expansão no receptor), elevando $P_{m_n}$ efetivo.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Multiplicação sinal-ruído abaixo do limiar]
+
+A expressão dada,
+\[
+  V_r(t) \approx V_n(t) + \frac{A_c\, n_c(t)}{V_n(t)}\big[1 + \mu m_n(t)\big],
+\]
+mostra que $m_n(t)$ aparece como fator do produto $n_c(t)/V_n(t)$, ou seja, é \textbf{modulada por ruído aleatório}.
+
+Não há separação aditiva entre sinal e ruído. A SNR perde o significado usual: mesmo que $A_c m_n$ seja grande em valor de pico, sua amplitude observada é proporcional à razão entre dois processos aleatórios, e o resultado é dominado por flutuações. Esse é o efeito de limiar do detector de envelope.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Projeto da portadora mínima]
+
+Banda do receptor $B_T = 2W = 8$\,kHz, $N_0 = 10^{-13}$\,W/Hz, $\mu = 0{,}8$, $P_{m_n} = 0{,}1$.
+
+\[
+  N_0 B_T = 10^{-13} \times 8\,000 = 8 \times 10^{-10}\;\text{W}.
+\]
+
+Condição $\gamma_{\text{in}} \ge 10\;\text{dB} = 10$:
+\[
+  P_R \ge 10 \times N_0 B_T = 8 \times 10^{-9}\;\text{W}.
+\]
+
+Com $P_R = \tfrac{A_c^2}{2}(1 + \mu^2 P_{m_n}) = \tfrac{A_c^2}{2}(1 + 0{,}064) = 0{,}532\,A_c^2$:
+\[
+  A_c^2 \ge \frac{8\times 10^{-9}}{0{,}532} = 1{,}504 \times 10^{-8}\;\text{V}^2.
+\]
+\[
+  \boxed{A_c \ge 1{,}23 \times 10^{-4}\;\text{V} = 123\;\mu\text{V}\;\text{na entrada do receptor.}}
+\]
+
+Para garantir margem operacional, um projeto prudente exigiria $A_c$ pelo menos 3 a 6 dB acima desse mínimo.
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 3 -- FM e o compromisso banda$\leftrightarrow$SNR}
+
+\begin{resolucao}[{Item a -- Tabela $(\beta, B_c, (S/N)_o, G_{\text{FM}})$}]
+
+Mensagem real, $W = 15$\,kHz, $P_{m_n} = 0{,}2$, $\gamma = 15$\,dB $= 31{,}62$.
+
+$B_c = 2(\beta+1)W$ e $(S/N)_o = 3\beta^2 \cdot 0{,}2 \cdot \gamma = 0{,}6\beta^2 \gamma$.
+
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+$\beta$ & $B_c$ (kHz) & $(S/N)_o$ & $(S/N)_o$ (dB) & $G_{\text{FM}}$ (dB) \\
+\midrule
+$1$  & $60$  & $18{,}96$  & $12{,}8$ & $-2{,}2$ \\
+$2$  & $90$  & $75{,}84$  & $18{,}8$ & $+3{,}8$ \\
+$5$  & $180$ & $474{,}3$  & $26{,}8$ & $+11{,}8$ \\
+$10$ & $330$ & $1897$     & $32{,}8$ & $+17{,}8$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Para $\beta = 1$, o FM \emph{perde} para o banda base; só a partir de $\beta \approx 1{,}3$ o FM começa a ganhar.
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Inclinação do trade-off]
+
+Para $\beta \gg 1$: $B_c \approx 2\beta W$ e $(S/N)_o \propto \beta^2 \propto B_c^2$.
+
+Em dB,
+\[
+  \frac{\partial[(S/N)_o]_{\text{dB}}}{\partial[B_c]_{\text{octave}}} = 10\log_{10}(2^2) = \boxed{6\;\text{dB/oitava de banda.}}
+\]
+
+Verificação numérica: dobrar a banda de $90 \to 180\;\text{kHz}$ corresponde a $\beta$ de $2 \to 5$ (aproximadamente fator 2 em $\beta$; mais precisamente $2{,}5$). $(S/N)_o$ vai de $18{,}8$ a $26{,}8\;\text{dB}$, ganho de $8\;\text{dB}$, próximo dos $6\;\text{dB}$ assintóticos com correção pela razão $B_c/(2\beta W) \to 1$ quando $\beta \to \infty$.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Meta $35$\,dB e restrição de banda]
+
+$(S/N)_o \ge 10^{3{,}5} = 3162$:
+\[
+  0{,}6\beta^2 \gamma \ge 3162 \;\Rightarrow\; \beta^2 \ge \frac{3162}{18{,}96} = 166{,}7 \;\Rightarrow\; \beta \ge 12{,}9.
+\]
+
+Restrição de banda: $B_c = 2(\beta+1)\cdot 15 \le 150$ kHz, então
+\[
+  \beta_{\max}^{\text{banda}} = \frac{150}{30} - 1 = 4.
+\]
+
+Como $\beta_{\max}^{\text{banda}} = 4 < 12{,}9$, a meta \textbf{não é alcançável} nesse canal. As únicas alternativas são: \,(i)\, aumentar $\gamma$ por meio de mais potência ou menor $T_{\text{sis}}$;\, (ii)\, alocar canal mais largo;\, (iii)\, aceitar SNR menor.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Tom único]
+
+Com $P_{m_n} = 0{,}5$ em vez de $0{,}2$, ganho fixo de $10\log(0{,}5/0{,}2) = 4\;\text{dB}$ em $(S/N)_o$ para qualquer $\beta$.
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+$\beta$ & $(S/N)_o$ tom (dB) & $(S/N)_o$ real (dB) & Diferença \\
+\midrule
+$1$  & $16{,}8$ & $12{,}8$ & $+4{,}0$ \\
+$2$  & $22{,}8$ & $18{,}8$ & $+4{,}0$ \\
+$5$  & $30{,}8$ & $26{,}8$ & $+4{,}0$ \\
+$10$ & $36{,}8$ & $32{,}8$ & $+4{,}0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Conclusão:} a perda de $4\;\text{dB}$ ao trocar tom único por mensagem real é constante, refletindo a razão entre os $P_{m_n}$ usados.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Lei quadrática em $\Omega$]
+
+Fator de expansão $\Omega = B_c/W = 2(\beta+1)$. Resolvendo para $\beta$:
+\[
+  \beta = \frac{\Omega}{2} - 1 \approx \frac{\Omega}{2} \;\;(\beta \gg 1).
+\]
+
+Substituindo em $(S/N)_o = 3\beta^2 P_{m_n}\gamma$:
+\[
+  \boxed{(S/N)_o \approx \frac{3}{4}\,\Omega^2\,P_{m_n}\,\gamma.}
+\]
+
+A constante de proporcionalidade é $\tfrac{3}{4}P_{m_n}$. Quadruplicar $\Omega$ multiplica a SNR de saída por $16$, ou $+12\;\text{dB}$.
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 4 -- Efeito de limiar e $\beta_{\max}$}
+
+\begin{resolucao}[Item a -- $\beta_{\max}^{\text{banda}}$]
+
+\[
+  B_c = 2(\beta + 1) W \le 150\;\text{kHz}, \;\; W = 10\;\text{kHz}
+  \;\Rightarrow\; \boxed{\beta_{\max}^{\text{banda}} = \frac{150}{20} - 1 = 6{,}5.}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item b -- $\beta_{\max}^{\text{pot}}$ e restrição dominante]
+
+No limiar: $60\beta^2(\beta+1)P_{m_n} = 10^4$. Com $P_{m_n} = 1/2$:
+\[
+  30\,\beta^2(\beta+1) = 10^4 \;\Rightarrow\; \beta^3 + \beta^2 = 333{,}3.
+\]
+
+\textbf{Aproximação inicial:} $\beta_0 \approx \sqrt[3]{333{,}3} \approx 6{,}933$.
+
+\textbf{Iteração:} usando $\beta \leftarrow \sqrt[3]{333{,}3 - \beta^2}$:
+\begin{align*}
+  \beta_1 &= \sqrt[3]{333{,}3 - 48{,}07} = \sqrt[3]{285{,}26} \approx 6{,}580, \\
+  \beta_2 &= \sqrt[3]{333{,}3 - 43{,}30} = \sqrt[3]{290{,}00} \approx 6{,}616, \\
+  \beta_3 &= \sqrt[3]{333{,}3 - 43{,}77} = \sqrt[3]{289{,}53} \approx 6{,}613.
+\end{align*}
+
+\[
+  \boxed{\beta_{\max}^{\text{pot}} \approx 6{,}61.}
+\]
+
+Como $\beta_{\max}^{\text{banda}} = 6{,}5 < \beta_{\max}^{\text{pot}} = 6{,}61$, o sistema está \textbf{limitado pela banda}. Adotamos $\beta = 6{,}5$.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Potências no limiar e com margem]
+
+Para $\beta = 6{,}5$:
+\[
+  \gamma_{\text{th}} = 20(\beta + 1) = 20 \times 7{,}5 = 150 \;(\approx 21{,}76\;\text{dB}).
+\]
+
+\textbf{Potência recebida no limiar:}
+\[
+  P_R^{\text{th}} = \gamma_{\text{th}} \cdot N_0\, W = 150 \cdot 10^{-8} \cdot 10^4 = 1{,}5 \times 10^{-2}\;\text{W} = 15\;\text{mW}.
+\]
+
+\textbf{Potência transmitida no limiar} (com $L = 10^5$):
+\[
+  P_T^{\text{th}} = P_R^{\text{th}}\cdot L = 15\;\text{mW}\cdot 10^5 = 1{,}5\;\text{kW}.
+\]
+
+\textbf{Com $10\;\text{dB}$ de margem:} $\gamma_{\text{nom}} = 1500$:
+\[
+  P_R^{\text{nom}} = 150\;\text{mW}, \quad P_T^{\text{nom}} = 15\;\text{kW}.
+\]
+
+Valores compatíveis com estações de FM comercial de média potência.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Mecanismo físico do limiar]
+
+Abaixo do limiar, $V_n(t) \sim A_c$. No plano fasorial complexo, o vetor recebido $A_c e^{j\phi} + V_n e^{j\Phi_n}$ pode passar próximo da origem. Quando isso ocorre, pequenas variações do ruído provocam saltos rápidos da fase resultante de $\sim 2\pi$ radianos.
+
+O discriminador, que extrai $\tfrac{1}{2\pi}\,d\psi/dt$, interpreta cada salto de fase como um \textbf{pulso} de frequência espúrio. Esses pulsos têm duração curta e amplitude alta. Filtrados pelo passa-baixas do receptor, aparecem como \textbf{cliques audíveis} de duração de microssegundos, fenomenologicamente parecidos com \emph{pipocas} no áudio do receptor.
+
+A taxa de cliques cresce exponencialmente conforme $\gamma$ se aproxima do limiar, daí a transição abrupta na curva $(S/N)_o\times\gamma$.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Ganho da pré-ênfase]
+
+$W_1 = 1/(2\pi\tau) = 1/(2\pi\cdot 75\times 10^{-6}) = 2122\;\text{Hz}$. $W/W_1 = 10\,000/2122 = 4{,}71$.
+
+$\arctan(4{,}71) = 1{,}361$\,rad.
+
+Aplicando a fórmula:
+\[
+  G_{\text{pre}} = \frac{(W/W_1)^3}{3\big[(W/W_1) - \arctan(W/W_1)\big]}
+                = \frac{4{,}71^3}{3(4{,}71 - 1{,}361)}
+                = \frac{104{,}5}{10{,}05}
+                = 10{,}40.
+\]
+\[
+  \boxed{G_{\text{pre, dB}} \approx 10{,}2\;\text{dB}.}
+\]
+
+A pré-ênfase pré-realça frequências altas no transmissor; no receptor, a deênfase as atenua junto com o ruído parabólico do FM, levando ganho líquido de $\sim 10\;\text{dB}$ em SNR. Padrão FCC para FM broadcast.
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 5 -- Orçamento de enlace e ruído de cascata}
+
+\begin{resolucao}[Item a -- Perda de espaço livre]
+
+$\lambda = c/f_c = 3\times 10^8/2\times 10^9 = 0{,}15$\,m.
+
+\[
+  L_{\text{esp}, \text{dB}} = 20\log_{10}\!\frac{4\pi d}{\lambda}
+                            = 20\log_{10}\!\frac{4\pi \cdot 3\times 10^4}{0{,}15}
+                            = 20\log_{10}(2{,}513 \times 10^6)
+\]
+\[
+  \boxed{L_{\text{esp}, \text{dB}} \approx 128{,}0\;\text{dB}.}
+\]
+
+Equivalente: $L_{\text{esp}, \text{dB}} = 32{,}45 + 20\log_{10}(f_{\text{MHz}}) + 20\log_{10}(d_{\text{km}}) = 32{,}45 + 66{,}02 + 29{,}54 = 128{,}0\;\text{dB}.$ \checkmark
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Potência recebida]
+
+$P_T = 10\;\text{W} = 40\;\text{dBm}$, $G_T = G_R = 30\;\text{dBi}$.
+\[
+  P_R\big|_{\text{dBm}} = P_T + G_T - L_{\text{esp}} + G_R = 40 + 30 - 128 + 30 = \boxed{-28\;\text{dBm}.}
+\]
+
+Em linear: $P_R = 10^{-2{,}8}\;\text{mW} = 1{,}585\,\mu\text{W} = 1{,}585\times 10^{-6}\;\text{W}.$
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Noise figure pela fórmula de Friis]
+
+Convertendo para linear:
+\[
+  F_1 = 10^{0{,}2} = 1{,}585, \quad F_2 = 10, \quad F_3 = 10^{0{,}8} = 6{,}31.
+\]
+\[
+  G_1 = 10^{2{,}5} = 316{,}2, \quad G_2 = 10^{-0{,}6} = 0{,}2512, \quad G_3 = 10^{3} = 1000.
+\]
+
+\[
+  F = F_1 + \frac{F_2 - 1}{G_1} + \frac{F_3 - 1}{G_1 G_2}
+    = 1{,}585 + \frac{9}{316{,}2} + \frac{5{,}31}{79{,}44}
+\]
+\[
+    = 1{,}585 + 0{,}0285 + 0{,}0668 = 1{,}680.
+\]
+
+\[
+  \boxed{F_{\text{dB}} = 10\log_{10}(1{,}680) \approx 2{,}25\;\text{dB}.}
+\]
+
+O $F_1$ do LNA é dominante: graças ao ganho $G_1 = 25\;\text{dB}$, os estágios seguintes contribuem com pouco. Isso ilustra a regra de projeto: \emph{o primeiro amplificador deve ter o menor $F$ possível}.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Potência de ruído e SNR]
+
+$kT_0 = 4{,}002\times 10^{-21}$\,W/Hz, ou $-174\;\text{dBm/Hz}$. A SNR de referência usa a banda da mensagem $W = 4$\,kHz:
+\[
+  N_0 W \cdot F = k T_0 W \cdot F = 4{,}002\times 10^{-21} \cdot 4000 \cdot 1{,}680 = 2{,}69\times 10^{-17}\;\text{W}.
+\]
+
+\[
+  \gamma = \frac{P_R}{N_0 W F} = \frac{1{,}585\times 10^{-6}}{2{,}69\times 10^{-17}} = 5{,}9\times 10^{10}.
+\]
+\[
+  \boxed{\gamma_{\text{dB}} \approx 107{,}7\;\text{dB}.}
+\]
+
+Verificação por balanço em dB: $\gamma = P_R\big|_{\text{dBm}} - 10\log(N_0 W) - F\big|_{\text{dB}}$. \\
+$N_0 W = kT_0 W = 4 \times 10^{-21} \cdot 4000 = 1{,}6 \times 10^{-17}\;\text{W} = -167\;\text{dBW} = -137\;\text{dBm}$.\\
+$\gamma\big|_{\text{dB}} = -28 - (-137) - 2{,}25 = 106{,}75\;\text{dB}$. Coerente.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Verificação da meta e margens]
+
+Tom único, $\beta = 5$:
+\[
+  (S/N)_o = \tfrac{3}{2}\beta^2 \gamma = 1{,}5 \cdot 25 \cdot 5{,}9\times 10^{10} = 2{,}2\times 10^{12}.
+\]
+\[
+  (S/N)_{o,\text{dB}} \approx 123{,}5\;\text{dB}.
+\]
+
+\textbf{Limiar:} $\gamma_{\text{th}} = 20(5 + 1) = 120 \approx 20{,}8\;\text{dB}$. Margem sobre o limiar: $107 - 20{,}8 \approx 86\;\text{dB}$. Operação \textbf{muito} acima do limiar.
+
+\textbf{Meta $(S/N)_o \ge 50\;\text{dB}$:} cumprida com margem de mais de $70\;\text{dB}$. O sistema é \emph{sobre-dimensionado}.
+
+\textbf{Recomendações de projeto:}
+\begin{itemize}\itemsep0pt
+  \item reduzir $P_T$ de $10\;\text{W}$ para algo da ordem de $10\;\mu\text{W}$ ainda cumpre a meta com $20\;\text{dB}$ de folga;
+  \item ou estender o enlace para distâncias muito maiores ($d \to 30\;\text{km}\cdot \sqrt{10^{73/10}} \approx 1\,300\;\text{km}$ ideal, embora outros fatores limitem como atmosfera);
+  \item manter o LNA atual: trocar por outro de $F$ menor pouparia $\sim 1\;\text{dB}$, irrelevante diante da margem disponível.
+\end{itemize}
+
+\textbf{Mensagem importante}: em enlaces ponto-a-ponto de microondas com antenas direcionais de alto ganho, o limitante \emph{prático} costuma ser fading multipath e atenuação por chuva, não o ruído térmico. Por isso, dimensiona-se margem grande nos cálculos de $(S/N)_o$.
+\end{resolucao}
+
+\vfill
+\begin{center}
+  \small\textit{Fim da resolução.}
+\end{center}
+
+\end{document}

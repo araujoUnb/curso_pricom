@@ -32,6 +32,162 @@
 \end{center}
 \textit{O gráfico acima foi gerado pelo script \texttt{gerar\_grafico.py} desta pasta.}
 
+\section*{Tabelas preenchidas (valores de referência)}
+
+Os valores abaixo foram obtidos pela simulação headless em
+\texttt{Laboratorio/Codigos/pratica\_06\_gabarito.py}
+($f_s = 32000$\,Hz, janela de 1\,s, \texttt{Max/Min Phase/sample} =
+$\pm 2\pi \cdot 2000/f_s$). A coluna \emph{Locked} usa o critério
+$\sigma/|\mu| < 0{,}02$ na cauda do sinal.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c}
+    \toprule
+    $f_\text{in}$ (Hz) & Valor de regime (rad/amostra) & $f_\text{est}$ (Hz) & Locked \\
+    \midrule
+    500  & 0{,}098175 & 500{,}00  & 1 \\
+    800  & 0{,}157080 & 800{,}00  & 1 \\
+    1000 & 0{,}196350 & 1000{,}00 & 1 \\
+    1200 & 0{,}235619 & 1200{,}00 & 1 \\
+    1500 & 0{,}294524 & 1500{,}00 & 1 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Tabela~1 (\texttt{tab:lock}) -- saída do PLL em função de $f_\text{in}$ com \texttt{loop\_bw} = 0{,}062. Valor esperado em rad/amostra = $2\pi f_\text{in}/f_s$; $f_\text{est} = \mu \cdot f_s/(2\pi)$ deve reproduzir $f_\text{in}$ exatamente quando há lock.}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \texttt{loop\_bw} & $t_\text{conv}$ (ms) & Overshoot (\%) \\
+    \midrule
+    0{,}010 & 18{,}12 & 2{,}5 \\
+    0{,}062 & 1{,}53  & 4{,}4 \\
+    0{,}200 & 0{,}50  & 4{,}7 \\
+    0{,}500 & 0{,}22  & 7{,}4 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Tabela~2 (\texttt{tab:pll}) -- métricas em função de \texttt{loop\_bw}, com $f_\text{in} = 1000$\,Hz.}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c}
+    \toprule
+    $f_\text{in}$ (Hz) & Valor de regime (rad/amostra) & $f_\text{est}$ (Hz) & Locked \\
+    \midrule
+    200  & 0{,}039270 & 200{,}00  & 1 \\
+    600  & 0{,}117810 & 600{,}00  & 1 \\
+    1000 & 0{,}196350 & 1000{,}00 & 1 \\
+    1400 & 0{,}274889 & 1400{,}00 & 1 \\
+    1800 & 0{,}353429 & 1800{,}00 & 1 \\
+    \midrule
+    \multicolumn{3}{l}{$\Delta f_\text{cap}$ medida (Hz)} & 1600 \\
+    \multicolumn{3}{l}{$\Delta f_\text{cap}$ teórica (Hz)} & 631{,}5 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Tabela~3 (\texttt{tab:capture}) -- faixa de captura com \texttt{loop\_bw} = 0{,}062. $f_\text{est}$ reproduz $f_\text{in}$ em todas as cinco linhas, confirmando lock. A medida supera a teórica porque a janela de 2\,s permite \emph{pull-in} além da faixa estrita de captura; o limite duro vem de \texttt{Max/Min Phase/sample} = $\pm 2000$\,Hz.}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \texttt{noise\_amp} & Jitter std \texttt{loop\_bw}=0{,}062 & Jitter std \texttt{loop\_bw}=0{,}200 \\
+    \midrule
+    0{,}0 & 0{,}000000 & 0{,}000000 \\
+    0{,}1 & 0{,}001875 & 0{,}010717 \\
+    0{,}3 & 0{,}005685 & 0{,}032819 \\
+    0{,}5 & 0{,}010033 & 0{,}058452 \\
+    1{,}0 & 0{,}023289 & 0{,}140502 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Tabela~4 (\texttt{tab:ruido}) -- jitter de fase em função de \texttt{noise\_amp}, com $f_\text{in} = 1000$\,Hz. Loop largo (0{,}200) gera $\sim$5,8x mais jitter que o loop estreito (0{,}062).}
+\end{table}
+
+\begin{nota}[Tolerâncias de correção]
+Aceitar variações de até $\pm 5\%$ nos valores de regime, $\pm 20\%$
+no tempo de convergência, $\pm 30\%$ no overshoot e $\pm 20\%$ no jitter
+(o \texttt{Noise Source} depende da \texttt{Seed}).
+\end{nota}
+
+\section*{Tabelas das análises complementares}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \texttt{noise\_amp} & $\sigma_f$ \texttt{lbw}=0{,}062 (Hz) & $\sigma_f$ \texttt{lbw}=0{,}200 (Hz) \\
+    \midrule
+    0{,}0 & 0{,}00   & 0{,}00   \\
+    0{,}1 & 9{,}55   & 54{,}58  \\
+    0{,}3 & 28{,}95  & 167{,}15 \\
+    0{,}5 & 51{,}10  & 297{,}69 \\
+    1{,}0 & 118{,}61 & 715{,}57 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Tabela~5 (\texttt{tab:jitter\_hz}) -- jitter da estimativa em Hz. Os mesmos números da Tabela~4 multiplicados por $f_s/(2\pi)$. Com loop largo e ruído alto, a incerteza na estimativa de frequência ultrapassa 700~Hz -- maior que a própria $f_\text{in}$.}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c}
+    \toprule
+    $f_\text{in}$ (Hz) & $f_\text{est}$ (Hz) & Desvio (Hz) & Locked \\
+    \midrule
+    1500 & 1500{,}00 & $+0{,}00$ & 1 \\
+    1900 & 1900{,}00 & $+0{,}00$ & 1 \\
+    2000 & 2000{,}00 & $-0{,}00$ & 1 \\
+    2100 & 2000{,}00 & $-100{,}00$ & 1 \\
+    2300 & 2000{,}00 & $-300{,}00$ & 1 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Tabela~6 (\texttt{tab:saturacao}) -- saturação no limite de hold. Para $f_\text{in} > 2000$\,Hz o $f_\text{est}$ trava em 2000\,Hz porque o bloco \texttt{PLL Frequency Detector} foi configurado com \texttt{Max Phase/sample} = $2\pi \cdot 2000/f_s$. Observe que \emph{locked=1} mesmo nas linhas saturadas: o critério $\sigma/|\mu| < 0{,}02$ não distingue lock real de saturação no limite, porque ambos produzem saída constante. Discuta isso com o aluno.}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    $f_\text{in}$ (Hz) & $f_\text{est}$ janela 50 ms (Hz) & Locked \\
+    \midrule
+    200  & 200{,}00  & 1 \\
+    600  & 600{,}00  & 1 \\
+    1000 & 1000{,}00 & 1 \\
+    1400 & 1400{,}00 & 1 \\
+    1800 & 1800{,}00 & 1 \\
+    \midrule
+    \multicolumn{2}{l}{$\Delta f_\text{cap}$ janela curta (Hz)} & 1600 \\
+    \multicolumn{2}{l}{$\Delta f_\text{cap}$ teórica (Hz)} & 631{,}5 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Tabela~7 (\texttt{tab:janela\_curta}) -- captura em 50\,ms. Resultado pedagógico: a faixa medida continua em 1600\,Hz, igual à janela de 2\,s, mostrando que a implementação \texttt{analog.pll\_freqdet\_cf} captura \emph{toda} a faixa de hold em menos de 50\,ms. A previsão teórica $2\omega_n/2\pi \approx 631$\,Hz é conservadora: vale para PLLs lineares de 2ª ordem, mas a implementação no GNU Radio usa um \texttt{control\_loop} com alpha e beta ajustados que faz captura agressiva. Para reproduzir o regime teórico seria preciso reduzir a janela para algo da ordem de $t_\text{conv}$ ($\sim$ 1,5\,ms) -- abaixo disso a estatística fica pobre demais.}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \texttt{noise\_amp} & $f_\text{est}$ \texttt{lbw}=0{,}062 (Hz) & $f_\text{est}$ \texttt{lbw}=0{,}200 (Hz) \\
+    \midrule
+    0{,}0 & 1000{,}00 & 1000{,}00 \\
+    0{,}3 & 1000{,}08 & 999{,}07  \\
+    0{,}5 & 999{,}92  & 998{,}63  \\
+    1{,}0 & 1001{,}06 & 911{,}39  \\
+    \bottomrule
+  \end{tabular}
+  \caption{Tabela~8 (\texttt{tab:bias\_curto}) -- $f_\text{est}$ em janela curta de 50\,ms com $f_\text{in} = 1000$\,Hz. Sem ruído, $f_\text{est}$ é exato. Com \texttt{noise\_amp} = 1{,}0 e loop largo, o bias chega a $\sim$89\,Hz -- aproximadamente uma década pior que o loop estreito. Mostra que com pouco tempo de observação a média não tem amostras suficientes para "lavar" o jitter, e a estimativa de uma única medida vira pouco confiável. Em telecom isso é a base da escolha de constante de tempo do PLL em sistemas de aquisição de portadora.}
+\end{table}
+
+\begin{nota}[Tolerâncias das tabelas complementares]
+Tabela~5 deriva exatamente da~4, então mesmas tolerâncias. Tabela~6
+deve ser idêntica para qualquer aluno (sem ruído). Tabelas~7 e~8 podem
+variar até $\pm 50\,\%$ por causa da \texttt{Seed} do ruído e da
+sensibilidade da janela curta -- avaliar o raciocínio, não os números
+exatos.
+\end{nota}
+
 \section*{Respostas esperadas}
 
 \begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*, itemsep=1em]
@@ -55,73 +211,139 @@
   \item \textbf{Como se detecta o estado de lock do PLL na saída do \texttt{PLL Freq Det}?}
 
     \textbf{Resposta esperada:} O PLL está em lock quando a saída do \texttt{PLL Freq Det}
-    converge para um valor constante (proporcional à frequência do sinal de entrada).
-    Na forma de onda, a saída muda de oscilatória/crescente para uma linha horizontal
-    estável. No GNU Radio, o lock se manifesta quando o sinal de saída para de variar
-    e estabiliza em um nível DC correspondente à frequência de entrada.
+    converge para um nível DC proporcional a $\omega_\text{in} = 2\pi f_\text{in}/f_s$.
+    Critério numérico aplicado no pós-processamento: pegar os 20\,\% finais do vetor de
+    saída e exigir $\sigma/|\mu| < 0{,}02$, ou seja, ruído residual menor que 2\,\% do
+    valor médio. Na Tabela~1, todas as cinco frequências satisfazem esse critério: o
+    valor de regime é exatamente $2\pi f_\text{in}/f_s$, por exemplo $f_\text{in}=1000$
+    Hz dá $\mu = 0{,}196350$ rad/amostra, idêntico a $2\pi \cdot 1000/32000$.
 
     \begin{nota}[Erros comuns]
       Confundir a convergência da saída com o desaparecimento completo de oscilações
-      transitórias. O sobresinal (overshoot) pode persistir brevemente mesmo em lock.
+      transitórias. O sobresinal pode persistir brevemente mesmo em lock. Outro erro
+      é declarar lock só observando o Time Sink a olho, sem o critério numérico aplicado
+      à cauda do sinal salvo via File Sink.
     \end{nota}
 
   \item \textbf{Como a largura de banda do laço (\texttt{loop\_bw}) afeta a velocidade de lock e o jitter de fase?}
 
-    \textbf{Resposta esperada:} \texttt{loop\_bw} estreita (0,01): convergência lenta
-    (muitas amostras), baixo sobresinal, boa supressão de ruído pois o LF atenua
-    flutuações de alta frequência. \texttt{loop\_bw} larga (0,5): convergência rápida,
-    possível sobresinal significativo (resposta subamortecida), maior jitter de fase
-    pois o LF passa mais ruído. O valor ótimo ($\approx 0{,}062$\,rad/amostra) representa
-    o compromisso entre velocidade de lock e robustez ao ruído.
+    \textbf{Resposta esperada:} A Tabela~2 mostra o tradeoff clássico: aumentando
+    \texttt{loop\_bw} de 0{,}010 para 0{,}500, $t_\text{conv}$ cai de 18{,}12 ms para
+    0{,}22 ms -- duas ordens de grandeza mais rápido -- enquanto o overshoot sobe
+    de 2{,}5\,\% para 7{,}4\,\%, indicando resposta cada vez mais subamortecida.
+    O valor padrão $0{,}062$\,rad/amostra fica próximo do \emph{joelho} do
+    tradeoff: convergência em 1{,}53 ms com overshoot moderado de 4{,}4\,\%.
+    Sem ruído na entrada, o efeito sobre o jitter pós-lock não é mensurável
+    nesta etapa -- isso aparece quantitativamente na Etapa~5.
 
     \begin{nota}[Erros comuns]
       Afirmar que \texttt{loop\_bw} larga é sempre preferível por convergir mais rápido,
-      sem mencionar o aumento de jitter de fase e a possível instabilidade.
+      sem mencionar o aumento de jitter de fase e a possível instabilidade. Ou
+      ignorar a Tabela~2 e responder qualitativamente sem citar valores.
     \end{nota}
 
-  \item \textbf{Qual é a faixa de captura teórica do PLL para \texttt{loop\_bw}$= 0{,}062$\,rad/amostra e $f_s = 32000$\,Hz?}
+  \item \textbf{Qual foi a faixa de captura medida e como ela se compara à previsão teórica?}
 
-    \textbf{Resposta esperada:} A faixa de captura teórica é
-    $\Delta\omega_\text{cap} \approx 2\omega_n$, onde $\omega_n$ é a frequência natural
-    do laço. Para \texttt{loop\_bw}$= 0{,}062$\,rad/amostra e $f_s = 32000$\,Hz:
-    $\omega_n \approx 0{,}062 \times f_s = 1984$\,rad/s; logo
-    $\Delta f_\text{cap} \approx 2 \times 1984/(2\pi) \approx 631$\,Hz. Discrepâncias
-    ocorrem devido à não-linearidade do detector de fase e ao comportamento do filtro
-    discreto.
+    \textbf{Resposta esperada:} Da Tabela~3, todas as cinco frequências de 200 a 1800
+    Hz travaram, então $\Delta f_\text{cap,\,medida} = 1800 - 200 = 1600$\,Hz. A
+    previsão teórica é $\Delta f_\text{cap} \approx \texttt{loop\_bw}\cdot f_s/\pi
+    = 0{,}062 \cdot 32000/\pi \approx 631{,}5$\,Hz. A medida é cerca de
+    $2{,}5\times$ maior que a teórica e isso \emph{não} é erro: o limite teórico
+    descreve a faixa de captura rápida -- pull-in instantâneo no segundo regime --,
+    mas a janela de 2\,s usada na simulação dá ao laço tempo suficiente para fazer
+    \emph{pull-in lento}, que estende o range efetivo até o limite duro imposto
+    por \texttt{Max/Min Phase/sample} = $\pm 2000$\,Hz. Discrepâncias adicionais
+    vêm da não-linearidade do detector de fase ($\sin(\phi)$ em vez de $\phi$) e
+    da quantização discreta do filtro de laço.
 
     \begin{nota}[Erros comuns]
       Calcular a faixa de captura em rad/amostra sem converter para Hz, ou usar
-      diretamente \texttt{loop\_bw} como a faixa de captura sem a conversão correta.
+      \texttt{loop\_bw} diretamente como a faixa de captura. Ou tratar a
+      discrepância de $2{,}5\times$ como erro experimental em vez de
+      reconhecer o pull-in lento.
     \end{nota}
 
   \item \textbf{Como o ruído externo afeta o jitter de fase do PLL em função de \texttt{loop\_bw}?}
 
-    \textbf{Resposta esperada:} O ruído na entrada do PLL se propaga pelo detector de
-    fase e é parcialmente filtrado pelo LF. Um \texttt{loop\_bw} larga (passa mais ruído)
-    resulta em maior jitter de fase, pois o VCO responde a flutuações de ruído de alta
-    frequência. Um \texttt{loop\_bw} estreita suprime o ruído melhor, mas se o ruído
-    for muito intenso, pode fazer o PLL perder o lock completamente. A densidade espectral
-    de jitter de saída é proporcional à densidade de ruído de entrada e à largura de
-    banda do laço.
+    \textbf{Resposta esperada:} A Tabela~4 mostra que o jitter cresce linearmente
+    com \texttt{noise\_amp} e que, para o mesmo \texttt{noise\_amp}, o laço largo
+    sempre produz mais jitter que o estreito: por exemplo em \texttt{noise\_amp}=0{,}5
+    o jitter é 0{,}010033 com \texttt{loop\_bw}=0{,}062 e 0{,}058452 com
+    \texttt{loop\_bw}=0{,}200, ou seja, $\sim 5{,}8\times$ maior. Isso é direto da
+    teoria: a variância de saída do PLL escala como $\sigma^2_{\phi_o} \propto
+    \sigma^2_n \cdot B_L$, onde $B_L$ é a banda equivalente de ruído do laço.
+    Laço largo deixa passar mais conteúdo espectral do ruído de entrada; laço
+    estreito atua como filtro passa-baixas mais agressivo. O tradeoff com a
+    velocidade de aquisição limita o quão estreito é viável usar.
 
     \begin{nota}[Erros comuns]
       Afirmar que \texttt{loop\_bw} estreita é sempre melhor para ruído, sem mencionar
       o tradeoff com a velocidade de aquisição de lock e o risco de perda de lock com
-      ruído intenso.
+      ruído intenso. Ou apresentar a Tabela~4 sem extrair a razão $\sim 5{,}8\times$
+      entre os dois \texttt{loop\_bw}.
     \end{nota}
 
 \end{enumerate}
 
+\section*{Explicação esperada do pós-processamento}
+
+O entregável exige que o aluno explique em palavras próprias o que cada
+snippet de Python está fazendo. As respostas mínimas aceitáveis são:
+
+\textbf{Etapa 2 -- Tabela~1 (lock).} \texttt{np.fromfile} interpreta o
+\texttt{.bin} como vetor de \texttt{float32}, mesmo formato escrito pelo
+\texttt{File Sink} configurado como Float. O slice \texttt{data[int(0.8*len(data)):]}
+descarta o transitório inicial e mantém os 20\,\% finais, onde o PLL já está em
+regime. \texttt{np.mean(tail)} é o valor de regime $\mu$ e \texttt{np.std(tail)}
+é a flutuação $\sigma$ em torno desse valor. O critério $\sigma/|\mu| < 0{,}02$
+declara lock quando o jitter relativo está abaixo de 2\,\% -- o caso especial
+$|\mu| < 10^{-6}$ trata o limite numérico em que o PLL não converge.
+
+\textbf{Etapa 3 -- Tabela~2 (loop\_bw).} O valor final é estimado pelos 10\,\%
+finais, dando uma referência mais limpa. A máscara booleana \texttt{within} marca
+amostras dentro de uma faixa de 5\,\% do valor final. O \texttt{next(...)} encontra
+o primeiro índice em que essa condição se sustenta por 100 amostras consecutivas
+-- evita gatilhos prematuros nas oscilações do transitório -- e o índice é
+convertido em milissegundos por $t/f_s$. O overshoot é
+$(\max|data| - |\mu|)/|\mu| \cdot 100\,\%$, capturando o quanto o pico
+ultrapassou o valor final.
+
+\textbf{Etapa 4 -- Tabela~3 (capture).} O mesmo critério da Etapa 2 é aplicado
+por frequência. A lista \texttt{locked\_freqs} acumula apenas as freqs com lock;
+$\Delta f_\text{cap} = \max(\text{locked}) - \min(\text{locked})$. A teórica é
+\texttt{loop\_bw} $\cdot f_s/\pi$, derivada de
+$\Delta\omega_\text{cap} \approx 2\omega_n$.
+
+\textbf{Etapa 5 -- Tabela~4 (ruído).} Loop duplo sobre os pares
+$(\texttt{noise\_amp}, \texttt{loop\_bw})$. Só o desvio padrão da cauda é
+necessário -- o valor médio é fixo em $2\pi \cdot 1000/32000$ porque
+$f_\text{in}$ é fixo. O jitter cresce com \texttt{noise\_amp} e com
+\texttt{loop\_bw}: o aluno deve articular que ambos efeitos vêm da mesma causa,
+o filtro de laço admitir mais conteúdo espectral do ruído de entrada.
+
+\begin{nota}[Erros comuns na explicação]
+Limitar-se a parafrasear nomes de funções -- ``\texttt{np.mean} calcula a média''
+-- sem dizer \emph{o que} essa média representa fisicamente. Ignorar
+\emph{por que} os 20\,\% finais são usados, ou trocar o critério
+$\sigma/|\mu|$ por inspeção visual.
+\end{nota}
+
 \section*{Critérios de correção}
-\begin{tabular}{ll}
+\begin{tabular}{lc}
   \toprule
   Critério & Pontuação \\
   \midrule
-  Q1 -- Três componentes com funções corretas, incluindo o filtro de laço & 1,0 ponto \\
-  Q2 -- Critério de lock: saída constante (linha DC) após convergência     & 1,0 ponto \\
-  Q3 -- Tradeoff velocidade vs.\ jitter para valores diferentes de loop\_bw & 1,0 ponto \\
-  Q4 -- Cálculo de $\Delta f_\text{cap}$ com conversão correta para Hz    & 1,0 ponto \\
-  Q5 -- Relação jitter vs.\ loop\_bw com menção ao tradeoff de lock        & 1,0 ponto \\
+  Print do flowgraph completo, incluindo o \texttt{File Sink}    & 0,5 ponto \\
+  Tabela~1 (lock) preenchida e consistente com $2\pi f_\text{in}/f_s$ & 0,5 ponto \\
+  Tabela~2 (loop\_bw) preenchida com $t_\text{conv}$ e overshoot & 0,5 ponto \\
+  Tabela~3 (capture) preenchida + $\Delta f_\text{cap}$ medida/teórica & 0,5 ponto \\
+  Tabela~4 (ruído) preenchida nos dois \texttt{loop\_bw}          & 0,5 ponto \\
+  Explicação coerente do pós-processamento das Etapas 2--5         & 1,0 ponto \\
+  Q1 -- Três componentes com funções corretas                       & 0,3 ponto \\
+  Q2 -- Critério de lock numérico ($\sigma/|\mu|$) bem articulado   & 0,3 ponto \\
+  Q3 -- Tradeoff velocidade vs.\ ruído citando valores da Tabela~2  & 0,3 ponto \\
+  Q4 -- Comparação medida vs.\ teórica + discussão do pull-in lento & 0,3 ponto \\
+  Q5 -- Relação jitter vs.\ \texttt{loop\_bw} citando a Tabela~4    & 0,3 ponto \\
   \midrule
   \textbf{Total} & \textbf{5,0 pontos} \\
   \bottomrule
@@ -129,9 +351,11 @@
 
 \bigskip
 \begin{nota}[Nota de correção geral]
-  Priorizar coerência física e evidência experimental (capturas de tela, tabelas).
-  Respostas sem evidência visual devem ter desconto. Não penalizar pequenos erros
-  de cálculo se o raciocínio físico estiver correto.
+  Priorizar coerência física e evidência numérica das tabelas. Aceitar
+  variações de até $\pm 5\,\%$ nos valores de regime, $\pm 20\,\%$ no tempo
+  de convergência, $\pm 30\,\%$ no overshoot e $\pm 20\,\%$ no jitter -- a
+  \texttt{Seed} do \texttt{Noise Source} influencia o jitter. Desconto duplo
+  para tabelas preenchidas sem que o aluno explique o código de pós-processamento.
 \end{nota}
 
 \end{document}

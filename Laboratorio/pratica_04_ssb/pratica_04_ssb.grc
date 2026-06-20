@@ -6,12 +6,12 @@ options:
     cmake_opt: ''
     comment: ''
     copyright: ''
-    description: 'Prática 05 - Parte II - Demodulação FM por Discriminação'
+    description: 'Prática 04 - Modulação SSB (Banda Lateral Única)'
     gen_cmake: 'On'
     gen_linking: dynamic
     generate_options: qt_gui
     hier_block_src_path: '.:'
-    id: pratica_05_fm_parte2
+    id: pratica_04_ssb
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -22,7 +22,7 @@ options:
     run_options: prompt
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: 'Prática 05 - Parte II - Demodulação FM'
+    title: 'Prática 04 - Modulação SSB (Banda Lateral Única)'
     window_size: (1280,900)
   states:
     bus_sink: false
@@ -39,8 +39,8 @@ blocks:
 - name: samp_rate
   id: variable
   parameters:
-    comment: 'Taxa de amostragem (quad_rate)'
-    value: '480000'
+    comment: 'Taxa de amostragem'
+    value: '48000'
   states:
     bus_sink: false
     bus_source: false
@@ -49,11 +49,11 @@ blocks:
     rotation: 0
     state: enabled
 
-- name: audio_rate
+- name: fc
   id: variable
   parameters:
-    comment: 'Taxa de áudio'
-    value: '48000'
+    comment: 'Frequência da portadora'
+    value: '12000'
   states:
     bus_sink: false
     bus_source: false
@@ -65,19 +65,19 @@ blocks:
 # ============================================
 # SLIDERS (QT GUI Range)
 # ============================================
-- name: fm_freq
+- name: fm
   id: variable_qtgui_range
   parameters:
     comment: 'Frequência da mensagem'
-    gui_hint: 0,0,1,1
+    gui_hint: 0,0,1,2
     label: 'Frequência mensagem fm (Hz)'
     min_len: '200'
     orient: QtCore.Qt.Horizontal
     rangeType: float
-    start: '200'
-    step: '100'
+    start: '500'
+    step: '500'
     stop: '5000'
-    value: '1000'
+    value: '2000'
     widget: counter_slider
   states:
     bus_sink: false
@@ -87,53 +87,10 @@ blocks:
     rotation: 0
     state: enabled
 
-- name: max_dev
-  id: variable_qtgui_range
-  parameters:
-    comment: 'Desvio máximo de frequência FM'
-    gui_hint: 0,1,1,1
-    label: 'Desvio máximo (Hz)'
-    min_len: '200'
-    orient: QtCore.Qt.Horizontal
-    rangeType: float
-    start: '5000'
-    step: '1000'
-    stop: '50000'
-    value: '25000'
-    widget: counter_slider
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [450, 12]
-    rotation: 0
-    state: enabled
-
-- name: noise_amp
-  id: variable_qtgui_range
-  parameters:
-    comment: 'Amplitude do ruído'
-    gui_hint: 1,0,1,1
-    label: 'Amplitude ruído'
-    min_len: '200'
-    orient: QtCore.Qt.Horizontal
-    rangeType: float
-    start: '0'
-    step: '0.05'
-    stop: '2.0'
-    value: '0'
-    widget: counter_slider
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [700, 12]
-    rotation: 0
-    state: enabled
-
 # ============================================
 # FONTES DE SINAL
 # ============================================
+# Mensagem: cos(2*pi*fm*t)
 - name: src_mensagem
   id: analog_sig_source_x
   parameters:
@@ -141,12 +98,12 @@ blocks:
     alias: ''
     amp: '1.0'
     comment: 'Sinal mensagem m(t)'
-    freq: fm_freq
+    freq: fm
     maxoutbuf: '0'
     minoutbuf: '0'
     offset: '0'
     phase: '0'
-    samp_rate: audio_rate
+    samp_rate: samp_rate
     showports: 'False'
     type: float
     waveform: analog.GR_COS_WAVE
@@ -154,50 +111,79 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [80, 300]
+    coordinate: [80, 260]
     rotation: 0
     state: enabled
 
-- name: src_noise
-  id: analog_noise_source_x
+# Portadora: cos(2*pi*fc*t)
+- name: src_portadora
+  id: analog_sig_source_x
   parameters:
     affinity: ''
     alias: ''
-    amp: noise_amp
-    comment: 'Ruído gaussiano complexo'
+    amp: '1.0'
+    comment: 'Portadora c(t)'
+    freq: fc
     maxoutbuf: '0'
     minoutbuf: '0'
-    noise_type: analog.GR_GAUSSIAN
-    seed: '0'
-    type: complex
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: float
+    waveform: analog.GR_COS_WAVE
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [480, 540]
+    coordinate: [80, 420]
     rotation: 0
     state: enabled
 
-# ============================================
-# MODULADOR FM (WBFM Transmit)
-# ============================================
-- name: wbfm_tx
-  id: analog_wfm_tx
+# Oscilador local para demodulação: cos(2*pi*fc*t), amplitude 2.0
+- name: src_local
+  id: analog_sig_source_x
   parameters:
     affinity: ''
     alias: ''
-    audio_rate: audio_rate
-    comment: 'Modulador FM'
-    max_dev: max_dev
+    amp: '2.0'
+    comment: 'Oscilador local (demod) amp=2'
+    freq: fc
     maxoutbuf: '0'
     minoutbuf: '0'
-    quad_rate: samp_rate
-    tau: 75e-6
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: float
+    waveform: analog.GR_COS_WAVE
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [320, 320]
+    coordinate: [480, 560]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# MODULADOR: Multiply (mensagem × portadora) -> DSB-SC
+# ============================================
+- name: mult_mod
+  id: blocks_multiply_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Modulação DSB-SC: m(t) × c(t)'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [360, 340]
     rotation: 0
     state: enabled
 
@@ -215,7 +201,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     samples_per_second: samp_rate
-    type: complex
+    type: float
     vlen: '1'
   states:
     bus_sink: false
@@ -226,198 +212,72 @@ blocks:
     state: enabled
 
 # ============================================
-# ADD (FM + ruído)
+# FILTRO PASSA-BANDA USB (Band Pass Filter)
 # ============================================
-- name: add_noise
-  id: blocks_add_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: 'Soma sinal FM + ruído'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_inputs: '2'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [700, 400]
-    rotation: 0
-    state: enabled
-
-# ============================================
-# RAMO 1 - REFERÊNCIA: WBFM Receive
-# ============================================
-- name: wbfm_rx
-  id: analog_wfm_rcv
-  parameters:
-    affinity: ''
-    alias: ''
-    audio_decimation: int(samp_rate/audio_rate)
-    comment: 'Demodulador de referência'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    quad_rate: samp_rate
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [880, 200]
-    rotation: 0
-    state: enabled
-
-# ============================================
-# RAMO 2 e 3 - FILTROS DE INCLINAÇÃO
-# ============================================
-- name: bpf_pos
+- name: bpf_usb
   id: band_pass_filter
   parameters:
     affinity: ''
     alias: ''
     beta: '6.76'
-    comment: 'Filtro passa-faixa em +Δf (slope)'
+    comment: 'Filtro USB: seleciona banda lateral superior'
     decim: '1'
     gain: '1'
-    high_cutoff_freq: 3*max_dev/2
+    high_cutoff_freq: fc+fm+1000
     interp: '1'
-    low_cutoff_freq: max_dev/2
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samp_rate: samp_rate
-    type: fir_filter_ccc
-    width: max_dev/4
-    win: window.WIN_HAMMING
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [880, 380]
-    rotation: 0
-    state: enabled
-
-- name: bpf_neg
-  id: band_pass_filter
-  parameters:
-    affinity: ''
-    alias: ''
-    beta: '6.76'
-    comment: 'Filtro passa-faixa em -Δf (slope)'
-    decim: '1'
-    gain: '1'
-    high_cutoff_freq: -max_dev/2
-    interp: '1'
-    low_cutoff_freq: -3*max_dev/2
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samp_rate: samp_rate
-    type: fir_filter_ccc
-    width: max_dev/4
-    win: window.WIN_HAMMING
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [880, 540]
-    rotation: 0
-    state: enabled
-
-# ============================================
-# DETECTORES DE ENVELOPE
-# ============================================
-- name: mag_pos
-  id: blocks_complex_to_mag
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: 'Envoltória do ramo +Δf'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1080, 380]
-    rotation: 0
-    state: enabled
-
-- name: mag_neg
-  id: blocks_complex_to_mag
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: 'Envoltória do ramo -Δf'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1080, 540]
-    rotation: 0
-    state: enabled
-
-# ============================================
-# RAMO 2 - SLOPE DETECTOR (saída do mag_pos)
-# DC blocker + LPF + decimação
-# ============================================
-- name: dc_blocker_slope
-  id: dc_blocker_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: 'Remove nível CC do slope'
-    length: '128'
-    long_form: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: ff
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1280, 380]
-    rotation: 0
-    state: enabled
-
-- name: lpf_slope
-  id: low_pass_filter
-  parameters:
-    affinity: ''
-    alias: ''
-    beta: '6.76'
-    comment: 'LPF de áudio + decimação'
-    cutoff_freq: '5000'
-    decim: int(samp_rate/audio_rate)
-    gain: '1'
-    interp: '1'
+    low_cutoff_freq: fc+100
     maxoutbuf: '0'
     minoutbuf: '0'
     samp_rate: samp_rate
     type: fir_filter_fff
-    width: '2000'
+    width: '500'
     win: window.WIN_HAMMING
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1480, 380]
+    coordinate: [720, 260]
     rotation: 0
     state: enabled
 
 # ============================================
-# RAMO 3 - DISCRIMINADOR BALANCEADO
-# Sub (mag_pos - mag_neg) + DC blocker + LPF
+# FILTRO PASSA-BANDA LSB (Band Pass Filter)
 # ============================================
-- name: sub_balanced
-  id: blocks_sub_xx
+- name: bpf_lsb
+  id: band_pass_filter
   parameters:
     affinity: ''
     alias: ''
-    comment: 'Subtração: mag_pos - mag_neg'
+    beta: '6.76'
+    comment: 'Filtro LSB: seleciona banda lateral inferior'
+    decim: '1'
+    gain: '1'
+    high_cutoff_freq: fc-100
+    interp: '1'
+    low_cutoff_freq: fc-fm-1000
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: samp_rate
+    type: fir_filter_fff
+    width: '500'
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [720, 440]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# DEMODULADOR: Multiply (USB × oscilador local)
+# ============================================
+- name: mult_demod
+  id: blocks_multiply_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Demodulação: USB × osc. local'
     maxoutbuf: '0'
     minoutbuf: '0'
     num_inputs: '2'
@@ -427,58 +287,42 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1280, 540]
+    coordinate: [720, 620]
     rotation: 0
     state: enabled
 
-- name: dc_blocker_bal
-  id: dc_blocker_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: 'Remove CC residual'
-    length: '128'
-    long_form: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: ff
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1280, 660]
-    rotation: 0
-    state: enabled
-
-- name: lpf_bal
+# ============================================
+# FILTRO PASSA-BAIXAS (demodulação)
+# ============================================
+- name: lpf
   id: low_pass_filter
   parameters:
     affinity: ''
     alias: ''
     beta: '6.76'
-    comment: 'LPF de áudio + decimação'
-    cutoff_freq: '5000'
-    decim: int(samp_rate/audio_rate)
+    comment: 'Filtro passa-baixas para recuperar m(t)'
+    cutoff_freq: fm*1.5
+    decim: '1'
     gain: '1'
     interp: '1'
     maxoutbuf: '0'
     minoutbuf: '0'
     samp_rate: samp_rate
     type: fir_filter_fff
-    width: '2000'
+    width: '400'
     win: window.WIN_HAMMING
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1480, 660]
+    coordinate: [900, 600]
     rotation: 0
     state: enabled
 
 # ============================================
-# VISUALIZAÇÃO
+# VISUALIZAÇÃO: Espectro modulado/filtrado (Freq Sink - 3 conexões)
 # ============================================
-- name: freq_sink_fm
+- name: freq_sink_mod
   id: qtgui_freq_sink_x
   parameters:
     affinity: ''
@@ -515,10 +359,10 @@ blocks:
     grid: 'True'
     gui_hint: 2,0,1,1
     label: Relative Gain
-    label1: 'Sinal FM modulado'
+    label1: 'DSB-SC'
     label10: ''''''
-    label2: ''''''
-    label3: ''''''
+    label2: 'USB'
+    label3: 'LSB'
     label4: ''''''
     label5: ''''''
     label6: ''''''
@@ -528,11 +372,11 @@ blocks:
     legend: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
-    name: '"Espectro do Sinal FM Modulado"'
-    nconnections: '1'
+    name: '"Espectro Modulado / Filtrado"'
+    nconnections: '3'
     norm_window: 'False'
     showports: 'False'
-    type: complex
+    type: float
     update_time: '0.10'
     width1: '1'
     width10: '1'
@@ -551,11 +395,14 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [700, 180]
+    coordinate: [1100, 300]
     rotation: 0
     state: enabled
 
-- name: time_sink_compare
+# ============================================
+# VISUALIZAÇÃO: Domínio do Tempo (Time Sink - 2 conexões)
+# ============================================
+- name: time_sink
   id: qtgui_time_sink_x
   parameters:
     affinity: ''
@@ -586,12 +433,12 @@ blocks:
     ctrlpanel: 'False'
     entags: 'True'
     grid: 'True'
-    gui_hint: 2,1,2,1
+    gui_hint: 2,1,1,1
     label1: 'Mensagem original'
     label10: Signal 10
-    label2: 'Slope detector'
-    label3: 'Discriminador balanceado'
-    label4: 'WBFM Receive'
+    label2: 'Sinal demodulado'
+    label3: Signal 3
+    label4: Signal 4
     label5: Signal 5
     label6: Signal 6
     label7: Signal 7
@@ -608,10 +455,10 @@ blocks:
     marker7: '-1'
     marker8: '-1'
     marker9: '-1'
-    name: '"Comparação no Tempo"'
-    nconnections: '4'
+    name: '"Domínio do Tempo"'
+    nconnections: '2'
     size: '1024'
-    srate: audio_rate
+    srate: samp_rate
     stemplot: 'False'
     style1: '1'
     style10: '1'
@@ -649,39 +496,113 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1700, 360]
+    coordinate: [1100, 520]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# VISUALIZAÇÃO: Espectro do sinal demodulado (Freq Sink)
+# ============================================
+- name: freq_sink_demod
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: ''
+    ctrlpanel: 'False'
+    fc: '0'
+    fftsize: '4096'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: 3,0,1,2
+    label: Relative Gain
+    label1: 'Sinal demodulado'
+    label10: ''''''
+    label2: ''''''
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '"Espectro do Sinal Demodulado"'
+    nconnections: '1'
+    norm_window: 'False'
+    showports: 'False'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: window.WIN_HANN
+    ymax: '10'
+    ymin: '-100'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1100, 740]
     rotation: 0
     state: enabled
 
 connections:
-# Cadeia de transmissão
-- [src_mensagem, '0', wbfm_tx, '0']
-- [wbfm_tx, '0', throttle, '0']
-- [throttle, '0', add_noise, '0']
-- [src_noise, '0', add_noise, '1']
-# Espectro do sinal modulado (após Add)
-- [add_noise, '0', freq_sink_fm, '0']
-# Ramo 1: WBFM Receive (referência)
-- [add_noise, '0', wbfm_rx, '0']
-# Ramo 2 e 3: filtros de inclinação
-- [add_noise, '0', bpf_pos, '0']
-- [add_noise, '0', bpf_neg, '0']
-# Detectores de envelope
-- [bpf_pos, '0', mag_pos, '0']
-- [bpf_neg, '0', mag_neg, '0']
-# Ramo 2: slope detector (apenas mag_pos)
-- [mag_pos, '0', dc_blocker_slope, '0']
-- [dc_blocker_slope, '0', lpf_slope, '0']
-# Ramo 3: discriminador balanceado
-- [mag_pos, '0', sub_balanced, '0']
-- [mag_neg, '0', sub_balanced, '1']
-- [sub_balanced, '0', dc_blocker_bal, '0']
-- [dc_blocker_bal, '0', lpf_bal, '0']
-# Time Sink: 4 canais
-- [src_mensagem, '0', time_sink_compare, '0']
-- [lpf_slope, '0', time_sink_compare, '1']
-- [lpf_bal, '0', time_sink_compare, '2']
-- [wbfm_rx, '0', time_sink_compare, '3']
+# Modulador: mensagem × portadora -> DSB-SC
+- [src_mensagem, '0', mult_mod, '0']
+- [src_portadora, '0', mult_mod, '1']
+# Throttle
+- [mult_mod, '0', throttle, '0']
+# Filtros passa-banda USB e LSB
+- [throttle, '0', bpf_usb, '0']
+- [throttle, '0', bpf_lsb, '0']
+# Demodulador: USB × oscilador local
+- [bpf_usb, '0', mult_demod, '0']
+- [src_local, '0', mult_demod, '1']
+# Filtro passa-baixas
+- [mult_demod, '0', lpf, '0']
+# Espectro modulado/filtrado: DSB-SC, USB, LSB (3 conexões)
+- [throttle, '0', freq_sink_mod, '0']
+- [bpf_usb, '0', freq_sink_mod, '1']
+- [bpf_lsb, '0', freq_sink_mod, '2']
+# Domínio do tempo: mensagem original e sinal demodulado
+- [src_mensagem, '0', time_sink, '0']
+- [lpf, '0', time_sink, '1']
+# Espectro do sinal demodulado
+- [lpf, '0', freq_sink_demod, '0']
 
 metadata:
   file_format: 1

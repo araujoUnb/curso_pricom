@@ -213,7 +213,7 @@ Esta é a SNR de referência contra a qual mediremos todas as modulações.
 
 \vspace{0.3cm}
 
-Todas as fórmulas $(S/N)_o = \gamma$, $\eta\gamma$, $3\beta^2 \gamma$ que veremos a seguir usam esse mesmo $\gamma$.
+Todas as fórmulas $(S/N)_o = \gamma$, $\eta\gamma$, $\tfrac{3}{2}\beta^2 \gamma$ que veremos a seguir usam esse mesmo $\gamma$.
 
 \end{frame}
 
@@ -829,10 +829,67 @@ r(t) = E(t)\cos\!\left[2\pi f_c t + \psi(t)\right].
 \draw[dashed] (3.5,1.0) -- (3.9,1.0);
 \node[right] at (3.9,1.45) {$n_s$};
 \node[below] at (3.7,1.0) {$n_c$};
+% Ângulo phi: do eixo Re até A_c (fase do sinal)
+\draw[->, blue!60!black] (0.8,0) arc (0:16:0.8);
+\node[blue!60!black] at (0.95,0.1) {$\phi$};
+% Ângulo Y_n: de A_c até r (perturbação de fase)
+\draw[->, black] (2.31,0.66) arc (16:26:2.4);
+\node at (2.55,0.95) {$Y_n$};
+% Angulo Phi_n - phi: entre A_c e o vetor ruido (no ponto onde o ruido sai de A_c)
+\draw[->, red!70!black] (4.08,1.17) arc (16:66:0.6);
+\node[red!70!black] at (3.95,1.42) {$\Phi_n{-}\phi$};
 \end{tikzpicture}
 \end{center}
 
-Quando $A_c \gg$ envelope do ruído, a fase do sinal recebido vale aproximadamente $\psi(t) \approx \phi(t) + n_s(t)/A_c$. A componente em quadratura $n_s$ é a única que perturba a fase.
+Escrevendo o ruído em envelope e fase, $n(t) = V_n(t)\cos[2\pi f_c t + \Phi_n(t)]$, com $V_n = \sqrt{n_c^2 + n_s^2}$. Sob $A_c \gg V_n$, o sinal recebido fica
+\[
+r(t) \approx [A_c + V_n\cos(\Phi_n - \phi)]\,\cos\!\bigl[2\pi f_c t + \phi(t) + Y_n(t)\bigr],
+\]
+ou seja, a fase é perturbada por $Y_n(t)$ apenas.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{De onde vem o $1/A_c$ na perturbação de fase}
+
+\textbf{Soma fasorial} (envelope complexo):
+\[
+\tilde r(t) = A_c\, e^{j\phi(t)} + V_n\, e^{j\Phi_n(t)}
+            = A_c\, e^{j\phi}\!\left[1 + \frac{V_n}{A_c}\, e^{j(\Phi_n - \phi)}\right].
+\]
+
+Separando o colchete em parte real e imaginária:
+\[
+1 + \tfrac{V_n}{A_c}\cos(\Phi_n - \phi) + j\,\tfrac{V_n}{A_c}\sin(\Phi_n - \phi).
+\]
+
+\textbf{Para $V_n \ll A_c$}, esse número complexo está perto de $1$. Sua fase é
+\[
+\arctan\!\left[\frac{\tfrac{V_n}{A_c}\sin(\Phi_n-\phi)}{1+\tfrac{V_n}{A_c}\cos(\Phi_n-\phi)}\right]
+\;\approx\; \frac{V_n}{A_c}\sin(\Phi_n - \phi) \;\triangleq\; Y_n(t).
+\]
+
+O fator $1/A_c$ aparece naturalmente: a perturbação angular é a \emph{razão} entre a componente transversal do ruído e a amplitude do sinal — sinal mais forte, deflexão menor.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Da fase do ruído até a saída do demodulador}
+
+\textbf{Perturbação de fase} (expandindo $\sin(\Phi_n - \phi)$):
+\[
+Y_n(t) \triangleq \frac{V_n(t)}{A_c}\sin(\Phi_n - \phi) = \frac{1}{A_c}\bigl[n_s(t)\cos\phi(t) - n_c(t)\sin\phi(t)\bigr].
+\]
+
+\textbf{Saída do demodulador FM} (extrai $\tfrac{1}{2\pi}\,d\psi/dt$, com $\psi = \phi + Y_n$):
+\[
+y(t) = \frac{1}{2\pi}\frac{d}{dt}\bigl[\phi(t) + Y_n(t)\bigr]
+     = \underbrace{k_f\, m(t)}_{\text{sinal}} + \underbrace{\frac{1}{2\pi}\frac{dY_n}{dt}}_{n_o(t)}.
+\]
+
+O sinal é \emph{aditivamente} corrompido pelo ruído $n_o(t)$, sem termos cruzados — graças à hipótese de alta SNR.
 
 \end{frame}
 
@@ -840,14 +897,14 @@ Quando $A_c \gg$ envelope do ruído, a fase do sinal recebido vale aproximadamen
 
 \begin{frame}{PSD do ruído na saída do demodulador FM}
 
-O demodulador FM recupera $\dfrac{1}{2\pi}\dfrac{d\psi}{dt}$. A parte de ruído na saída vale:
+\textbf{PSD de $Y_n$.} Como $\phi(t)$ varia lentamente comparado a $n_c, n_s$, podemos tratar $\phi$ como constante dentro da janela de integração. Como $\cos^2\phi + \sin^2\phi = 1$:
 \[
-n_o(t) = \frac{1}{2\pi A_c}\, \frac{d n_s(t)}{dt}
+S_{Y_n}(f) = \frac{1}{A_c^2}\,S_{n_s}(f) = \frac{N_0}{A_c^2}, \qquad |f| \le W.
 \]
 
-Derivar no tempo equivale a multiplicar por $j2\pi f$ em frequência. Logo, a PSD do ruído na saída é \textbf{parabólica}:
+\textbf{Derivação no tempo} equivale a multiplicar por $j2\pi f$ em frequência. Logo a PSD do ruído na saída é \textbf{parabólica}:
 \[
-S_{n_o}(f) = \frac{f^2}{A_c^2}\, S_{n_s}(f) = \frac{N_0\, f^2}{A_c^2}, \quad |f| \le W
+S_{n_o}(f) = \frac{(2\pi f)^2}{(2\pi)^2}\,S_{Y_n}(f) = \frac{N_0\, f^2}{A_c^2}, \quad |f| \le W.
 \]
 
 \end{frame}
@@ -874,21 +931,46 @@ S_{n_o}(f) = \frac{f^2}{A_c^2}\, S_{n_s}(f) = \frac{N_0\, f^2}{A_c^2}, \quad |f|
 
 % ============================================
 
+\begin{frame}{Potência de ruído e de sinal na saída}
+
+\textbf{Potência total do ruído} (após LPF com corte $W$):
+\[
+P_{n_o} = \int_{-W}^{W} S_{n_o}(f)\, df = \int_{-W}^{W} \frac{N_0 f^2}{A_c^2}\, df = \frac{N_0}{A_c^2}\cdot\frac{2 W^3}{3} = \frac{2 N_0 W^3}{3 A_c^2}.
+\]
+
+\textbf{Potência do sinal na saída} para mensagem qualquer:
+\[
+P_{s_o} = \overline{(k_f\,m(t))^2} = k_f^2\, P_M, \qquad P_M \triangleq \overline{m^2(t)}.
+\]
+
+Para tom $m(t) = A_m\cos(2\pi f_m t)$ com $P_M = A_m^2/2$ e $\Delta f = k_f A_m$:
+\[
+P_{s_o} = \frac{k_f^2 A_m^2}{2} = \frac{(\Delta f)^2}{2}.
+\]
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{SNR de saída em FM}
 
-Potência total do ruído na saída:
+Dividindo $P_{s_o}$ por $P_{n_o}$:
 \[
-P_{\text{noise}} = \int_{-W}^{W} \frac{N_0 f^2}{A_c^2}\, df = \frac{2 N_0 W^3}{3 A_c^2}
+\left(\frac{S}{N}\right)_o
+   = \frac{k_f^2\, P_M}{\,2 N_0 W^3 / (3 A_c^2)\,}
+   = \frac{3\, A_c^2\, k_f^2\, P_M}{2\, N_0\, W^3}.
 \]
 
-\textbf{Potência do sinal na saída} para tom $m(t) = A_m \cos(2\pi f_m t)$ com desvio $\Delta f = k_f A_m$:
+Substituindo $\gamma = A_c^2/(2 N_0 W)$ e definindo $\beta = \Delta f/W$ com $\Delta f = k_f\max|m(t)|$:
 \[
-P_{\text{sig}} = \frac{(\Delta f)^2}{2}
+\left(\frac{S}{N}\right)_o
+   = \frac{3\, k_f^2 P_M}{W^2}\cdot\frac{A_c^2}{2 N_0 W}
+   = 3\,\beta^2\,\frac{P_M}{\max|m(t)|^2}\,\gamma.
 \]
 
-Aplicando a definição de $\gamma = A_c^2/(2 N_0 W)$ e tomando $W = f_m$ na banda da mensagem:
+\textbf{Tom único} ($W = f_m$, $P_M/\max|m|^2 = 1/2$):
 \[
-\boxed{\left(\frac{S}{N}\right)_o = 3\beta^2\, \gamma}, \qquad \beta = \frac{\Delta f}{f_m}
+\boxed{\left(\frac{S}{N}\right)_o = \tfrac{3}{2}\,\beta^2\, \gamma}, \qquad \beta = \frac{\Delta f}{f_m}.
 \]
 
 \end{frame}
@@ -910,7 +992,7 @@ Aplicando a definição de $\gamma = A_c^2/(2 N_0 W)$ e tomando $W = f_m$ na ban
 Em FM, trocamos \textbf{largura de banda} por \textbf{ganho de SNR}. Isso só faz sentido se há banda disponível no canal e se a SNR de entrada está acima do limiar.
 \end{block}
 
-\textbf{Comparação com AM:} para $\beta = 5$ e $\gamma$ fixo, $(S/N)_o = 75 \gamma$ no FM, contra $\le \gamma/3$ no AM convencional. O FM pode estar \textbf{mais de 23 dB acima} do AM em SNR de saída.
+\textbf{Comparação com AM:} para $\beta = 5$ e $\gamma$ fixo, $(S/N)_o = 37{,}5\,\gamma$ no FM, contra $\le \gamma/3$ no AM convencional. O FM pode estar \textbf{mais de 20 dB acima} do AM em SNR de saída.
 
 \end{frame}
 
@@ -959,16 +1041,74 @@ A banda base do áudio seria $2 \cdot 15 = 30$ kHz. FM usa $6\times$ mais banda.
 
 \begin{frame}{Resolução: SNR de saída}
 
-\textbf{Passo 3.} SNR de saída em FM:
+\textbf{Passo 3.} SNR de saída em FM (tom único):
 \[
-\left(\frac{S}{N}\right)_o = 3\beta^2 \gamma = 3 \cdot 25 \cdot 100 = 7500
+\left(\frac{S}{N}\right)_o = \tfrac{3}{2}\beta^2 \gamma = 1{,}5 \cdot 25 \cdot 100 = 3750
 \]
 \[
-\left(\frac{S}{N}\right)_o\Big|_{\text{dB}} = 10\log_{10}(75) + 20 \approx 38{,}75 \text{ dB}
+\left(\frac{S}{N}\right)_o\Big|_{\text{dB}} = 10\log_{10}(37{,}5) + 20 \approx 35{,}74 \text{ dB}
 \]
 
 \begin{block}{Trade-off}
-Ganho de $18{,}75$ dB pagando $6$ vezes mais banda.
+Ganho de $15{,}74$ dB sobre a referência $\gamma$, pagando $6$ vezes mais banda.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Aplicação: FM com mensagem real (não-tonal)}
+
+\textbf{Enunciado.} Um enlace FM transmite áudio com desvio máximo $\Delta f = 60$ kHz em banda de mensagem $W = 15$ kHz. Diferente de um tom puro, o áudio tem fator de potência normalizada
+\[
+P_{M_n} \triangleq \frac{P_M}{\max|m(t)|^2} = 0{,}2
+\]
+(valor típico para música, decorrente do fator de crista). O receptor mede $\gamma = 20$ dB.
+
+\textbf{Pede-se:}
+\begin{enumerate}
+\item[(a)] o índice $\beta$ e a banda ocupada por Carson;
+\item[(b)] $(S/N)_o$ usando a fórmula geral $(S/N)_o = 3\beta^2 P_{M_n}\, \gamma$;
+\item[(c)] a comparação com a aproximação de tom único e a perda em dB.
+\end{enumerate}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: parâmetros do enlace}
+
+\textbf{Passo 1.} Índice e banda de Carson:
+\[
+\beta = \frac{\Delta f}{W} = \frac{60}{15} = 4, \qquad B = 2(\Delta f + W) = 2(60 + 15) = 150 \text{ kHz}.
+\]
+
+\textbf{Passo 2.} SNR de canal em linear:
+\[
+\gamma = 10^{20/10} = 100.
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: SNR com mensagem genérica}
+
+\textbf{Passo 3.} Aplicando a fórmula geral:
+\[
+\left(\frac{S}{N}\right)_o = 3\,\beta^2\, P_{M_n}\, \gamma = 3\cdot 16 \cdot 0{,}2 \cdot 100 = 960,
+\]
+\[
+\left(\frac{S}{N}\right)_o\bigg|_{\text{dB}} = 10\log_{10}(960) \approx 29{,}82 \text{ dB}.
+\]
+
+\textbf{Passo 4.} Caso fosse tom puro ($P_{M_n} = 1/2$):
+\[
+\left(\frac{S}{N}\right)_o^{\text{tom}} = \tfrac{3}{2}\beta^2\gamma = 1{,}5\cdot 16 \cdot 100 = 2400 \approx 33{,}80 \text{ dB}.
+\]
+
+\begin{block}{Conclusão}
+A mensagem real custa $33{,}80 - 29{,}82 \approx 4$ dB em relação à hipótese de tom único, porque $P_{M_n} = 0{,}2$ contra $0{,}5$ do tom. A SNR efetiva escala linearmente com $P_{M_n}$.
 \end{block}
 
 \end{frame}
@@ -1007,11 +1147,52 @@ Esses pulsos rápidos são chamados de \textbf{cliques de ruído} (click noise) 
 \draw[dashed] (3,1.2) -- (6,2.3) node[right] {banda base};
 \draw[dashed, red] (3,0) -- (3,1.2);
 \node[below] at (3,0) {limiar};
-\node[right, blue] at (6,3.3) {$3\beta^2 \gamma$};
+\node[right, blue] at (6,3.3) {$\tfrac{3}{2}\beta^2 \gamma$};
 \end{tikzpicture}
 \end{center}
 
-\textbf{Acima do limiar:} comportamento linear $3\beta^2 \gamma$, ganho real sobre banda base. \textbf{Abaixo do limiar:} colapso da SNR, dominado por cliques.
+\textbf{Acima do limiar:} comportamento linear $\tfrac{3}{2}\beta^2 \gamma$, ganho real sobre banda base. \textbf{Abaixo do limiar:} colapso da SNR, dominado por cliques.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Fórmula aproximada do limiar}
+
+A análise rigorosa do regime de cliques (fora do escopo) fornece uma relação aproximada entre a SNR de canal e a SNR de saída no joelho da curva. Para FM com índice $\beta$:
+\[
+\boxed{\left(\frac{S}{N}\right)_{b,\text{th}} = 20(\beta + 1)}
+\qquad \text{(Proakis eq.~6.2.25)}
+\]
+onde $(S/N)_b = P_R/(N_0 W) = \gamma$ é a SNR de referência (banda base).
+
+\textbf{Valores típicos:}
+\begin{itemize}
+\item $\beta = 2$: $\gamma_{\text{th}} = 60 \approx 17{,}8$ dB;
+\item $\beta = 5$: $\gamma_{\text{th}} = 120 \approx 20{,}8$ dB;
+\item $\beta = 7$: $\gamma_{\text{th}} = 160 \approx 22{,}0$ dB.
+\end{itemize}
+
+Aumentar $\beta$ amplia o ganho de SNR \emph{e} eleva o limiar -- mais banda exige mais potência.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{SNR de saída no joelho}
+
+Substituindo $(S/N)_{b,\text{th}} = 20(\beta + 1)$ em $(S/N)_o = 3\beta^2 P_{M_n}\, (S/N)_b$ (eq.~6.2.22):
+\[
+\boxed{\left(\frac{S}{N}\right)_o\bigg|_{\text{th}} = 60\,\beta^2(\beta + 1)\, P_{M_n}}
+\qquad \text{(eq.~6.2.33)}
+\]
+
+\textbf{Interpretação.} É o \emph{menor} $(S/N)_o$ obtido em operação linear. Para uma especificação $(S/N)_o$ desejada, essa equação dá o $\beta$ \emph{máximo} utilizável do ponto de vista de potência (acima dele, o sistema cai no regime de cliques).
+
+\textbf{Tom único} ($P_{M_n} = 1/2$):
+\[
+\left(\frac{S}{N}\right)_o\bigg|_{\text{th}} = 30\,\beta^2(\beta + 1).
+\]
 
 \end{frame}
 
@@ -1020,74 +1201,152 @@ Esses pulsos rápidos são chamados de \textbf{cliques de ruído} (click noise) 
 \begin{frame}{Critério prático de projeto}
 
 \begin{block}{Regra}
-Dimensionar o enlace para operar com $\gamma$ pelo menos $10$ dB acima do joelho da curva.
+Operar com $(S/N)_b$ pelo menos $10$ dB acima do joelho:
+\[
+\gamma_{\text{nom}} \ge \gamma_{\text{th}} + 10 \text{ dB}, \qquad
+\gamma_{\text{th}} = 10\log_{10}\!\bigl[20(\beta+1)\bigr]\text{ dB}.
+\]
 \end{block}
 
-\vspace{0.3cm}
-
-\textbf{Como aplicar:}
+\textbf{Passos:}
 \begin{itemize}
-\item identificar $\gamma_{th}$ a partir de $\beta$ usado;
-\item estimar $\gamma$ nominal pelo orçamento do enlace;
-\item exigir $\gamma_{\text{nom}} - \gamma_{th} \ge 10$ dB;
-\item incluir margem para desvanecimentos e perdas adicionais.
+\item calcular $\gamma_{\text{th}}$ pela fórmula acima a partir de $\beta$;
+\item estimar $\gamma_{\text{nom}}$ pelo orçamento do enlace;
+\item exigir $\gamma_{\text{nom}} - \gamma_{\text{th}} \ge 10$ dB;
+\item incluir margem adicional para desvanecimentos.
 \end{itemize}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Aplicação: margem de limiar em enlace FM}
+\begin{frame}{Aplicação: projeto de sistema FM (Proakis 6.2.2)}
 
-\textbf{Enunciado.} Receptor FM com $\beta = 5$ tem limiar em $\gamma_{th} = 10$ dB. O enlace nominal entrega $\gamma_{\text{nom}} = 22$ dB. Avalie a margem de operação e o que acontece se $\gamma$ cair para $8$ dB.
+\textbf{Enunciado.} Projetar um sistema FM com:
+\begin{itemize}
+\item SNR de saída requerida: $(S/N)_o = 40$ dB;
+\item banda do canal: $B_c = 120$ kHz;
+\item banda da mensagem: $W = 10$ kHz;
+\item mensagem com $P_{M_n} = 1/2$;
+\item PSD de ruído (unilateral): $N_0 = 10^{-8}$ W/Hz;
+\item atenuação no canal: $40$ dB.
+\end{itemize}
 
+\textbf{Pede-se:} a potência mínima do transmissor $P_T$ que cumpre a especificação \emph{acima} do limiar de FM.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: limites de $\beta$}
+
+\textbf{Passo 1 -- Banda (Carson).}
+\[
+B_c = 2(\beta + 1)\, W \;\Rightarrow\; 120 = 2(\beta+1)\cdot 10
+\;\Rightarrow\; \beta_{\max}^{\text{banda}} = 5.
+\]
+
+\textbf{Passo 2 -- Potência (limiar).} Da fórmula $(S/N)_o|_{\text{th}} = 60\beta^2(\beta+1) P_{M_n}$, igualando à especificação $(S/N)_o = 10^4$:
+\[
+60\,\beta^2(\beta+1)\cdot \tfrac{1}{2} = 10^4
+\;\Rightarrow\; \beta^2(\beta+1) \approx 333{,}3
+\;\Rightarrow\; \beta_{\max}^{\text{pot}} \approx 6{,}6.
+\]
+
+Como $\beta_{\max}^{\text{banda}} = 5 < \beta_{\max}^{\text{pot}} = 6{,}6$, o sistema está \textbf{limitado pela banda}. Adotamos $\beta = 5$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Cálculo analítico de $\beta_{\max}^{\text{pot}}$: setup}
+
+A condição $\beta^2(\beta+1) = 333{,}3$ é uma cúbica:
+\[
+\beta^3 + \beta^2 - 333{,}3 = 0.
+\]
+
+\textbf{Aproximação inicial} (descartando $\beta^2$ frente a $\beta^3$):
+\[
+\beta^3 \approx 333{,}3 \;\Rightarrow\; \beta_0 \approx \sqrt[3]{333{,}3} \approx 6{,}933.
+\]
+
+\textbf{Substituição de Cardano.} $\beta = t - 1/3$ elimina o termo quadrático e produz a cúbica deprimida
+\[
+t^3 + p\,t + q = 0, \qquad p = -\tfrac{1}{3}, \quad q = \tfrac{2}{27} - 333{,}3 = -333{,}226.
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Cálculo analítico de $\beta_{\max}^{\text{pot}}$: Cardano}
+
+\textbf{Raiz real} da cúbica deprimida:
+\[
+t = \sqrt[3]{-q/2 + \sqrt{R}} + \sqrt[3]{-q/2 - \sqrt{R}}, \qquad
+R \triangleq (q/2)^2 + (p/3)^3.
+\]
+
+Avaliando ($-q/2 = 166{,}613$, $(q/2)^2 = 27\,759{,}892$, $(p/3)^3 = -1/729 \approx -1{,}37\times 10^{-3}$):
+\[
+\sqrt{R} \approx 166{,}61300, \qquad
+t \approx \sqrt[3]{333{,}226} + \sqrt[3]{4{,}1\times 10^{-6}}
+   \approx 6{,}933 + 0{,}016 = 6{,}949.
+\]
+
+\[
+\boxed{\beta_{\max}^{\text{pot}} = t - \tfrac{1}{3} \approx 6{,}616}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: potência do transmissor}
+
+\textbf{Passo 3 -- SNR de canal exigida.} Com $\beta = 5$ na fórmula linear $(S/N)_o = \tfrac{3}{2}\beta^2 (S/N)_b$:
+\[
+\left(\frac{S}{N}\right)_b = \frac{10^4}{37{,}5} = \frac{800}{3} \approx 266{,}7 \;\;(24{,}26\text{ dB}).
+\]
+
+\textbf{Passo 4 -- Potência recebida.}
+\[
+P_R = \left(\frac{S}{N}\right)_b N_0\, W = 266{,}7 \cdot 10^{-8} \cdot 10^{4} \approx 2{,}67\times 10^{-2}\text{ W} = -15{,}74 \text{ dBW}.
+\]
+
+\textbf{Passo 5 -- Potência transmitida} (canal com $40$ dB de atenuação):
+\[
+\boxed{P_T = P_R + 40 \text{ dB} = -15{,}74 + 40 = 24{,}26 \text{ dBW} \approx 266{,}7 \text{ W}.}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: trade-off banda vs.\ potência}
+
+\textbf{Cenário sem limite de banda.} Se a banda do canal não fosse restrita a $120$ kHz, poderíamos adotar $\beta \approx 6{,}6$ (o máximo permitido pelo limiar):
+\[
+B_c = 2(6{,}6 + 1)\cdot 10 = 152 \text{ kHz}, \qquad
+P_R \approx 15{,}3 \text{ mW}, \qquad
+P_T \approx 153 \text{ W}.
+\]
+
+\textbf{Comparação:}
 \begin{center}
-\begin{tikzpicture}[font=\scriptsize, scale=0.85]
-\draw[->] (0,0) -- (5.5,0) node[right] {$\gamma$ (dB)};
-\draw[->] (0,0) -- (0,3.0) node[above] {$(S/N)_o$};
-\draw[thick, blue] (2.2,1.0) -- (5,2.8);
-\draw[thick, blue] (1.0,0.1) .. controls (1.8,0.3) and (2.0,0.7) .. (2.2,1.0);
-\draw[dashed, red] (2.2,0) -- (2.2,1.0);
-\fill[green!30, opacity=0.5] (2.2,0) rectangle (4.0,1.6);
-\draw[dashed, green!50!black] (4.0,0) -- (4.0,1.6);
-\node[below] at (2.2,0) {10};
-\node[below] at (4.0,0) {22};
-\node[above, green!50!black] at (3.1,1.6) {margem $12$ dB};
-\end{tikzpicture}
+\begin{tabular}{lccc}
+\toprule
+Cenário & $\beta$ & $B_c$ (kHz) & $P_T$ (W) \\
+\midrule
+Limitado pela banda  & $5$    & $120$ & $266{,}7$ \\
+Limitado pela potência & $6{,}6$ & $152$ & $153$    \\
+\bottomrule
+\end{tabular}
 \end{center}
 
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Resolução: operação nominal}
-
-\textbf{Passo 1.} Margem nominal:
-\[
-M = \gamma_{\text{nom}} - \gamma_{th} = 22 - 10 = 12 \text{ dB}
-\]
-acima do critério de $10$ dB recomendado.
-
-\textbf{Passo 2.} SNR de saída nominal:
-\[
-\left(\frac{S}{N}\right)_o = 10\log(75) + 22 \approx 40{,}75 \text{ dB}
-\]
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Resolução: cenário de desvanecimento}
-
-\textbf{Passo 3.} Se $\gamma$ cai para $8$ dB:
-\begin{itemize}
-\item $\gamma$ ficou $2$ dB \emph{abaixo} do limiar;
-\item a fórmula $3\beta^2 \gamma$ não vale mais;
-\item aparecem cliques audíveis e a SNR percebida cai bem mais do que $2$ dB.
-\end{itemize}
-
-\begin{block}{Lição}
-Em FM, descer abaixo do limiar não é uma queda gradual: é uma falha de qualidade brusca. Margem é essencial.
+\begin{block}{Trade-off}
+Mais banda $\Rightarrow$ menos potência transmitida. Aumentar $\beta$ de $5$ para $6{,}6$ custa $32$ kHz extras de banda mas economiza $114$ W ($\approx 2{,}4$ dB de potência).
 \end{block}
 
 \end{frame}
@@ -1231,6 +1490,77 @@ O áudio FM ganha cerca de $13$ dB de SNR percebida graças à pré/pós-ênfase
 
 % ============================================
 
+\begin{frame}{Aplicação: melhoria total de FM com PD (Proakis 6.2.3)}
+
+\textbf{Enunciado.} Para FM broadcast comercial com:
+\begin{itemize}
+\item banda da mensagem $W = 15$ kHz;
+\item frequência de corte da pré-ênfase $f_0 = 2100$ Hz;
+\item índice de modulação $\beta = 5$;
+\item potência média/de pico da mensagem $P_{M_n} = 0{,}5$.
+\end{itemize}
+
+\textbf{Pede-se} a melhoria \emph{total} em $(S/N)_o$ ao usar FM com pré/pós-ênfase (PD) em relação a um sistema banda base de mesma potência recebida.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: FM puro vs banda base}
+
+\textbf{Passo 1 -- FM sem PD.} Da eq.~6.2.22, $(S/N)_o = 3\beta^2 P_{M_n} (S/N)_b$:
+\[
+\left(\frac{S}{N}\right)_o = 3 \cdot 5^2 \cdot 0{,}5 \cdot \left(\frac{S}{N}\right)_b = 37{,}5\,\left(\frac{S}{N}\right)_b.
+\]
+
+Em dB:
+\[
+\left(\frac{S}{N}\right)_o\bigg|_{\text{dB}} = 10\log_{10}(37{,}5) + \left(\frac{S}{N}\right)_b\bigg|_{\text{dB}} \approx 15{,}7 + \left(\frac{S}{N}\right)_b\bigg|_{\text{dB}}.
+\]
+
+FM puro está $15{,}7$ dB acima de banda base.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: contribuição da pré/pós-ênfase}
+
+\textbf{Passo 2 -- Ganho de PD.} Aplicando $G = \dfrac{(W/f_0)^3 / 3}{(W/f_0) - \arctan(W/f_0)}$ com $W/f_0 = 15000/2100 \approx 7{,}14$:
+\[
+G = \frac{1}{3}\cdot\frac{(7{,}14)^3}{7{,}14 - \arctan(7{,}14)}
+   = \frac{1}{3}\cdot\frac{364{,}4}{7{,}14 - 1{,}432}
+   \approx 21{,}3.
+\]
+
+Em dB: $G\big|_{\text{dB}} = 10\log_{10}(21{,}3) \approx 13{,}3$ dB. Logo $(S/N)_{o,\text{PD}} = G \cdot (S/N)_o$:
+\[
+\left(\frac{S}{N}\right)_{o,\text{PD}}\bigg|_{\text{dB}} \approx 13{,}3 + \left(\frac{S}{N}\right)_o\bigg|_{\text{dB}}.
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: melhoria total}
+
+\textbf{Passo 3 -- Encadeamento.} Substituindo o resultado do Passo 1:
+\[
+\left(\frac{S}{N}\right)_{o,\text{PD}}\bigg|_{\text{dB}}
+\approx 13{,}3 + 15{,}7 + \left(\frac{S}{N}\right)_b\bigg|_{\text{dB}}
+= 29 + \left(\frac{S}{N}\right)_b\bigg|_{\text{dB}}.
+\]
+
+Ou em forma linear: $(S/N)_{o,\text{PD}} = 21{,}3 \cdot 37{,}5 \cdot (S/N)_b \approx 800 \cdot (S/N)_b$.
+
+\begin{block}{Resultado final}
+FM broadcast com pré/pós-ênfase entrega $29$ dB de SNR \emph{a mais} do que o equivalente banda base de mesma potência: $\boxed{15{,}7 \text{ dB (FM)} + 13{,}3 \text{ dB (PD)} = 29 \text{ dB}}$, sem custo adicional de banda ou potência média.
+\end{block}
+
+\end{frame}
+
+% ============================================
+
 \section{Comparação de sistemas analógicos}
 
 \begin{frame}{Tabela comparativa}
@@ -1251,7 +1581,7 @@ SSB coerente & $\gamma$ & $W$ \\
 \hline
 AM convencional, envelope & $\eta\,\gamma \le \gamma/3$ & $2W$ \\
 \hline
-FM com $\beta$ & $3\beta^2 \gamma$ & $2(\beta+1)W$ \\
+FM com $\beta$ (tom) & $\tfrac{3}{2}\beta^2 \gamma$ & $2(\beta+1)W$ \\
 \hline
 \end{tabular}
 \end{center}
@@ -1272,21 +1602,25 @@ FM com $\beta$ & $3\beta^2 \gamma$ & $2(\beta+1)W$ \\
 \begin{frame}{Visualizando o trade-off}
 
 \begin{center}
-\begin{tikzpicture}[font=\scriptsize, scale=0.85]
-\draw[->] (0,0) -- (7,0) node[right] {$\gamma$ (dB)};
-\draw[->] (0,0) -- (0,4.5) node[above] {$(S/N)_o$ (dB)};
-\foreach \x in {1,2,3,4,5,6} \draw (\x,0.05) -- (\x,-0.05) node[below] {\tiny \x0};
-\foreach \y in {1,2,3,4} \draw (0.05,\y) -- (-0.05,\y) node[left] {\tiny \y0};
-\draw[thick, black] (1,1) -- (6,4) node[right] {bb, SSB};
-\draw[thick, blue] (1,1.3) -- (6,4.3) node[right] {DSB-SC};
-\draw[thick, orange] (1.5,0.7) -- (6,3.4) node[right] {AM env.};
-\draw[thick, red] (3,1.5) -- (6,3.3);
-\draw[thick, red] (3,1.5) .. controls (2.5,1.0) and (2,0.5) .. (1.5,0.2);
-\node[right, red] at (6,3.3) {FM $\beta\!=\!5$};
+\begin{tikzpicture}[font=\scriptsize, scale=0.6]
+\draw[->] (0,0) -- (5.8,0) node[right] {$\gamma$ (dB)};
+\draw[->] (0,0) -- (0,7.2) node[above] {$(S/N)_o$ (dB)};
+\foreach \x in {1,2,3,4,5} \draw (\x,0.05) -- (\x,-0.05) node[below, font=\tiny] {\x0};
+\foreach \y in {1,2,3,4,5,6,7} \draw (0.05,\y) -- (-0.05,\y) node[left, font=\tiny] {\y0};
+% Banda base, DSB-SC e SSB coincidem: (S/N)_o = gamma
+\draw[thick, black] (0.5,0.5) -- (5,5) node[right] {bb, DSB-SC, SSB};
+% AM env. (mu=1, P_m=0.5): -4,77 dB abaixo de gamma
+\draw[thick, orange] (0.7,0.22) -- (5,4.52) node[right] {AM env.};
+% FM beta=5 acima do limiar: (S/N)_o = (3/2)*25*gamma -> +15,74 dB
+\draw[thick, red] (2.1,3.67) -- (5,6.57) node[right] {FM $\beta\!=\!5$};
+% Joelho de limiar em gamma_th ~ 20,8 dB
+\draw[thick, red] (2.1,3.67) .. controls (1.7,2.4) and (1.4,1.0) .. (1.2,0.1);
+\draw[dashed, gray] (2.08,0) -- (2.08,3.67);
+\node[below, font=\tiny, gray] at (2.08,-0.05) {$\gamma_{\rm th}$};
 \end{tikzpicture}
 \end{center}
 
-Inclinação 1 para todas; FM acima das demais; AM abaixo; FM tem joelho de limiar.
+Inclinação 1 para todas; bb, DSB-SC e SSB coincidem; AM abaixo; FM acima do limiar e despenca abaixo dele.
 
 \end{frame}
 
@@ -1300,17 +1634,18 @@ Inclinação 1 para todas; FM acima das demais; AM abaixo; FM tem joelho de limi
 \begin{tikzpicture}[font=\scriptsize]
 \foreach \i/\nm/\bw/\snr/\col in {
   0/{Banda base}/10/25/black,
-  1/{DSB-SC}/20/28/blue,
+  1/{DSB-SC}/20/25/blue,
   2/{AM env.}/20/20/orange,
-  3/{FM $\beta\!=\!2$}/60/36/red,
-  4/{FM $\beta\!=\!5$}/120/44/purple}
+  3/{FM $\beta\!=\!2$}/60/33/red,
+  4/{FM $\beta\!=\!5$}/120/41/purple}
 {
-  \draw[fill=\col!20, draw=\col] (1.3*\i,0) rectangle (1.3*\i+1.0,0.022*\bw);
-  \node[below, font=\tiny] at (1.3*\i+0.5,0) {\nm};
-  \node[above, font=\tiny] at (1.3*\i+0.5,0.022*\bw) {\snr\,dB};
+  \draw[fill=\col!20, draw=\col] (1.4*\i,0) rectangle (1.4*\i+1.1,0.08*\snr);
+  \node[below=0.02cm, font=\tiny] at (1.4*\i+0.55,0) {\nm};
+  \node[below=0.4cm, font=\tiny, gray] at (1.4*\i+0.55,0) {$B\!=\!\bw$\,kHz};
+  \node[above, font=\tiny] at (1.4*\i+0.55,0.08*\snr) {\snr\,dB};
 }
-\draw[dashed, red, thick] (-0.3,0.022*60) -- (6.7,0.022*60);
-\node[right, red, font=\tiny] at (6.7,1.32) {limite banda};
+\draw[dashed, red, thick] (-0.3,0.08*32) -- (7.4,0.08*32);
+\node[right, red, font=\tiny] at (7.4,2.56) {requisito $32$ dB};
 \end{tikzpicture}
 \end{center}
 
@@ -1323,9 +1658,9 @@ Inclinação 1 para todas; FM acima das demais; AM abaixo; FM tem joelho de limi
 \textbf{Restrição:} $B \le 60$ kHz e $(S/N)_o \ge 32$ dB.
 
 \begin{itemize}
-\item DSB-SC: $B = 20$ kHz, $(S/N)_o = 25 + 3 = 28$ dB. \emph{Não atende.}
+\item DSB-SC: $B = 20$ kHz, $(S/N)_o = \gamma = 25$ dB. \emph{Não atende.}
 \item AM: $B = 20$ kHz, $(S/N)_o \le 25 - 4{,}77 \approx 20$ dB. \emph{Não atende.}
-\item FM $\beta = 2$: $B = 60$ kHz, $(S/N)_o \approx 25 + 10{,}8 = 36$ dB. \emph{Atende.}
+\item FM $\beta = 2$: $B = 60$ kHz, $(S/N)_o \approx 25 + 7{,}8 \approx 33$ dB. \emph{Atende.}
 \item FM $\beta = 5$: $B = 120$ kHz. \emph{Estoura banda.}
 \end{itemize}
 
@@ -1342,8 +1677,8 @@ Inclinação 1 para todas; FM acima das demais; AM abaixo; FM tem joelho de limi
 Justificativa:
 \begin{itemize}
 \item ocupa exatamente $60$ kHz, dentro da banda disponível;
-\item entrega $36$ dB de SNR, acima dos $32$ dB exigidos;
-\item garante margem de $4$ dB acima do requisito.
+\item entrega cerca de $33$ dB de SNR, acima dos $32$ dB exigidos;
+\item garante margem de aproximadamente $1$ dB acima do requisito.
 \end{itemize}
 
 \begin{block}{Lição}
@@ -1391,12 +1726,13 @@ P_{\text{noise}} = N_0 B
 \begin{tikzpicture}[font=\scriptsize, scale=0.85]
 \draw[->] (0,0) -- (5,0) node[right] {$B$ (log)};
 \draw[->] (0,0) -- (0,3.0) node[above] {$P_{\text{noise}}$ (dBm)};
-\draw[dashed, gray] (0,2.5) -- (5,2.5);
-\node[gray, right, font=\tiny] at (5,2.5) {$-174$};
-\draw[domain=0:4.5, smooth, samples=50, blue, thick] plot (\x, {2.5-\x*0.4});
-\filldraw[red] (3.7,1.02) circle (1.5pt) node[right] {\tiny Wi-Fi};
-\filldraw[red] (3.0,1.3) circle (1.5pt) node[right] {\tiny LTE};
-\filldraw[red] (0.7,2.22) circle (1.5pt) node[right] {\tiny voz};
+\draw[dashed, gray] (0,0.3) -- (5,0.3);
+\node[gray, right, font=\tiny] at (5,0.3) {$-174$ dBm/Hz};
+\draw[domain=0:4.5, smooth, samples=50, blue, thick] plot (\x, {0.3+\x*0.55});
+\filldraw[red] (0.7,0.685) circle (1.5pt) node[above left, font=\tiny] {voz};
+\filldraw[red] (3.0,1.95) circle (1.5pt) node[above left, font=\tiny] {LTE};
+\filldraw[red] (3.7,2.335) circle (1.5pt) node[above left, font=\tiny] {Wi-Fi};
+\node[blue, right, font=\tiny] at (4.5,2.775) {$+10$ dB/década};
 \end{tikzpicture}
 \end{center}
 
@@ -1455,11 +1791,41 @@ Por isso receptores de voz podem operar com potências muito menores que recepto
 
 \section{Figura de ruído e temperatura equivalente}
 
+\begin{frame}{Ruído próprio de um amplificador}
+
+Um amplificador real \emph{adiciona} ruído. Sinal e ruído da fonte são amplificados pelo mesmo ganho $G$, mas o bloco soma seu próprio ruído $N_a$ na saída.
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+\coordinate (in) at (-1.6,0);
+\coordinate (al) at (0,0);
+\coordinate (ar) at (1.6,0);
+\coordinate (out) at (3.6,0);
+\draw[fill=blue!10] (al) ++(0,-0.6) -- ++(0,1.2) -- (ar) -- cycle;
+\node at ($(al)!0.45!(ar)$) {$G$};
+\draw[->, thick] (in) -- node[above, font=\tiny] {$S_i$} node[below, font=\tiny] {$N_i = k T_0 B$} (al);
+\draw[->, thick] (ar) -- node[above, font=\tiny] {$S_o = G S_i$} node[below, font=\tiny] {$N_o = G N_i + N_a$} (out);
+\end{tikzpicture}
+\end{center}
+
+Comparando as SNRs:
+\[
+\left(\tfrac{S}{N}\right)_i = \frac{S_i}{N_i},
+\qquad
+\left(\tfrac{S}{N}\right)_o = \frac{G S_i}{G N_i + N_a} < \left(\tfrac{S}{N}\right)_i.
+\]
+
+A SNR \textbf{sempre piora} ao atravessar o bloco -- esse é o efeito que queremos quantificar.
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Figura de ruído $F$}
 
-Um amplificador real adiciona ruído próprio. A \textbf{figura de ruído} mede o quanto a SNR degrada ao passar pelo bloco.
+A \textbf{figura de ruído} quantifica essa degradação.
 
-\textbf{Definição com entrada à temperatura $T_0 = 290$ K:}
+\textbf{Definição} (com fonte na entrada à temperatura $T_0 = 290$ K):
 \[
 F = \frac{(S/N)_{\text{entrada}}}{(S/N)_{\text{saída}}} \ge 1
 \]
@@ -1471,6 +1837,43 @@ Em dB: $\mathrm{NF} = 10\log_{10} F$.
 \begin{block}{Interpretação}
 $F$ é o fator pelo qual a SNR se degrada no bloco. $F = 1$ corresponde a um bloco ideal sem ruído próprio.
 \end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{De onde vem $T_e$ -- modelo do amplificador}
+
+Amplificador com ganho $G$, banda $B$ e fonte na entrada à temperatura $T_0$.
+
+\textbf{Entrada:} sinal $S_i$ e ruído $N_i = k T_0 B$.
+
+\textbf{Saída:} $S_o = G S_i$ e
+\[
+N_o = G N_i + N_a,
+\]
+onde $N_a$ é o ruído próprio do bloco, medido na saída.
+
+Pela definição de $F$:
+\[
+F = \frac{(S/N)_i}{(S/N)_o} = \frac{S_i/N_i}{G S_i / N_o} = \frac{N_o}{G N_i} = 1 + \frac{N_a}{G\, k T_0 B}.
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{De onde vem $T_e$ -- equivalência térmica}
+
+Define-se $T_e$ como a temperatura de uma fonte fictícia que, posta na entrada de um bloco \emph{ideal}, produz o mesmo ruído próprio:
+\[
+N_a = G\, k T_e B \;\Longrightarrow\; \frac{N_a}{G\, k T_0 B} = \frac{T_e}{T_0}.
+\]
+
+Substituindo na expressão de $F$ do slide anterior:
+\[
+F = 1 + \frac{T_e}{T_0} \quad\Longleftrightarrow\quad \boxed{\,T_e = (F-1)\, T_0\,}
+\]
 
 \end{frame}
 
@@ -1669,6 +2072,402 @@ A NF total ficou pouco acima da NF do LNA. O ganho de 20 dB do primeiro estágio
 
 % ============================================
 
+\begin{frame}{Como medir $F$ na bancada: método Y}
+
+Em laboratório não se mede $F$ pela definição direta. Usa-se uma fonte de ruído calibrada (diodo de ruído) que comuta entre dois estados:
+\begin{itemize}
+\item \emph{hot}: temperatura equivalente $T_H \gg T_0$ (diodo ligado);
+\item \emph{cold}: temperatura equivalente $T_C \approx T_0$ (diodo desligado).
+\end{itemize}
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize]
+\coordinate (al) at (0,0);
+\coordinate (ar) at (1.6,0);
+\node[draw, rounded corners, fill=orange!10, minimum height=0.7cm, minimum width=1.4cm] (src) at (-2.6,0) {fonte $T_H/T_C$};
+\draw[fill=blue!10] (al) ++(0,-0.6) -- ++(0,1.2) -- (ar) -- cycle;
+\node at ($(al)!0.45!(ar)$) {DUT};
+\node[draw, rounded corners, fill=green!10, minimum height=0.7cm, minimum width=1.4cm] (pm) at (3.6,0) {medidor $P$};
+\draw[->, thick] (src) -- (al);
+\draw[->, thick] (ar) -- (pm);
+\end{tikzpicture}
+\end{center}
+
+A potência de ruído na saída do DUT, em cada estado, vale:
+\[
+N_H = G k B \,(T_H + T_e), \qquad N_C = G k B \,(T_C + T_e).
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Método Y: extração de $T_e$ e $F$}
+
+Define-se a razão entre as duas medidas (ganho $G$ e banda $B$ cancelam):
+\[
+Y = \frac{N_H}{N_C} = \frac{T_H + T_e}{T_C + T_e}
+\]
+
+Isolando $T_e$:
+\[
+T_e = \frac{T_H - Y\, T_C}{Y - 1}, \qquad F = 1 + \frac{T_e}{T_0}.
+\]
+
+\textbf{Forma com ENR.} O catálogo do diodo de ruído fornece o \emph{Excess Noise Ratio}
+\[
+\text{ENR} = \frac{T_H - T_0}{T_0} \quad (\text{tipicamente } 5\text{--}15 \text{ dB}).
+\]
+Quando $T_C = T_0$, a expressão acima reduz a
+\[
+\boxed{\, F = \frac{\text{ENR}}{Y - 1} \,}
+\]
+
+\textbf{Vantagem:} mede-se apenas a razão $Y$ -- nenhum ganho, banda ou potência absoluta precisa ser calibrado.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Demonstração: $F = \mathrm{ENR}/(Y-1)$}
+
+\footnotesize
+Partimos das três relações estabelecidas:
+\[
+T_e = \frac{T_H - Y\,T_C}{Y-1}, \quad F = 1 + \frac{T_e}{T_0}, \quad \mathrm{ENR} = \frac{T_H - T_0}{T_0}.
+\]
+
+Com $T_C = T_0$ (estado COLD na temperatura de referência):
+\[
+T_e = \frac{T_H - Y\,T_0}{Y-1}
+\;\Longrightarrow\;
+F = 1 + \frac{T_H - Y\,T_0}{T_0\,(Y-1)} = \frac{T_0\,(Y-1) + T_H - Y\,T_0}{T_0\,(Y-1)}.
+\]
+
+No numerador, $Y\,T_0$ se cancela: $\;T_0 Y - T_0 + T_H - Y T_0 = T_H - T_0$.
+
+Logo:
+\[
+F = \frac{T_H - T_0}{T_0\,(Y-1)} = \frac{1}{Y-1}\cdot\underbrace{\frac{T_H - T_0}{T_0}}_{\mathrm{ENR}} \;\;\Longrightarrow\;\; \boxed{\,F = \frac{\mathrm{ENR}}{Y-1}\,}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{O que a ENR significa fisicamente}
+
+\small A \textbf{ENR} mede o ruído \emph{excedente} ao piso térmico. No estado HOT a fonte emite $k T_H B$; no COLD, $k T_0 B$. O excesso normalizado por $T_0$:
+\[
+\text{ENR} = \frac{T_H - T_0}{T_0} \quad\Longleftrightarrow\quad T_H = T_0\,(1 + \text{ENR}).
+\]
+
+\begin{columns}[T]
+\begin{column}{0.38\textwidth}
+\centering
+\begin{tikzpicture}[font=\tiny, scale=0.85]
+\draw[->] (0,0) -- (0,3.0) node[above] {$N \propto T$};
+\draw[->] (0,0) -- (3.6,0);
+\draw[dashed, gray, thin] (0, 0.35) -- (3.4, 0.35);
+\node[gray, right] at (3.2, 0.35) {$T_0$};
+\draw[fill=blue!30] (0.5, 0) rectangle (1.3, 0.35);
+\node[below] at (0.9, 0) {COLD};
+\draw[fill=blue!30] (2.1, 0) rectangle (2.9, 0.35);
+\draw[fill=red!30] (2.1, 0.35) rectangle (2.9, 2.6);
+\node[below] at (2.5, 0) {HOT};
+\draw[<->] (3.05, 0.35) -- (3.05, 2.6);
+\node[right, align=left] at (3.1, 1.5) {$T_H{-}T_0$\\$=\text{ENR}\,T_0$};
+\end{tikzpicture}
+\end{column}
+\begin{column}{0.6\textwidth}
+\textbf{Conversão ENR(dB) $\to T_H$:}
+
+\vspace{0.1cm}
+\begin{center}
+\footnotesize
+\begin{tabular}{|c|c|c|}
+\hline
+ENR (dB) & ENR (lin) & $T_H$ (K) \\
+\hline
+$5$  & $3{,}16$  & $\approx 1{,}2 \times 10^{3}$ \\
+$10$ & $10$      & $\approx 3{,}2 \times 10^{3}$ \\
+$15$ & $31{,}62$ & $\approx 9{,}5 \times 10^{3}$ \\
+$20$ & $100$     & $\approx 2{,}9 \times 10^{4}$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.1cm}
+
+{\small \textbf{Leitura:} ENR de 15 dB $\equiv$ carga resistiva a $\sim 10^4$ K -- inviável termicamente, mas sintetizável via ruído \emph{shot} de diodo de avalanche.}
+\end{column}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo de bancada: medindo a NF de um LNA}
+
+\textbf{Enunciado.} Caracterizar a NF de um LNA em $f_0 = 2{,}4$ GHz pelo método Y.
+
+\textbf{Equipamento e dados:}
+\begin{itemize}
+\item fonte de ruído com $\text{ENR} = 15$ dB em $2{,}4$ GHz (catálogo);
+\item analisador de espectro com banda de resolução $B = 100$ kHz;
+\item temperatura ambiente $T_C = T_0 = 290$ K.
+\end{itemize}
+
+\textbf{Procedimento:}
+\begin{enumerate}
+\item Conectar: fonte de ruído $\to$ DUT $\to$ analisador.
+\item Sintonizar o analisador em $2{,}4$ GHz, fixar $B = 100$ kHz e ativar média.
+\item Ligar o diodo (estado \emph{hot}) e registrar a potência $N_H$.
+\item Desligar o diodo (estado \emph{cold}) e registrar $N_C$.
+\item Calcular $Y_{\text{dB}} = N_H - N_C$ e em seguida $F$, $T_e$ e NF.
+\end{enumerate}
+
+\textbf{Medidas obtidas:} $N_H = -50{,}0$ dBm e $N_C = -60{,}0$ dBm.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Procedimento ilustrado: equipamentos e leituras}
+
+\begin{center}
+\begin{tikzpicture}[font=\tiny,
+  eq/.style={draw, rounded corners, minimum height=0.95cm, align=center, font=\tiny}]
+\node[eq, fill=red!10, minimum width=1.6cm] (bias) {Fonte DC\\$28$ V (chave)};
+\node[eq, fill=orange!10, right=0.5cm of bias, minimum width=2.0cm] (src) {Fonte de ruído\\diodo aval., ENR $= 15$ dB};
+\node[eq, fill=blue!10, right=0.5cm of src, minimum width=1.5cm] (dut) {LNA (DUT)\\$f_0 = 2{,}4$ GHz};
+\node[eq, fill=green!10, right=0.5cm of dut, minimum width=1.9cm, minimum height=1.0cm] (ana) {Analisador\\de espectro};
+
+\draw[->, thick] (bias) -- node[above, font=\tiny] {DC} (src);
+\draw[->, thick] (src) -- node[above, font=\tiny] {RF} (dut);
+\draw[->, thick] (dut) -- node[above, font=\tiny] {RF} (ana);
+
+\only<2->{\node[below=0.05cm of ana, font=\tiny, gray] {$2{,}4$ GHz, $B = 100$ kHz};}
+\only<3>{
+  \node[above=0.02cm of bias, red] {\textbf{ON}};
+  \node[above=0.02cm of src, red] {\textbf{HOT}};
+  \node[above=0.02cm of ana, red] {$N_H = -50{,}0$ dBm};
+}
+\only<4>{
+  \node[above=0.02cm of bias, blue] {\textbf{OFF}};
+  \node[above=0.02cm of src, blue] {\textbf{COLD}};
+  \node[above=0.02cm of ana, blue] {$N_C = -60{,}0$ dBm};
+}
+\only<5->{
+  \node[above=0.02cm of ana, red] {$N_H = -50{,}0$ dBm};
+  \node[above=0.32cm of ana, blue] {$N_C = -60{,}0$ dBm};
+  \node[above=0.62cm of ana] {$\Rightarrow Y_{\text{dB}} = 10$ dB};
+}
+\end{tikzpicture}
+\end{center}
+
+\footnotesize
+\begin{itemize}\setlength\itemsep{-0.15em}
+\item<1-> \textbf{Passo 1.} Conectar fonte DC $\to$ fonte de ruído $\to$ DUT $\to$ analisador via cabos coaxiais $50\,\Omega$.
+\item<2-> \textbf{Passo 2.} Sintonizar o analisador em $2{,}4$ GHz, fixar $B = 100$ kHz, ativar média.
+\item<3-> \textbf{Passo 3.} Ligar a fonte DC (HOT): fonte de ruído quente; ler $N_H$.
+\item<4-> \textbf{Passo 4.} Desligar a fonte DC (COLD): fonte fria; ler $N_C$.
+\item<5-> \textbf{Passo 5.} Calcular $Y_{\text{dB}} = N_H - N_C$ e seguir para $F$, $T_e$ e NF.
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: cálculo (passos 1 e 2)}
+
+\textbf{Passo 1 -- razão Y.}
+\[
+Y_{\text{dB}} = N_H - N_C = -50{,}0 - (-60{,}0) = 10 \text{ dB} \;\Rightarrow\; Y = 10.
+\]
+
+\textbf{Passo 2 -- conversão da ENR e cálculo de $T_H$.}
+\[
+\text{ENR}_{\text{lin}} = 10^{15/10} \approx 31{,}62.
+\]
+\[
+T_H = T_0\,(1 + \text{ENR}) \approx 290 \cdot 32{,}62 \approx 9{,}46 \times 10^3 \text{ K}.
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: cálculo (passos 3 e 4)}
+
+\textbf{Passo 3 -- figura de ruído.}
+\[
+F = \frac{\text{ENR}}{Y - 1} = \frac{31{,}62}{9} \approx 3{,}51
+\;\Rightarrow\;
+\text{NF} = 10\log_{10}(3{,}51) \approx 5{,}46 \text{ dB}.
+\]
+
+\textbf{Passo 4 -- temperatura equivalente.}
+\[
+T_e = T_0\,(F - 1) \approx 290 \cdot 2{,}51 \approx 729 \text{ K}.
+\]
+
+\begin{block}{Conferência pela fórmula direta}
+$T_e = \dfrac{T_H - Y\, T_C}{Y - 1} = \dfrac{9460 - 10 \cdot 290}{9} \approx 729$ K. \checkmark
+\end{block}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Precisamos calibrar?}
+
+Sim -- em duas frentes distintas.
+
+\textbf{Fonte de ruído: já vem calibrada de fábrica.} O catálogo fornece a curva $\text{ENR}(f)$ ponto a ponto, com rastreabilidade metrológica (NIST/NPL/INMETRO). Cabe ao usuário ler o valor da ENR na frequência exata do teste.
+
+\textbf{Receptor: cabe ao usuário corrigir.} O próprio analisador (e qualquer pré-amplificador antes dele) adiciona ruído. A medida bruta não dá $F_{\text{DUT}}$ diretamente, mas sim $F_{\text{med}}$ contaminado, ligado ao receptor por Friis:
+\[
+F_{\text{med}} = F_{\text{DUT}} + \frac{F_{\text{rec}} - 1}{G_{\text{DUT}}}.
+\]
+
+Sem isolar a parcela do receptor, a NF do DUT sai \emph{superestimada}.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Calibração de duas etapas: procedimento}
+
+\textbf{Etapa CAL (sem DUT).} Conectar a fonte de ruído \emph{diretamente} ao analisador e aplicar o método Y para obter a NF do receptor:
+\[
+F_{\text{rec}} = \frac{\text{ENR}}{Y_{\text{cal}} - 1}.
+\]
+
+\textbf{Etapa MEAS (com DUT).} Inserir o DUT no caminho e repetir o método Y:
+\[
+F_{\text{med}} = \frac{\text{ENR}}{Y_{\text{med}} - 1}.
+\]
+
+\textbf{Correção de Friis (isola o DUT).}
+\[
+\boxed{\;F_{\text{DUT}} = F_{\text{med}} - \frac{F_{\text{rec}} - 1}{G_{\text{DUT}}}\;}
+\]
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Calibração de duas etapas: aplicação prática}
+
+\textbf{No exemplo anterior.} Com $G_{\text{DUT}} = 100$ (20 dB) e $F_{\text{rec}} \approx 10$ (10 dB típico de analisador):
+\[
+\frac{F_{\text{rec}} - 1}{G_{\text{DUT}}} = \frac{9}{100} = 0{,}09.
+\]
+A correção subtrai $\sim 0{,}09$ de $F$ -- pequena no nosso caso porque o LNA tem ganho alto que mascara o receptor. Em DUTs de ganho baixo, ou com $F_{\text{rec}}$ alta, a correção passa a dominar a medida.
+
+\vspace{0.3cm}
+
+\textbf{Na prática.} Analisadores dedicados a figura de ruído (Keysight N8975B, R\&S FSWP) executam as duas etapas automaticamente: gravam $F_{\text{rec}}(f)$ num passe de calibração e aplicam a correção de Friis ponto a ponto durante a medida do DUT.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Fonte de ruído calibrada: visão geral}
+
+Uma fonte de ruído de bancada gera \textbf{ruído branco gaussiano} com densidade espectral conhecida, em uma saída coaxial de $50\,\Omega$.
+
+\textbf{Dois estados controlados por chave DC:}
+\begin{itemize}
+\item \emph{cold:} alimentação desligada -- a saída emite apenas o ruído térmico do hardware passivo, $T_C \approx T_0 = 290$ K;
+\item \emph{hot:} alimentação ligada -- a saída emite ruído equivalente a $T_H \gg T_0$.
+\end{itemize}
+
+\textbf{Parâmetros de catálogo:}
+\begin{itemize}
+\item curva de ENR versus frequência (tabela ou polinômio do fabricante);
+\item faixa de frequência (DC--18 GHz típico; até 110 GHz em modelos mmWave);
+\item VSWR de saída nos dois estados (idealmente $< 1{,}3$).
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Como o ruído é gerado fisicamente}
+
+Três mecanismos físicos principais:
+
+\begin{itemize}
+\item \textbf{Ruído térmico (Johnson-Nyquist).} Carga resistiva à temperatura $T$ entrega $kTB$. Excelente como padrão primário de calibração, mas atingir ENR alta exigiria milhares de K -- inviável fora de cargas criogênicas/aquecidas dedicadas.
+\item \textbf{Ruído \emph{shot} de diodo de avalanche.} Diodo reverso-polarizado em \emph{breakdown}; cada avalanche é um evento de Poisson cuja flutuação domina o ruído. Banda larga, ENR de 5--25 dB, baixo custo -- é a base da quase totalidade das fontes comerciais.
+\item \textbf{Tubo de gás ionizado (legacy).} Plasma de neônio com $T \sim 10^4$ K em guia de onda. Boa estabilidade mas frágil e volumoso; quase aposentado pelo diodo de avalanche.
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Topologia interna típica}
+
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, node distance=0.35cm,
+  blk/.style={draw, rounded corners, minimum height=0.9cm, align=center, font=\scriptsize}]
+\node[blk, fill=red!10] (bias) {Bias 28\,V\\(chave)};
+\node[blk, fill=orange!10, right=of bias] (diode) {Diodo\\avalanche};
+\node[blk, fill=yellow!10, right=of diode] (att) {Atenuador\\3--10 dB};
+\node[blk, fill=green!10, right=of att] (out) {SMA\\$50\,\Omega$};
+\draw[->] (bias) -- (diode);
+\draw[->] (diode) -- (att);
+\draw[->] (att) -- (out);
+\end{tikzpicture}
+\end{center}
+
+\textbf{Função de cada bloco:}
+\begin{itemize}
+\item \emph{Bias com chave:} liga/desliga o diodo, comutando entre $T_H$ e $T_C$;
+\item \emph{Diodo de avalanche:} converte a corrente DC em ruído \emph{shot} de banda larga;
+\item \emph{Atenuador resistivo:} desempenha dois papéis críticos -- achata a curva de ENR vs frequência \emph{e} mascara a variação de impedância entre os dois estados, mantendo VSWR baixo em hot e em cold;
+\item \emph{Saída casada:} conector $50\,\Omega$ rastreável.
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{O que torna a fonte cara: faixa de frequência}
+
+A faixa de frequência domina o preço de catálogo:
+\begin{itemize}
+\item DC--1 GHz: dezenas de dólares (kits de bancada e didáticos);
+\item DC--18 GHz: alguns milhares de dólares (Keysight 346B, NoiseCom NC346);
+\item até 50 GHz: 10--30 k USD;
+\item até 110 GHz: 60 k USD ou mais.
+\end{itemize}
+
+Conector também escala com a frequência: SMA é barato; $2{,}92$ mm e $1{,}85$ mm encarecem bastante o conjunto.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Outros fatores e versão didática}
+
+\textbf{Demais fatores de custo:}
+\begin{itemize}
+\item planura da ENR: variação $< 0{,}2$ dB ao longo da faixa exige ajuste fino do atenuador e do casamento;
+\item VSWR baixo \emph{simultaneamente} em hot e em cold é difícil de garantir;
+\item estabilidade térmica e compensação de drift do diodo;
+\item rastreabilidade metrológica contra padrão primário (NIST, NPL, INMETRO).
+\end{itemize}
+
+\textbf{Versão didática.} Um diodo Zener BZX79 reverso-polarizado seguido de um amplificador discreto entrega ENR utilizável até $\sim 500$ MHz por menos de R\$~50 -- o suficiente para um experimento de método Y em sala de aula.
+
+\end{frame}
+
+% ============================================
+
 \section{Perdas de transmissão}
 
 \begin{frame}{Modelo de perda de canal}
@@ -1690,6 +2489,67 @@ ao receptor. Em dB, $L_{\text{dB}} = 10\log_{10} L$ se subtrai diretamente.
 \gamma = \frac{P_r}{N_0 W} = \frac{P_t / L}{N_0 W}
 \]
 Cada decibel a mais de perda significa um decibel a menos de $\gamma$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}[allowframebreaks]{Modelo de perda no espaço livre}
+
+Em visada direta entre duas antenas, a equação de Friis dá a potência recebida:
+\[
+P_r = P_t \, G_t \, G_r \left( \frac{\lambda}{4 \pi d} \right)^2
+\]
+com $\lambda = c/f$ o comprimento de onda e $d$ a distância entre as antenas.
+
+\vspace{0.2cm}
+
+\textbf{Perda isotrópica de percurso:} é a perda definida com antenas isotrópicas, $G_t = G_r = 1$,
+\[
+L_{\text{fs}} = \left( \frac{4 \pi d}{\lambda} \right)^2 = \left( \frac{4 \pi d f}{c} \right)^2
+\]
+
+\textbf{Forma prática em dB:}
+\[
+L_{\text{fs,dB}} = 92{,}45 + 20\log_{10} d_{\text{km}} + 20\log_{10} f_{\text{GHz}}
+\]
+
+\vspace{0.2cm}
+
+Cada duplicação da distância acrescenta $6$ dB de perda; o mesmo vale para a frequência. A perda cresce com $f^2$ porque a abertura efetiva de uma antena isotrópica diminui com $\lambda^2$.
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}[allowframebreaks]{Atenuador passivo: derivação de $G$, $F$ e $T_e$}
+
+\textbf{Cenário.} Atenuador passivo, casado dos dois lados, em equilíbrio térmico a $T_0$. A perda é $L > 1$ e a fonte na entrada também está a $T_0$.
+
+\textbf{Ganho.} O atenuador divide a potência do sinal por $L$, logo $G = 1/L$.
+
+\textbf{Ruído interno.} As perdas vêm de resistores dissipativos que geram ruído de Johnson. Pelo teorema de Nyquist, o ruído disponível na saída de qualquer rede passiva casada a $T_0$ vale $kT_0 B$. Decompondo em fonte atenuada mais ruído interno:
+\[
+\underbrace{\frac{kT_0 B}{L}}_{\text{fonte atenuada}} \;+\; \underbrace{N_{\text{int}}}_{\text{ruído interno}} \;=\; kT_0 B
+\quad\Longrightarrow\quad
+N_{\text{int}} = kT_0 B \, \frac{L-1}{L}
+\]
+
+\textbf{Figura de ruído.} Com fonte a $T_0$ na entrada,
+\[
+F = \frac{(S/N)_{\text{in}}}{(S/N)_{\text{out}}} = \frac{S/(kT_0 B)}{(S/L)/(kT_0 B)} = L
+\]
+
+\textbf{Temperatura de ruído equivalente.} $T_e$ é a temperatura fictícia na entrada que, amplificada por $G$, reproduz o ruído interno na saída:
+\[
+G \, k T_e B = N_{\text{int}}
+\;\Longrightarrow\;
+\frac{k T_e B}{L} = kT_0 B \, \frac{L-1}{L}
+\;\Longrightarrow\;
+T_e = (L-1)\, T_0
+\]
+
+A relação geral $F = 1 + T_e/T_0$ devolve $F = 1 + (L-1) = L$, confirmando a consistência. As três fórmulas vêm da mesma ideia: o equilíbrio térmico a $T_0$ obriga o ruído de saída a valer $kT_0 B$.
 
 \end{frame}
 
@@ -1901,7 +2761,7 @@ Para $\gamma = P_r/(N_0 W)$ fixo:
 \item DSB-SC coerente: $(S/N)_o = \gamma$.
 \item SSB coerente: $(S/N)_o = \gamma$.
 \item AM convencional, envelope: $(S/N)_o \le \gamma/3$, com efeito de limiar.
-\item FM, $\beta$: $(S/N)_o = 3\beta^2 \gamma$, com efeito de limiar.
+\item FM, $\beta$ (tom): $(S/N)_o = \tfrac{3}{2}\beta^2 \gamma$, com efeito de limiar.
 \item Pré/pós-ênfase em FM acrescenta $\sim 13$ dB para áudio.
 \end{itemize}
 

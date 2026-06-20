@@ -1,0 +1,188 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Lista -- Projeto de Sistema}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Lista de Exercícios}}\\[0.15cm]
+  {\Large\textbf{Projeto de Sistema de Comunicação Analógica}}\\[0.15cm]
+  {\large\textit{Modulação, Recepção, Banda, Enlace e Sincronismo}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Semestre:} 2026/1 \hfill \textbf{Referência:} Proakis \& Salehi, Caps.~3, 4 e 6.
+
+\bigskip
+
+\begin{atencao}[Orientações]
+\small
+Esta lista integra os temas do Módulo 2: análise espectral, modulações AM e FM, recepção coerente, ruído, banda e orçamento de enlace. As questões pedem \emph{decisões} de projeto justificadas em números, com diagramas de blocos e equações. Em cada item, deixe explícita a hipótese adotada.
+
+\textbf{Constantes:} $kT_0 = 4{,}0\times 10^{-21}$\,W/Hz a $T_0 = 290$\,K; $c = 3\times 10^{8}$\,m/s.
+\end{atencao}
+
+% ======================================================
+\section*{Questão 1 -- Telemetria em canal estreito (HF)}
+
+Um sistema de telemetria precisa transmitir voz com largura $W = 3\;\text{kHz}$ por um canal de HF de $3\;\text{kHz}$ alocados, frequência central $f_c = 14{,}2\;\text{MHz}$, atenuação total $L = 100\;\text{dB}$ e PSD bilateral de ruído $N_0/2 = 5\times 10^{-19}\;\text{W/Hz}$. A SNR alvo é $(S/N)_o = 30\;\text{dB}$. Disponibilidade de potência no transmissor: até $P_T = 100\;\text{W}$.
+
+\begin{enumerate}[label=\alph*)]
+  \item Justifique, com base na banda alocada de apenas $3\;\text{kHz}$, porque DSB-SC e AM convencional são \emph{inviáveis} para essa aplicação. Calcule a banda mínima que cada esquema exigiria.
+  \item Para SSB-USB, projete a potência transmitida mínima $P_T^{\min}$ que cumpre a meta $(S/N)_o = 30\;\text{dB}$. Verifique se está dentro do orçamento de $100\;\text{W}$.
+  \item Para NBFM com $\Delta f = 1\;\text{kHz}$, calcule a banda de Carson, o índice $\beta$ e a $(S/N)_o$ resultante para $P_T = 100\;\text{W}$. NBFM cabe nos $3\;\text{kHz}$ alocados?
+  \item Descreva, em blocos, o transmissor e o receptor SSB para essa aplicação. Inclua filtros de rejeição da banda inferior, oscilador local com travamento em cristal e demodulador coerente, indicando a função de cada bloco e a frequência de operação.
+  \item Discuta o impacto de erro de frequência do oscilador local de $\pm 50\;\text{Hz}$ em torno de $14{,}2\;\text{MHz}$ na inteligibilidade da voz recebida. Há diferença qualitativa entre SSB e DSB-SC quanto a esse erro?
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 2 -- Receptor superheteródino para FM broadcast}
+
+Um receptor comercial precisa sintonizar todas as estações da banda $88$--$108\;\text{MHz}$, com canais de $200\;\text{kHz}$, atendendo às normas FCC. O receptor é do tipo superheteródino com IF $f_{\text{IF}} = 10{,}7\;\text{MHz}$ e injeção por cima ($f_{\text{LO}} > f_{\text{RF}}$).
+
+\begin{center}
+\begin{circuitikz}[scale=0.85, transform shape]
+  \draw (0,0) node[left]{Ant.} -- (1.0,0);
+  \draw (1.0,-0.5) rectangle (2.6,0.5) node[midway]{\footnotesize RF amp};
+  \draw (2.6,0) -- (3.5,0);
+  \draw (3.5,-0.5) rectangle (4.7,0.5) node[midway]{\footnotesize Mixer};
+  \draw (4.1,-1.6) node[below]{$f_{\text{LO}}$} -- (4.1,-0.5);
+  \draw (4.7,0) -- (5.5,0);
+  \draw (5.5,-0.5) rectangle (7.1,0.5) node[midway]{\footnotesize IF $10{,}7$ MHz};
+  \draw (7.1,0) -- (7.9,0);
+  \draw (7.9,-0.5) rectangle (9.5,0.5) node[midway]{\footnotesize Limitador};
+  \draw (9.5,0) -- (10.3,0);
+  \draw (10.3,-0.5) rectangle (12.2,0.5) node[midway]{\footnotesize Discrim.};
+  \draw (12.2,0) -- (13.2,0) node[right]{áudio};
+\end{circuitikz}
+\end{center}
+
+\begin{enumerate}[label=\alph*)]
+  \item Determine a faixa de operação do oscilador local $f_{\text{LO}}$ para varrer toda a banda comercial.
+  \item Determine a faixa de frequências da \emph{imagem}, $f_{\text{img}} = f_{\text{LO}} + f_{\text{IF}}$. Especifique a banda de rejeição que o filtro RF de entrada deve providenciar. Esboce o gabarito do filtro com mínimo $40\;\text{dB}$ de rejeição na frequência de imagem.
+  \item O filtro IF deve passar a banda Carson do FM transmitido. Estabeleça a largura de banda mínima $B_{\text{IF}}$ considerando $\Delta f = 75\;\text{kHz}$, $W = 15\;\text{kHz}$ e $\Delta f$ de oscilador local de $\pm 5\;\text{kHz}$. Inclua o piloto-tom de estéreo de $19\;\text{kHz}$.
+  \item Justifique a função do \emph{limitador} antes do discriminador. Por que essa etapa não é necessária em receptores AM?
+  \item Esboce a curva de resposta $|H(f)|$ do discriminador balanceado e indique a região linear de operação. Como o discriminador é projetado para acomodar a banda IF inteira sem distorção?
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 3 -- Sincronismo coerente e Costas Loop}
+
+Um sistema DSB-SC opera em $f_c = 1\;\text{MHz}$. O receptor utiliza um \emph{Costas loop} para recuperar a portadora sem necessitar de tom piloto. O sinal recebido sem ruído é $r(t) = m(t)\cos(2\pi f_c t + \theta)$.
+
+\begin{center}
+\begin{tikzpicture}[node distance=1cm, font=\small,
+  block/.style={rectangle, draw, minimum height=0.7cm, minimum width=1.6cm, align=center},
+  mult/.style={circle, draw, inner sep=1pt}]
+\node (in) {$r(t)$};
+\node[mult, right=0.6cm of in] (m1) {$\times$};
+\node[mult, below=0.8cm of m1] (m2) {$\times$};
+\node[block, right=of m1] (lpf1) {LPF};
+\node[block, right=of m2] (lpf2) {LPF};
+\node[mult, right=of lpf1, yshift=-0.7cm] (m3) {$\times$};
+\node[block, right=of m3] (lf) {Filtro\\malha};
+\node[block, below=0.4cm of lf] (vco) {VCO\\$f_c$};
+\node[block, above=0.1cm of m1, xshift=-0.4cm] (phi1) {$0^\circ$};
+\node[block, below=0.1cm of m2, xshift=-0.4cm] (phi2) {$-90^\circ$};
+\draw[->] (in) -- (m1.west);
+\draw[->] (in) |- (m2.west);
+\draw[->] (m1) -- (lpf1);
+\draw[->] (m2) -- (lpf2);
+\draw[->] (lpf1) -| (m3);
+\draw[->] (lpf2) -| (m3);
+\draw[->] (m3) -- (lf);
+\draw[->] (lf) -- (vco);
+\draw[->] (vco) -| (phi1) -- (m1);
+\draw[->] (vco) -| (phi2) -- (m2);
+\node[right=0.6cm of lpf1] {$y_I(t)$};
+\end{tikzpicture}
+\end{center}
+
+\begin{enumerate}[label=\alph*)]
+  \item Mostre que, em regime travado com erro de fase $\Delta\theta = \theta - \hat\theta$, a saída do ramo em fase é $y_I(t) = \tfrac{1}{2}m(t)\cos\Delta\theta$ e a do ramo em quadratura é $y_Q(t) = \tfrac{1}{2}m(t)\sin\Delta\theta$. O sinal de erro do detector é $e(t) = y_I y_Q = \tfrac{1}{8}m^2(t)\sin(2\Delta\theta)$.
+  \item A média $E\{e(t)\}$ é proporcional a $\sin(2\Delta\theta)$. Mostre que há \emph{duas} fases estáveis de travamento ($\Delta\theta = 0$ e $\Delta\theta = \pi$), correspondendo a uma ambiguidade de polaridade do sinal recuperado. Como resolver essa ambiguidade na prática?
+  \item Considere um erro residual de fase no estado travado, $\Delta\theta = 5^\circ$. Calcule a perda de SNR, em dB, em relação ao caso ideal $\Delta\theta = 0$, sabendo que $(S/N)_o \propto \cos^2\Delta\theta$.
+  \item O filtro de malha do PLL tem função de transferência $G(s) = K(1 + s\tau_2)/(s\tau_1)$, com $\tau_1 = 10\;\text{ms}$ e $\tau_2 = 1\;\text{ms}$. Estime a largura de banda de ruído equivalente $B_n$ do PLL e justifique porque interessa minimizar essa banda em recepção sob ruído alto.
+  \item Compare o Costas Loop com a alternativa de \emph{tom piloto} (DSB-LC com piloto): vantagens e desvantagens de cada uma em termos de banda, potência e complexidade do receptor.
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 4 -- FDM-SSB sobre FM (microwave backbone)}
+
+Um enlace de microondas em $f_c = 6\;\text{GHz}$ transporta $N = 100$ canais de voz de $W_v = 4\;\text{kHz}$ cada. O esquema é FDM-SSB-USB com guarda de $400$\,Hz entre canais; a banda agregada é então FM-modulada em $f_c$, com $\beta = 3$.
+
+\begin{enumerate}[label=\alph*)]
+  \item Calcule a largura de banda total $W_b$ do sinal banda base composto (saída do FDM-SSB) e a banda de Carson $B_c$ do sinal FM transmitido.
+  \item Desenhe o plano de frequências do FDM-SSB. Indique as portadoras $f_{c,i}$ dos $N$ canais e o piloto de sincronismo eventual. Justifique a escolha da primeira portadora $f_{c,1}$.
+  \item No receptor, após demodulação FM, cada canal voz é extraído por um banco de demoduladores SSB coerentes. Mostre que a potência de ruído entregue ao $i$-ésimo canal depende da \emph{posição} $f_{c,i}$ no espectro banda base, devido à PSD parabólica do ruído de saída FM, $S_{n_o}(f) = N_0 f^2/A_c^2$.
+  \item Determine como ajustar as amplitudes $A_i$ das portadoras SSB no transmissor para garantir SNR \emph{uniforme} em todos os canais após demodulação. Compare com a solução alternativa de aplicar pré-ênfase coletiva antes do modulador FM.
+  \item O enlace tem distância $d = 50\;\text{km}$, $G_T = G_R = 35\;\text{dBi}$ e LNA com $F = 4\;\text{dB}$. Calcule a potência transmitida $P_T$ necessária para que a SNR média por canal seja $\ge 40\;\text{dB}$.
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 5 -- Projeto integrado: AM vs FM em enlace móvel}
+
+Você é responsável pelo projeto de um sistema de comunicação móvel em VHF ($f_c = 150\;\text{MHz}$) para fluxo de áudio de boa qualidade com $W = 5\;\text{kHz}$. As especificações são:
+
+\begin{itemize}\itemsep0pt
+  \item potência máxima do transmissor $P_T \le 5\;\text{W}$;
+  \item canal de RF: largura $50\;\text{kHz}$ alocados;
+  \item $(S/N)_o \ge 35\;\text{dB}$ na saída do receptor;
+  \item distância máxima do enlace: $20\;\text{km}$;
+  \item antenas omnidirecionais, $G_T = G_R = 3\;\text{dBi}$;
+  \item ruído no receptor: $kT_0$ com $F = 6\;\text{dB}$.
+\end{itemize}
+
+\begin{enumerate}[label=\alph*)]
+  \item \textbf{Orçamento de enlace.} Calcule a perda de espaço livre $L_{\text{esp}}$, a potência recebida $P_R$ máxima admissível e a SNR de referência $\gamma$ resultante. Use $kT_0 = 4\times 10^{-21}$\,W/Hz e largura de mensagem $W$.
+  \item \textbf{Alternativa 1: AM convencional.} Determine, para $\mu = 0{,}85$ e $P_{m_n} = 0{,}1$ (voz), se a meta de $(S/N)_o$ é alcançável. Calcule também a banda ocupada e verifique se cabe nos $50\;\text{kHz}$.
+  \item \textbf{Alternativa 2: FM com $\beta$ máximo permitido.} Determine o $\beta$ máximo que cabe nos $50\;\text{kHz}$ via regra de Carson com $W = 5\;\text{kHz}$. Calcule $(S/N)_o$ tom único e $(S/N)_o$ para voz com $P_{m_n} = 0{,}1$. Verifique o limiar e a margem.
+  \item \textbf{Modulador escolhido.} Escolha a alternativa que cumpre a meta com maior margem e descreva, em diagrama de blocos, o transmissor e o receptor completos. Inclua: gerador de portadora, modulador (varactor ou Armstrong para FM, modulador balanceado para AM), filtro de antena, mixer superheteródino, IF, limitador (se FM), demodulador e amplificador de áudio.
+  \item \textbf{Sincronismo e estabilidade.} Especifique a estabilidade exigida do oscilador de portadora em $\text{ppm}$, considerando que a precisão na frequência recebida deve ser melhor que $\pm 100\;\text{Hz}$ para o demodulador escolhido. Considere a derivação combinada do oscilador do transmissor e do oscilador local do receptor.
+\end{enumerate}
+
+\vfill
+\begin{center}
+  \small\textit{Boa sorte!}
+\end{center}
+
+\end{document}

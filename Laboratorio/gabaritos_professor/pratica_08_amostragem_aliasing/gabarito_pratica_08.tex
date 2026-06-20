@@ -22,108 +22,183 @@
   {\large\textbf{GABARITO DO PROFESSOR -- USO RESTRITO}}\\[0.2cm]
   {\large FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.2cm]
   \rule{12cm}{0.8pt}\\[0.2cm]
-  {\Large\textbf{Prática 08: Amostragem e Aliasing}}\\[0.2cm]
+  {\Large\textbf{Prática 08: Conversão A/D -- Amostragem, Aliasing e Quantização PCM}}\\[0.2cm]
   \rule{12cm}{0.8pt}
 \end{center}
 
-\section*{Gráfico esperado}
+\begin{nota}[Procedência dos dados]
+  Todas as figuras e todos os valores numéricos deste gabarito foram gerados
+  por \texttt{pratica\_08\_gabarito.py} executando flowgraphs do GNU Radio 3.10
+  em modo headless, com os mesmos blocos dos arquivos \texttt{.grc} entregues
+  aos alunos. Os três flowgraphs dos alunos foram executados de ponta a ponta
+  e reproduzem estes resultados: o alias do cenário C aparece em 5001\,Hz; o
+  \texttt{QT GUI Number Sink} lê SQNR de $25{,}31$, $49{,}78$ e $73{,}94$\,dB
+  para $n = 4, 8, 12$ bits; e o equalizador adiciona $+2{,}0$\,dB ao tom de
+  2400\,Hz, compensando o droop do ZOH.
+\end{nota}
+
+\section*{Gráficos esperados}
+
+\textbf{Parte I -- Amostragem e aliasing} (espectros decimados dos seis
+cenários, dados do GNU Radio):
 \begin{center}
-  \includegraphics[width=0.88\textwidth]{grafico_esperado.png}
+  \includegraphics[width=0.86\textwidth]{grafico_esperado.png}
 \end{center}
-\textit{O gráfico acima foi gerado pelo script \texttt{gerar\_grafico.py} desta pasta.}
+
+\textbf{Parte II -- Quantização PCM} (SQNR medido no GNU Radio versus a regra
+$1{,}76 + 6{,}02\,n$):
+\begin{center}
+  \includegraphics[width=0.66\textwidth]{grafico_quantizacao_sqnr.png}
+\end{center}
 
 \section*{Respostas esperadas}
 
 \begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*, itemsep=1em]
 
-  \item \textbf{Verifique o critério de Nyquist e calcule a frequência de aliasing para os cenários A--F.}
+  \item \textbf{Tabela de Nyquist e frequência de aliasing (cenários A--F).}
 
-    \textbf{Resposta esperada:}
-    Cenário A ($f_0=1000$, $f_{s,ef}=12000$\,Hz): Nyquist ok ($1000 < 6000$); sem aliasing.
-    Cenário B ($f_0=5000$, $f_{s,ef}=12000$\,Hz): Nyquist ok ($5000 < 6000$); sem aliasing.
-    Cenário C ($f_0=7000$, $f_{s,ef}=12000$\,Hz): violação ($7000 > 6000$);
-    $f_\text{alias} = |7000 - 12000| = 5000$\,Hz.
-    Cenário D ($f_0=1000$, $f_{s,ef}=4800$\,Hz): ok ($1000 < 2400$); sem aliasing.
-    Cenário E ($f_0=2500$, $f_{s,ef}=4800$\,Hz): violação ($2500 > 2400$);
-    $f_\text{alias} = |2500 - 4800| = 2300$\,Hz.
-    Cenário F ($f_0=3500$, $f_{s,ef}=4800$\,Hz): violação;
-    $f_\text{alias} = |3500 - 4800| = 1300$\,Hz.
+    \textbf{Resposta esperada:} com $f_\text{alias} = |f_0 - n f_s|$ e Nyquist
+    $= f_{s,\text{ef}}/2$:
+
+    \begin{center}
+    \begin{tabular}{c c c c c c}
+      \toprule
+      Cen. & $f_0$ (Hz) & $f_{s,\text{ef}}$ (Hz) & $f_s/2$ (Hz) & Nyquist ok? & $f_\text{alias}$ (Hz) \\
+      \midrule
+      A & 1\,000 & 12\,000 & 6\,000 & sim & 1\,000 (sem alias) \\
+      B & 5\,000 & 12\,000 & 6\,000 & sim & 5\,000 (sem alias) \\
+      C & 7\,000 & 12\,000 & 6\,000 & não & $|7000-12000| = 5\,000$ \\
+      D & 1\,000 & 4\,800  & 2\,400 & sim & 1\,000 (sem alias) \\
+      E & 2\,500 & 4\,800  & 2\,400 & não & $|2500-4800| = 2\,300$ \\
+      F & 3\,500 & 4\,800  & 2\,400 & não & $|3500-4800| = 1\,300$ \\
+      \bottomrule
+    \end{tabular}
+    \end{center}
+    Os picos observados no espectro coincidem com $f_\text{alias}$ com erro
+    menor que 2\,Hz na simulação.
 
     \begin{nota}[Erros comuns]
-      Calcular $f_\text{alias}$ como $f_0 - f_s$ em vez de $|f_0 - n f_s|$ para o
-      valor inteiro $n$ que minimiza o resultado, ou usar $f_s$ em vez de $f_s/2$
-      como frequência de Nyquist.
+      Usar $f_s$ em vez de $f_s/2$ como frequência de Nyquist, ou calcular
+      $f_0 - f_s$ sem o valor inteiro $n$ que minimiza $|f_0 - n f_s|$.
     \end{nota}
 
-  \item \textbf{Como o aliasing se manifesta no domínio do tempo no Cenário C?}
+  \item \textbf{Frequência aparente no cenário C.}
 
-    \textbf{Resposta esperada:} No Cenário C, o sinal de 7000\,Hz após decimação
-    aparenta ter frequência 5000\,Hz. No tempo, a forma de onda oscila mais lentamente
-    que o sinal original: em vez de 7 ciclos por milissegundo, parece ter 5 ciclos.
-    Isso ocorre porque as amostras capturadas a 12000\,Hz de um sinal de 7000\,Hz
-    correspondem exatamente às amostras que seriam obtidas de um sinal de 5000\,Hz
-    (reflexo em $f_s/2 = 6000$\,Hz).
+    \textbf{Resposta esperada:} a frequência aparente é $5\,000$\,Hz. Em
+    1\,ms o sinal decimado aparenta $5000 \times 10^{-3} = 5$ ciclos,
+    enquanto o sinal original de 7000\,Hz teria $7$ ciclos. As amostras
+    capturadas a 12000\,Hz de um sinal de 7000\,Hz são idênticas às de um
+    sinal de 5000\,Hz.
+
+  \item \textbf{Passo $\Delta$ e ruído $P_q$ para $V_{pp}=2$\,V.}
+
+    \textbf{Resposta esperada:} com $\Delta = V_{pp}/2^n = 2/2^n$ e
+    $P_q = \Delta^2/12$:
+
+    \begin{center}
+    \begin{tabular}{c c c c}
+      \toprule
+      $n$ & $L = 2^n$ & $\Delta$ & $P_q = \Delta^2/12$ \\
+      \midrule
+      2  & 4      & $500{,}0$\,mV    & $2{,}083 \times 10^{-2}$\,V$^2$ \\
+      4  & 16     & $125{,}0$\,mV    & $1{,}302 \times 10^{-3}$\,V$^2$ \\
+      8  & 256    & $7{,}8125$\,mV   & $5{,}086 \times 10^{-6}$\,V$^2$ \\
+      16 & 65\,536 & $0{,}030518$\,mV & $7{,}761 \times 10^{-11}$\,V$^2$ \\
+      \bottomrule
+    \end{tabular}
+    \end{center}
+
+  \item \textbf{SQNR teórico e medido.}
+
+    \textbf{Resposta esperada:} $\text{SQNR}_\text{dB} = 1{,}76 + 6{,}02\,n$.
+
+    \begin{center}
+    \begin{tabular}{c c c c}
+      \toprule
+      $n$ & Teórico (dB) & Medido no GNU Radio (dB) & Erro (dB) \\
+      \midrule
+      4  & 25{,}84 & 25{,}31 & $-0{,}53$ \\
+      8  & 49{,}92 & 49{,}79 & $-0{,}13$ \\
+      12 & 74{,}00 & 73{,}98 & $-0{,}02$ \\
+      16 & 98{,}08 & 98{,}09 & $+0{,}01$ \\
+      \bottomrule
+    \end{tabular}
+    \end{center}
+    O erro entre teoria e medição fica abaixo de 1\,dB e tende a zero para
+    $n$ grande, confirmando a regra dos 6\,dB por bit.
 
     \begin{nota}[Erros comuns]
-      Descrever o aliasing apenas no espectro sem relacionar com a manifestação
-      no domínio do tempo: o sinal parece oscilar em frequência diferente da real.
+      Para $n \leq 3$ a medição fica $\approx 1$\,dB abaixo da teoria, pois o
+      modelo de ruído uniforme só vale para $L$ grande. Isso não é erro do
+      aluno e não deve ser penalizado.
     \end{nota}
 
-  \item \textbf{Qual é a diferença entre frequência real e frequência aparente após amostragem insuficiente?}
+  \item \textbf{Número mínimo de bits.}
 
-    \textbf{Resposta esperada:} A frequência aparente é a frequência com que as amostras
-    parecem variar; a frequência real é a do sinal analógico original. Sem informação
-    adicional (taxa de amostragem e frequência do sinal fonte), um receptor não pode
-    distinguir 7000\,Hz subamostrado de um sinal real de 5000\,Hz: ambos produzem
-    exatamente as mesmas sequências de amostras. Esta ambiguidade é a essência do aliasing
-    e justifica o filtro anti-aliasing antes da amostragem.
+    \textbf{Resposta esperada:} $n \geq (\text{SQNR}-1{,}76)/6{,}02$.
+    Para 60\,dB: $n \geq (60-1{,}76)/6{,}02 = 9{,}67 \Rightarrow 10$ bits.
+    Para 90\,dB: $n \geq (90-1{,}76)/6{,}02 = 14{,}66 \Rightarrow 15$ bits.
 
-    \begin{nota}[Erros comuns]
-      Dizer que o receptor ``pode calcular'' a frequência real sem informação adicional.
-      A ambiguidade é fundamental e não pode ser resolvida apenas com as amostras.
-    \end{nota}
+  \item \textbf{Taxa de bits PCM.}
 
-  \item \textbf{Como o filtro anti-aliasing (LPF) resolve o problema nos Cenários C e E? Há alguma limitação?}
+    \textbf{Resposta esperada:} $R = f_s \cdot n \cdot C$.
+    Voz VoIP wideband, HD Voice:
+    $16\,000 \times 16 \times 1 = 256\,000$\,bps $= 256$\,kbps $= 0{,}256$\,Mbps.
+    Áudio de alta resolução, Hi-Res:
+    $96\,000 \times 24 \times 2 = 4\,608\,000$\,bps $= 4\,608$\,kbps $= 4{,}608$\,Mbps.
 
-    \textbf{Resposta esperada:} No Cenário C: o LPF com \texttt{cutoff}$=6000$\,Hz atenua
-    o sinal de 7000\,Hz antes da decimação, eliminando o aliasing; o pico em 5000\,Hz
-    desaparece. No Cenário E: o LPF com \texttt{cutoff}$=2400$\,Hz deve atenuar o sinal
-    de 2500\,Hz. Como $f_0=2500 > f_\text{cutoff}=2400$\,Hz, o próprio sinal de interesse
-    é atenuado -- o filtro AA resolve o aliasing mas remove o sinal que está acima de
-    $f_s/2$, incluindo o sinal útil quando ele está muito próximo da frequência de Nyquist.
+  \item \textbf{Atenuação do ZOH.}
 
-    \begin{nota}[Erros comuns]
-      Afirmar que o LPF ``preserva o sinal'' no Cenário E sem notar que
-      $2500 > 2400$\,Hz e o sinal de interesse é atenuado pelo próprio filtro AA.
-    \end{nota}
+    \textbf{Resposta esperada:} $20\log_{10}|\text{sinc}(f/f_\text{low})|$ com
+    $f_\text{low} = 6000$\,Hz:
+    $f = 1500$\,Hz $\to -0{,}91$\,dB;
+    $f = 2400$\,Hz $\to -2{,}42$\,dB;
+    $f = 3000$\,Hz $\to -3{,}92$\,dB. O piso de PSD medido no GNU Radio segue
+    a curva $|\text{sinc}|^2$ com erro menor que $0{,}2$\,dB.
 
-  \item \textbf{Quais são as diferenças entre o bloco \texttt{Keep 1 in N} (simulação) e um ADC real?}
+  \item \textbf{Droop na borda e ação do equalizador.}
 
-    \textbf{Resposta esperada:} O bloco \texttt{Keep 1 in N} realiza subamostragem ideal:
-    descarta amostras sem ruído de quantização, sem jitter de amostragem, sem distorção de
-    abertura. Um ADC real: (1) tem jitter de relógio que limita o SNR
-    ($\text{SNR}_\text{jitter} = 1/(2\pi f_0 \tau_j)^2$); (2) tem largura de abertura finita;
-    (3) tem ruído de quantização proporcional ao número de bits; (4) tem largura de banda
-    de entrada limitada pelo circuito amostrador. Na simulação, o aliasing é perfeitamente
-    determinístico; no ADC real, não-idealidades adicionam aleatoriedade.
+    \textbf{Resposta esperada:} na borda $f = f_\text{low}/2 = 3000$\,Hz o droop
+    do ZOH é $-3{,}9$\,dB. O equalizador inverse-sinc achata a banda de
+    passagem: em $f = 2400$\,Hz a atenuação passa de $-2{,}47$\,dB para
+    $-0{,}51$\,dB, e ainda eleva a atenuação das imagens em torno de
+    $f_\text{low}$ de $\approx -19$\,dB para abaixo de $-80$\,dB.
 
     \begin{nota}[Erros comuns]
-      Descrever apenas o jitter sem mencionar o ruído de quantização ou a largura de
-      banda de entrada, que são também limitações fundamentais do ADC real.
+      Confundir o droop do ZOH com o aliasing da Parte~I. O ZOH não cria
+      imagens novas, ele as atenua pelos nulos do $\text{sinc}$; o que ele
+      distorce é a banda de passagem, corrigida pelo equalizador.
     \end{nota}
 
 \end{enumerate}
+
+\section*{Reconstrução ZOH esperada (Parte III)}
+\begin{center}
+  \includegraphics[width=0.82\textwidth]{grafico_zoh_espectro.png}
+\end{center}
+\textit{O piso vermelho do ZOH acompanha a curva azul $|\text{sinc}(f/f_\text{low})|^2$;
+o verde equalizado é plano na banda de passagem e atenua mais as imagens.}
+
+\section*{Formas de onda esperadas (Parte II)}
+\begin{center}
+  \includegraphics[width=0.82\textwidth]{grafico_quantizacao_ondas.png}
+\end{center}
+\textit{Com $n=2$ os degraus são grossos e o erro é grande; com $n=8$ o sinal
+quantizado é praticamente indistinguível do original.}
 
 \section*{Critérios de correção}
 \begin{tabular}{ll}
   \toprule
   Critério & Pontuação \\
   \midrule
-  Q1 -- Critério de Nyquist e cálculo de $f_\text{alias}$ para todos os cenários & 1,0 ponto \\
-  Q2 -- Manifestação do aliasing no tempo: oscilação mais lenta, não só espectro  & 1,0 ponto \\
-  Q3 -- Ambiguidade fundamental: amostras idênticas para duas frequências distintas & 1,0 ponto \\
-  Q4 -- Limitação do filtro AA no Cenário E: atenua o próprio sinal de interesse  & 1,0 ponto \\
-  Q5 -- Diferenças entre Keep 1 in N e ADC real: jitter, quantização e banda      & 1,0 ponto \\
+  Q1 -- Tabela de Nyquist e $f_\text{alias}$ corretos para A--F & 0,75 ponto \\
+  Q2 -- Frequência aparente 5000\,Hz e contagem de ciclos, 5 vs 7 & 0,50 ponto \\
+  Q3 -- $\Delta$ e $P_q$ corretos para $n=2,4,8,16$ & 0,75 ponto \\
+  Q4 -- SQNR teórico e comparação com o medido no GNU Radio & 0,75 ponto \\
+  Q5 -- Bits mínimos: 10 bits para 60\,dB e 15 bits para 90\,dB & 0,50 ponto \\
+  Q6 -- Taxas de bits: 256\,kbps e 4,608\,Mbps & 0,50 ponto \\
+  Q7 -- Atenuação do ZOH: $-0{,}91$, $-2{,}42$ e $-3{,}92$\,dB & 0,75 ponto \\
+  Q8 -- Droop na borda $-3{,}9$\,dB e efeito do equalizador & 0,50 ponto \\
   \midrule
   \textbf{Total} & \textbf{5,0 pontos} \\
   \bottomrule
@@ -131,9 +206,10 @@
 
 \bigskip
 \begin{nota}[Nota de correção geral]
-  Priorizar coerência física e evidência experimental (capturas de tela, tabelas).
-  Respostas sem evidência visual devem ter desconto. Não penalizar pequenos erros
-  de cálculo se o raciocínio físico estiver correto.
+  Exigir evidência experimental: capturas do \texttt{QT GUI Number Sink} com o
+  SQNR medido e capturas das formas de onda quantizadas. Respostas numéricas
+  sem a captura correspondente devem ter desconto. Não penalizar diferenças
+  menores que 1\,dB entre SQNR teórico e medido.
 \end{nota}
 
 \end{document}

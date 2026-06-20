@@ -1,0 +1,539 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{cancel}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{resolucao}[1][]{colback=green!5,colframe=green!40!black,
+  fonttitle=\bfseries, title={#1}, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Resolução -- Projeto de Sistema}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Resolução -- Lista de Exercícios}}\\[0.15cm]
+  {\Large\textbf{Projeto de Sistema de Comunicação Analógica}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Semestre:} 2026/1
+
+\bigskip
+
+% ======================================================================
+\section*{Questão 1 -- Telemetria em canal estreito (HF)}
+
+\begin{resolucao}[Item a -- Inviabilidade de DSB-SC e AM]
+
+DSB-SC e AM convencional transmitem ambas as bandas laterais, ocupando $B = 2W = 6\;\text{kHz}$. O canal alocado tem apenas $3\;\text{kHz}$. Logo, são \textbf{inviáveis}: o sinal vazaria para canais adjacentes (interferência) e o filtro do receptor cortaria parte da informação.
+
+Em HF, a sub-utilização espectral de DSB-SC é inaceitável, pois cada $3\;\text{kHz}$ é um canal disputado entre estações comerciais e amadoras. Por isso o SSB é o padrão de fato em HF amador e marítimo.
+\end{resolucao}
+
+\begin{resolucao}[Item b -- $P_T^{\min}$ em SSB]
+
+Com $N_0 = 10^{-18}\;\text{W/Hz}$ e $W = 3\;\text{kHz}$:
+\[
+  N_0 W = 10^{-18} \times 3000 = 3 \times 10^{-15}\;\text{W}.
+\]
+
+Para SSB, $(S/N)_o = \gamma$, então
+\[
+  \gamma = 10^{3} \;\Rightarrow\; P_R^{\min} = 10^{3} \cdot 3\times 10^{-15} = 3\times 10^{-12}\;\text{W} = 3\;\text{pW}.
+\]
+
+Com $L = 10^{10}$:
+\[
+  \boxed{P_T^{\min} = P_R \cdot L = 3\times 10^{-12}\times 10^{10} = 30\;\text{mW}.}
+\]
+
+Bem abaixo do orçamento de $100\;\text{W}$. Sobra margem de $35\;\text{dB}$ para compensar desvanecimentos ionosféricos.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- NBFM]
+
+$\beta = \Delta f/W = 1/3 \approx 0{,}33$.
+
+\textbf{Banda de Carson:} $B_c = 2(\Delta f + W) = 2(1 + 3) = 8\;\text{kHz}$. Excede os $3\;\text{kHz}$ alocados, mesmo com $\beta < 1$. NBFM tem aproximadamente a banda do AM porque, para $\beta \ll 1$, $B_c \approx 2W$.
+
+\textbf{Conclusão:} NBFM \emph{não cabe} no canal. Mesmo que a SNR fosse atrativa, a inviabilidade espectral inviabiliza o esquema. SSB é a única escolha que respeita o canal.
+
+Caso o sinal fosse forçadamente filtrado em $3\;\text{kHz}$, ocorreria distorção severa por supressão das harmônicas de Bessel.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Diagrama de blocos SSB]
+
+\textbf{Transmissor:}
+\begin{enumerate}\itemsep0pt
+  \item Pré-amplificação e limitação do áudio em $W = 3\;\text{kHz}$.
+  \item Modulador balanceado de portadora $f_1 = 100\;\text{kHz}$ (primeira mistura): gera DSB-SC.
+  \item Filtro a cristal SSB rejeita uma banda lateral; saída em $100 \pm 3\;\text{kHz}$ contendo apenas USB ou LSB.
+  \item Misturador com oscilador a cristal em $14{,}1\;\text{MHz}$: translada o sinal para $14{,}2\;\text{MHz}$.
+  \item Filtro de banda em $14{,}2\;\text{MHz} \pm 3\;\text{kHz}$ e amplificador de potência linear (classe A ou AB).
+  \item Antena.
+\end{enumerate}
+
+\textbf{Receptor:}
+\begin{enumerate}\itemsep0pt
+  \item Antena, pré-seletor de RF na faixa $14\;\text{MHz}$.
+  \item Mistura com VFO travado a cristal em $14{,}1\;\text{MHz}$: gera IF de $100\;\text{kHz}$.
+  \item Filtro IF estreito (filtro a cristal, $B = 3\;\text{kHz}$) que define a seletividade.
+  \item Demodulador coerente: misturador com portadora local $100\;\text{kHz}$ travada em cristal, seguido de LPF $3\;\text{kHz}$.
+  \item Amplificador de áudio.
+\end{enumerate}
+
+A função do filtro a cristal SSB no transmissor é \emph{eliminar} a banda lateral indesejada; no receptor, o filtro a cristal IF garante seletividade contra canais adjacentes.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Erro de oscilador local]
+
+\textbf{SSB-USB} com erro $\Delta f$: o sinal recuperado é
+\[
+  y(t) = \tfrac{A_c}{2}\big[m(t)\cos(2\pi\Delta f\,t) + \hat m(t)\sin(2\pi\Delta f\,t)\big].
+\]
+O espectro da voz \emph{desloca-se} em $\Delta f = 50\;\text{Hz}$. Vogais e consoantes ficam ligeiramente fora do tom (efeito ``Mickey Mouse'' em $\Delta f$ negativo, ``Donald Duck'' em $\Delta f$ positivo). Para fala, $\pm 50\;\text{Hz}$ é tolerável; para música, é audível e ruim.
+
+\textbf{DSB-SC} com erro $\Delta f$:
+\[
+  y(t) = \tfrac{A_c}{2}\,m(t)\cos(2\pi\Delta f\,t).
+\]
+A voz é \emph{multiplicada} por um cosseno de $50\;\text{Hz}$, gerando \emph{batimento} audível e fading periódico. Muito pior que SSB.
+
+\textbf{Conclusão:} SSB é robusto a erro de frequência; DSB-SC, não. Essa é uma das razões pelas quais SSB se firmou como padrão em HF amador.
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 2 -- Receptor superheteródino FM}
+
+\begin{resolucao}[Item a -- Faixa do oscilador local]
+
+Injeção por cima: $f_{\text{LO}} = f_{\text{RF}} + f_{\text{IF}}$.
+\[
+  f_{\text{RF}} \in [88, 108]\;\text{MHz} \;\Rightarrow\; f_{\text{LO}} \in [98{,}7,\;118{,}7]\;\text{MHz}.
+\]
+
+Faixa de varredura do VCO: $20\;\text{MHz}$, ou cerca de $20{,}3\%$ da frequência central.
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Imagem e filtro RF]
+
+Imagem: $f_{\text{img}} = f_{\text{LO}} + f_{\text{IF}} = f_{\text{RF}} + 2 f_{\text{IF}}$.
+\[
+  f_{\text{img}} \in [88 + 21{,}4,\;108 + 21{,}4] = [109{,}4,\;129{,}4]\;\text{MHz}.
+\]
+
+\textbf{Gabarito do filtro RF:}
+\begin{itemize}\itemsep0pt
+  \item Banda de passagem: $[88, 108]\;\text{MHz}$, ondulação $\le 1\;\text{dB}$.
+  \item Banda de rejeição: a partir de $109\;\text{MHz}$ até $130\;\text{MHz}$, atenuação $\ge 40\;\text{dB}$.
+  \item Em $f_{\text{img}}$, a separação relativa ao centro é $\approx 20\%$, viável com filtro LC ou cerâmico de ordem $5$--$7$.
+\end{itemize}
+
+Sem essa rejeição, sinais em $109$--$129\;\text{MHz}$ \,(aeronáutico, faixa $108$--$137\;\text{MHz}$)\, contaminariam toda a recepção FM comercial.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Banda IF]
+
+Carson para FM comercial: $B_c = 2(\Delta f + W) = 2(75 + 15) = 180\;\text{kHz}$.
+
+Tolerâncias do oscilador local: $\pm 5\;\text{kHz}$ → adicione $2 \times 5 = 10\;\text{kHz}$ à banda.
+
+Banda mínima:
+\[
+  B_{\text{IF}} \ge 180 + 10 = 190\;\text{kHz}.
+\]
+
+Padrão FCC reserva $200\;\text{kHz}$ por canal, casando com $B_{\text{IF}} = 200\;\text{kHz}$. O piloto-tom de $19\;\text{kHz}$ em estéreo está dentro do baseband demodulado, em $[0, 53]\;\text{kHz}$; ele \emph{não} afeta a banda IF, pois é uma componente da mensagem composta antes da modulação FM.
+
+\[
+  \boxed{B_{\text{IF}} = 200\;\text{kHz}.}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Função do limitador]
+
+O limitador é um amplificador de ganho alto com saturação simétrica em $\pm V_{\text{sat}}$. Ele \emph{remove variações de amplitude} do sinal IF antes do discriminador. Em FM, toda a informação está na fase, então qualquer variação de envelope, oriunda de ruído ou desvanecimento por multipercurso, é \emph{ruído puro} e deve ser eliminada.
+
+Em AM, a informação \emph{é} a amplitude. Limitar amplitude destruiria o sinal. Logo, AM \emph{não} pode usar limitador; daí a maior sensibilidade do AM ao ruído de amplitude e ao desvanecimento.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Discriminador balanceado]
+
+A curva $|H(f)|$ do discriminador é a diferença entre as respostas de dois ressonadores RLC ligeiramente dessintonizados:
+\[
+  |H(f)| = |H_1(f)| - |H_2(f)|,
+\]
+onde $H_1$ tem pico em $f_r = f_{\text{IF}} + \Delta$ e $H_2$ em $f_r' = f_{\text{IF}} - \Delta$. A diferença é uma curva em ``S'' com cruzamento em $f_{\text{IF}}$ e inclinação aproximadamente constante na região central.
+
+\textbf{Projeto:} escolha $\Delta$ e $Q$ dos ressonadores tais que a região linear (definida por desvio quadrático menor que $1\%$) cubra $\pm B_{\text{IF}}/2 = \pm 100\;\text{kHz}$. Tipicamente $\Delta \approx B_{\text{IF}}/2$ e $Q \sim f_{\text{IF}}/\Delta$, neste caso $Q \sim 100$.
+
+O par é seguido por dois detectores de envelope cujas saídas são subtraídas, fornecendo um sinal proporcional à frequência instantânea: o áudio recuperado.
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 3 -- Costas Loop e sincronismo}
+
+\begin{resolucao}[{Item a -- Saídas $y_I$, $y_Q$ e sinal de erro}]
+
+Sem ruído, $r(t) = m(t)\cos(2\pi f_c t + \theta)$. As réplicas do VCO são $\cos(2\pi f_c t + \hat\theta)$ e $-\sin(2\pi f_c t + \hat\theta)$.
+
+\textbf{Ramo em fase:}
+\[
+  r(t)\cos(2\pi f_c t + \hat\theta) = \tfrac{1}{2}m(t)[\cos\Delta\theta + \cos(4\pi f_c t + \theta + \hat\theta)],
+\]
+com $\Delta\theta = \theta - \hat\theta$. Após o LPF:
+\[
+  \boxed{y_I(t) = \tfrac{1}{2}m(t)\cos\Delta\theta.}
+\]
+
+\textbf{Ramo em quadratura} (usando $-\sin$ no VCO):
+\[
+  -r(t)\sin(2\pi f_c t + \hat\theta) = \tfrac{1}{2}m(t)[\sin\Delta\theta - \sin(4\pi f_c t + \theta + \hat\theta)].
+\]
+\[
+  \boxed{y_Q(t) = \tfrac{1}{2}m(t)\sin\Delta\theta.}
+\]
+
+\textbf{Sinal de erro:}
+\[
+  e(t) = y_I y_Q = \tfrac{1}{4}m^2(t)\sin\Delta\theta\cos\Delta\theta = \tfrac{1}{8}m^2(t)\sin(2\Delta\theta).
+\]
+
+A média $\overline{m^2}$ é a potência do sinal, constante; logo $E\{e\} \propto \sin(2\Delta\theta)$.
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Pontos de travamento e ambiguidade]
+
+$\sin(2\Delta\theta) = 0$ em $\Delta\theta = 0, \pi/2, \pi, 3\pi/2$.
+
+\textbf{Análise de estabilidade:} a derivada $\partial e/\partial\Delta\theta \propto 2\cos(2\Delta\theta)$. Pontos estáveis exigem que pequenos desvios sejam corrigidos, isto é, derivada \emph{negativa} no ponto. $\cos(2\Delta\theta) < 0$ em $\Delta\theta = \pi/2, 3\pi/2$? Não, depende do sinal do laço. Considerando feedback negativo padrão:
+\begin{itemize}\itemsep0pt
+  \item $\Delta\theta = 0$ \,(estável) — saída em fase com a portadora original;
+  \item $\Delta\theta = \pi$ \,(estável) — saída em oposição: sinal recuperado é $-m(t)$.
+\end{itemize}
+
+\textbf{Ambiguidade de polaridade:} o Costas trava em ambos os pontos com igual probabilidade. Soluções:
+\begin{itemize}\itemsep0pt
+  \item codificação diferencial no transmissor (em sistemas digitais);
+  \item piloto pequeno injetado fora da banda para resolver polaridade;
+  \item preâmbulo de sincronização conhecido;
+  \item em voz analógica, o usuário pode aceitar inversão de polaridade (inaudível).
+\end{itemize}
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Perda por erro de fase]
+
+$(S/N)_o \propto \cos^2\Delta\theta$. Para $\Delta\theta = 5^\circ$:
+\[
+  \cos(5^\circ) = 0{,}9962, \quad \cos^2(5^\circ) = 0{,}9924.
+\]
+\[
+  \boxed{\text{Perda} = -10\log_{10}(0{,}9924) \approx 0{,}033\;\text{dB}.}
+\]
+
+Negligenciável. O Costas Loop, em regime travado, sofre perda imperceptível por erro residual de poucos graus. A degradação se torna significativa apenas para $\Delta\theta > 20^\circ$.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Banda equivalente de ruído $B_n$]
+
+A função de transferência da malha PLL é
+\[
+  H_{\text{PLL}}(s) = \frac{K G(s)}{s + K G(s)}, \quad G(s) = \frac{K(1 + s\tau_2)}{s\tau_1}.
+\]
+
+PLL de segunda ordem com $\omega_n = \sqrt{K/\tau_1}$ e $\zeta = \omega_n\tau_2/2$. Banda de ruído equivalente:
+\[
+  B_n = \frac{\omega_n}{2}\left(\zeta + \frac{1}{4\zeta}\right).
+\]
+
+Tomando $K = 100$ (ganho típico), $\omega_n = \sqrt{100/0{,}01} = 100\;\text{rad/s}$, $\zeta = 100 \cdot 0{,}001/2 = 0{,}05$ (sub-amortecido):
+\[
+  B_n = 50(0{,}05 + 5) \approx 252\;\text{rad/s} \approx 40\;\text{Hz}.
+\]
+
+\textbf{Importância:} a banda $B_n$ filtra o ruído que entra no laço de PLL. Quanto menor $B_n$, menor a variância de fase $\sigma_\Delta^2 \propto N_0 B_n/P_s$. Em recepção sob baixa SNR, $B_n$ pequeno é essencial. O preço é maior tempo de aquisição: $T_{\text{aq}} \propto 1/B_n^2$.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Costas versus piloto]
+
+\begin{center}
+\small
+\begin{tabular}{p{4.5cm}p{5cm}p{5cm}}
+\toprule
+& \textbf{Costas Loop} & \textbf{Tom Piloto (DSB-LC)} \\
+\midrule
+Banda extra & nenhuma & pequena ($\sim$ algumas dezenas de Hz) \\
+Potência extra & nenhuma & $\sim 10\%$ na portadora piloto \\
+Complexidade do receptor & alta (dois ramos, PLL não trivial) & baixa (PLL simples na frequência do piloto) \\
+Ambiguidade de polaridade & sim (resolvida por codificação diferencial) & não (piloto define fase absoluta) \\
+Aquisição inicial & lenta & rápida \\
+Imunidade a Doppler & boa em SNR alta & boa \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Conclusão:} para canais bons (SNR alta, sem ambiguidade tolerada), Costas economiza potência. Para canais ruins ou em aplicações onde o tempo de aquisição importa, piloto é preferível, ao custo de banda e potência adicionais.
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 4 -- FDM-SSB sobre FM}
+
+\begin{resolucao}[Item a -- Bandas]
+
+Largura por canal SSB-USB: $W_v = 4\;\text{kHz}$. Guarda: $400\;\text{Hz}$.
+
+Para $N = 100$ canais com guardas \emph{entre} canais:
+\[
+  W_b = N\,W_v + (N-1)\,\Delta_{\text{g}} = 100\times 4 + 99 \times 0{,}4 \approx 439{,}6\;\text{kHz} \approx \boxed{440\;\text{kHz}.}
+\]
+
+FM por Carson com $\beta = 3$:
+\[
+  B_c = 2(\beta + 1) W_b = 2 \times 4 \times 440 = \boxed{3{,}52\;\text{MHz}.}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Plano de frequências FDM]
+
+Cada canal SSB ocupa um \emph{slot} de $4{,}4\;\text{kHz}$ na banda base.
+
+\begin{center}
+\begin{tabular}{cc}
+\toprule
+Canal $i$ & Faixa em banda base (kHz) \\
+\midrule
+$1$ & $[4{,}0,\;8{,}0]$ \\
+$2$ & $[8{,}4,\;12{,}4]$ \\
+$\vdots$ & $\vdots$ \\
+$i$ & $\big[4 + (i-1)\cdot 4{,}4,\;\;4 + (i-1)\cdot 4{,}4 + 4\big]$ \\
+$\vdots$ & $\vdots$ \\
+$100$ & $[439{,}6,\;443{,}6]$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Primeira portadora $f_{c,1} = 4\;\text{kHz}$:} deixa-se uma guarda de $4\;\text{kHz}$ entre DC e o início do canal $1$, suficiente para acomodar deriva de filtros e eventual piloto-tom de $\sim 1\;\text{kHz}$. Em sistemas reais de telefonia, piloto a $60\;\text{kHz}$, $108\;\text{kHz}$ ou múltiplos é comum para travamento de portadora master.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Ruído parabólico afeta canais altos]
+
+PSD do ruído na saída do demodulador FM:
+\[
+  S_{n_o}(f) = \frac{N_0 f^2}{A_c^2}, \quad |f| \le W_b.
+\]
+
+Potência de ruído no canal $i$, após SSB demod centrado em $f_{c,i}$, filtrando $[f_{c,i}, f_{c,i} + W_v]$:
+\[
+  N_i = \int_{f_{c,i}}^{f_{c,i} + W_v}\!\!\!\!\!\frac{N_0 f^2}{A_c^2}\,df
+      = \frac{N_0}{3 A_c^2}\big[(f_{c,i}+W_v)^3 - f_{c,i}^3\big].
+\]
+
+\textbf{Comparação top vs.\ bottom:}
+\[
+  \frac{N_{100}}{N_1} = \frac{(440)^3 - (436)^3}{(8)^3 - (4)^3} \approx \frac{2{,}30\times 10^6}{448}
+                    \approx 5{,}1\times 10^3 \;\;(\approx 37\;\text{dB}).
+\]
+
+O canal $100$ recebe $\sim 37\;\text{dB}$ \emph{mais} ruído que o canal $1$ se as potências dos canais forem iguais. Inaceitável sem compensação.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Equalização: $A_i$ ou pré-ênfase]
+
+\textbf{Solução 1: amplitudes ajustadas.} Para SNR uniforme,
+\[
+  \frac{A_i^2 P_{m_n}/2}{N_i} = \text{constante} \;\Rightarrow\; A_i^2 \propto N_i \propto (f_{c,i}+W_v)^3 - f_{c,i}^3.
+\]
+O canal $100$ recebe $\sim 37\;\text{dB}$ \emph{a mais} de potência transmitida que o canal $1$. Problema: dinâmica de amplitude muito grande, complica o estágio de potência.
+
+\textbf{Solução 2: pré-ênfase coletiva.} Filtro pré-ênfase na entrada do modulador FM com $|H_{\text{pre}}(f)|^2 \propto f^2$ (compensa exatamente o ruído parabólico). No receptor, filtro deenfase $|H_{\text{deenf}}(f)|^2 \propto 1/f^2$ restaura o áudio e atenua o ruído. SNR uniforme, dinâmica de amplitude moderada. Esta é a abordagem industrial em sistemas FDM-FM clássicos de telecomunicação.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Potência transmitida do enlace]
+
+\textbf{Path loss em $6\;\text{GHz}, 50\;\text{km}$:} $\lambda = 0{,}05\;\text{m}$.
+\[
+  L_{\text{esp},\text{dB}} = 32{,}45 + 20\log(6000) + 20\log(50) = 32{,}45 + 75{,}56 + 33{,}98 \approx 142\;\text{dB}.
+\]
+
+\textbf{Ruído na cadeia:} $N_0 = kT_0 F$, com $F = 4\;\text{dB} = 2{,}512$.
+\[
+  N_0 = 4\times 10^{-21}\times 2{,}512 = 1{,}005\times 10^{-20}\;\text{W/Hz}.
+\]
+\[
+  N_0 W_b = 1{,}005\times 10^{-20}\times 4{,}4\times 10^5 = 4{,}42\times 10^{-15}\;\text{W} \;\;(-113{,}5\;\text{dBm}).
+\]
+
+\textbf{SNR de referência alvo} (com pré-ênfase compensando, e usando voz $P_{m_n} = 0{,}1$):
+\[
+  (S/N)_o = 3\beta^2 P_{m_n}\,\gamma \ge 10^4
+  \;\Rightarrow\; \gamma \ge \frac{10^4}{3\cdot 9\cdot 0{,}1} = 3704 \;\;(35{,}7\;\text{dB}).
+\]
+
+\[
+  P_R = \gamma\cdot N_0 W_b = 3704 \cdot 4{,}42\times 10^{-15} = 1{,}64\times 10^{-11}\;\text{W} \;(-77{,}9\;\text{dBm}).
+\]
+
+\textbf{Potência transmitida:} $P_R\;|_{\text{dBm}} = P_T\;|_{\text{dBm}} + G_T + G_R - L_{\text{esp}}$
+\[
+  P_T\;|_{\text{dBm}} = -77{,}9 - 70 + 142 = -5{,}9\;\text{dBm}.
+\]
+\[
+  \boxed{P_T = 0{,}26\;\text{mW}.}
+\]
+
+Valor surpreendentemente baixo para $50\;\text{km}$ por causa do alto ganho das antenas ($70\;\text{dB}$ no link total). Na prática usa-se $\sim 1\;\text{W}$ para margens de chuva e desvanecimento.
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 5 -- Projeto integrado AM vs FM (VHF móvel)}
+
+\begin{resolucao}[Item a -- Orçamento de enlace]
+
+$\lambda = c/f_c = 3\times 10^8 / 1{,}5\times 10^8 = 2\;\text{m}$. Distância $d = 20\;\text{km}$.
+\[
+  L_{\text{esp},\text{dB}} = 32{,}45 + 20\log(150) + 20\log(20) = 32{,}45 + 43{,}52 + 26{,}02 \approx 102{,}0\;\text{dB}.
+\]
+
+Com $P_T = 5\;\text{W} = 37\;\text{dBm}$, $G_T = G_R = 3\;\text{dBi}$:
+\[
+  P_R\;|_{\text{dBm}} = 37 + 3 - 102 + 3 = -59\;\text{dBm} = 1{,}26\;\mu\text{W}.
+\]
+
+Ruído: $F = 6\;\text{dB} \Rightarrow F = 3{,}98$. $N_0 = kT_0 F = 4\times 10^{-21}\cdot 3{,}98 = 1{,}59\times 10^{-20}\;\text{W/Hz}$.
+\[
+  N_0 W = 1{,}59\times 10^{-20}\cdot 5000 = 7{,}96\times 10^{-17}\;\text{W} \;(-131\;\text{dBm}).
+\]
+\[
+  \gamma = \frac{P_R}{N_0 W} = \frac{1{,}26\times 10^{-6}}{7{,}96\times 10^{-17}} = 1{,}58\times 10^{10} \;\Rightarrow\; \boxed{\gamma \approx 72\;\text{dB}.}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Alternativa 1: AM convencional]
+
+$\mu = 0{,}85$, $P_{m_n} = 0{,}1$:
+\[
+  \eta = \frac{\mu^2 P_{m_n}}{1 + \mu^2 P_{m_n}} = \frac{0{,}0722}{1{,}0722} = 0{,}0674 \;(-11{,}7\;\text{dB}).
+\]
+\[
+  (S/N)_o = \eta\cdot\gamma = -11{,}7 + 72 = \boxed{60{,}3\;\text{dB}.}
+\]
+
+Cumpre a meta $\ge 35\;\text{dB}$ com folga de $25\;\text{dB}$.
+
+Banda: $B_{\text{AM}} = 2W = 10\;\text{kHz}$, cabe folgadamente nos $50\;\text{kHz}$ alocados.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Alternativa 2: FM com $\beta$ máximo]
+
+$B_c = 2(\beta+1)W \le 50\;\text{kHz}, W = 5\;\text{kHz}$:
+\[
+  \beta + 1 \le 5 \;\Rightarrow\; \boxed{\beta_{\max} = 4.}
+\]
+
+Tom único, $\beta = 4$:
+\[
+  (S/N)_o = \tfrac{3}{2}\beta^2\gamma = 1{,}5\cdot 16\cdot 1{,}58\times 10^{10} = 3{,}79\times 10^{11} \;(85{,}8\;\text{dB}).
+\]
+
+Voz, $P_{m_n} = 0{,}1$, $\beta = 4$:
+\[
+  (S/N)_o = 3\beta^2 P_{m_n}\gamma = 3\cdot 16\cdot 0{,}1\cdot 1{,}58\times 10^{10} = 7{,}58\times 10^{10} \;(\approx 78{,}8\;\text{dB}).
+\]
+
+Limiar: $\gamma_{\text{th}} = 20(\beta+1) = 100 \;(20\;\text{dB})$. Margem: $72 - 20 = 52\;\text{dB}$. Operação muito acima do limiar.
+
+\textbf{Resumo comparativo:}
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Esquema & Banda & $(S/N)_o$ voz (dB) & Margem sobre meta (dB) \\
+\midrule
+AM ($\mu = 0{,}85$) & $10\;\text{kHz}$ & $60{,}3$ & $25{,}3$ \\
+FM ($\beta = 4$)   & $50\;\text{kHz}$ & $78{,}8$ & $43{,}8$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Escolha: FM com $\beta = 4$.} Apresenta $\sim 18{,}5\;\text{dB}$ a mais de SNR, em troca de $5\times$ mais banda.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Diagrama de blocos do sistema FM]
+
+\textbf{Transmissor:}
+\begin{enumerate}\itemsep0pt
+  \item Microfone $\to$ amplificador de áudio.
+  \item Filtro de áudio limitando a $W = 5\;\text{kHz}$.
+  \item Pré-ênfase com $\tau = 75\;\mu\text{s}$.
+  \item Modulador indireto de Armstrong: NBFM em $f_0$ baixo (e.g., $1\;\text{MHz}$, gerado por cristal), seguido de multiplicadores até atingir $\Delta f = 20\;\text{kHz}$ em $150\;\text{MHz}$.
+  \item Amplificador de potência classe C, $5\;\text{W}$, eficiência alta (sinal FM tem envelope constante).
+  \item Filtro de antena, casamento de impedância, antena.
+\end{enumerate}
+
+\textbf{Receptor:}
+\begin{enumerate}\itemsep0pt
+  \item Antena $\to$ filtro de pré-seleção em $150\;\text{MHz}$.
+  \item LNA com $F_1 \le 2\;\text{dB}$.
+  \item Mixer com $f_{\text{LO}} = 150{,}7\;\text{MHz}$ (injeção alta) $\to$ IF em $700\;\text{kHz}$.
+  \item Filtro IF de banda $50\;\text{kHz}$ centrado em $700\;\text{kHz}$ (filtro a cristal ou cerâmico).
+  \item Limitador de amplitude.
+  \item Discriminador balanceado.
+  \item Deenfase, amplificador de áudio, alto-falante.
+\end{enumerate}
+
+A escolha de IF $= 700\;\text{kHz}$ permite filtros baratos e boa rejeição de imagem (imagem em $151{,}4\;\text{MHz}$, fora da banda alocada).
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Estabilidade do oscilador]
+
+Erro combinado de frequência: $|\delta f_{\text{TX}}| + |\delta f_{\text{LO,RX}}| \le 100\;\text{Hz}$. Assumindo erros iguais:
+\[
+  |\delta f| \le 50\;\text{Hz} \;\;\text{em cada oscilador.}
+\]
+
+\textbf{Estabilidade relativa do TX:}
+\[
+  \frac{|\delta f|}{f_c} \le \frac{50}{1{,}5\times 10^{8}} = 3{,}3\times 10^{-7} = 0{,}33\;\text{ppm}.
+\]
+
+\textbf{Estabilidade relativa do RX-LO} (também em $\sim 150\;\text{MHz}$): mesma exigência, $0{,}33\;\text{ppm}$.
+
+\textbf{Tecnologia:} essa exigência é atingida por TCXO (cristal compensado em temperatura) comum em rádios comerciais VHF. OCXO (oven-controlled) supera $0{,}01\;\text{ppm}$. Cristais simples sem compensação, $\sim 50\;\text{ppm}$, não servem.
+
+\textbf{Observação sobre o FM:} um erro de $\pm 50\;\text{Hz}$ na portadora apenas \emph{desloca} a curva $f_i(t)$ do discriminador em $\pm 50\;\text{Hz}$ — efeito imperceptível ($f_i(t)$ excursiona $\pm 20\;\text{kHz}$ no FM normal). Por isso o FM é \emph{tolerante} a erros de frequência, em contraste direto com DSB-SC e SSB.
+\end{resolucao}
+
+\vfill
+\begin{center}
+  \small\textit{Fim da resolução.}
+\end{center}
+
+\end{document}

@@ -1,0 +1,496 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{cancel}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{resolucao}[1][]{colback=green!5,colframe=green!40!black,
+  fonttitle=\bfseries, title={#1}, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Resolução -- Lista de FM}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Resolução -- Lista de Exercícios}}\\[0.15cm]
+  {\Large\textbf{Modulação Angular -- FM}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Semestre:} 2026/1
+
+\bigskip
+
+% ======================================================================
+\section*{Questão 1 -- Sinal FM com mensagem senoidal}
+
+\begin{resolucao}[Item a -- Expressão temporal]
+
+Dados: $A_c = 10$\,V, $f_c = 10^8$\,Hz, $A_m = 4$\,V, $f_m = 5\times 10^3$\,Hz, $k_f = 25\times 10^3$\,Hz/V.
+
+A fase modulada é
+\[
+  \phi(t) = 2\pi k_f \int_{-\infty}^{t} m(\tau)\,d\tau
+         = 2\pi k_f A_m \frac{\sin(2\pi f_m t)}{2\pi f_m}
+         = \frac{k_f A_m}{f_m}\sin(2\pi f_m t).
+\]
+
+Substituindo os valores:
+\[
+  \phi(t) = \frac{25{\,000} \times 4}{5{\,000}}\sin(2\pi \times 5{\,000}\,t) = 20\sin(2\pi \times 5{\,000}\,t).
+\]
+
+Sinal FM completo:
+\[
+  \boxed{u(t) = 10\cos\!\big[2\pi \times 10^8\,t + 20\sin(2\pi \times 5{\,000}\,t)\big]\;\text{V}}
+\]
+
+Frequência instantânea:
+\[
+  f_i(t) = f_c + k_f\,m(t) = 10^8 + 10^5\cos(2\pi \times 5{\,000}\,t)\;\text{Hz},
+\]
+oscilando entre $99{,}9\;\text{MHz}$ e $100{,}1\;\text{MHz}$.
+\end{resolucao}
+
+\begin{resolucao}[{Item b -- Desvio, índice e classificação}]
+
+Desvio máximo de frequência:
+\[
+  \Delta f = k_f\,\max|m(t)| = 25{\,000}\times 4 = \boxed{100\;\text{kHz}}
+\]
+
+Índice de modulação:
+\[
+  \boxed{\beta = \frac{\Delta f}{f_m} = \frac{100}{5} = 20}
+\]
+
+Como $\beta = 20 \gg 1$, o sistema é claramente \textbf{WBFM}.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Banda e harmônicas significativas]
+
+Regra de Carson:
+\[
+  B_c = 2(\Delta f + f_m) = 2(100 + 5) = \boxed{210\;\text{kHz}}
+\]
+
+Para $98\%$ da potência, o número de pares de bandas laterais é aproximado por $n_{\max} \approx \beta + 1 = 21$. Portanto, o sinal contém $2\beta + 3 = 43$ raias significativas no espectro. A largura espectral correspondente é $2 n_{\max} f_m = 2 \times 21 \times 5 = 210\;\text{kHz}$, em concordância com a regra de Carson.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Potência total e na portadora]
+
+Potência total transmitida (sinal FM tem envelope constante $A_c$):
+\[
+  \boxed{P_T = \frac{A_c^2}{2} = \frac{100}{2} = 50\;\text{W}}
+\]
+
+Pela identidade $\sum_n J_n^2(\beta) = 1$, a potência total se distribui em todas as raias.
+
+A componente na portadora $f_c$ tem amplitude $A_c\,J_0(\beta) = 10\,J_0(20)$. Com $J_0(20) \approx 0{,}1670$:
+\[
+  P_{f_c} = \frac{[A_c\,J_0(\beta)]^2}{2} = \frac{100 \times J_0^2(20)}{2} \approx 50 \times 0{,}0279 \approx 1{,}39\;\text{W}.
+\]
+
+Razão de potência:
+\[
+  \frac{P_{f_c}}{P_T} = J_0^2(20) \approx 0{,}028 \;\;(\text{ou } -15{,}5\;\text{dB}).
+\]
+
+Apenas $2{,}8\%$ da potência fica na portadora em WBFM; a maior parte é levada pelas bandas laterais, em contraste com AM convencional.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Dobrando a amplitude]
+
+Com $A_m' = 8$\,V:
+\[
+  \Delta f' = 25{\,000} \times 8 = 200\;\text{kHz}, \qquad \beta' = \frac{200}{5} = 40.
+\]
+\[
+  B_c' = 2(\Delta f' + f_m) = 2(200 + 5) = 410\;\text{kHz}.
+\]
+
+Para $\beta \gg 1$, $B_c \approx 2\Delta f$, ou seja, varia \emph{linearmente} com a amplitude da mensagem. Dobrar $A_m$ quase dobrou a banda. Esse é o comportamento característico da WBFM: a banda ocupada é controlada pelo desvio de frequência, e o desvio é proporcional à amplitude da mensagem.
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 2 -- Espectro de Bessel e conservação de potência}
+
+\begin{resolucao}[Item a -- Componentes espectrais para $\beta = 2$]
+
+Da tabela de Bessel para $\beta = 2$:
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$n$ & $J_n(2)$ & Amplitude $= A_c|J_n|$ \\
+\midrule
+$0$ & $0{,}224$ & $0{,}224$ \\
+$\pm 1$ & $0{,}577$ & $0{,}577$ \\
+$\pm 2$ & $0{,}353$ & $0{,}353$ \\
+$\pm 3$ & $0{,}129$ & $0{,}129$ \\
+$\pm 4$ & $0{,}034$ & $0{,}034$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+$J_5(2) = 0{,}007 < 0{,}01$, descartado.
+
+Frequências em $f_c \pm n f_m = 10 \pm n \times 0{,}01\;\text{MHz}$:
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+$n$ & $f_c + n f_m$ (MHz) & $f_c - n f_m$ (MHz) & Amplitude \\
+\midrule
+$0$ & \multicolumn{2}{c}{$10{,}00$} & $0{,}224$ \\
+$\pm 1$ & $10{,}01$ & $9{,}99$ & $0{,}577$ \\
+$\pm 2$ & $10{,}02$ & $9{,}98$ & $0{,}353$ \\
+$\pm 3$ & $10{,}03$ & $9{,}97$ & $0{,}129$ \\
+$\pm 4$ & $10{,}04$ & $9{,}96$ & $0{,}034$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Conservação de potência e erro de truncamento]
+
+Potência total exata, usando $\sum_n J_n^2(\beta) = 1$:
+\[
+  P_T = \frac{A_c^2}{2}\sum_{n}J_n^2(\beta) = \frac{1}{2} = 0{,}500\;\text{W}.
+\]
+
+Potência do somatório truncado em $|n| \le 4$:
+\[
+  J_0^2 + 2\sum_{n=1}^{4} J_n^2 = 0{,}0502 + 2(0{,}3329 + 0{,}1246 + 0{,}0166 + 0{,}00116) = 0{,}9998.
+\]
+\[
+  P_{\text{trunc}} = \frac{A_c^2}{2} \times 0{,}9998 = 0{,}4999\;\text{W}.
+\]
+
+Erro percentual:
+\[
+  \frac{P_T - P_{\text{trunc}}}{P_T} = \frac{0{,}5 - 0{,}4999}{0{,}5} \approx 0{,}02\%.
+\]
+
+Truncamento em $|n| \le 4$ já captura essencialmente toda a potência.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Banda para $98\%$ e Carson]
+
+Para conter $98\%$ da potência, basta a tabela ($\beta = 2$, Proakis Tab.~4.1) com $3$ pares de harmônicas ($|n| \le 3$):
+\[
+  P_3 = J_0^2 + 2(J_1^2 + J_2^2 + J_3^2) = 0{,}0502 + 2(0{,}4741) = 0{,}9985 \approx 99{,}8\%,
+\]
+em concordância com o valor tabelado.
+
+Largura de banda correspondente:
+\[
+  B_{98\%} = 2 \times 3 \times f_m = 6 \times 10 = 60\;\text{kHz}.
+\]
+
+Carson:
+\[
+  B_c = 2(\beta + 1)f_m = 2(3)(10) = 60\;\text{kHz}.
+\]
+
+Os dois valores coincidem para este $\beta$. A regra de Carson é, em geral, ligeiramente \emph{conservadora} para $\beta$ grande e pouco conservadora para $\beta$ pequeno; aqui há coincidência exata.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Anulamento da portadora]
+
+O primeiro zero de $J_0(\beta)$ ocorre em $\beta \approx 2{,}405$. Logo, a portadora desaparece pela primeira vez para
+\[
+  \boxed{\beta = 2{,}405.}
+\]
+
+Com $f_m = 10\;\text{kHz}$, o desvio correspondente é
+\[
+  \Delta f = \beta f_m = 2{,}405 \times 10 = 24{,}05\;\text{kHz}.
+\]
+
+Esse fenômeno é usado experimentalmente para calibrar a constante de sensibilidade $k_f$ de um modulador FM: aumenta-se a amplitude da mensagem até que a portadora se anule no analisador de espectro, e nesse ponto $k_f A_m = 2{,}405 f_m$.
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 3 -- FM com mensagem composta de dois tons}
+
+\begin{resolucao}[Item a -- Derivação da fórmula e índices parciais]
+
+A fase é
+\[
+  \phi(t) = 2\pi k_f \!\!\int_{-\infty}^{t}\!\![a_1\cos(2\pi f_1\tau) + a_2\cos(2\pi f_2\tau)]d\tau
+         = \beta_1\sin(2\pi f_1 t) + \beta_2\sin(2\pi f_2 t),
+\]
+onde
+\[
+  \beta_1 = \frac{k_f a_1}{f_1} = \frac{1000 \times 1}{1000} = 1, \qquad
+  \beta_2 = \frac{k_f a_2}{f_2} = \frac{1000 \times 0{,}5}{5000} = 0{,}1.
+\]
+
+Aplicando Jacobi--Anger em cada exponencial periódica e expandindo o produto:
+\begin{align*}
+  e^{j\phi(t)} &= e^{j\beta_1\sin(2\pi f_1 t)}\cdot e^{j\beta_2\sin(2\pi f_2 t)} \\
+              &= \left[\sum_{m}J_m(\beta_1)e^{j2\pi m f_1 t}\right]\!\left[\sum_{n}J_n(\beta_2)e^{j2\pi n f_2 t}\right] \\
+              &= \sum_{m,n} J_m(\beta_1)J_n(\beta_2)\,e^{j2\pi(m f_1 + n f_2)t}.
+\end{align*}
+
+Tomando a parte real de $A_c e^{j(2\pi f_c t + \phi(t))}$:
+\[
+  \boxed{u(t) = A_c\sum_{m,n}\!J_m(\beta_1)J_n(\beta_2)\cos\!\big[2\pi(f_c + m f_1 + n f_2)t\big].}
+\]
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Componentes dominantes]
+
+Valores de Bessel:
+\begin{itemize}\itemsep0pt
+  \item $\beta_1 = 1$: $J_0 = 0{,}765$, $J_1 = 0{,}440$, $J_2 = 0{,}115$.
+  \item $\beta_2 = 0{,}1$ (NBFM): $J_0 \approx 0{,}9975$, $J_1 \approx 0{,}0499$, $J_2 \approx 0{,}00125$.
+\end{itemize}
+
+Frequência $f_c + m f_1 + n f_2$ e amplitude $A_c|J_m(\beta_1)J_n(\beta_2)|$:
+
+\begin{center}
+\small
+\begin{tabular}{cccc}
+\toprule
+$(m,n)$ & $f$ (kHz) & Amplitude & Tipo \\
+\midrule
+$(0,0)$ & $100$ & $0{,}763$ & portadora \\
+$(\pm 1,0)$ & $99, 101$ & $0{,}439$ & BL tom 1 \\
+$(\pm 2,0)$ & $98, 102$ & $0{,}115$ & BL tom 1 \\
+$(0,\pm 1)$ & $95, 105$ & $0{,}0382$ & BL tom 2 \\
+$(\pm 1,\pm 1)$ & $94, 96, 104, 106$ & $0{,}0220$ & intermodulação \\
+$(\pm 2,\pm 1)$ & $93, 97, 103, 107$ & $0{,}00574$ & intermodulação \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Intermodulação característica do FM]
+
+Os termos com $m \neq 0$ \emph{e} $n \neq 0$, como $(\pm 1, \pm 1)$ em $f_c \pm f_1 \pm f_2$, são \textbf{produtos de intermodulação}. Eles surgem porque o FM é \emph{não linear} na mensagem: o operador modulador não satisfaz superposição.
+
+Em AM convencional ($s(t) = A_c[1 + k_a m(t)]\cos\omega_c t$), o sinal é uma combinação linear de cosenos da mensagem; o espectro contém apenas $f_c \pm f_1$ e $f_c \pm f_2$. Em FM, a fase $\phi(t) = \beta_1\sin\omega_1 t + \beta_2\sin\omega_2 t$ aparece dentro de um cosseno, gerando produtos cruzados via $e^{j\phi} = e^{j\beta_1\sin\omega_1 t}e^{j\beta_2\sin\omega_2 t}$.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Carson generalizada]
+
+Carson correto:
+\[
+  \Delta f_{\text{total}} = k_f \max|m(t)| = k_f(a_1 + a_2) = 1000(1 + 0{,}5) = 1500\;\text{Hz},
+\]
+\[
+  W = \max(f_1, f_2) = 5\;\text{kHz},
+\]
+\[
+  \boxed{B_c = 2(\Delta f_{\text{total}} + W) = 2(1{,}5 + 5) = 13\;\text{kHz}.}
+\]
+
+Aplicação errônea (soma das bandas individuais):
+\[
+  B_c' = 2(\beta_1 + 1)f_1 + 2(\beta_2 + 1)f_2 = 2(2)(1) + 2(1{,}1)(5) = 4 + 11 = 15\;\text{kHz}.
+\]
+
+A diferença não é grande aqui, mas a fórmula $B_c'$ \emph{não vale em geral}. FM não é linear, portanto não há decomposição aditiva. A largura espectral correta é determinada pelo desvio total $\Delta f_{\text{total}}$ e pela maior frequência presente na mensagem, conforme a regra de Carson generalizada.
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 4 -- Modulador indireto de Armstrong}
+
+\begin{resolucao}[Item a -- Fator de multiplicação]
+
+A multiplicação por $N$ preserva o sinal angular escalado:
+\[
+  \phi_{\text{saída}}(t) = N\,\phi_0(t), \qquad \Delta f_{\text{saída}} = N\,\Delta f_0.
+\]
+
+No estágio NBFM, a maior frequência presente em $\phi_0(t)$ é $W = 15\;\text{kHz}$. Para a pior situação (sinusoide na frequência mais alta da banda), o desvio inicial de frequência é
+\[
+  \Delta f_0 = \Delta\phi_0 \cdot W = 0{,}1 \times 15{\,000} = 1500\;\text{Hz}.
+\]
+
+Para atingir $\Delta f = 75$\,kHz após o multiplicador total $N$:
+\[
+  N = \frac{\Delta f}{\Delta f_0} = \frac{75\,000}{1500} = \boxed{50.}
+\]
+
+Equivalente: $\Delta\phi$ final $= N \Delta\phi_0 = 50 \times 0{,}1 = 5$\,rad, em concordância com $\Delta f / W = 75/15 = 5$.
+\end{resolucao}
+
+\begin{resolucao}[{Item b -- Escolha de $n_1$, $n_2$ e $f_{\text{LO}}$}]
+
+Buscamos $n_1\,n_2 = 50$ com fatores equilibrados e a relação de frequência
+\[
+  n_2\,(f_{\text{LO}} - n_1\,f_0) = f_c = 96\;\text{MHz}.
+\]
+
+Escolha equilibrada: $n_1 = 5$ e $n_2 = 10$. Então
+\[
+  n_1\,f_0 = 5 \times 200\;\text{kHz} = 1\;\text{MHz},
+\]
+\[
+  10\,(f_{\text{LO}} - 1\;\text{MHz}) = 96\;\text{MHz} \;\Rightarrow\; \boxed{f_{\text{LO}} = 10{,}6\;\text{MHz}.}
+\]
+
+A alternativa $n_1 = 10$, $n_2 = 5$ também é válida e produz $f_{\text{LO}} = 21{,}2\;\text{MHz}$; a escolha balanceada $5 \times 10$ minimiza a frequência exigida do oscilador local.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Estabilidade do oscilador]
+
+A saída é $f_c = n_2(f_{\text{LO}} - n_1 f_0)$. Diferenciando em relação a $f_0$:
+\[
+  \frac{\partial f_c}{\partial f_0} = -n_1 n_2 = -50.
+\]
+
+Para $|\delta f_c| \le 2$\,Hz:
+\[
+  |\delta f_0| \le \frac{2}{50} = 0{,}04\;\text{Hz}.
+\]
+
+Em estabilidade relativa:
+\[
+  \frac{|\delta f_0|}{f_0} \le \frac{0{,}04}{200{\,}000} = 2 \times 10^{-7}.
+\]
+
+Esse nível só é atingido por oscilador a cristal estabilizado por forno (OCXO) ou por travamento PLL contra padrão atômico de baixa estabilidade.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Validade da aproximação NBFM]
+
+A aproximação $\cos\phi \approx 1$ e $\sin\phi \approx \phi$ é exata até primeira ordem em $\phi$. Os erros são
+\[
+  1 - \cos(0{,}1) = 1 - 0{,}99500 = 5{,}0 \times 10^{-3},
+\]
+\[
+  \sin(0{,}1) - 0{,}1 = 0{,}09983 - 0{,}1 = -1{,}67 \times 10^{-4}.
+\]
+
+A distorção de amplitude no envelope é da ordem de $0{,}5\%$ e a de fase é da ordem de $0{,}2\%$. Negligenciáveis, validando $|\phi(t)| \le 0{,}1$\,rad como limite operacional do modulador NBFM.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- Vantagens do método indireto]
+
+\begin{enumerate}\itemsep0pt
+  \item \textbf{Estabilidade de frequência:} o modulador opera em frequência baixa ($f_0 = 200$\,kHz), onde um oscilador a cristal fornece excelente estabilidade. O método direto (varactor no oscilador de alta frequência) sofre maior derivação térmica e por envelhecimento.
+  \item \textbf{Linearidade da modulação:} o varactor tem relação $C(V)$ não linear, gerando distorção; já o NBFM com modulação balanceada (Fig.~4.8) é intrinsecamente linear até $|\phi| \ll 1$.
+  \item \textbf{Não exige circuito ressonante na frequência alta:} no método direto, o circuito tanque deve oscilar em $f_c = 96$\,MHz e ainda assim ser modulado pelo varactor, o que limita o $Q$ disponível.
+\end{enumerate}
+\end{resolucao}
+
+% ======================================================================
+\section*{Questão 5 -- PM versus FM e demodulação por discriminador}
+
+\begin{resolucao}[Item a -- Expressões e frequência instantânea]
+
+Dados: $A_m = 1$\,V, $f_m = 500$\,Hz, $A_c = 1$\,V, $f_c = 10^6$\,Hz, $k_p = \pi/2$\,rad/V, $k_f = 250$\,Hz/V.
+
+\textbf{PM:} $\phi_{\text{PM}}(t) = k_p\,m(t) = (\pi/2)\cos(2\pi f_m t)$.
+\[
+  u_{\text{PM}}(t) = \cos\!\left[2\pi \times 10^6 t + \tfrac{\pi}{2}\cos(2\pi \times 500\,t)\right].
+\]
+\[
+  f_{i,\text{PM}}(t) = f_c + \frac{1}{2\pi}\frac{d\phi}{dt} = f_c - \frac{k_p A_m f_m}{1}\sin(2\pi f_m t) = 10^6 - 785{,}4\sin(2\pi \times 500\,t).
+\]
+Picos: $10^6 \pm 785{,}4$\,Hz.
+
+\textbf{FM:} $\phi_{\text{FM}}(t) = 2\pi k_f \!\int m\,d\tau = \dfrac{k_f A_m}{f_m}\sin(2\pi f_m t) = 0{,}5\sin(2\pi f_m t)$.
+\[
+  u_{\text{FM}}(t) = \cos\!\left[2\pi \times 10^6 t + 0{,}5\sin(2\pi \times 500\,t)\right].
+\]
+\[
+  f_{i,\text{FM}}(t) = f_c + k_f\,m(t) = 10^6 + 250\cos(2\pi \times 500\,t).
+\]
+Picos: $10^6 \pm 250$\,Hz.
+\end{resolucao}
+
+\begin{resolucao}[Item b -- Desvios máximos e equivalência]
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+& PM & FM \\
+\midrule
+$\Delta\phi_{\max}$ & $k_p A_m = \pi/2 \approx 1{,}571$\,rad & $k_f A_m / f_m = 0{,}5$\,rad \\
+$\Delta f_{\max}$   & $k_p A_m f_m = 785{,}4$\,Hz & $k_f A_m = 250$\,Hz \\
+$\beta$             & $\pi/2 \approx 1{,}571$ & $0{,}5$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Equivalência:} no PM, $\phi(t) = k_p m(t)$. Defina $m'(t) = \dfrac{1}{2\pi}\dot m(t)$. Então
+\[
+  \phi(t) = k_p m(t) = 2\pi k_p \int_{-\infty}^{t}\frac{1}{2\pi}\frac{dm}{d\tau}\,d\tau = 2\pi k_p \int_{-\infty}^{t} m'(\tau)\,d\tau,
+\]
+que é exatamente a forma de uma fase FM aplicada a $m'(t)$ com sensibilidade $k_p$. Em palavras: modular PM com $m(t)$ é equivalente a modular FM com a derivada $\dot m(t)/(2\pi)$.
+\end{resolucao}
+
+\begin{resolucao}[Item c -- Saída do discriminador antes do envelope]
+
+O discriminador ideal aplica derivação temporal. Da identidade $\dfrac{d}{dt}\cos\theta(t) = -\sin\theta(t)\cdot\dot\theta(t)$, com $\theta(t) = 2\pi f_c t + \phi(t)$ e $\dot\theta(t) = 2\pi[f_c + k_f m(t)]$:
+\[
+  v_o(t) = \frac{du_{\text{FM}}}{dt} = -A_c\,\dot\theta(t)\sin\theta(t)
+\]
+\[
+  \boxed{v_o(t) = -2\pi A_c\big[f_c + k_f m(t)\big]\sin\!\big[2\pi f_c t + \phi(t)\big].}
+\]
+
+O envelope é $E(t) = 2\pi A_c[f_c + k_f m(t)] = 2\pi A_c f_c + 2\pi A_c k_f m(t)$. O detector de envelope, seguido de capacitor de bloqueio de DC, recupera o sinal $2\pi A_c k_f m(t) \propto m(t)$, sem distorção.
+\end{resolucao}
+
+\begin{resolucao}[Item d -- Condições para recuperação sem distorção]
+
+A regra de Carson dá $B_c = 2(\Delta f + f_m) = 2(250 + 500) = 1500\;\text{Hz}$. Portanto $|H(f)|$ deve:
+\begin{enumerate}\itemsep0pt
+  \item ser \emph{linear} em $f$ na faixa $f_c - 750 \le f \le f_c + 750$\,Hz, com inclinação constante. Apenas assim a tensão de saída do trecho linear é proporcional a $f_i(t)$, e portanto a $m(t)$.
+  \item ter banda de passagem que cubra toda a banda de Carson; caso contrário, harmônicas significativas do FM são suprimidas e ocorre distorção espectral.
+  \item ser zero ou fortemente atenuado fora dessa banda para rejeitar ruído fora da faixa do sinal.
+\end{enumerate}
+
+O circuito ressonante RLC sintonizado em $f_r > f_c$ aproxima essa rampa linear no \emph{flanco descendente} (parte com $f < f_r$); a tangente em $f = f_c$ é a região linear utilizada. Tipicamente usa-se um \emph{discriminador balanceado} (dois ressonadores em $f_r$ e $f_r'$) para obter linearidade em uma faixa maior.
+\end{resolucao}
+
+\begin{resolucao}[Item e -- PLL versus discriminador]
+
+O PLL é vantajoso em duas situações:
+\begin{itemize}\itemsep0pt
+  \item \textbf{Baixa SNR de entrada:} o discriminador apresenta efeito de limiar agudo (\textit{click noise}) quando a SNR cai abaixo de $\sim 10$\,dB; o PLL estende essa região linear em $2$ a $3$\,dB porque a banda do filtro de malha é menor que a banda RF do discriminador.
+  \item \textbf{Sinais com $\beta$ grande:} o PLL acompanha grandes variações de fase sem precisar de uma rampa linear extensa em $|H(f)|$, requisito difícil para discriminador analógico em WBFM comercial.
+\end{itemize}
+
+O efeito específico que o PLL combate e o discriminador não combate é o \textbf{ruído de cliques} associado a saltos de $2\pi$ na fase quando o ponteiro $A_c + V_n$ no plano fasorial passa próximo à origem.
+\end{resolucao}
+
+\vfill
+\begin{center}
+  \small\textit{Fim da resolução.}
+\end{center}
+
+\end{document}

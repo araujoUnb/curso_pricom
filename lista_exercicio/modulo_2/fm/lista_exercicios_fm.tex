@@ -1,0 +1,174 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{circuitikz}
+\usepackage{tikz}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Lista de Exercícios -- Modulação FM}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+  \includegraphics[width=0.18\textwidth]{../../../figures_global/unb.png}\\[0.5cm]
+  {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+  {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+  \rule{14cm}{0.8pt}\\[0.3cm]
+  {\LARGE\textbf{Lista de Exercícios}}\\[0.15cm]
+  {\Large\textbf{Modulação Angular -- FM}}\\[0.3cm]
+  \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Semestre:} 2026/1 \hfill \textbf{Referência:} Proakis \& Salehi, \textit{Fundamentals of Communication Systems}, $2^{\text{a}}$ ed., Cap.~4.
+
+\bigskip
+
+\begin{instrucao}[Tabela de funções de Bessel $J_n(\beta)$]
+\centering\small
+\begin{tabular}{c|ccccccccc}
+\toprule
+$\beta$ & $J_0$ & $J_1$ & $J_2$ & $J_3$ & $J_4$ & $J_5$ & $J_6$ & $J_7$ & $J_8$ \\
+\midrule
+$0{,}25$ & $0{,}984$ & $0{,}124$ & $0{,}008$ & --- & --- & --- & --- & --- & --- \\
+$0{,}5$  & $0{,}938$ & $0{,}242$ & $0{,}031$ & $0{,}003$ & --- & --- & --- & --- & --- \\
+$1$      & $0{,}765$ & $0{,}440$ & $0{,}115$ & $0{,}020$ & $0{,}002$ & --- & --- & --- & --- \\
+$2$      & $0{,}224$ & $0{,}577$ & $0{,}353$ & $0{,}129$ & $0{,}034$ & $0{,}007$ & --- & --- & --- \\
+$2{,}4$  & $0{,}003$ & $0{,}520$ & $0{,}431$ & $0{,}198$ & $0{,}064$ & $0{,}016$ & $0{,}003$ & --- & --- \\
+$5$      & $-0{,}178$ & $-0{,}328$ & $0{,}047$ & $0{,}365$ & $0{,}391$ & $0{,}261$ & $0{,}131$ & $0{,}053$ & $0{,}018$ \\
+$8$      & $0{,}172$ & $0{,}235$ & $-0{,}113$ & $-0{,}291$ & $-0{,}105$ & $0{,}186$ & $0{,}338$ & $0{,}321$ & $0{,}224$ \\
+\bottomrule
+\end{tabular}
+\end{instrucao}
+
+% ======================================================
+\section*{Questão 1 -- Sinal FM com mensagem senoidal}
+
+Um modulador FM tem constante de sensibilidade $k_f = 25\;\text{kHz/V}$ e portadora $c(t) = 10\cos(2\pi f_c\,t)$ com $f_c = 100\;\text{MHz}$. A mensagem é
+\[
+  m(t) = 4\cos(2\pi \times 5 \times 10^3\,t)\quad\text{V}.
+\]
+A potência é medida em carga normalizada de $1\;\Omega$.
+
+\begin{enumerate}[label=\alph*)]
+  \item Escreva a expressão temporal completa $u(t)$ do sinal FM transmitido. Identifique a fase $\phi(t)$ e a frequência instantânea $f_i(t)$.
+  \item Determine o desvio máximo de frequência $\Delta f$, o índice de modulação $\beta$ e classifique o sistema como NBFM ou WBFM.
+  \item Calcule a largura de banda pela regra de Carson e o número mínimo de harmônicas necessárias para conter $98\%$ da potência transmitida.
+  \item Calcule a potência média total transmitida em $u(t)$ e a potência da componente espectral na portadora $f_c$. Qual a razão de potência entre a portadora e o sinal total?
+  \item Repita os itens (b) e (c) se a amplitude da mensagem for dobrada para $8$\,V. Comente o impacto na banda ocupada.
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 2 -- Espectro de Bessel e conservação de potência}
+
+Considere um sinal FM com mensagem senoidal de tom único e índice de modulação $\beta = 2$, portadora $A_c = 1$\,V em $f_c = 10$\,MHz, e frequência da mensagem $f_m = 10\;\text{kHz}$. O sinal modulado é
+\[
+  u(t) = A_c \sum_{n=-\infty}^{\infty} J_n(\beta)\,\cos\!\big[2\pi(f_c + n f_m)\,t\big].
+\]
+
+\begin{enumerate}[label=\alph*)]
+  \item Liste todas as componentes espectrais com $|J_n(\beta)| \geq 0{,}01$. Indique frequência absoluta, em MHz, e amplitude de cada uma. Esboce o espectro bilateral.
+  \item Calcule a potência total transmitida usando a identidade $\sum_{n} J_n^2(\beta) = 1$ e a partir do somatório finito do item (a). Compare os dois valores e quantifique o erro percentual cometido ao truncar a série.
+  \item Determine a largura de banda de transmissão necessária para conter $98\%$ da potência. Compare esse valor com a previsão da regra de Carson e discuta qual estimativa é mais conservadora.
+  \item Para qual valor de $\beta$ a portadora $f_c$ desaparece pela primeira vez do espectro? Se quisermos suprimir a portadora em uma estação operando com $f_m = 10\;\text{kHz}$, qual desvio de frequência $\Delta f$ deve ser usado?
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 3 -- FM com mensagem composta de dois tons}
+
+A portadora $c(t) = A_c\cos(2\pi f_c\, t)$, com $A_c = 1$\,V e $f_c = 100$\,kHz, é modulada em frequência pela mensagem
+\[
+  m(t) = a_1\cos(2\pi f_1\,t) + a_2\cos(2\pi f_2\,t),
+\]
+com $a_1 = 1$\,V, $a_2 = 0{,}5$\,V, $f_1 = 1$\,kHz, $f_2 = 5$\,kHz e $k_f = 1000$\,Hz/V.
+
+\begin{enumerate}[label=\alph*)]
+  \item Mostre que o sinal FM pode ser escrito como
+  \[
+    u(t) = A_c\!\!\sum_{m,n}\!\! J_m(\beta_1)\,J_n(\beta_2)\,\cos\!\big[2\pi(f_c + m f_1 + n f_2)\,t\big],
+  \]
+  e determine os índices de modulação parciais $\beta_1 = k_f a_1/f_1$ e $\beta_2 = k_f a_2/f_2$.
+  \item Liste as oito componentes espectrais de maior amplitude na vizinhança de $f_c$ usando a tabela de Bessel. Indique posição $f_c + m f_1 + n f_2$ e amplitude $A_c\,|J_m(\beta_1)\,J_n(\beta_2)|$ para os pares $(m,n)$ com $|m|\le 2$ e $|n|\le 1$.
+  \item Argumente, com base no resultado anterior, porque o espectro de FM com mensagem composta apresenta produtos de intermodulação ausentes em AM convencional. Cite o termo do somatório onde esse efeito aparece.
+  \item Estime a largura de banda transmitida pela regra de Carson generalizada, $B_c \approx 2(\Delta f_{\text{total}} + W)$, onde $\Delta f_{\text{total}} = k_f \max|m(t)|$ e $W = \max(f_1, f_2)$. Compare com $B_c = 2(\beta_1 + 1)f_1 + 2(\beta_2 + 1)f_2$ aplicada erroneamente, mostrando porque essa última não vale para FM.
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 4 -- Modulador indireto de Armstrong}
+
+Um transmissor de FM comercial em $f_c = 96\;\text{MHz}$ é construído pelo método indireto de Armstrong. Um modulador NBFM gera um sinal com desvio angular máximo de $0{,}1$\,rad em $f_0 = 200$\,kHz a partir de áudio de largura $W = 15$\,kHz. O desvio final exigido é $\Delta f = 75$\,kHz.
+
+\begin{center}
+\begin{circuitikz}[scale=0.85, transform shape]
+  \draw (0,0) node[left]{$m(t)$} -- (1.5,0);
+  \draw (1.5,-0.5) rectangle (3.6,0.5) node[midway]{\footnotesize NBFM, $f_0$};
+  \draw (3.6,0) -- (4.5,0);
+  \draw (4.5,-0.5) rectangle (6.5,0.5) node[midway]{\footnotesize $\times n_1$};
+  \draw (6.5,0) -- (7.5,0);
+  \draw (7.5,-0.5) rectangle (9.0,0.5) node[midway]{\footnotesize Mixer};
+  \draw (9.0,0) -- (10.0,0);
+  \draw (10.0,-0.5) rectangle (12.0,0.5) node[midway]{\footnotesize $\times n_2$};
+  \draw (12,0) -- (13,0) node[right]{$u(t)$};
+  \draw (8.25,-1.6) node[below]{\footnotesize $f_{\text{LO}}$} -- (8.25,-0.5);
+\end{circuitikz}
+\end{center}
+
+\begin{enumerate}[label=\alph*)]
+  \item Determine o fator total de multiplicação $N = n_1 \cdot n_2$ necessário para levar o desvio de $0{,}1$\,rad até o índice de modulação correspondente a $\Delta f = 75\;\text{kHz}$ na banda comercial.
+  \item Escolha $n_1$, $n_2$ e a frequência $f_{\text{LO}}$ do mixer de modo que $N$ seja decomposto em dois fatores aproximadamente equilibrados, e que a portadora final seja exatamente $96\;\text{MHz}$. O mixer realiza translação $f_{\text{out}} = f_{\text{LO}} - n_1 f_0$, com $f_{\text{LO}} > n_1 f_0$.
+  \item Calcule a estabilidade absoluta exigida do oscilador de referência $f_0 = 200\;\text{kHz}$ para que a portadora final fique dentro de $\pm 2$\,Hz em $96\;\text{MHz}$.
+  \item Verifique se a hipótese de NBFM é válida no estágio inicial. O bloco NBFM aproxima $u_{\text{NB}}(t) \approx A_c[\cos(2\pi f_0 t) - \phi(t)\sin(2\pi f_0 t)]$ e essa aproximação requer $|\phi(t)| \ll 1$. Justifique numericamente com base no valor de $0{,}1$\,rad.
+  \item Discuta porque o método indireto é preferível ao método direto, com diodo varactor, em transmissores comerciais. Cite ao menos dois critérios técnicos.
+\end{enumerate}
+
+% ======================================================
+\section*{Questão 5 -- PM versus FM e demodulação por discriminador}
+
+A mensagem é $m(t) = A_m\cos(2\pi f_m\,t)$ com $A_m = 1$\,V e $f_m = 500$\,Hz. A portadora é $c(t) = A_c\cos(2\pi f_c\,t)$, $A_c = 1$\,V, $f_c = 1$\,MHz. As constantes são $k_p = \pi/2$\,rad/V para PM e $k_f = 250$\,Hz/V para FM.
+
+\begin{enumerate}[label=\alph*)]
+  \item Escreva as expressões temporais completas $u_{\text{PM}}(t)$ e $u_{\text{FM}}(t)$, e determine a frequência instantânea $f_i(t)$ em cada caso. Indique os valores numéricos dos picos máximo e mínimo de $f_i$.
+  \item Determine o desvio máximo de fase $\Delta\phi_{\max}$ e o desvio máximo de frequência $\Delta f_{\max}$ em cada caso. Mostre que o sinal PM com mensagem $m(t)$ é equivalente a um sinal FM cuja mensagem é $\dot m(t)/(2\pi)$.
+  \item Um receptor de FM emprega um discriminador modelado como derivador ideal seguido de detector de envelope. A função de transferência efetiva do derivador, em torno de $f_c$, é $|H(f)| = 2\pi|f|$. Mostre que, ao aplicar o sinal FM, a saída antes do detector de envelope é
+  \[
+    v_o(t) = -2\pi A_c\big[f_c + k_f m(t)\big]\sin\!\big[2\pi f_c t + \phi(t)\big].
+  \]
+  Identifique o envelope e o sinal recuperado após bloqueio de DC.
+  \item O discriminador real é construído com um circuito ressonante RLC sintonizado em $f_r > f_c$, operando na região linear de inclinação da curva $|H(f)|$. Especifique as condições sobre $|H(f)|$ na faixa $f_c - B_c/2 \le f \le f_c + B_c/2$, onde $B_c$ é a banda de transmissão por Carson, para que a recuperação seja sem distorção. Use $B_c = 2(\Delta f + f_m)$ do sistema FM em questão.
+  \item Em qual situação é vantajoso substituir o discriminador por um demodulador PLL? Cite o efeito específico que o PLL combate e que o discriminador não combate.
+\end{enumerate}
+
+\vfill
+\begin{center}
+  \small\textit{Boa sorte!}
+\end{center}
+
+\end{document}
