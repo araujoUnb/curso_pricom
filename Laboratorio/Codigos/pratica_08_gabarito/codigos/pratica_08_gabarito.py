@@ -83,8 +83,7 @@ class Quantizer(gr.sync_block):
         output_items[0][:] = self.delta * (np.floor(x / self.delta) + 0.5)
         return len(output_items[0])
 
-BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "pratica_08_gabarito")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIG_DIR = os.path.join(BASE_DIR, "figuras")
 DATA_DIR = os.path.join(BASE_DIR, "dados")
 
@@ -980,22 +979,32 @@ def etapa8():
                 dpi=150, bbox_inches='tight')
     plt.close()
 
-    # Figura 2: escada no tempo
-    f0 = 750
+    # Figura 2: escada no tempo -- sinal real (ideal) vs ZOH vs equalizado.
+    # Sem compensar o atraso: o equalizado aparece atrasado pelo FIR, o que
+    # mostra ao aluno o atraso de grupo introduzido pela equalizacao.
+    f0 = 2400                       # perto da borda, droop visivel (-2,4 dB)
     zoh = zoh_tone(f0, use_eq=False)
-    n_pts = int(2.5 * SAMP_RATE / f0)
-    t = np.arange(n_pts) / SAMP_RATE * 1000
-    low = zoh[:n_pts:N_ZOH]
-    t_low = np.arange(len(low)) * N_ZOH / SAMP_RATE * 1000
+    eq = zoh_tone(f0, use_eq=True)
+    s = 600                         # janela em regime permanente
+    n_pts = int(3 * SAMP_RATE / f0)
+    k = np.arange(n_pts)
+    t = k / SAMP_RATE * 1000
+    real = np.cos(2 * np.pi * f0 * (s + k) / SAMP_RATE)   # sinal real (ideal)
+    zoh_w = zoh[s:s + n_pts]
+    eq_w = eq[s:s + n_pts]                                # atraso preservado
+    low_idx = np.arange(0, n_pts, N_ZOH)
     fig, ax = plt.subplots(figsize=(11, 5))
-    ax.step(t, zoh[:n_pts], where='post', color='#d62728', lw=1.2,
+    ax.plot(t, real, color='#1f77b4', lw=1.8, label='Sinal real (ideal)')
+    ax.step(t, zoh_w, where='post', color='#d62728', lw=1.0, alpha=0.7,
             label='Saida ZOH (escada)')
-    ax.plot(t_low, low, 'o', color='#1f77b4', ms=6,
+    ax.plot(t, eq_w, color='#2ca02c', lw=1.8,
+            label='Equalizado (com atraso do FIR)')
+    ax.plot(t[low_idx], zoh_w[low_idx], 'o', color='#d62728', ms=5,
             label=f'Amostras a fs_low = {FS_LOW} Hz')
     ax.set_xlabel('Tempo (ms)')
     ax.set_ylabel('Amplitude')
-    ax.set_title(f'Etapa 8: saida do ZOH no tempo (tom de {f0} Hz)')
-    ax.legend(fontsize=9)
+    ax.set_title(f'Etapa 8: sinal real vs ZOH vs equalizado (tom de {f0} Hz)')
+    ax.legend(fontsize=9, loc='upper right')
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.savefig(os.path.join(FIG_DIR, "etapa8_zoh_escada.png"),

@@ -427,8 +427,11 @@ Esta parte usa os blocos \texttt{Signal Source}, \texttt{Repeat},
     samp\_rate = \texttt{fs\_low}.
   \item Adicione \texttt{Repeat} com Interpolation = \texttt{N\_zoh}. A saída é
     a escada do ZOH na taxa \texttt{samp\_rate}.
-  \item Ligue a um \texttt{QT GUI Time Sink} para ver a escada e a um
-    \texttt{QT GUI Freq Sink} com bw = \texttt{samp\_rate}.
+  \item Adicione um segundo \texttt{Signal Source}, Float, Cosine, freq =
+    \texttt{f0}, samp\_rate = \texttt{samp\_rate}. Este é o sinal real ideal,
+    a referência que o conversor tenta reconstruir.
+  \item Ligue o sinal real e a escada do ZOH a um \texttt{QT GUI Time Sink} e a
+    escada a um \texttt{QT GUI Freq Sink} com bw = \texttt{samp\_rate}.
   \item Observe no espectro o droop $\text{sinc}$ na banda de passagem e as
     imagens em torno de múltiplos de \texttt{fs\_low}, atenuadas pelos nulos
     do $\text{sinc}$.
@@ -442,8 +445,13 @@ Esta parte usa os blocos \texttt{Signal Source}, \texttt{Repeat},
   \item Adicione um \texttt{Embedded Python Block} com o código do
     equalizador do Apêndice~\ref{ap:codigos}, parâmetros \texttt{fs\_low},
     \texttt{fs\_high} = \texttt{samp\_rate} e \texttt{ntaps} = 201.
-  \item Ligue a saída do ZOH ao equalizador e a saída do equalizador à
-    segunda entrada do \texttt{QT GUI Freq Sink}.
+  \item Ligue a saída do ZOH ao equalizador, a saída do equalizador à terceira
+    entrada do \texttt{QT GUI Time Sink} e também à segunda entrada do
+    \texttt{QT GUI Freq Sink}.
+  \item No tempo, compare o sinal equalizado com o sinal real: a amplitude e a
+    forma são recuperadas. O equalizado aparece atrasado em relação ao real,
+    pois o filtro FIR introduz um atraso de grupo de $(\texttt{ntaps}-1)/2$
+    amostras.
   \item Compare os dois espectros: o equalizador achata a banda de passagem e
     aumenta a atenuação das imagens. Varie \texttt{f0} e confirme que o droop
     cresce com a frequência segundo a Eq.~\eqref{eq:zoh}.

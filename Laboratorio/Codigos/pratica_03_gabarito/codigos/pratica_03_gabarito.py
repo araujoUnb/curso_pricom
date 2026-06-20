@@ -54,8 +54,7 @@ FM = 500        # frequencia da mensagem (Hz)
 AC = 1.0        # amplitude da portadora
 N_SAMPLES = 48000 * 2  # 2 segundos de sinal
 
-BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "pratica_03_gabarito")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIG_DIR = os.path.join(BASE_DIR, "figuras")
 DATA_DIR = os.path.join(BASE_DIR, "dados")
 

@@ -50,8 +50,7 @@ N_SAMPLES = 32000  # 1 segundo de dados
 MAX_FREQ = 2 * np.pi * 2000 / SAMP_RATE
 MIN_FREQ = -MAX_FREQ
 
-BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "pratica_06_gabarito")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIG_DIR = os.path.join(BASE_DIR, "figuras")
 DATA_DIR = os.path.join(BASE_DIR, "dados")
 

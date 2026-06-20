@@ -51,8 +51,7 @@ from scipy.signal import find_peaks
 SAMP_RATE = 32000
 N_SAMPLES = 32768
 
-BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "pratica_01_gabarito")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIG_DIR = os.path.join(BASE_DIR, "figuras")
 DATA_DIR = os.path.join(BASE_DIR, "dados")
 

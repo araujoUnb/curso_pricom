@@ -56,8 +56,7 @@ N_SAMPLES = 48000 * 2   # 2 segundos de sinal
 
 NOISE_SIGMAS = [0, 0.05, 0.10, 0.20, 0.40, 0.70, 1.00]
 
-BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "pratica_07_gabarito")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIG_DIR = os.path.join(BASE_DIR, "figuras")
 DATA_DIR = os.path.join(BASE_DIR, "dados")
 

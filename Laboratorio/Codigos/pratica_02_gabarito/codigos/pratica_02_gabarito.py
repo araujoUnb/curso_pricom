@@ -54,8 +54,7 @@ AMP_C = 1.0        # Amplitude da portadora
 AMP_M = 1.0        # Amplitude da mensagem
 N_SAMPLES = 48000  # 1 segundo de dados
 
-BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "pratica_02_gabarito")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIG_DIR = os.path.join(BASE_DIR, "figuras")
 DATA_DIR = os.path.join(BASE_DIR, "dados")
 

@@ -1,7 +1,7 @@
 =================================================================
 PRÁTICA 01 — FFT E ANÁLISE ESPECTRAL
 GABARITO DO PROFESSOR
-Data: 2026-03-19 22:29
+Data: 2026-06-20 11:39
 GNU Radio: 3.10.12.0
 Sample Rate: 32000 Hz | Amostras: 32768
 Saída: /home/daniel/Documentos/UnB/Aulas/curso_pricom/Laboratorio/Codigos/pratica_01_gabarito

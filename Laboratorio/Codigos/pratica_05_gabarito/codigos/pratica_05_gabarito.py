@@ -55,8 +55,7 @@ N_SAMPLES_AUDIO = 48000  # Amostras de audio (~1 s)
 N_SAMPLES_FM = N_SAMPLES_AUDIO * INTERP  # Amostras FM
 FFT_SIZE = 8192
 
-BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                        "pratica_05_gabarito")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIG_DIR = os.path.join(BASE_DIR, "figuras")
 DATA_DIR = os.path.join(BASE_DIR, "dados")
 
