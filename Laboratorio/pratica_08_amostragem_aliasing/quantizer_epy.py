@@ -1,18 +1,13 @@
 """
-Embedded Python Block -- Quantizador Uniforme PCM (mid-rise)
-============================================================
-Quantizador uniforme de n_bits na faixa [-vmax, +vmax].
+Quantizador uniforme PCM mid-rise de n_bits na faixa [-vmax, +vmax].
 
-  L     = 2**n_bits          numero de niveis
-  Delta = 2*vmax / L         passo de quantizacao
-  y     = Delta*(floor(x/Delta) + 0.5)   nivel mais proximo (mid-rise)
+  L     = 2**n_bits                       numero de niveis
+  Delta = 2*vmax / L                      passo de quantizacao
+  y     = Delta*(floor(x/Delta) + 0.5)    nivel mais proximo (mid-rise)
 
-Erro de quantizacao limitado a [-Delta/2, +Delta/2], com potencia
-Pq = Delta**2 / 12. Para uma senoide de fundo de escala o SQNR teorico
-vale 1,76 + 6,02*n_bits dB (regra dos 6 dB/bit vista em sala).
-
-Cole este codigo em um bloco "Embedded Python Block" do GNU Radio
-Companion, ou mantenha o arquivo ao lado do .grc.
+O erro de quantizacao fica limitado a [-Delta/2, +Delta/2], com potencia
+Pq = Delta**2 / 12. Para uma senoide de fundo de escala, o SQNR vale
+1,76 + 6,02*n_bits dB.
 """
 
 import numpy as np

@@ -47,7 +47,3 @@ Cobrir a cadeia completa de conversão A/D no GNU Radio: demonstrar aliasing ao 
 - Configuração correta dos cenários de amostragem e do quantizador
 - Evidência clara do aliasing e do ruído de quantização
 - Concordância entre experimento e teoria (Nyquist e regra dos 6 dB/bit)
-
-## Validação automática
-
-`/usr/bin/python3 Codigos/pratica_08_gabarito.py` reproduz as duas partes em modo headless (GNU Radio 3.10), gerando figuras, CSVs e `relatorio.txt`.

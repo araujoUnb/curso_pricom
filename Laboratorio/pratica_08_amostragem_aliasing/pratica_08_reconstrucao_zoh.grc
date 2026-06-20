@@ -76,6 +76,20 @@ blocks:
     - 180
     rotation: 0
     state: enabled
+- name: eq_ntaps
+  id: variable
+  parameters:
+    comment: Coeficientes do FIR equalizador
+    value: '201'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 232
+    - 260
+    rotation: 0
+    state: enabled
 - name: f0
   id: variable_qtgui_range
   parameters:
@@ -169,7 +183,7 @@ blocks:
 - name: equalizador
   id: epy_block
   parameters:
-    _source_code: "\"\"\"\nEmbedded Python Block -- Equalizador de reconstrucao ZOH (inverse-sinc)\n=======================================================================\nUm DAC real segura cada amostra por Ts = 1/fs_low (zero-order hold), o que\nmultiplica o espectro pelo envelope |H_ZOH(f)| = |sinc(f/fs_low)|. Esse\nenvelope atenua as altas frequencias -- efeito de abertura -- com perda de\nsinc(0,5) = 2/pi ~ -3,9 dB na borda da banda f = fs_low/2.\n\nEste bloco aplica um FIR de compensacao com resposta proporcional a\n1/sinc(f/fs_low) na banda de passagem, achatando o droop, e com rolloff acima\nde fs_low/2 para suprimir as imagens espectrais.\n\nCole este codigo em um \"Embedded Python Block\" do GNU Radio Companion, com os\nparametros fs_low, fs_high e ntaps. A funcao design_eq tambem e reutilizada\npelo gabarito (pratica_08_gabarito.py).\n\"\"\"\n\nimport numpy as np\nfrom gnuradio import gr\nfrom scipy.signal import firwin2\n\n\ndef design_eq(fs_low, fs_high, ntaps=201, pb_frac=0.45):\n    \"\"\"FIR equalizador inverse-sinc no rate fs_high.\n\n    fs_low  -- taxa antes do ZOH (Hz)\n    fs_high -- taxa apos o ZOH/upsampling (Hz)\n    ntaps   -- numero de coeficientes (impar)\n    pb_frac -- fracao de fs_low/2 ate onde a banda e equalizada\n    \"\"\"\n    f = np.linspace(0.0, 1.0, 512)            # normalizado a fs_high/2\n    fc = (pb_frac * fs_low) / (fs_high / 2.0)\n    g = np.zeros_like(f)\n    pb = f <= fc\n    g[pb] = 1.0 / np.sinc(f[pb] * (fs_high / 2.0) / fs_low)\n    return np.asarray(firwin2(ntaps, f, g), dtype=np.float32)\n\n\nclass blk(gr.sync_block):\n    def __init__(self, fs_low=6000, fs_high=48000, ntaps=201):\n        gr.sync_block.__init__(self, name=\"Equalizador ZOH (inverse-sinc)\",\n                               in_sig=[np.float32], out_sig=[np.float32])\n        self.taps = design_eq(fs_low, fs_high, ntaps)\n        self.set_history(len(self.taps))\n\n    def work(self, input_items, output_items):\n        y = np.convolve(input_items[0], self.taps, 'valid')\n        output_items[0][:] = y\n        return len(output_items[0])\n"
+    _source_code: "\"\"\"\nEqualizador de reconstrucao ZOH (inverse-sinc).\n\nO segurador de ordem zero multiplica o espectro por |sinc(f/fs_low)|, atenuando\nas altas frequencias. Este bloco aplica um FIR de resposta proporcional a\n1/sinc(f/fs_low) na banda de passagem, achatando o droop, e com rolloff acima\nde fs_low/2 para suprimir as imagens espectrais.\n\nParametros: fs_low (taxa antes do ZOH), fs_high (taxa apos o ZOH), ntaps\n(numero de coeficientes do FIR) e ngrid (pontos da grade de frequencia usada no\nprojeto do filtro).\n\"\"\"\n\nimport numpy as np\nfrom gnuradio import gr\nfrom scipy.signal import firwin2\n\n\ndef design_eq(fs_low, fs_high, ntaps=201, pb_frac=0.45, ngrid=512):\n    f = np.linspace(0.0, 1.0, ngrid)          # normalizado a fs_high/2\n    fc = (pb_frac * fs_low) / (fs_high / 2.0)\n    g = np.zeros_like(f)\n    pb = f <= fc\n    g[pb] = 1.0 / np.sinc(f[pb] * (fs_high / 2.0) / fs_low)\n    return np.asarray(firwin2(ntaps, f, g), dtype=np.float32)\n\n\nclass blk(gr.sync_block):\n    def __init__(self, fs_low=6000, fs_high=48000, ntaps=201, ngrid=512):\n        gr.sync_block.__init__(self, name=\"Equalizador ZOH (inverse-sinc)\",\n                               in_sig=[np.float32], out_sig=[np.float32])\n        self.taps = design_eq(fs_low, fs_high, ntaps, ngrid=ngrid)\n        self.set_history(len(self.taps))\n\n    def work(self, input_items, output_items):\n        y = np.convolve(input_items[0], self.taps, 'valid')\n        output_items[0][:] = y\n        return len(output_items[0])\n"
     affinity: ''
     alias: ''
     comment: Equalizador inverse-sinc
@@ -177,7 +191,8 @@ blocks:
     fs_low: fs_low
     maxoutbuf: '0'
     minoutbuf: '0'
-    ntaps: '201'
+    ntaps: eq_ntaps
+    ngrid: '512'
   states:
     bus_sink: false
     bus_source: false
@@ -219,10 +234,10 @@ blocks:
     entags: 'True'
     grid: 'True'
     gui_hint: 1,0,1,2
-    label1: ZOH (escada)
+    label1: Sinal real (ideal)
     label10: Signal 10
-    label2: Equalizado
-    label3: Signal 3
+    label2: ZOH (escada)
+    label3: Equalizado
     label4: Signal 4
     label5: Signal 5
     label6: Signal 6
@@ -240,8 +255,8 @@ blocks:
     marker7: '-1'
     marker8: '-1'
     marker9: '-1'
-    name: '"Reconstrução no tempo: ZOH (escada) e equalizado"'
-    nconnections: '2'
+    name: '"Reconstrução no tempo: sinal real, ZOH e equalizado"'
+    nconnections: '3'
     size: '1024'
     srate: samp_rate
     stemplot: 'False'
@@ -364,6 +379,31 @@ blocks:
     - 440
     rotation: 0
     state: enabled
+- name: src_real
+  id: analog_sig_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: '1.0'
+    comment: Sinal real ideal a fs_high
+    freq: f0
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: float
+    waveform: analog.GR_COS_WAVE
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 80
+    - 540
+    rotation: 0
+    state: enabled
 connections:
 - - src
   - '0'
@@ -375,10 +415,6 @@ connections:
   - '0'
 - - throttle
   - '0'
-  - time_sink
-  - '0'
-- - throttle
-  - '0'
   - freq_sink
   - '0'
 - - throttle
@@ -387,12 +423,20 @@ connections:
   - '0'
 - - equalizador
   - '0'
+  - freq_sink
+  - '1'
+- - src_real
+  - '0'
+  - time_sink
+  - '0'
+- - throttle
+  - '0'
   - time_sink
   - '1'
 - - equalizador
   - '0'
-  - freq_sink
-  - '1'
+  - time_sink
+  - '2'
 metadata:
   file_format: 1
   grc_version: 3.10.12.0
