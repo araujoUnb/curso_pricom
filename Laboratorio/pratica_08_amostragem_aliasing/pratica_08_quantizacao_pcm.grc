@@ -1,0 +1,648 @@
+options:
+  parameters:
+    author: Prof. Daniel Costa Araújo
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: Prática 08 - Quantização PCM
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: pratica_08_quantizacao_pcm
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: Prática 08 - Quantização PCM
+    window_size: (1280,900)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 8
+    - 8
+    rotation: 0
+    state: enabled
+blocks:
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: Taxa de amostragem
+    value: '48000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 8
+    - 160
+    rotation: 0
+    state: enabled
+- name: vmax
+  id: variable
+  parameters:
+    comment: Tensão de fundo de escala (faixa [-vmax,+vmax], Vpp=2*vmax)
+    value: '1.0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 120
+    - 160
+    rotation: 0
+    state: enabled
+- name: f_sinal
+  id: variable
+  parameters:
+    comment: Frequência da senoide (incomensurável com samp_rate)
+    value: '997'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 232
+    - 160
+    rotation: 0
+    state: enabled
+- name: ma_len
+  id: variable
+  parameters:
+    comment: Janela da média móvel (medição de potência)
+    value: '16384'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 360
+    - 160
+    rotation: 0
+    state: enabled
+- name: n_bits
+  id: variable_qtgui_range
+  parameters:
+    comment: Número de bits do quantizador
+    gui_hint: 0,0,1,1
+    label: Número de bits (n)
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: int
+    start: '2'
+    step: '1'
+    stop: '16'
+    value: '4'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 500
+    - 12
+    rotation: 0
+    state: enabled
+- name: src_sinal
+  id: analog_sig_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: vmax
+    comment: Senoide de fundo de escala x(t)=vmax*cos(2*pi*f_sinal*t)
+    freq: f_sinal
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: float
+    waveform: analog.GR_COS_WAVE
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 80
+    - 300
+    rotation: 0
+    state: enabled
+- name: throttle
+  id: blocks_throttle2
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    limit: auto
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 300
+    - 316
+    rotation: 0
+    state: enabled
+- name: quantizador
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nEmbedded Python Block -- Quantizador Uniforme PCM (mid-rise)\n============================================================\nQuantizador uniforme de n_bits na faixa [-vmax, +vmax].\n\n  L     = 2**n_bits          numero de niveis\n  Delta = 2*vmax / L         passo de quantizacao\n  y     = Delta*(floor(x/Delta) + 0.5)   nivel mais proximo (mid-rise)\n\nErro de quantizacao limitado a [-Delta/2, +Delta/2], com potencia\nPq = Delta**2 / 12. Para uma senoide de fundo de escala o SQNR teorico\nvale 1,76 + 6,02*n_bits dB (regra dos 6 dB/bit vista em sala).\n\nCole este codigo em um bloco \"Embedded Python Block\" do GNU Radio\nCompanion, ou mantenha o arquivo ao lado do .grc.\n\"\"\"\n\nimport numpy as np\nfrom gnuradio import gr\n\n\nclass blk(gr.sync_block):\n    def __init__(self, n_bits=3, vmax=1.0):\n        gr.sync_block.__init__(\n            self,\n            name=\"Quantizador PCM (n_bits)\",\n            in_sig=[np.float32],\n            out_sig=[np.float32],\n        )\n        self.n_bits = int(n_bits)\n        self.vmax = float(vmax)\n\n    @property\n    def delta(self):\n        return 2.0 * self.vmax / (2 ** self.n_bits)\n\n    def work(self, input_items, output_items):\n        delta = self.delta\n        x = np.clip(input_items[0], -self.vmax, self.vmax - 1e-9)\n        output_items[0][:] = delta * (np.floor(x / delta) + 0.5)\n        return len(output_items[0])\n"
+    affinity: ''
+    alias: ''
+    comment: Quantizador uniforme PCM mid-rise de n_bits
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    n_bits: n_bits
+    vmax: vmax
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 540
+    - 300
+    rotation: 0
+    state: enabled
+- name: erro
+  id: blocks_sub_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: Erro de quantização e[n]=x[n]-x_q[n]
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 820
+    - 460
+    rotation: 0
+    state: enabled
+- name: sq_sinal
+  id: blocks_multiply_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: x[n]^2
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 540
+    - 620
+    rotation: 0
+    state: enabled
+- name: sq_erro
+  id: blocks_multiply_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: e[n]^2
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 540
+    - 740
+    rotation: 0
+    state: enabled
+- name: ma_sinal
+  id: blocks_moving_average_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: Potência média do sinal Ps
+    length: ma_len
+    max_iter: ma_len
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    scale: 1.0/ma_len
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 760
+    - 620
+    rotation: 0
+    state: enabled
+- name: ma_erro
+  id: blocks_moving_average_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: Potência média do erro Pq
+    length: ma_len
+    max_iter: ma_len
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    scale: 1.0/ma_len
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 760
+    - 740
+    rotation: 0
+    state: enabled
+- name: razao
+  id: blocks_divide_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: Ps/Pq
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 980
+    - 660
+    rotation: 0
+    state: enabled
+- name: sqnr_db
+  id: blocks_nlog10_ff
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: SQNR(dB)=10*log10(Ps/Pq)
+    k: '0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    n: '10'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1140
+    - 660
+    rotation: 0
+    state: enabled
+- name: num_sink_sqnr
+  id: qtgui_number_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    autoscale: 'False'
+    avg: '0'
+    color1: ("black","black")
+    color10: ("black","black")
+    color2: ("black","black")
+    color3: ("black","black")
+    color4: ("black","black")
+    color5: ("black","black")
+    color6: ("black","black")
+    color7: ("black","black")
+    color8: ("black","black")
+    color9: ("black","black")
+    comment: SQNR medido em dB
+    factor1: '1'
+    factor10: '1'
+    factor2: '1'
+    factor3: '1'
+    factor4: '1'
+    factor5: '1'
+    factor6: '1'
+    factor7: '1'
+    factor8: '1'
+    factor9: '1'
+    graph_type: qtgui.NUM_GRAPH_HORIZ
+    gui_hint: 1,0,1,2
+    label1: SQNR medido (dB)
+    label10: ''
+    label2: ''
+    label3: ''
+    label4: ''
+    label5: ''
+    label6: ''
+    label7: ''
+    label8: ''
+    label9: ''
+    max: '100'
+    min: '0'
+    name: '"SQNR (dB)"'
+    nconnections: '1'
+    type: float
+    unit1: dB
+    unit10: ''
+    unit2: ''
+    unit3: ''
+    unit4: ''
+    unit5: ''
+    unit6: ''
+    unit7: ''
+    unit8: ''
+    unit9: ''
+    update_time: '0.10'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1320
+    - 640
+    rotation: 0
+    state: enabled
+- name: time_sink
+  id: qtgui_time_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    axislabels: 'True'
+    color1: blue
+    color10: dark blue
+    color2: red
+    color3: green
+    color4: black
+    color5: cyan
+    color6: magenta
+    color7: yellow
+    color8: dark red
+    color9: dark green
+    comment: ''
+    ctrlpanel: 'False'
+    entags: 'True'
+    grid: 'True'
+    gui_hint: 2,0,1,2
+    label1: Original
+    label10: Signal 10
+    label2: Quantizado
+    label3: Erro de quantização
+    label4: Signal 4
+    label5: Signal 5
+    label6: Signal 6
+    label7: Signal 7
+    label8: Signal 8
+    label9: Signal 9
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: '"Sinal: original, quantizado e erro (tempo)"'
+    nconnections: '3'
+    size: '1024'
+    srate: samp_rate
+    stemplot: 'False'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    tr_chan: '0'
+    tr_delay: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    ylabel: Amplitude
+    ymax: '1.2'
+    ymin: '-1.2'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 820
+    - 180
+    rotation: 0
+    state: enabled
+- name: freq_sink
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: ''
+    ctrlpanel: 'False'
+    fc: '0'
+    fftsize: '4096'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: 3,0,1,2
+    label: Relative Gain
+    label1: Original
+    label10: ''''''
+    label2: Quantizado
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '"Espectro: original e quantizado (ruído de quantização)"'
+    nconnections: '2'
+    norm_window: 'False'
+    showports: 'False'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: window.WIN_HANN
+    ymax: '10'
+    ymin: '-100'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 820
+    - 40
+    rotation: 0
+    state: enabled
+connections:
+- - src_sinal
+  - '0'
+  - throttle
+  - '0'
+- - throttle
+  - '0'
+  - quantizador
+  - '0'
+- - throttle
+  - '0'
+  - time_sink
+  - '0'
+- - quantizador
+  - '0'
+  - time_sink
+  - '1'
+- - erro
+  - '0'
+  - time_sink
+  - '2'
+- - throttle
+  - '0'
+  - freq_sink
+  - '0'
+- - quantizador
+  - '0'
+  - freq_sink
+  - '1'
+- - throttle
+  - '0'
+  - erro
+  - '0'
+- - quantizador
+  - '0'
+  - erro
+  - '1'
+- - throttle
+  - '0'
+  - sq_sinal
+  - '0'
+- - throttle
+  - '0'
+  - sq_sinal
+  - '1'
+- - erro
+  - '0'
+  - sq_erro
+  - '0'
+- - erro
+  - '0'
+  - sq_erro
+  - '1'
+- - sq_sinal
+  - '0'
+  - ma_sinal
+  - '0'
+- - sq_erro
+  - '0'
+  - ma_erro
+  - '0'
+- - ma_sinal
+  - '0'
+  - razao
+  - '0'
+- - ma_erro
+  - '0'
+  - razao
+  - '1'
+- - razao
+  - '0'
+  - sqnr_db
+  - '0'
+- - sqnr_db
+  - '0'
+  - num_sink_sqnr
+  - '0'
+metadata:
+  file_format: 1
+  grc_version: 3.10.12.0

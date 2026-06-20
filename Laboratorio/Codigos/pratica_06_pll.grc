@@ -1,12 +1,12 @@
 options:
   parameters:
-    author: 'Prof. Daniel Costa Araújo'
+    author: "Prof. Daniel Costa Ara\xFAjo"
     catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
     copyright: ''
-    description: 'Prática 06 - Phase-Locked Loop (PLL)'
+    description: "Pr\xE1tica 06 - Phase-Locked Loop (PLL)"
     gen_cmake: 'On'
     gen_linking: dynamic
     generate_options: qt_gui
@@ -22,7 +22,7 @@ options:
     run_options: prompt
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: 'Prática 06 - Phase-Locked Loop (PLL)'
+    title: "Pr\xE1tica 06 - Phase-Locked Loop (PLL)"
     window_size: (1280,900)
   states:
     bus_sink: false
@@ -33,79 +33,12 @@ options:
     state: enabled
 
 blocks:
-# ============================================
-# VARIÁVEIS
-# ============================================
-- name: samp_rate
-  id: variable
-  parameters:
-    comment: 'Taxa de amostragem'
-    value: '32000'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [8, 160]
-    rotation: 0
-    state: enabled
-
-- name: max_freq
-  id: variable
-  parameters:
-    comment: 'Frequência máxima do PLL (rad/amostra)'
-    value: '2*3.14159265*2000/samp_rate'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [8, 260]
-    rotation: 0
-    state: enabled
-
-- name: min_freq
-  id: variable
-  parameters:
-    comment: 'Frequência mínima do PLL (rad/amostra)'
-    value: '-max_freq'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [8, 360]
-    rotation: 0
-    state: enabled
-
-# ============================================
-# SLIDERS (QT GUI Range)
-# ============================================
-- name: loop_bw
-  id: variable_qtgui_range
-  parameters:
-    comment: 'Largura de banda do laço (rad/amostra)'
-    gui_hint: 0,0,1,1
-    label: 'Loop Bandwidth (rad/amostra)'
-    min_len: '200'
-    orient: QtCore.Qt.Horizontal
-    rangeType: float
-    start: '0.01'
-    step: '0.01'
-    stop: '0.628'
-    value: '0.062'
-    widget: counter_slider
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [200, 12]
-    rotation: 0
-    state: enabled
-
 - name: freq_in
   id: variable_qtgui_range
   parameters:
-    comment: 'Frequência do sinal de entrada (Hz)'
+    comment: "Frequ\xEAncia do sinal de entrada (Hz)"
     gui_hint: 0,1,1,1
-    label: 'Frequência de entrada (Hz)'
+    label: "Frequ\xEAncia de entrada (Hz)"
     min_len: '200'
     orient: QtCore.Qt.Horizontal
     rangeType: float
@@ -121,13 +54,57 @@ blocks:
     coordinate: [450, 12]
     rotation: 0
     state: enabled
-
+- name: loop_bw
+  id: variable_qtgui_range
+  parameters:
+    comment: "Largura de banda do la\xE7o (rad/amostra)"
+    gui_hint: 0,0,1,1
+    label: Loop Bandwidth (rad/amostra)
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '0.01'
+    step: '0.01'
+    stop: '0.628'
+    value: '0.062'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 12]
+    rotation: 0
+    state: enabled
+- name: max_freq
+  id: variable
+  parameters:
+    comment: "Frequ\xEAncia m\xE1xima do PLL (rad/amostra)"
+    value: 2*3.14159265*2000/samp_rate
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 260]
+    rotation: 0
+    state: enabled
+- name: min_freq
+  id: variable
+  parameters:
+    comment: "Frequ\xEAncia m\xEDnima do PLL (rad/amostra)"
+    value: -max_freq
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 360]
+    rotation: 0
+    state: enabled
 - name: noise_amp
   id: variable_qtgui_range
   parameters:
-    comment: 'Amplitude do ruído gaussiano'
+    comment: "Amplitude do ru\xEDdo gaussiano"
     gui_hint: 1,0,1,1
-    label: 'Amplitude do Ruído'
+    label: "Amplitude do Ru\xEDdo"
     min_len: '200'
     orient: QtCore.Qt.Horizontal
     rangeType: float
@@ -143,18 +120,161 @@ blocks:
     coordinate: [700, 12]
     rotation: 0
     state: enabled
-
-# ============================================
-# FONTES DE SINAL
-# ============================================
-# Sinal de entrada: cosseno complexo
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: Taxa de amostragem
+    value: '32000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 160]
+    rotation: 0
+    state: enabled
+- name: add_block
+  id: blocks_add_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: "Sinal + Ru\xEDdo"
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [360, 340]
+    rotation: 0
+    state: enabled
+- name: freq_sink_entrada
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: ''
+    ctrlpanel: 'False'
+    fc: '0'
+    fftsize: '4096'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: 2,1,1,1
+    label: Relative Gain
+    label1: Sinal de entrada
+    label10: ''''''
+    label2: ''''''
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '"Espectro do Sinal de Entrada"'
+    nconnections: '1'
+    norm_window: 'False'
+    showports: 'False'
+    tr_chan: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_tag: '""'
+    type: complex
+    units: dB
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: window.WIN_HANN
+    ymax: '10'
+    ymin: '-100'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [560, 564.0]
+    rotation: 0
+    state: enabled
+- name: pll_freqdet
+  id: analog_pll_freqdet_cf
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: PLL Frequency Detector
+    max_freq: max_freq
+    maxoutbuf: '0'
+    min_freq: min_freq
+    minoutbuf: '0'
+    w: loop_bw
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [520, 340]
+    rotation: 0
+    state: enabled
+- name: src_noise
+  id: analog_noise_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: noise_amp
+    comment: "Ru\xEDdo gaussiano complexo"
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    noise_type: analog.GR_GAUSSIAN
+    seed: '0'
+    type: complex
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [136, 484.0]
+    rotation: 0
+    state: enabled
 - name: src_signal
   id: analog_sig_source_x
   parameters:
     affinity: ''
     alias: ''
     amp: '1.0'
-    comment: 'Sinal de entrada complexo'
+    comment: Sinal de entrada complexo
     freq: freq_in
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -168,78 +288,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [80, 260]
+    coordinate: [176, 172.0]
     rotation: 0
     state: enabled
-
-# Fonte de ruído gaussiano complexo
-- name: src_noise
-  id: analog_noise_source_x
-  parameters:
-    affinity: ''
-    alias: ''
-    amp: noise_amp
-    comment: 'Ruído gaussiano complexo'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    noise_type: analog.GR_GAUSSIAN
-    seed: '0'
-    type: complex
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [80, 420]
-    rotation: 0
-    state: enabled
-
-# ============================================
-# SOMADOR: Sinal + Ruído
-# ============================================
-- name: add_block
-  id: blocks_add_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: 'Sinal + Ruído'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_inputs: '2'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [360, 340]
-    rotation: 0
-    state: enabled
-
-# ============================================
-# PLL FREQ DET
-# ============================================
-- name: pll_freqdet
-  id: analog_pll_freqdet_cf
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: 'PLL Frequency Detector'
-    w: loop_bw
-    max_freq: max_freq
-    maxoutbuf: '0'
-    min_freq: min_freq
-    minoutbuf: '0'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [520, 340]
-    rotation: 0
-    state: enabled
-
-# ============================================
-# THROTTLE
-# ============================================
 - name: throttle
   id: blocks_throttle2
   parameters:
@@ -248,6 +299,7 @@ blocks:
     comment: ''
     ignoretag: 'True'
     limit: auto
+    maximum: '0.1'
     maxoutbuf: '0'
     minoutbuf: '0'
     samples_per_second: samp_rate
@@ -257,13 +309,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [720, 340]
+    coordinate: [808, 348.0]
     rotation: 0
     state: enabled
-
-# ============================================
-# VISUALIZAÇÃO: Osciloscópio (Time Sink) - Saída do PLL
-# ============================================
 - name: time_sink
   id: qtgui_time_sink_x
   parameters:
@@ -296,7 +344,7 @@ blocks:
     entags: 'True'
     grid: 'True'
     gui_hint: 2,0,1,1
-    label1: 'Saída PLL (frequência)'
+    label1: "Sa\xEDda PLL (frequ\xEAncia)"
     label10: Signal 10
     label2: Signal 2
     label3: Signal 3
@@ -317,7 +365,7 @@ blocks:
     marker7: '-1'
     marker8: '-1'
     marker9: '-1'
-    name: '"Convergência do PLL"'
+    name: "\"Converg\xEAncia do PLL\""
     nconnections: '1'
     size: '4096'
     srate: samp_rate
@@ -358,102 +406,17 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [960, 220]
-    rotation: 0
-    state: enabled
-
-# ============================================
-# VISUALIZAÇÃO: Espectro do sinal de entrada (Freq Sink)
-# ============================================
-- name: freq_sink_entrada
-  id: qtgui_freq_sink_x
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    autoscale: 'False'
-    average: '1.0'
-    axislabels: 'True'
-    bw: samp_rate
-    color1: '"blue"'
-    color10: '"dark blue"'
-    color2: '"red"'
-    color3: '"green"'
-    color4: '"black"'
-    color5: '"cyan"'
-    color6: '"magenta"'
-    color7: '"yellow"'
-    color8: '"dark red"'
-    color9: '"dark green"'
-    comment: ''
-    ctrlpanel: 'False'
-    fc: '0'
-    fftsize: '4096'
-    freqhalf: 'True'
-    grid: 'True'
-    gui_hint: 2,1,1,1
-    label: Relative Gain
-    label1: 'Sinal de entrada'
-    label10: ''''''
-    label2: ''''''
-    label3: ''''''
-    label4: ''''''
-    label5: ''''''
-    label6: ''''''
-    label7: ''''''
-    label8: ''''''
-    label9: ''''''
-    legend: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    name: '"Espectro do Sinal de Entrada"'
-    nconnections: '1'
-    norm_window: 'False'
-    showports: 'False'
-    type: complex
-    update_time: '0.10'
-    width1: '1'
-    width10: '1'
-    width2: '1'
-    width3: '1'
-    width4: '1'
-    width5: '1'
-    width6: '1'
-    width7: '1'
-    width8: '1'
-    width9: '1'
-    wintype: window.WIN_HANN
-    ymax: '10'
-    ymin: '-100'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [960, 480]
+    coordinate: [1088, 332.0]
     rotation: 0
     state: enabled
 
 connections:
-# Sinal + Ruído
-- [src_signal, '0', add_block, '0']
-- [src_noise, '0', add_block, '1']
-# PLL Freq Det
-- [add_block, '0', pll_freqdet, '0']
-# Throttle (float, após PLL)
-- [pll_freqdet, '0', throttle, '0']
-# Visualização no tempo: saída do PLL
-- [throttle, '0', time_sink, '0']
-# Espectro do sinal de entrada (antes do PLL)
 - [add_block, '0', freq_sink_entrada, '0']
+- [add_block, '0', pll_freqdet, '0']
+- [pll_freqdet, '0', throttle, '0']
+- [src_noise, '0', add_block, '1']
+- [src_signal, '0', add_block, '0']
+- [throttle, '0', time_sink, '0']
 
 metadata:
   file_format: 1

@@ -94,8 +94,7 @@ captura $\Delta\omega_\text{cap} \approx 2\omega_n$.
 % ======================================================
 \section{Materiais e blocos GNU Radio}
 
-\begin{table}[H]
-  \centering
+\begin{center}
   \begin{tabular}{l l l}
     \toprule
     Bloco GRC & Localização & Função \\
@@ -109,10 +108,10 @@ captura $\Delta\omega_\text{cap} \approx 2\omega_n$.
     \texttt{Throttle}               & Misc                & Controle de CPU \\
     \texttt{QT GUI Time Sink}       & Instrumentation     & Formas de onda \\
     \texttt{QT GUI Frequency Sink}  & Instrumentation     & Espectro \\
+    \texttt{File Sink}              & File Operators      & Persistência em \texttt{.bin} \\
     \bottomrule
   \end{tabular}
-  \caption{Blocos utilizados na Prática 06.}
-\end{table}
+\end{center}
 
 % ======================================================
 \section{Roteiro de montagem e execução (50 min)}
@@ -154,6 +153,38 @@ captura $\Delta\omega_\text{cap} \approx 2\omega_n$.
 \end{enumerate}
 \end{instrucao}
 
+\subsection*{Persistência da saída do PLL para análise em Python}
+
+Em vez de ler valores no \texttt{QT GUI Time Sink} a olho -- imprecisão
+inevitável de leitura visual --, salve a saída do PLL em arquivo e processe
+em Python. As próximas tabelas serão preenchidas com esse fluxo.
+
+\begin{instrucao}[File Sink + análise em Python]
+\begin{enumerate}[label=\arabic*.]
+  \item Adicione um \texttt{File Sink} com \texttt{File} =
+    \texttt{pll\_output.bin}, \texttt{Type} = Float e \texttt{Unbuffered} = Yes.
+  \item Conecte a saída do \texttt{Throttle} também ao \texttt{File Sink}, em
+    paralelo com o \texttt{QT GUI Time Sink}.
+  \item Para cada linha de tabela: ajuste os sliders, execute por cerca de 2 s
+    e pare o flowgraph. O arquivo \texttt{pll\_output.bin} é sobrescrito a
+    cada execução, então copie ou renomeie antes de mudar de cenário.
+  \item Em Python ou Jupyter, carregue o arquivo binário como vetor de floats
+    de 32 bits, descarte o transitório inicial -- mantenha os 20\,\% finais
+    como regime permanente --, calcule a média do trecho final, que é o
+    valor de regime, e o desvio padrão, que é o jitter. Use $f_s = 32000$\,Hz
+    para converter índices de amostra em tempo, quando precisar medir o
+    tempo de convergência. Exemplo mínimo:
+\begin{verbatim}
+import numpy as np
+data = np.fromfile('pll_output.bin', dtype=np.float32)
+fs   = 32000
+tail = data[int(0.8*len(data)):]
+valor_regime = np.mean(tail)
+jitter_std   = np.std(tail)
+\end{verbatim}
+\end{enumerate}
+\end{instrucao}
+
 \subsection*{Etapa 2 -- Observar o processo de lock (12--22 min)}
 
 \begin{instrucao}[Visualização da convergência de fase]
@@ -163,28 +194,44 @@ captura $\Delta\omega_\text{cap} \approx 2\omega_n$.
     \texttt{Default Value} = 1000. Em seguida, no bloco
     \texttt{Signal Source}, troque o campo \texttt{Frequency} de 1000
     para \texttt{freq\_in}.
-  \item Execute. Mova o slider de \texttt{freq\_in} entre os valores
-    indicados na Tabela~\ref{tab:lock} e meça o valor de regime
-    permanente da saída do PLL.
-  \item Preencha a Tabela~\ref{tab:lock} com os valores numéricos
-    observados.
+  \item Para cada $f_\text{in}$ da Tabela~\ref{tab:lock}, ajuste o slider,
+    execute o flowgraph por $\sim$ 2 s e renomeie \texttt{pll\_output.bin}
+    para \texttt{pll\_f500.bin}, \texttt{pll\_f800.bin}, etc. antes da
+    próxima execução.
+  \item Em Python, pós-processe cada arquivo para extrair o valor de regime,
+    a frequência estimada $f_\text{est} = \mu \cdot f_s/(2\pi)$ e classifique
+    como locked (1) quando $\sigma/|\mu| < 0{,}02$:
+\begin{verbatim}
+import numpy as np
+fs = 32000
+freqs = [500, 800, 1000, 1200, 1500]
+for f in freqs:
+    data = np.fromfile(f'pll_f{f}.bin', dtype=np.float32)
+    tail = data[int(0.8*len(data)):]
+    mu, sigma = np.mean(tail), np.std(tail)
+    f_est = mu * fs / (2*np.pi)
+    locked = int(sigma / abs(mu) < 0.02) if abs(mu) > 1e-6 else 0
+    print(f'{f:5d} Hz | regime={mu:.6f} | '
+          f'f_est={f_est:.2f} Hz | locked={locked}')
+\end{verbatim}
+  \item Preencha a Tabela~\ref{tab:lock} com os valores numéricos obtidos.
 \end{enumerate}
 \end{instrucao}
 
 \begin{table}[H]
   \centering
-  \begin{tabular}{c c c}
+  \begin{tabular}{c c c c}
     \toprule
-    $f_\text{in}$ (Hz) & Valor de regime (rad/amostra) & Locked (1 = sim, 0 = não) \\
+    $f_\text{in}$ (Hz) & Valor de regime (rad/amostra) & $f_\text{est}$ (Hz) & Locked \\
     \midrule
-    500  & & \\
-    800  & & \\
-    1000 & & \\
-    1200 & & \\
-    1500 & & \\
+    500  & & & \\
+    800  & & & \\
+    1000 & & & \\
+    1200 & & & \\
+    1500 & & & \\
     \bottomrule
   \end{tabular}
-  \caption{Valor de regime permanente da saída do PLL em função de $f_\text{in}$, com \texttt{loop\_bw} = 0{,}062.}
+  \caption{Valor de regime permanente da saída do PLL, frequência estimada $f_\text{est} = \mu \cdot f_s/(2\pi)$ e indicador de lock (1/0), em função de $f_\text{in}$, com \texttt{loop\_bw} = 0{,}062.}
   \label{tab:lock}
 \end{table}
 
@@ -193,24 +240,41 @@ captura $\Delta\omega_\text{cap} \approx 2\omega_n$.
 \begin{instrucao}[Variar loop bandwidth]
 \begin{enumerate}[label=\arabic*.]
   \item Fixe \texttt{freq\_in} = 1000 Hz. Com o slider de \texttt{loop\_bw}
-    teste os valores 0{,}010, 0{,}062, 0{,}200 e 0{,}500.
-  \item Para cada valor, reinicie o flowgraph, meça o tempo até a saída
-    atingir 95\% do valor final \(t_\text{conv}\) em ms, o sobresinal
-    percentual e o desvio padrão da saída após a convergência.
+    teste os valores 0{,}010, 0{,}062, 0{,}200 e 0{,}500. Para cada um,
+    reinicie o flowgraph, execute por $\sim$ 2 s e renomeie
+    \texttt{pll\_output.bin} para \texttt{pll\_bw0p010.bin},
+    \texttt{pll\_bw0p062.bin}, etc.
+  \item Em Python, extraia $t_\text{conv}$ (5\,\% do valor final, mantido por
+    100 amostras seguidas) e o overshoot:
+\begin{verbatim}
+import numpy as np
+fs = 32000
+for bw_tag in ['0p010','0p062','0p200','0p500']:
+    data  = np.fromfile(f'pll_bw{bw_tag}.bin', dtype=np.float32)
+    final = np.mean(data[int(0.9*len(data)):])
+    margem = 0.05 * abs(final)
+    within = np.abs(data - final) < margem
+    idx = next((i for i in range(len(within)-100)
+                if np.all(within[i:i+100])), len(data))
+    t_conv_ms = idx / fs * 1000
+    overshoot = (np.max(np.abs(data)) - abs(final)) / abs(final) * 100
+    print(f'{bw_tag} | t_conv={t_conv_ms:.2f} ms | '
+          f'over={overshoot:.1f}%')
+\end{verbatim}
   \item Preencha a Tabela~\ref{tab:pll}.
 \end{enumerate}
 \end{instrucao}
 
 \begin{table}[H]
   \centering
-  \begin{tabular}{c c c c}
+  \begin{tabular}{c c c}
     \toprule
-    \texttt{loop\_bw} & $t_\text{conv}$ (ms) & Overshoot (\%) & Desvio padrão pós-lock \\
+    \texttt{loop\_bw} & $t_\text{conv}$ (ms) & Overshoot (\%) \\
     \midrule
-    0{,}010 & & & \\
-    0{,}062 & & & \\
-    0{,}200 & & & \\
-    0{,}500 & & & \\
+    0{,}010 & & \\
+    0{,}062 & & \\
+    0{,}200 & & \\
+    0{,}500 & & \\
     \bottomrule
   \end{tabular}
   \caption{Métricas quantitativas do PLL em função de \texttt{loop\_bw}.}
@@ -221,34 +285,53 @@ captura $\Delta\omega_\text{cap} \approx 2\omega_n$.
 
 \begin{instrucao}[Determinar os limites de captura]
 \begin{enumerate}[label=\arabic*.]
-  \item Fixe \texttt{loop\_bw} = 0{,}062. Varra \texttt{freq\_in} entre
-    200 e 1800 Hz nos pontos indicados na Tabela~\ref{tab:capture}.
-  \item Para cada $f_\text{in}$, registre o valor de regime e marque 1
-    se houver lock e 0 se a saída não estabilizar.
-  \item Calcule a faixa de captura medida
-    $\Delta f_\text{cap} = f_\text{max,lock} - f_\text{min,lock}$ e
-    compare com a previsão teórica $\Delta f_\text{cap} \approx
-    \texttt{loop\_bw}\cdot f_s/\pi$ Hz.
+  \item Fixe \texttt{loop\_bw} = 0{,}062. Para cada $f_\text{in}$ da
+    Tabela~\ref{tab:capture}, execute por $\sim$ 2 s e renomeie o
+    \texttt{pll\_output.bin} para \texttt{pll\_f200.bin},
+    \texttt{pll\_f600.bin}, etc.
+  \item Em Python, classifique cada cenário como locked, calcule a frequência
+    estimada e a faixa de captura medida:
+\begin{verbatim}
+import numpy as np
+fs = 32000
+freqs = [200, 600, 1000, 1400, 1800]
+locked_freqs = []
+for f in freqs:
+    data = np.fromfile(f'pll_f{f}.bin', dtype=np.float32)
+    tail = data[int(0.8*len(data)):]
+    mu, sigma = np.mean(tail), np.std(tail)
+    f_est  = mu * fs / (2*np.pi)
+    locked = int(sigma / abs(mu) < 0.02) if abs(mu) > 1e-6 else 0
+    if locked: locked_freqs.append(f)
+    print(f'{f:5d} Hz | regime={mu:.6f} | '
+          f'f_est={f_est:.2f} Hz | locked={locked}')
+
+df_cap_med = max(locked_freqs) - min(locked_freqs)
+df_cap_teo = 0.062 * fs / np.pi
+print(f'Df_cap medida={df_cap_med} Hz | teorica={df_cap_teo:.1f} Hz')
+\end{verbatim}
+  \item Compare $\Delta f_\text{cap}$ medida com a previsão
+    $\Delta f_\text{cap} \approx \texttt{loop\_bw}\cdot f_s/\pi$ Hz.
 \end{enumerate}
 \end{instrucao}
 
 \begin{table}[H]
   \centering
-  \begin{tabular}{c c c}
+  \begin{tabular}{c c c c}
     \toprule
-    $f_\text{in}$ (Hz) & Valor de regime (rad/amostra) & Locked (1/0) \\
+    $f_\text{in}$ (Hz) & Valor de regime (rad/amostra) & $f_\text{est}$ (Hz) & Locked \\
     \midrule
-    200  & & \\
-    600  & & \\
-    1000 & & \\
-    1400 & & \\
-    1800 & & \\
+    200  & & & \\
+    600  & & & \\
+    1000 & & & \\
+    1400 & & & \\
+    1800 & & & \\
     \midrule
-    \multicolumn{2}{l}{$\Delta f_\text{cap}$ medida (Hz)} &  \\
-    \multicolumn{2}{l}{$\Delta f_\text{cap}$ teórica (Hz)} &  \\
+    \multicolumn{3}{l}{$\Delta f_\text{cap}$ medida (Hz)} &  \\
+    \multicolumn{3}{l}{$\Delta f_\text{cap}$ teórica (Hz)} &  \\
     \bottomrule
   \end{tabular}
-  \caption{Faixa de captura medida do PLL com \texttt{loop\_bw} = 0{,}062.}
+  \caption{Faixa de captura medida do PLL com \texttt{loop\_bw} = 0{,}062. $f_\text{est} = \mu \cdot f_s/(2\pi)$.}
   \label{tab:capture}
 \end{table}
 
@@ -266,8 +349,20 @@ captura $\Delta\omega_\text{cap} \approx 2\omega_n$.
     com \texttt{Start} = 0, \texttt{Stop} = 1{,}0, \texttt{Step} = 0{,}05,
     \texttt{Default Value} = 0.
   \item Fixe $f_\text{in}$ = 1000 Hz. Para cada par
-    \texttt{(noise\_amp, loop\_bw)} indicado na Tabela~\ref{tab:ruido},
-    meça o desvio padrão da saída do PLL no regime permanente.
+    (\texttt{noise\_amp}, \texttt{loop\_bw}) da Tabela~\ref{tab:ruido},
+    execute por $\sim$ 2 s e renomeie o \texttt{pll\_output.bin} para
+    \texttt{pll\_a0p1\_bw0p062.bin}, \texttt{pll\_a0p1\_bw0p200.bin}, etc.
+  \item Em Python, calcule o jitter -- desvio padrão da saída em regime
+    permanente -- para cada par:
+\begin{verbatim}
+import numpy as np
+amps = ['0p0','0p1','0p3','0p5','1p0']
+for amp in amps:
+    for bw in ['0p062','0p200']:
+        data = np.fromfile(f'pll_a{amp}_bw{bw}.bin', dtype=np.float32)
+        jitter = np.std(data[int(0.8*len(data)):])
+        print(f'amp={amp} bw={bw} | jitter={jitter:.6f}')
+\end{verbatim}
 \end{enumerate}
 \end{instrucao}
 
@@ -286,6 +381,181 @@ captura $\Delta\omega_\text{cap} \approx 2\omega_n$.
   \end{tabular}
   \caption{Jitter de fase do PLL em função da amplitude do ruído e da largura de banda do laço.}
   \label{tab:ruido}
+\end{table}
+
+% ======================================================
+\section{Análises complementares -- desvios da estimativa}
+
+As tabelas a seguir reutilizam dados já coletados nas Etapas 4 e 5,
+acrescidos de um novo cenário curto na Etapa 7, e exploram quatro
+fontes diferentes de desvio na estimativa de frequência do PLL.
+
+\subsection*{Etapa 6 -- Jitter convertido para Hz}
+
+O jitter da Tabela~\ref{tab:ruido} está em rad/amostra. Convertendo
+para Hz com $\sigma_f = \sigma_\mu \cdot f_s/(2\pi)$ você vê a
+incerteza da estimativa em unidades físicas.
+
+\begin{instrucao}[Conversão do jitter]
+\begin{verbatim}
+import numpy as np
+fs = 32000
+# jitter_dados = [(noise_amp, jitter_062, jitter_200), ...]
+# preencher com seus valores medidos na tabela de ruido (rad/amostra)
+jitter_dados = [...]
+for na, j062, j200 in jitter_dados:
+    print(f'amp={na} | sigma_f(062)={j062*fs/(2*np.pi):.2f} Hz '
+          f'| sigma_f(200)={j200*fs/(2*np.pi):.2f} Hz')
+\end{verbatim}
+\end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \texttt{noise\_amp} & $\sigma_f$ \texttt{loop\_bw}=0{,}062 (Hz) & $\sigma_f$ \texttt{loop\_bw}=0{,}200 (Hz) \\
+    \midrule
+    0{,}0 & & \\
+    0{,}1 & & \\
+    0{,}3 & & \\
+    0{,}5 & & \\
+    1{,}0 & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Jitter da estimativa de frequência em Hz, derivado da Tabela~\ref{tab:ruido}.}
+  \label{tab:jitter_hz}
+\end{table}
+
+\subsection*{Etapa 7 -- Saturação no limite da faixa de hold}
+
+\begin{instrucao}[Frequências além de $\pm$ Max Phase/sample]
+\begin{enumerate}[label=\arabic*.]
+  \item Desabilite temporariamente o \texttt{Noise Source} no flowgraph
+    -- pode usar o atalho \texttt{D} no bloco selecionado, ou pôr
+    \texttt{noise\_amp}=0.
+  \item Aumente o \texttt{Stop} do slider \texttt{freq\_in} para 2500 Hz
+    (ou edite o campo \texttt{Frequency} do \texttt{Signal Source}
+    diretamente).
+  \item Para cada $f_\text{in}$ da Tabela~\ref{tab:saturacao}, execute
+    por $\sim$ 2 s e renomeie o \texttt{.bin}.
+  \item Em Python, calcule $f_\text{est}$ e o desvio $f_\text{est} - f_\text{in}$:
+\begin{verbatim}
+import numpy as np
+fs = 32000
+freqs = [1500, 1900, 2000, 2100, 2300]
+for f in freqs:
+    data = np.fromfile(f'pll_sat_f{f}.bin', dtype=np.float32)
+    tail = data[int(0.8*len(data)):]
+    mu = np.mean(tail)
+    f_est = mu * fs / (2*np.pi)
+    desvio = f_est - f
+    print(f'{f:5d} | f_est={f_est:8.2f} Hz | desvio={desvio:+8.2f} Hz')
+\end{verbatim}
+\end{enumerate}
+\end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c}
+    \toprule
+    $f_\text{in}$ (Hz) & $f_\text{est}$ (Hz) & Desvio (Hz) & Locked \\
+    \midrule
+    1500 & & & \\
+    1900 & & & \\
+    2000 & & & \\
+    2100 & & & \\
+    2300 & & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Saturação de $f_\text{est}$ além do limite imposto por \texttt{Max/Min Phase/sample} = $\pm 2000$\,Hz.}
+  \label{tab:saturacao}
+\end{table}
+
+\subsection*{Etapa 8 -- Captura em janela de observação curta}
+
+Aqui você reaproveita os mesmos arquivos \texttt{pll\_f200.bin},
+\texttt{pll\_f600.bin}, etc. da Etapa~4, mas analisa só os primeiros
+50 ms.
+
+\begin{instrucao}[Truncamento do .bin]
+\begin{verbatim}
+import numpy as np
+fs = 32000
+n_curto = int(0.05 * fs)  # 50 ms = 1600 amostras
+freqs = [200, 600, 1000, 1400, 1800]
+locked_freqs = []
+for f in freqs:
+    data = np.fromfile(f'pll_f{f}.bin', dtype=np.float32)
+    data = data[:n_curto]            # truncamento
+    tail = data[int(0.8*len(data)):]
+    mu, sigma = np.mean(tail), np.std(tail)
+    f_est  = mu * fs / (2*np.pi)
+    locked = int(sigma / abs(mu) < 0.02) if abs(mu) > 1e-6 else 0
+    if locked: locked_freqs.append(f)
+    print(f'{f:5d} | f_est={f_est:7.2f} Hz | locked={locked}')
+
+print(f'Df_cap curto = {max(locked_freqs) - min(locked_freqs)} Hz')
+print(f'Df_cap teor. = {0.062 * fs / np.pi:.1f} Hz')
+\end{verbatim}
+\end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    $f_\text{in}$ (Hz) & $f_\text{est}$ janela 50 ms (Hz) & Locked \\
+    \midrule
+    200  & & \\
+    600  & & \\
+    1000 & & \\
+    1400 & & \\
+    1800 & & \\
+    \midrule
+    \multicolumn{2}{l}{$\Delta f_\text{cap}$ janela curta (Hz)} & \\
+    \multicolumn{2}{l}{$\Delta f_\text{cap}$ teórica (Hz)} & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Captura na janela curta de 50 ms; comparação direta entre faixa medida e previsão teórica $\texttt{loop\_bw}\cdot f_s/\pi$.}
+  \label{tab:janela_curta}
+\end{table}
+
+\subsection*{Etapa 9 -- Bias da estimativa em janela curta sob ruído}
+
+Mesma ideia: reaproveite os \texttt{.bin} da Etapa~5, mas calcule a
+média $f_\text{est}$ na janela curta de 50 ms. Mostra que, com janela
+curta e ruído alto, $f_\text{est}$ pode estar viesado -- diferente do
+valor verdadeiro $f_\text{in} = 1000$\,Hz.
+
+\begin{instrucao}[Bias em janela curta]
+\begin{verbatim}
+import numpy as np
+fs = 32000
+n_curto = int(0.05 * fs)
+amps = ['0p0','0p3','0p5','1p0']
+for amp in amps:
+    for bw in ['0p062','0p200']:
+        data = np.fromfile(f'pll_a{amp}_bw{bw}.bin', dtype=np.float32)
+        short = data[:n_curto]
+        tail  = short[int(0.8*len(short)):]
+        f_est = np.mean(tail) * fs / (2*np.pi)
+        print(f'amp={amp} bw={bw} | f_est={f_est:.2f} Hz')
+\end{verbatim}
+\end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    \texttt{noise\_amp} & $f_\text{est}$ \texttt{loop\_bw}=0{,}062 (Hz) & $f_\text{est}$ \texttt{loop\_bw}=0{,}200 (Hz) \\
+    \midrule
+    0{,}0 & & \\
+    0{,}3 & & \\
+    0{,}5 & & \\
+    1{,}0 & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Estimativa de frequência $f_\text{est}$ em janela curta de 50 ms, com $f_\text{in} = 1000$\,Hz. Desvios em relação ao valor verdadeiro evidenciam o bias da estimativa quando o tempo de observação é da ordem do tempo de convergência do laço.}
+  \label{tab:bias_curto}
 \end{table}
 
 % ======================================================
@@ -322,12 +592,21 @@ captura $\Delta\omega_\text{cap} \approx 2\omega_n$.
 O entregável é o relatório no modelo definido no SIGAA contendo:
 
 \begin{itemize}
-  \item Captura do \texttt{QT GUI Time Sink} mostrando a convergência da
-    saída do PLL em regime permanente.
-  \item Capturas para dois valores distintos de \texttt{loop\_bw} no mesmo
-    degrau de \texttt{freq\_in}.
+  \item Print do flowgraph completo no GNU Radio Companion, incluindo o
+    \texttt{File Sink} usado para coletar as medidas.
   \item Tabelas \ref{tab:lock}, \ref{tab:pll}, \ref{tab:capture} e
-    \ref{tab:ruido} preenchidas.
+    \ref{tab:ruido} preenchidas com os valores obtidos do pós-processamento
+    em Python.
+  \item Tabelas \ref{tab:jitter_hz}, \ref{tab:saturacao},
+    \ref{tab:janela_curta} e \ref{tab:bias_curto} preenchidas, das análises
+    complementares (Etapas 6--9).
+  \item Para cada etapa com pós-processamento (Etapas 2 a 9), explicação em
+    palavras próprias do que o código Python está calculando -- o que
+    significa pegar os 20\,\% finais do vetor, por que a razão
+    $\sigma/|\mu|$ é usada como critério de lock, o que define o
+    $t_\text{conv}$ a 5\,\%, como o overshoot é estimado, o que é o jitter
+    e o que significa truncar o vetor para uma janela curta. A ideia é
+    demonstrar que você entende cada linha, não apenas reproduzir o snippet.
   \item Respostas às 5 questões.
 \end{itemize}
 

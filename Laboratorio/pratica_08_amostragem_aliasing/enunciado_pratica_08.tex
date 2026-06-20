@@ -14,6 +14,22 @@
 \usepackage{setspace}
 \usepackage{hyperref}
 \usepackage{tcolorbox}
+\usepackage{listings}
+
+\lstdefinestyle{py}{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue!60!black},
+  commentstyle=\color{green!45!black}\itshape,
+  stringstyle=\color{orange!75!black},
+  numbers=left, numberstyle=\tiny\color{gray!70}, numbersep=8pt,
+  showstringspaces=false, breaklines=true, frame=single,
+  framerule=0.3pt, rulecolor=\color{gray!50},
+  backgroundcolor=\color{gray!4}, upquote=true, tabsize=4,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+           {ã}{{\~a}}1 {õ}{{\~o}}1 {ç}{{\c c}}1 {â}{{\^a}}1 {ê}{{\^e}}1
+           {ô}{{\^o}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Ç}{{\c C}}1
+}
 
 \geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
 \setlength{\parindent}{0pt}
@@ -41,12 +57,12 @@
   {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
   \rule{14cm}{0.8pt}\\[0.3cm]
   {\LARGE\textbf{Prática 08}}\\[0.15cm]
-  {\Large\textbf{Amostragem e Aliasing: Teorema de Nyquist-Shannon}}\\[0.3cm]
+  {\Large\textbf{Conversão A/D: Amostragem, Aliasing e Quantização PCM}}\\[0.3cm]
   \rule{14cm}{0.8pt}
 \end{center}
 
 \vspace{0.3cm}
-\textbf{Duração:} 50 minutos \hfill
+\textbf{Duração:} 120 minutos \hfill
 \textbf{Software:} GNU Radio Companion $\geq$ 3.10 \hfill
 \textbf{Semestre:} 2026/1
 
@@ -56,112 +72,185 @@
 \section{Objetivos}
 
 \begin{itemize}
-  \item Verificar experimentalmente o \textbf{Teorema de Nyquist-Shannon}:
-    para reconstrução sem distorção, a taxa de amostragem deve satisfazer
+  \item Verificar experimentalmente o Teorema de Nyquist-Shannon: para
+    reconstrução sem distorção a taxa de amostragem deve satisfazer
     $f_s \geq 2 f_\text{max}$.
-  \item Observar o fenômeno de \textbf{aliasing} quando a condição de
-    Nyquist é violada, identificando a frequência aparente do sinal subamostrado.
-  \item Demonstrar a eficácia de um filtro anti-aliasing (AA) aplicado
-    antes da decimação.
-  \item Distinguir entre a frequência real do sinal e a frequência aparente
-    após subamostragem.
+  \item Observar o aliasing quando a condição de Nyquist é violada e
+    calcular a frequência aparente do sinal subamostrado.
+  \item Implementar um quantizador uniforme PCM e medir o SQNR no GNU
+    Radio, confirmando a regra de $6{,}02$\,dB por bit.
+  \item Relacionar número de bits, passo de quantização, potência do
+    ruído e taxa de bits de um sistema PCM.
+  \item Reconstruir o sinal com um segurador de ordem zero, ZOH, medir o
+    droop $\text{sinc}$ e corrigi-lo com um equalizador inverse-sinc.
 \end{itemize}
+
+A prática cobre a cadeia completa de conversão analógico-digital vista no
+Módulo 3: amostragem na Parte~I, quantização na Parte~II e reconstrução na
+Parte~III.
 
 % ======================================================
 \section{Fundamentos teóricos (síntese)}
 
-O Teorema de Nyquist-Shannon afirma que um sinal de banda limitada com
-frequência máxima $f_\text{max}$ pode ser reconstruído perfeitamente se amostrado
-com frequência $f_s \geq 2 f_\text{max}$ (frequência de Nyquist $f_N = 2f_\text{max}$).
+\subsection*{Amostragem e aliasing}
 
-Quando $f_s < 2 f_\text{max}$, ocorre \textbf{aliasing}: o espectro do sinal se
-dobra (\textit{folding}) em torno de $f_s/2$.  Para um sinal de frequência
-$f_0$, a frequência aparente após subamostragem é:
+Um sinal de banda limitada com frequência máxima $f_\text{max}$ pode ser
+reconstruído sem distorção se amostrado com $f_s \geq 2 f_\text{max}$. Quando
+$f_s < 2 f_\text{max}$ ocorre aliasing: o espectro se dobra em torno de
+$f_s/2$. Para um tom de frequência $f_0$, a frequência aparente após a
+amostragem é
 \begin{equation}
-  f_\text{alias} = \left|f_0 - n f_s\right|, \quad n = \left\lfloor\frac{f_0 + f_s/2}{f_s}\right\rfloor,
+  f_\text{alias} = \left|f_0 - n f_s\right|, \quad
+  n = \left\lfloor\frac{f_0 + f_s/2}{f_s}\right\rfloor,
   \label{eq:alias}
 \end{equation}
-ou, de forma equivalente, $f_\text{alias}$ é o reflexo de $f_0$ na
-frequência de Nyquist $f_s/2$.
+isto é, $f_\text{alias}$ é o reflexo de $f_0$ na frequência de Nyquist
+$f_s/2$. O filtro anti-aliasing é um passa-baixas aplicado antes da
+decimação, com frequência de corte $\leq f_s/2$. No GNU Radio a
+subamostragem é feita pelo bloco \texttt{Keep 1 in N}, que mantém 1
+amostra a cada $N$.
 
-O \textbf{filtro anti-aliasing} (AA) é um LPF aplicado \emph{antes} da
-decimação com frequência de corte $\leq f_s/2$ para eliminar componentes
-que causariam aliasing.
+\subsection*{Quantização PCM}
 
-No GNU Radio, a subamostragem é implementada pelo bloco
-\texttt{Keep 1 in N} (mantém 1 amostra a cada $N$, equivalente a
-decimar por $N$).
+Após a amostragem, a amplitude contínua é discretizada em $L = 2^n$ níveis
+igualmente espaçados dentro da faixa $V_{pp} = V_\text{max}-V_\text{min}$. O
+passo de quantização é
+\begin{equation}
+  \Delta = \frac{V_{pp}}{L} = \frac{V_{pp}}{2^n}.
+  \label{eq:delta}
+\end{equation}
+O erro de quantização fica limitado a $[-\Delta/2,\,+\Delta/2]$ e, sob o
+modelo uniforme, tem potência
+\begin{equation}
+  P_q = \frac{\Delta^2}{12}.
+  \label{eq:pq}
+\end{equation}
+A razão sinal-ruído de quantização é $\text{SQNR}=P_s/P_q$. Para uma
+senoide que ocupa todo o fundo de escala,
+\begin{equation}
+  \text{SQNR}_\text{dB} \approx 1{,}76 + 6{,}02\,n,
+  \label{eq:sqnr}
+\end{equation}
+ou seja, cada bit adicional eleva o SQNR em $\approx 6$\,dB. Para atingir
+um SQNR-alvo, o número mínimo de bits é
+\begin{equation}
+  n \geq \frac{\text{SQNR}_\text{dB} - 1{,}76}{6{,}02}.
+  \label{eq:nbits}
+\end{equation}
+Por fim, a taxa de bits de um sistema PCM com $C$ canais é
+\begin{equation}
+  R = f_s \cdot n \cdot C \quad\text{[bits/s]}.
+  \label{eq:taxa}
+\end{equation}
+
+\subsection*{Reconstrução com segurador de ordem zero}
+
+Um conversor digital-analógico real não gera impulsos: ele segura cada
+amostra durante $T_s = 1/f_s$, comportamento chamado de zero-order hold, ZOH.
+A resposta em frequência do ZOH é
+\begin{equation}
+  |H_\text{ZOH}(f)| = \bigl|\text{sinc}(f\,T_s)\bigr|
+  = \left|\frac{\sin(\pi f T_s)}{\pi f T_s}\right|,
+  \label{eq:zoh}
+\end{equation}
+cujo envelope atenua as altas frequências, o chamado efeito de abertura. No
+pior caso, na borda da banda $f = f_s/2$, a atenuação é
+$|\text{sinc}(0{,}5)| = 2/\pi \approx -3{,}9$\,dB. Corrige-se esse droop com um
+filtro de compensação de resposta proporcional a $1/\text{sinc}(f T_s)$ na
+banda de passagem, o equalizador inverse-sinc. No GNU Radio o ZOH é o bloco
+\texttt{Repeat}, que mantém cada amostra por $N$ períodos.
 
 % ======================================================
 \section{Materiais e blocos GNU Radio}
 
+Os blocos de cada parte estão listados nas Tabelas~\ref{tab:blocos1}
+e~\ref{tab:blocos2}.
+
 \begin{table}[H]
   \centering
-  \begin{tabular}{l l l}
+  \begin{tabular}{l l}
     \toprule
-    \textbf{Bloco GRC} & \textbf{Localização} & \textbf{Função} \\
+    \textbf{Bloco GRC} & \textbf{Função na Parte I} \\
     \midrule
-    \texttt{Variable}          & Miscellaneous        & Parâmetros globais \\
-    \texttt{Signal Source}     & Waveform Generators  & Sinal a ser amostrado \\
-    \texttt{Keep 1 in N}       & Stream Operators     & Decimação (subamostragem) \\
-    \texttt{Low Pass Filter}   & Filters              & Filtro anti-aliasing \\
-    \texttt{Throttle}          & Misc Operators       & Controle de CPU \\
-    \texttt{QT GUI Time Sink}  & Instrumentation      & Formas de onda \\
-    \texttt{QT GUI Freq Sink}  & Instrumentation      & Espectros \\
-    \texttt{QT GUI Range}      & GUI Widgets          & Controles deslizantes \\
+    \texttt{Signal Source}     & Tom cossenoidal a ser amostrado \\
+    \texttt{Keep 1 in N}       & Decimação por $N$, subamostragem \\
+    \texttt{Low Pass Filter}   & Filtro anti-aliasing antes da decimação \\
+    \texttt{Throttle}          & Controle de CPU \\
+    \texttt{QT GUI Time Sink}  & Formas de onda \\
+    \texttt{QT GUI Freq Sink}  & Espectros \\
+    \texttt{QT GUI Range}      & Controles de \texttt{decim} e \texttt{f\_sinal} \\
     \bottomrule
   \end{tabular}
-  \caption{Blocos utilizados na Prática 08.}
+  \caption{Blocos da Parte I.}
+  \label{tab:blocos1}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l l}
+    \toprule
+    \textbf{Bloco GRC} & \textbf{Função na Parte II} \\
+    \midrule
+    \texttt{Signal Source}        & Senoide de fundo de escala \\
+    \texttt{Embedded Python Block} & Quantizador PCM uniforme de \texttt{n\_bits} \\
+    \texttt{Subtract}             & Erro $e[n]=x[n]-x_q[n]$ \\
+    \texttt{Multiply}             & Quadrado do sinal e do erro \\
+    \texttt{Moving Average}       & Potência média $P_s$ e $P_q$ \\
+    \texttt{Divide}               & Razão $P_s/P_q$ \\
+    \texttt{Log10}                & $10\log_{10}(P_s/P_q)$, SQNR em dB \\
+    \texttt{QT GUI Number Sink}   & Leitura numérica do SQNR \\
+    \texttt{QT GUI Time/Freq Sink} & Formas de onda e espectro \\
+    \texttt{QT GUI Range}         & Controle de \texttt{n\_bits} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Blocos da Parte II.}
+  \label{tab:blocos2}
 \end{table}
 
 % ======================================================
-\section{Roteiro de montagem e execução (50 min)}
+\section{Parte I -- Amostragem e Aliasing}
 
 \subsection*{Parâmetros iniciais}
 
 \begin{center}
 \begin{tabular}{l l}
   \texttt{samp\_rate} = 48\,000\,Hz & Fator de decimação: variável \\
-  Frequência do sinal: variável & \\
+  Frequência do sinal: variável & Taxa efetiva: $f_{s,\text{ef}} = f_s/\texttt{decim}$ \\
 \end{tabular}
 \end{center}
 
-\subsection*{Etapa 1 -- Flowgraph base com decimação (0--12 min)}
+\subsection*{Etapa 1 -- Flowgraph base com decimação}
 
-\begin{instrucao}[Construção do flowgraph com Keep 1 in N]
+\begin{instrucao}[Montagem do flowgraph com Keep 1 in N]
 \begin{enumerate}[label=\arabic*.]
-  \item Crie variável \texttt{samp\_rate = 48000}.
-  \item Crie variável \texttt{decim} como \texttt{QT GUI Range}
-    (min: 1, max: 20, passo: 1, padrão: 4, tipo: Int).
-    O fator de decimação simula uma taxa de amostragem efetiva de
-    $f_{s,\text{ef}} = f_s / \texttt{decim}$.
-  \item Crie variável \texttt{f\_sinal} como \texttt{QT GUI Range}
-    (min: 500, max: 20000, passo: 500, padrão: 1000).
-  \item Adicione \textbf{Signal Source}: Float, Cosine, freq = \texttt{f\_sinal},
+  \item Crie a variável \texttt{samp\_rate = 48000}.
+  \item Crie \texttt{decim} como \texttt{QT GUI Range}, tipo Int, mínimo 2,
+    máximo 20, passo 1, padrão 4. A taxa efetiva após decimação é
+    $f_{s,\text{ef}} = f_s/\texttt{decim}$.
+  \item Crie \texttt{f\_sinal} como \texttt{QT GUI Range}, mínimo 500,
+    máximo 20\,000, passo 500, padrão 1000.
+  \item Adicione \texttt{Signal Source}: Float, Cosine, freq = \texttt{f\_sinal},
     amplitude = 1.0, samp\_rate = \texttt{samp\_rate}.
-  \item Adicione \texttt{Keep 1 in N}: N = \texttt{decim}.
-  \item Adicione \texttt{Throttle} (samp\_rate = \texttt{samp\_rate / decim}).
-  \item Adicione \texttt{QT GUI Time Sink} e \texttt{QT GUI Freq Sink}.
-  \item Adicione um segundo caminho \textbf{sem decimação} (sinal original)
-    para comparação.
-  \item Execute com \texttt{f\_sinal = 1000}, \texttt{decim = 4}
-    ($f_{s,\text{ef}} = 12\,000$\,Hz). Nyquist: $f_s/2 = 6000$\,Hz $> f_\text{sinal}$.
+  \item Adicione \texttt{Throttle}, depois \texttt{Keep 1 in N} com
+    N = \texttt{decim}.
+  \item Adicione \texttt{QT GUI Time Sink} e \texttt{QT GUI Freq Sink} para
+    o sinal original e para o decimado.
+  \item Execute com \texttt{f\_sinal = 1000} e \texttt{decim = 4}, logo
+    $f_{s,\text{ef}} = 12\,000$\,Hz e $f_s/2 = 6000$\,Hz $>$ \texttt{f\_sinal}.
     O sinal deve ser recuperado corretamente.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 2 -- Verificação do Teorema de Nyquist (12--22 min)}
+\subsection*{Etapa 2 -- Verificação do Teorema de Nyquist}
 
 \begin{instrucao}[Cenários com e sem violação de Nyquist]
-Preencha a Tabela~\ref{tab:nyquist} testando os cenários abaixo.
-Para cada um, registre a frequência aparente observada e se o teorema
-foi satisfeito.
+Teste os seis cenários e, para cada um, registre a frequência do pico
+principal no espectro do sinal decimado. Preencha a Tabela~\ref{tab:nyquist}.
 
 \begin{center}
 \begin{tabular}{c c c c}
   \toprule
-  Cenário & $f_\text{sinal}$ (Hz) & \texttt{decim} &
-    $f_{s,\text{ef}}$ (Hz) \\
+  Cenário & $f_\text{sinal}$ (Hz) & \texttt{decim} & $f_{s,\text{ef}}$ (Hz) \\
   \midrule
   A & 1\,000 & 4  & 12\,000 \\
   B & 5\,000 & 4  & 12\,000 \\
@@ -172,9 +261,6 @@ foi satisfeito.
   \bottomrule
 \end{tabular}
 \end{center}
-
-Para cada cenário, observe o espectro do sinal decimado e registre a
-frequência do pico principal observado.
 \end{instrucao}
 
 \begin{table}[H]
@@ -196,76 +282,217 @@ frequência do pico principal observado.
   \label{tab:nyquist}
 \end{table}
 
-\subsection*{Etapa 3 -- Cálculo da frequência de aliasing (22--32 min)}
+\subsection*{Etapa 3 -- Cálculo da frequência de aliasing}
 
-\begin{instrucao}[Prever e confirmar aliasing]
+\begin{instrucao}[Prever e confirmar o aliasing]
 \begin{enumerate}[label=\arabic*.]
-  \item Para os cenários C, E e F (violação de Nyquist), calcule a
-    frequência de aliasing pela Eq.~\eqref{eq:alias}.
-    Exemplo para C: $f_0 = 7000$, $f_s = 12000$.
-    $f_\text{alias} = |7000 - 1 \times 12000| = 5000$\,Hz.
-  \item Compare o valor calculado com o pico observado no espectro.
-    Preencha a última coluna da Tabela~\ref{tab:nyquist}.
-  \item No domínio do tempo, confirme que o sinal aparenta ter a
-    frequência \textit{alias} e não a frequência original.
+  \item Para os cenários C, E e F, calcule $f_\text{alias}$ pela
+    Eq.~\eqref{eq:alias}. Exemplo do cenário C: $f_0 = 7000$, $f_s = 12000$,
+    logo $f_\text{alias} = |7000 - 12000| = 5000$\,Hz.
+  \item Compare o valor calculado com o pico observado e preencha a última
+    coluna da Tabela~\ref{tab:nyquist}.
+  \item No domínio do tempo, confirme que o sinal aparenta a frequência
+    de alias e não a frequência original.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 4 -- Filtro anti-aliasing (32--44 min)}
+\subsection*{Etapa 4 -- Filtro anti-aliasing}
 
-\begin{instrucao}[Prevenção de aliasing com LPF]
+\begin{instrucao}[Prevenção de aliasing com passa-baixas]
 \begin{enumerate}[label=\arabic*.]
-  \item Para o cenário C ($f_\text{sinal} = 7000$, $f_{s,\text{ef}} = 12000$):
-    \begin{itemize}
-      \item Insira um \texttt{Low Pass Filter} \textbf{antes} do
-        \texttt{Keep 1 in N}:
-        Cutoff Freq = $f_{s,\text{ef}}/2 = 6000$\,Hz,
-        Transition Width = 500\,Hz.
-    \end{itemize}
-  \item Execute. O pico aliasado desapareceu? O sinal foi atenudo?
-  \item Repita para o cenário E ($f_\text{sinal} = 2500$, $f_{s,\text{ef}} = 4800$).
-    O LPF deve preservar o sinal (2500 < 2400? Não! O que acontece?).
+  \item No cenário C, insira um \texttt{Low Pass Filter} antes do
+    \texttt{Keep 1 in N}, com Cutoff $= f_{s,\text{ef}}/2 = 6000$\,Hz e
+    Transition Width $= 500$\,Hz.
+  \item Execute e verifique se o pico aliasado em 5000\,Hz desaparece.
+  \item Repita para o cenário E, com $f_\text{sinal} = 2500$\,Hz e
+    $f_{s,\text{ef}} = 4800$\,Hz. Observe que, como $2500 > 2400 = f_s/2$, o
+    próprio sinal de interesse é atenuado pelo filtro.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 5 -- Sinal multitonal e aliasing seletivo (44--50 min)}
+\subsection*{Etapa 5 -- Sinal multitonal}
 
 \begin{instrucao}[Aliasing com dois tons]
 \begin{enumerate}[label=\arabic*.]
-  \item Gere um sinal com \textbf{dois tons}: $f_1 = 1000$\,Hz e
-    $f_2 = 7000$\,Hz (usando dois Signal Sources + Add).
-  \item Aplique decimação com \texttt{decim = 4} ($f_{s,\text{ef}} = 12000$).
-  \item Observe: o tom de 1000\,Hz é preservado; o de 7000\,Hz aparece
-    como aliasing. Onde está o aliasing no espectro?
-  \item Aplique o filtro AA e veja o resultado.
+  \item Gere um sinal com dois tons, $f_1 = 1000$\,Hz e $f_2 = 7000$\,Hz,
+    somando dois \texttt{Signal Source} com um \texttt{Add}.
+  \item Aplique \texttt{decim = 4}, logo $f_{s,\text{ef}} = 12000$\,Hz.
+  \item Verifique que o tom de 1000\,Hz é preservado e o de 7000\,Hz
+    aparece em 5000\,Hz. Aplique o filtro anti-aliasing e compare.
+\end{enumerate}
+\end{instrucao}
+
+% ======================================================
+\section{Parte II -- Quantização PCM}
+
+\subsection*{Parâmetros iniciais}
+
+\begin{center}
+\begin{tabular}{l l}
+  \texttt{samp\_rate} = 48\,000\,Hz & \texttt{vmax} = 1.0\,V, faixa $[-1,+1]$, $V_{pp}=2$\,V \\
+  \texttt{f\_sinal} = 997\,Hz & \texttt{ma\_len} = 16\,384 \\
+\end{tabular}
+\end{center}
+
+A frequência 997\,Hz é incomensurável com a taxa de 48\,000\,Hz, o que
+descorrelaciona o erro de quantização e faz a medição convergir para o
+modelo teórico.
+
+\subsection*{Etapa 6 -- Montagem do quantizador e formas de onda}
+
+\begin{instrucao}[Quantizador PCM no GNU Radio]
+\begin{enumerate}[label=\arabic*.]
+  \item Crie as variáveis \texttt{vmax = 1.0}, \texttt{f\_sinal = 997} e
+    \texttt{ma\_len = 16384}.
+  \item Crie \texttt{n\_bits} como \texttt{QT GUI Range}, tipo Int, mínimo 2,
+    máximo 16, passo 1, padrão 4.
+  \item Adicione \texttt{Signal Source}: Float, Cosine, freq = \texttt{f\_sinal},
+    amplitude = \texttt{vmax}.
+  \item Adicione um \texttt{Embedded Python Block} e cole o código do
+    quantizador do Apêndice~\ref{ap:codigos}. Os parâmetros do bloco são
+    \texttt{n\_bits} e \texttt{vmax}. A saída é o sinal quantizado
+    $x_q[n] = \Delta\left(\lfloor x/\Delta\rfloor + 0{,}5\right)$.
+  \item Adicione \texttt{Subtract} para formar o erro $e[n]=x[n]-x_q[n]$.
+  \item Ligue original, quantizado e erro a um \texttt{QT GUI Time Sink} com
+    3 entradas. Execute e varie \texttt{n\_bits} de 2 a 8, observando os
+    degraus do sinal quantizado e a amplitude do erro.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 7 -- Medição do SQNR no GNU Radio}
+
+\begin{instrucao}[Cadeia de medição de potência]
+\begin{enumerate}[label=\arabic*.]
+  \item Eleve o sinal ao quadrado com um \texttt{Multiply} cujas duas
+    entradas recebem o sinal original. Faça o mesmo com o erro.
+  \item Ligue cada quadrado a um \texttt{Moving Average} com Length
+    = \texttt{ma\_len} e Scale = \texttt{1.0/ma\_len}. As saídas são as
+    potências médias $P_s$ e $P_q$.
+  \item Use \texttt{Divide} para obter $P_s/P_q$ e em seguida \texttt{Log10}
+    com fator $n = 10$, gerando $\text{SQNR}_\text{dB}=10\log_{10}(P_s/P_q)$.
+  \item Exiba o resultado em um \texttt{QT GUI Number Sink}.
+  \item Para $n_\text{bits} = 2,4,6,8,10,12$, registre o SQNR medido e
+    compare com a Eq.~\eqref{eq:sqnr}. Preencha a Tabela~\ref{tab:sqnr}.
+\end{enumerate}
+\end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c c c}
+    \toprule
+    $n$ & $L = 2^n$ & $\Delta$ (mV) & $P_q$ (V$^2$) &
+      $\text{SQNR}_\text{teo}$ (dB) & $\text{SQNR}_\text{med}$ (dB) \\
+    \midrule
+    2  & & & & & \\
+    4  & & & & & \\
+    6  & & & & & \\
+    8  & & & & & \\
+    10 & & & & & \\
+    12 & & & & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{SQNR teórico e medido em função do número de bits, com
+    $V_{pp}=2$\,V.}
+  \label{tab:sqnr}
+\end{table}
+
+\subsection*{Etapa 8 -- Espectro do ruído de quantização}
+
+\begin{instrucao}[Piso de ruído no espectro]
+\begin{enumerate}[label=\arabic*.]
+  \item Ligue o sinal original e o quantizado a um \texttt{QT GUI Freq Sink}
+    com 2 entradas.
+  \item Reduza \texttt{n\_bits} de 8 para 2 e observe o piso de ruído de
+    quantização subir. A cada bit removido o piso sobe $\approx 6$\,dB,
+    coerente com a Eq.~\eqref{eq:sqnr}.
+\end{enumerate}
+\end{instrucao}
+
+% ======================================================
+\section{Parte III -- Reconstrução: ZOH e equalização}
+
+Esta parte usa os blocos \texttt{Signal Source}, \texttt{Repeat},
+\texttt{Embedded Python Block} do equalizador, \texttt{QT GUI Time Sink} e
+\texttt{QT GUI Freq Sink}. Use
+\texttt{samp\_rate = 48000}\,Hz como taxa após o ZOH, \texttt{N\_zoh = 8} e
+\texttt{fs\_low = samp\_rate//N\_zoh = 6000}\,Hz.
+
+\subsection*{Etapa 9 -- Reconstrução com ZOH}
+
+\begin{instrucao}[Segurador de ordem zero com o bloco Repeat]
+\begin{enumerate}[label=\arabic*.]
+  \item Crie \texttt{f0} como \texttt{QT GUI Range}, mínimo 200, máximo 2800,
+    passo 100, padrão 2400.
+  \item Adicione \texttt{Signal Source}: Float, Cosine, freq = \texttt{f0},
+    samp\_rate = \texttt{fs\_low}.
+  \item Adicione \texttt{Repeat} com Interpolation = \texttt{N\_zoh}. A saída é
+    a escada do ZOH na taxa \texttt{samp\_rate}.
+  \item Ligue a um \texttt{QT GUI Time Sink} para ver a escada e a um
+    \texttt{QT GUI Freq Sink} com bw = \texttt{samp\_rate}.
+  \item Observe no espectro o droop $\text{sinc}$ na banda de passagem e as
+    imagens em torno de múltiplos de \texttt{fs\_low}, atenuadas pelos nulos
+    do $\text{sinc}$.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 10 -- Equalização inverse-sinc}
+
+\begin{instrucao}[Compensação do droop do ZOH]
+\begin{enumerate}[label=\arabic*.]
+  \item Adicione um \texttt{Embedded Python Block} com o código do
+    equalizador do Apêndice~\ref{ap:codigos}, parâmetros \texttt{fs\_low},
+    \texttt{fs\_high} = \texttt{samp\_rate} e \texttt{ntaps} = 201.
+  \item Ligue a saída do ZOH ao equalizador e a saída do equalizador à
+    segunda entrada do \texttt{QT GUI Freq Sink}.
+  \item Compare os dois espectros: o equalizador achata a banda de passagem e
+    aumenta a atenuação das imagens. Varie \texttt{f0} e confirme que o droop
+    cresce com a frequência segundo a Eq.~\eqref{eq:zoh}.
 \end{enumerate}
 \end{instrucao}
 
 % ======================================================
 \section{Perguntas para o relatório}
 
+Todas as respostas devem ser numéricas e acompanhadas das capturas que as
+comprovam.
+
 \begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
 
-  \item Para cada cenário da Tabela~\ref{tab:nyquist}, verifique se o
-    Teorema de Nyquist foi satisfeito. Para os casos de aliasing,
-    calcule a frequência aparente pela Eq.~\eqref{eq:alias} e confirme
-    com a observação.
+  \item Complete a Tabela~\ref{tab:nyquist}. Para cada cenário A--F,
+    calcule $f_s/2$, indique se Nyquist é satisfeito e calcule
+    $f_\text{alias}$ pela Eq.~\eqref{eq:alias}. Compare cada valor calculado
+    com o pico observado no espectro.
 
-  \item Como o aliasing se manifesta no domínio do tempo? No cenário C,
-    o sinal de 7000\,Hz pareceu ter qual frequência? Como isso confirma
-    a natureza periódica do aliasing?
+  \item No cenário C, com $f_0 = 7000$\,Hz e $f_{s,\text{ef}} = 12000$\,Hz,
+    qual é a frequência aparente em Hz? Em uma janela de 1\,ms, quantos
+    ciclos o sinal decimado aparenta ter e quantos teria o sinal original
+    de 7000\,Hz?
 
-  \item Qual é a diferença entre a \textbf{frequência real} do sinal e
-    a \textbf{frequência aparente} após subamostragem? Por que um receptor
-    sem informação prévia não consegue distinguir os dois?
+  \item Para $V_{pp} = 2$\,V e $n = 2, 4, 8, 16$ bits, calcule o número de
+    níveis $L$, o passo $\Delta$ pela Eq.~\eqref{eq:delta} em mV e a potência
+    do ruído $P_q$ pela Eq.~\eqref{eq:pq} em V$^2$.
 
-  \item O filtro anti-aliasing funcionou como esperado no cenário C?
-    E no cenário E? Por que no cenário E o LPF não conseguiu preservar
-    o sinal mesmo sendo necessário?
+  \item Calcule $\text{SQNR}_\text{teo}$ pela Eq.~\eqref{eq:sqnr} para
+    $n = 4, 8, 12, 16$ bits. Compare com o valor medido no
+    \texttt{QT GUI Number Sink} e informe o erro em dB de cada caso.
 
-  \item Quais são as limitações práticas da simulação de aliasing no GNU
-    Radio com o bloco \texttt{Keep 1 in N}? Como isso difere de um sistema
-    de aquisição real com conversor A/D?
+  \item Usando a Eq.~\eqref{eq:nbits}, determine o número mínimo de bits para
+    garantir $\text{SQNR} \geq 60$\,dB e $\text{SQNR} \geq 90$\,dB.
+
+  \item Pela Eq.~\eqref{eq:taxa}, calcule a taxa de bits $R$ para voz
+    wideband de VoIP, conhecida como HD Voice, com $f_s = 16$\,kHz,
+    $n = 16$ bits e 1 canal, e para áudio de alta resolução de streaming
+    com $f_s = 96$\,kHz, $n = 24$ bits e 2 canais. Expresse os dois
+    resultados em kbps e em Mbps.
+
+  \item Pela Eq.~\eqref{eq:zoh}, calcule a atenuação do ZOH,
+    $20\log_{10}|\text{sinc}(f/f_\text{low})|$ em dB, para $f = 1500$, $2400$
+    e $3000$\,Hz, com $f_\text{low} = 6000$\,Hz. Compare os três valores com o
+    piso do espectro medido na Etapa 9.
+
+  \item Na borda da banda, $f = f_\text{low}/2 = 3000$\,Hz, qual é a atenuação
+    do ZOH em dB? Medindo o espectro com e sem o equalizador, de quanto, em
+    dB, o equalizador reduz essa atenuação na banda de passagem?
 
 \end{enumerate}
 
@@ -275,20 +502,42 @@ frequência do pico principal observado.
 O entregável é o relatório no modelo definido no SIGAA contendo:
 
 \begin{itemize}
-  \item Capturas do espectro para os cenários A, com Nyquist atendido, e
-    C, com aliasing.
-  \item Captura antes e depois do filtro anti-aliasing no cenário C.
-  \item Tabela de Nyquist preenchida com frequências calculadas e observadas.
-  \item Respostas às 5 questões.
+  \item Capturas do espectro dos cenários A e C da Parte I, e antes e
+    depois do filtro anti-aliasing no cenário C.
+  \item Tabela~\ref{tab:nyquist} preenchida com frequências calculadas e
+    observadas.
+  \item Captura das formas de onda original, quantizada e do erro para
+    $n_\text{bits} = 3$ e $n_\text{bits} = 8$.
+  \item Tabela~\ref{tab:sqnr} preenchida com o SQNR teórico e medido.
+  \item Captura do espectro do ZOH, com e sem o equalizador, indicando o
+    droop na borda da banda e a atenuação das imagens.
+  \item Respostas numéricas às 8 questões.
 \end{itemize}
 
-\begin{atencao}[Dica -- taxas no Throttle]
-Quando o sinal for decimado, o bloco \texttt{Throttle} deve usar a taxa
-efetiva após decimação (\texttt{samp\_rate / decim}). Caso contrário, a
-simulação rodará mais rápido do que o real e o \texttt{QT GUI Freq Sink}
-mostrará frequências incorretas.  Alternativamente, posicione o
-\texttt{Throttle} \textbf{antes} do \texttt{Keep 1 in N} e use a taxa
-original.
+\begin{atencao}[Nota -- taxas no Throttle e na medição]
+Na Parte I, quando o sinal é decimado, o \texttt{QT GUI Freq Sink} do
+caminho decimado deve usar a taxa efetiva $f_{s,\text{ef}} = $
+\texttt{samp\_rate/decim}; caso contrário o eixo de frequência fica
+incorreto. Na Parte II, o \texttt{Moving Average} estima a potência em uma
+janela de \texttt{ma\_len} amostras; janelas muito curtas deixam a leitura
+do SQNR ruidosa, enquanto janelas longas tornam a convergência mais lenta.
 \end{atencao}
+
+% ======================================================
+\appendix
+\section{Código dos Embedded Python Blocks}
+\label{ap:codigos}
+
+Cole cada listagem abaixo em um \texttt{Embedded Python Block} do GNU Radio
+Companion. O bloco expõe automaticamente como parâmetros os argumentos do
+método \texttt{\_\_init\_\_} da classe \texttt{blk}.
+
+\subsection*{A.1 -- Quantizador PCM uniforme (Parte II)}
+
+\lstinputlisting[style=py]{quantizer_epy.py}
+
+\subsection*{A.2 -- Equalizador ZOH inverse-sinc (Parte III)}
+
+\lstinputlisting[style=py]{zoh_eq.py}
 
 \end{document}
