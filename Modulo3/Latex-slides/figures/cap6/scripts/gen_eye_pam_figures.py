@@ -333,9 +333,329 @@ def gen_eye_diagram_4pam():
     print("  [OK] eye_diagram_4pam.pdf")
 
 
+def _build_eye_signal(seed=7, alpha=0.5, sps=100, N=16, noise=0.0):
+    np.random.seed(seed)
+    T = 1.0
+    bits = 2 * np.random.randint(0, 2, N) - 1
+    t_pulse = np.arange(-6*sps, 6*sps + 1) / sps * T
+    pulse = raised_cosine_time(t_pulse, T, alpha)
+    sig = np.zeros(N * sps + len(t_pulse))
+    for i, b in enumerate(bits):
+        sig[i*sps:i*sps + len(t_pulse)] += b * pulse
+    if noise > 0:
+        sig = sig + noise * np.random.randn(len(sig))
+    return sig, sps
+
+
+def gen_eye_construction():
+    """Mostra a construcao do diagrama de olho em 4 etapas (overlay):
+    1) sinal r(t); 2) cortes a cada 2T; 3) poucos trechos sobrepostos;
+    4) muitos trechos -> o olho. Gera eye_build_{1..4}."""
+    sig, sps = _build_eye_signal(seed=7, alpha=0.5, N=16, noise=0.0)
+    seg = 2 * sps
+    t_eye = np.linspace(0, 2, seg)
+    kmin, kmax = 3, 13              # trechos "limpos" (longe das bordas)
+    colors = [UNB_BLUE, UNB_GREEN, UNB_GOLD, RED, PURPLE, '#16A085']
+
+    # ---- etapas 1 e 2: r(t) ao longo do tempo ----
+    def plot_rt(cuts):
+        fig, ax = plt.subplots(figsize=(8.8, 3.4))
+        idx0, idx1 = kmin*sps, (kmax + 1)*sps
+        tt = np.arange(idx0, idx1) / sps
+        ax.plot(tt, sig[idx0:idx1], color=UNB_BLUE, lw=1.8)
+        ax.set_xlim([kmin, kmax + 1])
+        ax.set_ylim([-1.6, 1.6])
+        ax.axhline(0, color='black', lw=0.5)
+        ax.set_xlabel(r'Tempo ($t/T$)', fontsize=12)
+        ax.set_ylabel('Amplitude', fontsize=12)
+        if cuts:
+            for j, k in enumerate(range(kmin, kmax + 1, 2)):
+                ax.axvline(k, color=RED, lw=1.2, ls='--')
+                ax.axvspan(k, k + 2, color=colors[j % len(colors)], alpha=0.10)
+            ax.set_title(r'Passo 2: cortar em trechos de $2T$',
+                         fontweight='bold')
+        else:
+            ax.set_title(r'Passo 1: sinal recebido $r(t)$', fontweight='bold')
+        return fig
+
+    fig = plot_rt(False)
+    plt.tight_layout(); plt.savefig('../eye_build_1.pdf', bbox_inches='tight'); plt.close()
+    fig = plot_rt(True)
+    plt.tight_layout(); plt.savefig('../eye_build_2.pdf', bbox_inches='tight'); plt.close()
+
+    # ---- etapas 3 e 4: sobreposicao dos trechos ----
+    def plot_eye(ntraces, colored, title):
+        fig, ax = plt.subplots(figsize=(8.8, 3.4))
+        ks = list(range(kmin, kmin + ntraces))
+        for j, k in enumerate(ks):
+            s = k * sps          # centra a abertura em t/T = 1
+            e = s + seg
+            if e <= len(sig):
+                if colored:
+                    ax.plot(t_eye, sig[s:e], color=colors[j % len(colors)],
+                            lw=1.6, alpha=0.9)
+                else:
+                    ax.plot(t_eye, sig[s:e], color=UNB_BLUE, lw=0.6, alpha=0.45)
+        ax.set_xlim([0, 2])
+        ax.set_ylim([-1.6, 1.6])
+        ax.axhline(0, color='black', lw=0.5)
+        ax.axvline(1.0, color=RED, lw=1.3, ls='--', alpha=0.7,
+                   label='instante ótimo')
+        ax.set_xlabel(r'Tempo ($t/T$)', fontsize=12)
+        ax.set_ylabel('Amplitude', fontsize=12)
+        ax.set_title(title, fontweight='bold')
+        ax.legend(fontsize=9, loc='upper right')
+        return fig
+
+    fig = plot_eye(6, True, r'Passo 3: sobrepor os trechos (poucos)')
+    plt.tight_layout(); plt.savefig('../eye_build_3.pdf', bbox_inches='tight'); plt.close()
+    sig2, sps2 = _build_eye_signal(seed=7, alpha=0.5, N=160, noise=0.02)
+    # reusar plot_eye com muitos tracos do sinal longo
+    fig, ax = plt.subplots(figsize=(8.8, 3.4))
+    for k in range(3, 150):
+        s = k * sps2            # centra a abertura em t/T = 1
+        e = s + 2 * sps2
+        if e <= len(sig2):
+            ax.plot(np.linspace(0, 2, 2*sps2), sig2[s:e],
+                    color=UNB_BLUE, lw=0.4, alpha=0.35)
+    ax.set_xlim([0, 2]); ax.set_ylim([-1.6, 1.6])
+    ax.axhline(0, color='black', lw=0.5)
+    ax.axvline(1.0, color=RED, lw=1.3, ls='--', alpha=0.7, label='instante ótimo')
+    ax.set_xlabel(r'Tempo ($t/T$)', fontsize=12)
+    ax.set_ylabel('Amplitude', fontsize=12)
+    ax.set_title(r'Resultado: o ``olho'' formado', fontweight='bold')
+    ax.legend(fontsize=9, loc='upper right')
+    plt.tight_layout(); plt.savefig('../eye_build_4.pdf', bbox_inches='tight'); plt.close()
+    print("  [OK] eye_build_1..4.pdf")
+
+
+def gen_eye_overlay_build():
+    """Animação trecho a trecho: cada passo destaca um trecho de 2T no sinal
+    r(t) (painel de cima) e o acrescenta, na mesma cor, ao diagrama de olho
+    (painel de baixo). Gera eye_overlay_{1..7}.pdf  (6 trechos + olho cheio)."""
+    sig, sps = _build_eye_signal(seed=7, alpha=0.5, N=16, noise=0.0)
+    seg = 2 * sps
+    t_eye = np.linspace(0, 2, seg)
+    starts = list(range(3, 15, 2))            # inícios dos trechos: 3,5,7,9,11,13
+    colors = [UNB_BLUE, UNB_GREEN, UNB_GOLD, RED, PURPLE, TEAL]
+    nseg = len(starts)
+    t0, t1 = starts[0], starts[-1] + 2        # janela de tempo exibida em cima
+
+    # sinal "longo" para o passo final (muitos trechos -> olho cheio)
+    sig_long, sps_long = _build_eye_signal(seed=7, alpha=0.5, N=160, noise=0.02)
+
+    def desenhar(step):
+        fig, (ax_t, ax_e) = plt.subplots(
+            2, 1, figsize=(8.8, 5.4),
+            gridspec_kw={'height_ratios': [1.0, 1.05]})
+        n_done = min(step, nseg)              # quantos trechos já entraram
+
+        # ---------- painel de cima: r(t) com o trecho atual destacado ----------
+        i0, i1 = int(t0 * sps), int(t1 * sps)
+        tt = np.arange(i0, i1) / sps
+        ax_t.plot(tt, sig[i0:i1], color='0.6', lw=1.2)          # sinal de fundo
+        for j in range(n_done):
+            k = starts[j]
+            ax_t.axvspan(k, k + 2, color=colors[j], alpha=0.12)  # faixa do trecho
+        if step <= nseg:                       # destaca o trecho que entra agora
+            k = starts[step - 1]
+            si, ei = int(k * sps), int((k + 2) * sps)
+            ax_t.plot(np.arange(si, ei) / sps, sig[si:ei],
+                      color=colors[step - 1], lw=2.6)
+            ax_t.axvspan(k, k + 2, color=colors[step - 1], alpha=0.22)
+        ax_t.set_xlim([t0, t1]); ax_t.set_ylim([-1.6, 1.6])
+        ax_t.axhline(0, color='black', lw=0.5)
+        ax_t.set_xlabel(r'Tempo ($t/T$)', fontsize=11)
+        ax_t.set_ylabel('Amplitude', fontsize=11)
+        ax_t.set_title(r'Sinal $r(t)$ — trecho de $2T$ selecionado',
+                       fontweight='bold')
+
+        # ---------- painel de baixo: diagrama de olho acumulando ----------
+        if step > nseg:                        # passo final: muitos trechos
+            for k in range(3, 150):
+                s = k * sps_long
+                e = s + 2 * sps_long
+                if e <= len(sig_long):
+                    ax_e.plot(np.linspace(0, 2, 2 * sps_long), sig_long[s:e],
+                              color=UNB_BLUE, lw=0.4, alpha=0.30)
+            ax_e.set_title(r'Muitos trechos sobrepostos $\rightarrow$ o ``olho''',
+                           fontweight='bold')
+        else:
+            for j in range(n_done):
+                k = starts[j]
+                si = int(k * sps); ei = si + seg
+                lw = 2.6 if j == step - 1 else 1.6
+                al = 1.0 if j == step - 1 else 0.85
+                ax_e.plot(t_eye, sig[si:ei], color=colors[j], lw=lw, alpha=al)
+            ax_e.set_title(r'Diagrama de olho: %d trecho(s) sobreposto(s)'
+                           % n_done, fontweight='bold')
+        ax_e.set_xlim([0, 2]); ax_e.set_ylim([-1.6, 1.6])
+        ax_e.axhline(0, color='black', lw=0.5)
+        ax_e.axvline(1.0, color=RED, lw=1.3, ls='--', alpha=0.7,
+                     label='instante ótimo')
+        ax_e.set_xlabel(r'Tempo ($t/T$)', fontsize=11)
+        ax_e.set_ylabel('Amplitude', fontsize=11)
+        ax_e.legend(fontsize=9, loc='upper right')
+
+        plt.tight_layout()
+        plt.savefig('../eye_overlay_%d.pdf' % step, bbox_inches='tight')
+        plt.close()
+
+    for step in range(1, nseg + 2):            # 1..6 trechos + passo 7 (olho)
+        desenhar(step)
+    print("  [OK] eye_overlay_1..%d.pdf" % (nseg + 1))
+
+
+def gen_eye_analise_base():
+    """Olho cheio SEM eixos nem margens, para receber anotações TikZ por cima
+    nos slides (mapeamento exato: t/T em [0,2] -> x em [0,1], amplitude em
+    [-1.5,1.5] -> y em [0,1]). Gera eye_analise_base.pdf."""
+    sig, sps = _build_eye_signal(seed=7, alpha=0.5, N=160, noise=0.05)
+    seg = 2 * sps
+    t_eye = np.linspace(0, 2, seg)
+    fig = plt.figure(figsize=(7.2, 4.2))
+    ax = fig.add_axes([0, 0, 1, 1])        # eixo preenche toda a figura
+    ax.set_axis_off()
+    ax.set_xlim(0, 2); ax.set_ylim(-1.5, 1.5)
+    for k in range(3, 150):
+        s = k * sps             # centra a abertura em t/T = 1
+        e = s + seg
+        if e <= len(sig):
+            ax.plot(t_eye, sig[s:e], color=UNB_BLUE, lw=0.5, alpha=0.32)
+    fig.savefig('../eye_analise_base.pdf')  # sem bbox_inches: preserva o mapa
+    plt.close()
+    print("  [OK] eye_analise_base.pdf")
+
+
+def gen_eye_reading():
+    """Anota o diagrama de olho com cada caracteristica de leitura, de forma
+    cumulativa (overlay): abertura vertical, horizontal, espessura e
+    cruzamentos. Gera eye_read_{1..4}."""
+    sig, sps = _build_eye_signal(seed=7, alpha=0.5, N=160, noise=0.06)
+    seg = 2 * sps
+    t_eye = np.linspace(0, 2, seg)
+
+    def base_eye(ax):
+        for k in range(3, 150):
+            s = k * sps          # centra a abertura em t/T = 1
+            e = s + seg
+            if e <= len(sig):
+                ax.plot(t_eye, sig[s:e], color=UNB_BLUE, lw=0.4, alpha=0.30)
+        ax.set_xlim([0, 2]); ax.set_ylim([-1.7, 1.7])
+        ax.axhline(0, color='black', lw=0.5)
+        ax.set_xlabel(r'Tempo ($t/T$)', fontsize=12)
+        ax.set_ylabel('Amplitude', fontsize=12)
+
+    feats = [
+        ('vert',  r'Leitura: abertura vertical'),
+        ('horiz', r'Leitura: + abertura horizontal'),
+        ('thick', r'Leitura: + espessura das trilhas'),
+        ('cross', r'Leitura: + cruzamentos (jitter)'),
+    ]
+    for step in range(1, 5):
+        fig, ax = plt.subplots(figsize=(8.6, 4.0))
+        base_eye(ax)
+        active = [f[0] for f in feats[:step]]
+        if 'vert' in active:
+            ax.annotate('', xy=(1.0, 0.78), xytext=(1.0, -0.78),
+                        arrowprops=dict(arrowstyle='<->', color=RED, lw=2.0))
+            ax.text(1.04, 0.0, 'abertura\nvertical\n(margem de ruído)',
+                    color=RED, fontsize=9, fontweight='bold', va='center')
+        if 'horiz' in active:
+            ax.annotate('', xy=(0.72, 0.0), xytext=(1.28, 0.0),
+                        arrowprops=dict(arrowstyle='<->', color=UNB_GREEN, lw=2.0))
+            ax.text(1.0, 0.16, 'abertura horizontal\n(margem de temporização)',
+                    color=UNB_GREEN, fontsize=9, fontweight='bold', ha='center')
+        if 'thick' in active:
+            ax.annotate('trilhas espessas =\nISI + ruído', xy=(0.5, 0.95),
+                        xytext=(0.12, 1.35), color=PURPLE, fontsize=9,
+                        fontweight='bold',
+                        arrowprops=dict(arrowstyle='->', color=PURPLE, lw=1.5))
+        if 'cross' in active:
+            ax.scatter([0.5, 1.5], [0, 0], s=160, facecolors='none',
+                       edgecolors=UNB_GOLD, linewidths=2.0, zorder=6)
+            ax.annotate('cruzamentos\nespalhados = jitter', xy=(0.5, 0.0),
+                        xytext=(0.55, -1.45), color=UNB_GOLD, fontsize=9,
+                        fontweight='bold',
+                        arrowprops=dict(arrowstyle='->', color=UNB_GOLD, lw=1.5))
+        ax.set_title(feats[step-1][1], fontweight='bold')
+        plt.tight_layout()
+        plt.savefig('../eye_read_%d.pdf' % step, bbox_inches='tight')
+        plt.close()
+    print("  [OK] eye_read_1..4.pdf")
+
+
+def gen_rc_timing():
+    """Robustez ao erro de temporizacao do cosseno levantado, um conjunto por
+    alpha. No instante exato a ISI e nula (Nyquist) para qualquer alpha, mas a
+    margem de temporizacao (abertura horizontal do olho) cresce com alpha.
+    Gera rc_sync_{0,1,2}_{1,2}.pdf  (alpha = 0, 0.5, 1)."""
+    alphas = [0.0, 0.5, 1.0]
+    sps = 100
+    seg = 2 * sps
+    t_eye = np.linspace(0, 2, seg)
+    center = seg // 2
+
+    for idx, alpha in enumerate(alphas):
+        sig, _ = _build_eye_signal(seed=7, alpha=max(alpha, 1e-6),
+                                   sps=sps, N=220, noise=0.0)
+        traces = []
+        for k in range(3, 200):
+            s = k * sps
+            e = s + seg
+            if e <= len(sig):
+                traces.append(sig[s:e])
+        traces = np.array(traces)
+        pos = traces[traces[:, center] > 0]
+        neg = traces[traces[:, center] < 0]
+        eye_top = pos.min(axis=0)
+        eye_bot = neg.max(axis=0)
+        opening = eye_top - eye_bot
+        mask = opening > 0.4 * opening[center]      # eye "bem aberto"
+        ts = t_eye[mask]
+        h0, h1 = (ts.min(), ts.max()) if len(ts) else (1.0, 1.0)
+        tail = r'caudas $\sim 1/t$' if alpha == 0 else r'caudas $\sim 1/t^3$'
+
+        def draw(step):
+            fig, ax = plt.subplots(figsize=(8.6, 3.9))
+            for tr in traces:
+                ax.plot(t_eye, tr, color=UNB_BLUE, lw=0.4, alpha=0.30)
+            ax.set_xlim([0, 2]); ax.set_ylim([-1.7, 1.7])
+            ax.axhline(0, color='black', lw=0.5)
+            ax.axvline(1.0, color=RED, lw=1.2, ls='--', alpha=0.7)
+            ax.set_xlabel(r'Tempo ($t/T$)', fontsize=12)
+            ax.set_ylabel('Amplitude', fontsize=12)
+            ax.set_title(r'$\alpha = %.1f$  (%s)' % (alpha, tail.replace('$', '')),
+                         fontweight='bold')
+            # passo 1: abertura vertical no instante exato (ISI nula)
+            ax.annotate('', xy=(1.0, eye_top[center]), xytext=(1.0, eye_bot[center]),
+                        arrowprops=dict(arrowstyle='<->', color=RED, lw=2.0))
+            ax.text(1.03, 0.0, 'em $t=T$:\nISI nula', color=RED, fontsize=9,
+                    fontweight='bold', va='center')
+            if step >= 2:
+                ax.axvspan(h0, h1, color=UNB_GREEN, alpha=0.12)
+                ax.annotate('', xy=(h0, 0.0), xytext=(h1, 0.0),
+                            arrowprops=dict(arrowstyle='<->', color=UNB_GREEN, lw=2.2))
+                ax.text(1.0, 0.92, 'margem de temporizacao\n(largura = %.2f T)'
+                        % (h1 - h0), color=UNB_GREEN, fontsize=9,
+                        fontweight='bold', ha='center')
+            plt.tight_layout()
+            plt.savefig('../rc_sync_%d_%d.pdf' % (idx, step), bbox_inches='tight')
+            plt.close()
+
+        draw(1)
+        draw(2)
+    print("  [OK] rc_sync_{0,1,2}_{1,2}.pdf")
+
+
 if __name__ == '__main__':
     print("Gerando figuras de diagrama de olho e PAM...")
     gen_eye_diagram_clean()
+    gen_eye_construction()
+    gen_eye_overlay_build()
+    gen_eye_analise_base()
+    gen_eye_reading()
+    gen_rc_timing()
     gen_eye_diagram_rolloff()
     gen_pam_constellation()
     gen_pam_waveforms()

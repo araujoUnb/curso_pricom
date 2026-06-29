@@ -86,37 +86,10 @@
 
 % ------------------------------------------------------------------
 
-\begin{frame}{Taxa de Bits e Largura de Banda PCM}
-  A \textbf{taxa de bits} (bit rate) do canal PCM é:
-  \[
-    R_b = n \cdot f_s \quad \text{[bits/s]}
-  \]
-  onde $n$ é o número de bits por amostra e
-  $f_s$ é a taxa de amostragem.
-
-  \vspace{0.35cm}
-  A largura de banda mínima necessária para transmitir o PCM
-  (sem inter-símbolos) é:
-  \[
-    B_{\min} = \frac{R_b}{2} = \frac{n\,f_s}{2}
-  \]
-
-  \vspace{0.35cm}
-  \textbf{Compromisso clássico:}
-  \begin{itemize}
-    \item Qualidade alta $\Rightarrow$ $n$ grande $\Rightarrow$ $R_b$ alto
-          $\Rightarrow$ mais largura de banda
-    \item Largura de banda limitada $\Rightarrow$ $n$ reduzido
-          $\Rightarrow$ mais ruído de quantização
-  \end{itemize}
-\end{frame}
-
-% ------------------------------------------------------------------
-
-\begin{frame}{De Onde Vem o Fator 2? — Critério de Nyquist}
-  O fator $2$ vem da \textbf{sinalização no canal}: um canal de banda $B$
-  transmite até \textbf{$2B$ pulsos/s} sem interferência entre símbolos
-  (ISI).
+\begin{frame}{Sinalização no Canal: Critério de Nyquist}
+  Antes da taxa de bits, veja como os pulsos viajam no canal: um canal de
+  banda $B$ transmite até \textbf{$2B$ pulsos/s} sem interferência entre
+  símbolos (ISI).
 
   \vspace{0.05cm}
   \begin{center}
@@ -146,12 +119,38 @@
   \vspace{-0.05cm}
   Os \textbf{cruzamentos por zero} ficam a $T = 1/(2B)$ um do outro.
   Pondo um símbolo em cada zero, nenhum interfere no vizinho, logo a taxa
-  máxima é $R_s = 1/T = 2B$ símbolos/s:
+  máxima de sinalização é:
   \[
-    R_s \le 2B \;\Longrightarrow\; B \ge \frac{R_s}{2}
-    \;\xrightarrow{\;R_s = R_b\;}\;
-    B_{\min} = \frac{R_b}{2} = \frac{n f_s}{2}.
+    R_s = \frac{1}{T} = 2B \;\Longrightarrow\; B \ge \frac{R_s}{2}.
   \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Taxa de Bits e Largura de Banda PCM}
+  A \textbf{taxa de bits} (bit rate) do canal PCM é:
+  \[
+    R_b = n \cdot f_s \quad \text{[bits/s]}
+  \]
+  onde $n$ é o número de bits por amostra e
+  $f_s$ é a taxa de amostragem.
+
+  \vspace{0.35cm}
+  Cada bit segue como um pulso, logo $R_s = R_b$. Aplicando o
+  \textbf{critério de Nyquist} ($R_s \le 2B$), a largura de banda mínima
+  (sem inter-símbolos) é:
+  \[
+    B_{\min} = \frac{R_b}{2} = \frac{n\,f_s}{2}
+  \]
+
+  \vspace{0.35cm}
+  \textbf{Compromisso clássico:}
+  \begin{itemize}
+    \item Qualidade alta $\Rightarrow$ $n$ grande $\Rightarrow$ $R_b$ alto
+          $\Rightarrow$ mais largura de banda
+    \item Largura de banda limitada $\Rightarrow$ $n$ reduzido
+          $\Rightarrow$ mais ruído de quantização
+  \end{itemize}
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -325,6 +324,28 @@
 
 % ------------------------------------------------------------------
 
+\begin{frame}{Curva de Compressão: $\mu$-law ($\mu = 255$)}
+  \begin{columns}[c]
+    \column{0.62\textwidth}
+    \begin{center}
+      \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/cap7/companding_curve_mulaw}
+    \end{center}
+
+    \column{0.38\textwidth}
+    {\footnotesize
+    A curva (acima) é \textbf{côncava}: perto de zero é íngreme, então
+    pequenas variações viram grandes variações na saída — ali os
+    \textbf{degraus de quantização ficam finos}.
+
+    \vspace{0.2cm}
+    No tempo (abaixo): a \textbf{entrada} $x(t)$ (tracejada) vira a
+    \textbf{saída} $y(t)$ com os pequenos sinais \textbf{amplificados}
+    (subida rápida) e os picos \textbf{achatados} — é a compressão em ação.}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
 \begin{frame}{Lei A: Definição Matemática}
   Padrão na Europa e em sistemas legados no Brasil
   (ITU-T G.711, $A = 87{,}6$):
@@ -350,25 +371,100 @@
 
 % ------------------------------------------------------------------
 
-\begin{frame}{Companding: Curvas e Desempenho}
-  \begin{columns}[T]
-    \column{0.49\textwidth}
-    \textbf{Curvas de compressão}
+\begin{frame}{Curva de Compressão: A-law ($A = 87{,}6$)}
+  \begin{columns}[c]
+    \column{0.62\textwidth}
     \begin{center}
-      \includegraphics[width=\textwidth,height=0.50\textheight,keepaspectratio]{figures/cap7/companding_curves}
+      \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/cap7/companding_curve_alaw}
     \end{center}
-    {\scriptsize
-      Curva côncava: maior resolução perto de zero. Tracejado = linear
-      (sem compressão).}
 
-    \column{0.49\textwidth}
-    \textbf{SQNR: Uniforme vs.\ $\mu$-law}
+    \column{0.38\textwidth}
+    {\footnotesize
+    Mesma ideia da $\mu$-law (saída no tempo, abaixo: pequenos sinais
+    amplificados, picos achatados). A diferença: a A-law é \textbf{linear}
+    para $|x| < 1/A$ e logarítmica acima.
+
+    \vspace{0.2cm}
+    Padrão europeu (E1); a $\mu$-law é o padrão norte-americano/japonês.
+    As duas têm desempenho equivalente.}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Comparação: as Duas Curvas no Mesmo Gráfico}
+  \begin{columns}[c]
+    \column{0.6\textwidth}
     \begin{center}
-      \includegraphics[width=\textwidth,height=0.50\textheight,keepaspectratio]{figures/cap7/companding_sqnr_comparison}
+      \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/cap7/companding_curves_combined}
     \end{center}
-    {\scriptsize
-      Com $\mu$-law, o SQNR fica quase constante em ampla faixa
-      dinâmica — ideal para voz.}
+
+    \column{0.4\textwidth}
+    {\footnotesize
+    Sobrepostas, $\mu$-law (azul) e A-law (verde) são quase
+    \textbf{indistinguíveis} — ambas comprimem fortemente perto de zero e
+    achatam nas amplitudes altas.
+
+    \vspace{0.25cm}
+    A única diferença visível é perto da origem: a A-law tem um pequeno
+    trecho \textbf{reto} ($|x|<1/A$), enquanto a $\mu$-law é curva em toda a
+    faixa. O tracejado é a reta linear de referência.}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Quantificando: Erro Médio e SNR}
+  Para um sinal $x$ de potência $P_s = E[x^2]$, o \textbf{erro médio
+  quadrático} (potência do ruído) dá a \textbf{SNR}:
+  $\;\overline{e^2} = E[(\hat{x}-x)^2]$,
+  $\;\SNR_{\mathrm{dB}} = 10\log_{10}(P_s/\overline{e^2})$.
+  Medindo uma senoide quantizada com $n=8$ bits:
+
+  \vspace{0.15cm}
+  \begin{center}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{lcccc}
+    \hline
+    \textbf{Sinal} & \textbf{Método} & $\overline{e^2}$ & \textbf{SNR} \\
+    \hline
+    \multirow{3}{*}{$-20$ dBFS (fraco)}
+      & Uniforme & $4{,}8\!\times\!10^{-6}$ & $30{,}2$ dB \\
+      & $\mu$-law & $7{,}4\!\times\!10^{-7}$ & $\mathbf{38{,}3}$ dB \\
+      & A-law    & $8{,}9\!\times\!10^{-7}$ & $\mathbf{37{,}5}$ dB \\
+    \hline
+    \multirow{3}{*}{$-6$ dBFS (forte)}
+      & Uniforme & $5{,}3\!\times\!10^{-6}$ & $\mathbf{43{,}7}$ dB \\
+      & $\mu$-law & $2{,}3\!\times\!10^{-5}$ & $37{,}3$ dB \\
+      & A-law    & $1{,}8\!\times\!10^{-5}$ & $38{,}5$ dB \\
+    \hline
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.1cm}
+  {\footnotesize \textbf{Leitura:} no sinal fraco o companding ganha
+  $\approx 8$ dB; no forte a uniforme leva vantagem. O companding
+  \textbf{troca} desempenho no topo por SNR estável em toda a faixa.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{SQNR em Ampla Faixa Dinâmica}
+  \begin{columns}[c]
+    \column{0.62\textwidth}
+    \begin{center}
+      \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]{figures/cap7/companding_sqnr_comparison}
+    \end{center}
+
+    \column{0.38\textwidth}
+    {\footnotesize
+    A uniforme (azul) só atinge SNR alta perto do fundo de escala e
+    \textbf{despenca} para sinais fracos.
+
+    \vspace{0.25cm}
+    Com companding, a SNR fica \textbf{quase constante} por $\sim$40 dB de
+    variação de nível — o que a voz exige, pois sua amplitude varia muito.}
   \end{columns}
 \end{frame}
 

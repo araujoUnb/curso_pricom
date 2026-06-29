@@ -39,14 +39,46 @@
 
 % ------------------------------------------------------------------
 
-\begin{frame}{Visualização da ISI}
+\begin{frame}{Visualização da ISI — Pulso Sinc (sem ISI)}
   \begin{center}
-    \includegraphics[width=0.78\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/pulse_shaping_isi}
+    \only<1>{\includegraphics[width=0.86\textwidth,height=0.68\textheight,keepaspectratio]{figures/cap6/isi_sinc_1}}%
+    \only<2>{\includegraphics[width=0.86\textwidth,height=0.68\textheight,keepaspectratio]{figures/cap6/isi_sinc_2}}%
+    \only<3>{\includegraphics[width=0.86\textwidth,height=0.68\textheight,keepaspectratio]{figures/cap6/isi_sinc_3}}%
+    \only<4>{\includegraphics[width=0.86\textwidth,height=0.68\textheight,keepaspectratio]{figures/cap6/isi_sinc_4}}%
+    \only<5>{\includegraphics[width=0.86\textwidth,height=0.68\textheight,keepaspectratio]{figures/cap6/isi_sinc_5}}%
+    \only<6>{\includegraphics[width=0.86\textwidth,height=0.68\textheight,keepaspectratio]{figures/cap6/isi_sinc_6}}%
   \end{center}
   \vspace{-0.1cm}
   {\footnotesize
-    (a) Pulsos sinc ideais têm zeros em $t = nT$ ($n \neq 0$) → sem ISI.
-    (b) Pulsos mais ``gordos'' geram sobreposição → ISI nos instantes de decisão.}
+    \only<1>{Chega o 1.\textsuperscript{o} símbolo ($+1$): um único pulso sinc (topo). Em baixo, o sinal total (preto) é o próprio pulso.}%
+    \only<2>{Chega o 2.\textsuperscript{o} símbolo: soma-se outro sinc (tracejado); o sinal total (preto) é atualizado.}%
+    \only<3>{3.\textsuperscript{o} símbolo somado — o total acumula a contribuição de todos os pulsos já chegados.}%
+    \only<4>{4.\textsuperscript{o} símbolo somado ao total.}%
+    \only<5>{5.\textsuperscript{o} símbolo: todos os pulsos presentes, sobrepostos no sinal total.}%
+    \only<6>{\textbf{Chave:} em $t=nT$ todos os \emph{outros} sincs cruzam zero — a amostra (verde) é exatamente o símbolo. \textcolor{UNB_GREEN}{\textbf{Sem ISI}}.}%
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Visualização da ISI — Pulso Gaussiano (com ISI)}
+  \begin{center}
+    \only<1>{\includegraphics[width=0.86\textwidth,height=0.68\textheight,keepaspectratio]{figures/cap6/isi_gauss_1}}%
+    \only<2>{\includegraphics[width=0.86\textwidth,height=0.68\textheight,keepaspectratio]{figures/cap6/isi_gauss_2}}%
+    \only<3>{\includegraphics[width=0.86\textwidth,height=0.68\textheight,keepaspectratio]{figures/cap6/isi_gauss_3}}%
+    \only<4>{\includegraphics[width=0.86\textwidth,height=0.68\textheight,keepaspectratio]{figures/cap6/isi_gauss_4}}%
+    \only<5>{\includegraphics[width=0.86\textwidth,height=0.68\textheight,keepaspectratio]{figures/cap6/isi_gauss_5}}%
+    \only<6>{\includegraphics[width=0.86\textwidth,height=0.68\textheight,keepaspectratio]{figures/cap6/isi_gauss_6}}%
+  \end{center}
+  \vspace{-0.1cm}
+  {\footnotesize
+    \only<1>{Mesma sequência de símbolos, agora com pulsos \textbf{gaussianos} mais largos que $T$: o 1.\textsuperscript{o} pulso.}%
+    \only<2>{Chega o 2.\textsuperscript{o} símbolo: como o pulso é largo, ele já invade o instante do vizinho.}%
+    \only<3>{3.\textsuperscript{o} símbolo somado — a sobreposição entre pulsos cresce.}%
+    \only<4>{4.\textsuperscript{o} símbolo somado ao total.}%
+    \only<5>{5.\textsuperscript{o} símbolo: todos presentes, com forte sobreposição.}%
+    \only<6>{\textbf{Chave:} em $t=nT$ os pulsos vizinhos \emph{não} valem zero — a amostra (vermelha) sai deslocada do símbolo ideal (cinza). \textcolor{RED}{\textbf{ISI}}.}%
+  }
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -96,6 +128,24 @@
   \textit{Solução prática:} usar um pulso com \textbf{banda extra}
   (roll-off) que ainda satisfaz o critério de Nyquist, mas cujas
   caudas decaem mais rápido → \alert{Cosseno Levantado}.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Sinc: por que um erro de temporização é fatal}
+  \begin{center}
+    \only<1>{\includegraphics[width=0.76\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/sinc_timing_1}}%
+    \only<2,3>{\includegraphics[width=0.76\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/sinc_timing_2}}%
+    \only<4->{\includegraphics[width=0.92\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/sinc_harmonic}}%
+  \end{center}
+  \vspace{-0.05cm}
+  {\footnotesize
+  \only<1>{\textbf{Passo 1.} Sinal recebido $y(t)=\sum_k a_k\,\sinc\!\big(\tfrac{t-kT}{T}\big)$. Amostrando \emph{exatamente} em $t=0$, todos os sinc vizinhos valem zero $\Rightarrow y(0)=a_0$. \textcolor{UNB_GREEN}{Sem ISI}.}%
+  \only<2>{\textbf{Passo 2.} Com erro de temporização, amostra-se em $t=\epsilon$:\; $y(\epsilon)=\underbrace{a_0\,\sinc(\tfrac{\epsilon}{T})}_{\approx\,a_0}+\sum_{k\neq0}a_k\,\sinc\!\big(\tfrac{\epsilon}{T}-k\big)$. Os vizinhos \textcolor{RED}{já não se anulam}.}%
+  \only<3>{\textbf{Passo 3.} Para $\epsilon$ pequeno, $\sinc\!\big(\tfrac{\epsilon}{T}-k\big)\approx(-1)^{k+1}\dfrac{\epsilon/T}{k}$: cada termo de ISI decai \emph{só} como $1/k$.}%
+  \only<4>{\textbf{Passo 4.} Pior caso ($a_k=\pm1$ alinhados): $|\text{ISI}|\le\dfrac{\epsilon}{T}\displaystyle\sum_{k\neq0}\dfrac1{|k|}=\dfrac{2\epsilon}{T}\sum_{k\geq1}\dfrac1k$ — a soma parcial cresce como $\ln N$.}%
+  \only<5>{\textbf{Conclusão.} $\boxed{\,\sum_{k\geq1}\tfrac1k\to\infty\,}$: por menor que seja $\epsilon$, o pior caso de ISI é \textcolor{RED}{ilimitado}. O sinc puro é frágil — precisamos de caudas que decaiam mais rápido (cosseno levantado).}%
+  }
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -224,4 +274,22 @@
   \vspace{0.2cm}
   \textit{Na prática, $\alpha$ entre 0,2 e 0,5 oferece bom
   compromisso entre banda e robustez.}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Demonstração no GNU Radio}
+% ------------------------------------------------------------------
+
+\begin{frame}{Demonstração ao Vivo: Formatação de Pulso e ISI}
+  No flowgraph \texttt{demo\_pulse\_shaping\_olho.grc} uma sequência 2-PAM
+  passa por um filtro RRC de transmissão, pelo canal e pelo filtro casado.
+  O slider de \emph{roll-off} $\alpha$ controla a banda ocupada e o formato
+  do pulso em tempo real.
+  \begin{center}
+    \includegraphics[width=0.78\textwidth]{figures/cap6/demo_gr_pulse_shaping}
+  \end{center}
+  \vspace{-0.1cm}
+  {\footnotesize Cada símbolo gera um pulso RRC centrado no seu instante;
+  a soma dos pulsos é o sinal transmitido. Ao reduzir $\alpha$, a banda
+  encolhe para $W=(1+\alpha)R_s/2$ e as caudas do pulso ficam mais longas.}
 \end{frame}

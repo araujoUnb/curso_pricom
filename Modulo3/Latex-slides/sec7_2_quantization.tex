@@ -566,11 +566,11 @@
   \begin{itemize}
     \item \textbf{Telefonia PCM} ($n = 8$ bits): $\SQNR \approx 50\,\text{dB}$
           — suficiente para voz inteligível na rede telefônica.
-    \item \textbf{CD de áudio} ($n = 16$ bits): $\SQNR \approx 98\,\text{dB}$
+    \item \textbf{Streaming de música} ($n = 16$ bits): $\SQNR \approx 98\,\text{dB}$
           — cobre toda a faixa dinâmica da audição humana.
-    \item \textbf{Estúdio profissional} ($n = 24$ bits):
-          $\SQNR \approx 146\,\text{dB}$ — margem para edição e mixagem
-          sem acúmulo audível de ruído.
+    \item \textbf{Áudio de smartphone/fones} ($n = 24$ bits):
+          $\SQNR \approx 146\,\text{dB}$ — folga para processamento
+          de sinal e controle de volume sem ruído audível.
   \end{itemize}
 
   \vspace{0.3cm}
@@ -715,30 +715,6 @@
 
 % ------------------------------------------------------------------
 
-\begin{frame}{Como Calcular os Níveis Ótimos: Lloyd-Max}
-  O quantizador ótimo minimiza o erro quadrático médio
-  $E\!\left[(x-\hat{x})^2\right]$ dada a densidade $p(x)$, satisfazendo
-  \textbf{duas condições}:
-
-  \vspace{0.15cm}
-  \textbf{1. Cada nível é o centróide (média) do seu intervalo:}
-  \[
-    \hat{y}_k = \frac{\displaystyle\int_{b_{k-1}}^{b_k} x\,p(x)\,dx}
-                     {\displaystyle\int_{b_{k-1}}^{b_k} p(x)\,dx}
-  \]
-
-  \textbf{2. Cada fronteira é o ponto médio entre níveis vizinhos:}
-  \[
-    b_k = \frac{\hat{y}_k + \hat{y}_{k+1}}{2}
-  \]
-
-  \vspace{-0.05cm}
-  {\footnotesize \textbf{Algoritmo de Lloyd:} alterna entre as duas
-  condições até convergir.}
-\end{frame}
-
-% ------------------------------------------------------------------
-
 \begin{frame}{Demonstração — Condição 1: Nível é o Centróide}
   A distorção (erro quadrático médio) é a soma sobre os intervalos:
   \[
@@ -807,6 +783,30 @@
   \[
     \boxed{\;b_k = \frac{\hat{y}_k + \hat{y}_{k+1}}{2}\;}
   \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Resultado: Níveis Ótimos e Lloyd-Max}
+  Reunindo as duas demonstrações, o quantizador que minimiza o erro
+  quadrático médio $E\!\left[(x-\hat{x})^2\right]$, dada a densidade
+  $p(x)$, satisfaz \textbf{duas condições}:
+
+  \vspace{0.15cm}
+  \textbf{1. Cada nível é o centróide (média) do seu intervalo:}
+  \[
+    \hat{y}_k = \frac{\displaystyle\int_{b_{k-1}}^{b_k} x\,p(x)\,dx}
+                     {\displaystyle\int_{b_{k-1}}^{b_k} p(x)\,dx}
+  \]
+
+  \textbf{2. Cada fronteira é o ponto médio entre níveis vizinhos:}
+  \[
+    b_k = \frac{\hat{y}_k + \hat{y}_{k+1}}{2}
+  \]
+
+  \vspace{-0.05cm}
+  {\footnotesize \textbf{Algoritmo de Lloyd:} alterna entre as duas
+  condições até convergir.}
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -986,4 +986,276 @@
     \textcolor{UNB_GREEN}{verde}/\textcolor{UNB_BLUE}{azul} = ótimo. Os
     limiares e níveis são \textbf{realmente diferentes}.}
   \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Segundo Exemplo: Sinal Laplaciano (voz/áudio)}
+  A \textbf{Laplaciana} é o modelo padrão para amplitudes de voz, áudio e
+  resíduos de predição: muito tempo perto de zero, com caudas longas.
+  \[
+    p(x) = \frac{1}{2\beta}\,e^{-|x|/\beta},
+    \qquad \sigma^2 = 2\beta^2.
+  \]
+
+  \vspace{0.05cm}
+  \begin{columns}[c]
+    \column{0.5\textwidth}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, x=1.05cm, y=2.0cm,
+        every node/.style={font=\scriptsize}]
+      \draw[->,gray!55] (-2.6,0)--(2.7,0) node[right,black]{$x$};
+      \draw[->,gray!55] (0,-0.04)--(0,0.62) node[above,black]{$p(x)$};
+      \fill[UNB_GOLD!14] plot[domain=-2.5:2.5,samples=120]
+            (\x,{0.5*exp(-abs(\x)/1)}) -- (2.5,0) -- (-2.5,0) -- cycle;
+      \draw[UNB_GOLD!85!black, very thick]
+            plot[domain=-2.5:2.5,samples=120] (\x,{0.5*exp(-abs(\x)/1)});
+      \draw[UNB_BLUE, densely dashed, thick] (0,0)--(0,0.56)
+           node[above,black,font=\tiny]{$b_0=0$};
+      \fill[UNB_GREEN] (1,0) circle (1.9pt);
+      \fill[UNB_GREEN] (-1,0) circle (1.9pt);
+      \node[UNB_GREEN!50!black,font=\tiny,below=1pt] at (1,0){$+\beta$};
+      \node[UNB_GREEN!50!black,font=\tiny,below=1pt] at (-1,0){$-\beta$};
+    \end{tikzpicture}
+    \end{center}
+
+    \column{0.5\textwidth}
+    {\footnotesize
+    Quantizador de \textbf{2 níveis} (1 bit). Por \textbf{simetria}, a
+    fronteira ótima é $b_0 = 0$, e cada nível é o \textbf{centróide} do
+    seu lado. No lado positivo:
+    \[
+      \hat{y}_+ = \frac{\displaystyle\int_0^\infty x\,\frac{1}{2\beta}e^{-x/\beta}\,dx}
+                       {\displaystyle\int_0^\infty \frac{1}{2\beta}e^{-x/\beta}\,dx}
+                = \frac{\beta/2}{1/2} = \boxed{\beta}
+    \]
+    Logo os níveis ótimos são $\pm\beta = \pm\sigma/\sqrt{2}$.}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Segundo Exemplo: Distorção e SQNR}
+  A distorção é a mesma nos dois lados; com $u = x/\beta$:
+  \[
+    D = 2\int_0^\infty (x-\beta)^2\,\frac{1}{2\beta}e^{-x/\beta}\,dx
+      = \beta^2\!\int_0^\infty (u-1)^2 e^{-u}\,du
+      = \beta^2 .
+  \]
+
+  \vspace{0.1cm}
+  Como a potência do sinal é $\sigma^2 = 2\beta^2$:
+  \[
+    \SQNR = \frac{\sigma^2}{D} = \frac{2\beta^2}{\beta^2} = 2
+    \;\Longrightarrow\;
+    \SQNR_{\mathrm{dB}} = 10\log_{10} 2 \approx \boxed{3{,}0\ \text{dB}}.
+  \]
+
+  \vspace{0.15cm}
+  \begin{block}{}
+  \footnotesize Com \textbf{1 bit} obtém-se $\approx 3$ dB — coerente com a
+  regra dos 6 dB/bit. O ponto-chave: o nível ótimo fica em $0{,}707\,\sigma$
+  (não em $1\sigma$), seguindo a concentração da Laplaciana perto de zero.
+  \end{block}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{4 Níveis (2 bits): Montando o Problema}
+  Agora \textbf{4 níveis}. Por simetria, basta o \textbf{lado positivo}:
+  uma fronteira interna $b$ separa duas regiões, cada uma com seu nível.
+  \begin{columns}[c]
+    \column{0.46\textwidth}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, x=1.0cm, y=2.0cm,
+        every node/.style={font=\scriptsize}]
+      \draw[->,gray!55] (-0.2,0)--(3.5,0) node[right,black]{$x$};
+      \draw[->,gray!55] (0,-0.04)--(0,0.6) node[above,black]{$p(x)$};
+      \fill[UNB_GREEN!22] plot[domain=0:1.594,samples=70]
+            (\x,{0.5*exp(-\x)}) -- (1.594,0) -- (0,0) -- cycle;
+      \fill[UNB_BLUE!16] plot[domain=1.594:3.2,samples=70]
+            (\x,{0.5*exp(-\x)}) -- (3.2,0) -- (1.594,0) -- cycle;
+      \draw[UNB_GOLD!85!black, very thick]
+            plot[domain=0:3.2,samples=120] (\x,{0.5*exp(-\x)});
+      \draw[UNB_BLUE, densely dashed] (1.594,0)--(1.594,0.30)
+           node[above,black,font=\tiny]{$b$};
+      \node[UNB_GREEN!45!black] at (0.7,0.12){$R_1$};
+      \node[UNB_BLUE!70!black] at (2.2,0.07){$R_2$};
+      \node[UNB_GREEN!45!black,font=\tiny] at (0.7,0.30){$\hat y_1=?$};
+      \node[UNB_BLUE!70!black,font=\tiny] at (2.45,0.22){$\hat y_2=?$};
+    \end{tikzpicture}
+    \end{center}
+
+    \column{0.54\textwidth}
+    {\footnotesize
+    Incógnitas: a fronteira $b$ e os níveis $\hat y_1$ (região $R_1=[0,b]$)
+    e $\hat y_2$ (região $R_2=[b,\infty)$).
+
+    \vspace{0.2cm}
+    Vamos aplicar as \textbf{duas condições} já demonstradas:
+    \[
+      \hat y_k = \frac{\int_{R_k} x\,p\,dx}{\int_{R_k} p\,dx},
+      \qquad
+      b = \frac{\hat y_1 + \hat y_2}{2}.
+    \]
+    }
+  \end{columns}
+
+  \vspace{0.1cm}
+  {\footnotesize Integrais úteis (para $x>0$, $p=\tfrac{1}{2\beta}e^{-x/\beta}$):}
+  \[
+    \int_a^c \! p\,dx = \tfrac{1}{2}\!\left(e^{-a/\beta}-e^{-c/\beta}\right),
+    \quad
+    \int_a^c \! x\,p\,dx = \tfrac{\beta}{2}\!\left[(1+\tfrac{a}{\beta})e^{-a/\beta}
+       -(1+\tfrac{c}{\beta})e^{-c/\beta}\right].
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Passo 1: Nível Externo $\hat y_2$ (centróide da cauda)}
+  Aplicando a \textbf{condição do centróide} à região $R_2=[b,\infty)$
+  (tome $c\to\infty$ nas integrais):
+  \[
+    \int_b^\infty p\,dx = \tfrac{1}{2}e^{-b/\beta},
+    \qquad
+    \int_b^\infty x\,p\,dx = \tfrac{\beta}{2}\left(1+\tfrac{b}{\beta}\right)e^{-b/\beta}
+                           = \tfrac{1}{2}(\beta+b)\,e^{-b/\beta}.
+  \]
+
+  \vspace{0.1cm}
+  Dividindo, o fator $\tfrac{1}{2}e^{-b/\beta}$ \textbf{cancela}:
+  \[
+    \hat y_2 = \frac{\tfrac{1}{2}(\beta+b)e^{-b/\beta}}{\tfrac{1}{2}e^{-b/\beta}}
+             = \boxed{\,b + \beta\,}
+  \]
+
+  \vspace{0.15cm}
+  {\footnotesize \textbf{Leitura:} o nível da cauda é a fronteira $b$ mais
+  uma média $\beta$ — a \textbf{falta de memória} da exponencial: o que
+  excede $b$ tem a mesma estatística de um sinal começando em zero.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Passo 2: Nível Interno $\hat y_1$ (centróide de $R_1$)}
+  A \textbf{mesma condição do centróide} na região $R_1=[0,b]$
+  (agora $a=0$, $c=b$ nas integrais):
+  \[
+    \int_0^b p\,dx = \tfrac{1}{2}\left(1-e^{-b/\beta}\right),
+    \qquad
+    \int_0^b x\,p\,dx = \tfrac{\beta}{2}\left[1-\left(1+\tfrac{b}{\beta}\right)e^{-b/\beta}\right].
+  \]
+
+  \vspace{0.1cm}
+  Dividindo (aqui o expoente \textbf{não} cancela como na cauda):
+  \[
+    \hat y_1 = \frac{\tfrac{\beta}{2}\left[1-(1+b/\beta)e^{-b/\beta}\right]}
+                    {\tfrac{1}{2}\left(1-e^{-b/\beta}\right)}
+             = \beta\,\frac{1-(1+b/\beta)\,e^{-b/\beta}}{1-e^{-b/\beta}}.
+  \]
+
+  \vspace{0.15cm}
+  {\footnotesize \textbf{Leitura:} o nível interno depende de $b$ de forma
+  não trivial — falta uma equação para fechar o sistema.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Passo 3: Fronteira (ponto médio) e Equação}
+  A \textbf{condição do ponto médio} liga as duas incógnitas:
+  \[
+    b = \frac{\hat y_1 + \hat y_2}{2}
+    \;\Longrightarrow\;
+    \hat y_1 = 2b - \hat y_2 = 2b - (b+\beta) = b - \beta.
+  \]
+
+  \vspace{0.1cm}
+  Igualando a esse $\hat y_1$ o centróide de $R_1$ (Passo 2) e escrevendo
+  $r = b/\beta$, os termos se cancelam e sobra uma \textbf{equação
+  transcendental}:
+  \[
+    r - 1 = \frac{1-(1+r)e^{-r}}{1-e^{-r}}
+    \;\Longrightarrow\;
+    \boxed{\,r = 2\left(1 - e^{-r}\right)\,}.
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Passo 4: Resolver e Localizar os Níveis}
+  \begin{columns}[c]
+    \column{0.5\textwidth}
+    \footnotesize
+    Iteração de ponto fixo $r_{n+1} = 2(1-e^{-r_n})$:
+    \[
+      1{,}60 \to 1{,}596 \to 1{,}594 \to 1{,}594 .
+    \]
+    Logo $b \approx 1{,}594\,\beta$, e
+    \[
+      \hat y_1 = b-\beta \approx 0{,}594\,\beta,\quad
+      \hat y_2 = b+\beta \approx 2{,}594\,\beta.
+    \]
+
+    \vspace{0.1cm}
+    Em unidades de $\sigma = \sqrt{2}\,\beta$:
+    \[
+      b \approx 1{,}13\,\sigma,\;
+      \hat y_1 \approx 0{,}42\,\sigma,\;
+      \hat y_2 \approx 1{,}83\,\sigma.
+    \]
+
+    \column{0.5\textwidth}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, x=0.95cm, y=2.0cm,
+        every node/.style={font=\scriptsize}]
+      \draw[->,gray!55] (-3.1,0)--(3.3,0) node[right,black]{$x$};
+      \draw[->,gray!55] (0,-0.04)--(0,0.6) node[above,black]{$p(x)$};
+      \fill[UNB_GOLD!14] plot[domain=-3:3,samples=140]
+            (\x,{0.5*exp(-abs(\x)/1)}) -- (3,0) -- (-3,0) -- cycle;
+      \draw[UNB_GOLD!85!black, very thick]
+            plot[domain=-3:3,samples=140] (\x,{0.5*exp(-abs(\x)/1)});
+      \draw[UNB_BLUE, densely dashed] (0,0)--(0,0.54);
+      \foreach \bb in {-1.594,1.594}
+        \draw[UNB_BLUE, densely dashed] (\bb,0)--(\bb,{0.5*exp(-1.594)});
+      \node[UNB_BLUE,font=\tiny,above] at (1.594,0.12){$+b$};
+      \node[UNB_BLUE,font=\tiny,above] at (-1.594,0.12){$-b$};
+      \foreach \yy in {-2.594,-0.594,0.594,2.594}
+        \fill[UNB_GREEN] (\yy,0) circle (1.7pt);
+      \node[UNB_GREEN!50!black,font=\tiny,below] at (0.594,0){$\hat y_1$};
+      \node[UNB_GREEN!50!black,font=\tiny,below] at (2.594,0){$\hat y_2$};
+    \end{tikzpicture}
+    \end{center}
+    {\footnotesize Degraus finos perto de zero, largos na cauda.}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Passo 5: Distorção e SQNR}
+  Para níveis ótimos vale $D = \sigma^2 - \sum_k \hat y_k^2\,P_k$. As
+  probabilidades de cada região (lado positivo, com $r=1{,}594$) são:
+  \[
+    P_1 = \tfrac{1}{2}\!\left(1-e^{-r}\right) \approx 0{,}399,
+    \qquad
+    P_2 = \tfrac{1}{2}e^{-r} \approx 0{,}101.
+  \]
+
+  \vspace{0.05cm}
+  Somando sobre as 4 regiões ($\times 2$ por simetria, em unidades $\beta^2$):
+  \[
+    \sum_k \hat y_k^2 P_k = 2\!\left(0{,}594^2\cdot 0{,}399
+       + 2{,}594^2\cdot 0{,}101\right) \approx 1{,}65\,\beta^2,
+  \]
+  \[
+    D = 2\beta^2 - 1{,}65\,\beta^2 \approx 0{,}35\,\beta^2 = 0{,}177\,\sigma^2
+    \;\Longrightarrow\;
+    \SQNR = \frac{\sigma^2}{D} \approx 5{,}66 \Rightarrow \boxed{7{,}5\ \text{dB}}.
+  \]
+
+  \begin{block}{}
+  \footnotesize Do 1º para o 2º bit: $3{,}0 \to 7{,}5$ dB, ganho de
+  $\approx 4{,}5$ dB — \textbf{menos que os 6 dB/bit} ideais, porque as
+  caudas pesadas da Laplaciana são caras de quantizar.
+  \end{block}
 \end{frame}

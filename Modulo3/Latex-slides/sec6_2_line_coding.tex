@@ -86,25 +86,35 @@
 
 % ------------------------------------------------------------------
 
-\begin{frame}{Polar RZ e Manchester}
-  \textbf{Polar RZ} (\textit{Return-to-Zero}):
+\begin{frame}{Codificação Polar RZ}
+  \textbf{Polar RZ} (\textit{Return-to-Zero}): cada bit usa só a primeira
+  metade do intervalo $T_b$, retornando a zero na segunda.
   \[
     a_k = \begin{cases} \pm A & \text{na 1ª metade de } T_b \\
     0 & \text{na 2ª metade de } T_b \end{cases}
   \]
+
+  \vspace{0.3cm}
   \begin{itemize}
-    \item Transição garantida a cada bit → melhor para sincronismo.
+    \item Transição garantida a cada bit $\rightarrow$ melhor para
+          sincronismo.
     \item Porém, ocupa o \alert{dobro da banda} do NRZ.
   \end{itemize}
+\end{frame}
 
-  \vspace{0.4cm}
-  \textbf{Manchester} (Bifase):
+% ------------------------------------------------------------------
+
+\begin{frame}{Codificação Manchester (Bifase)}
+  \textbf{Manchester} (Bifase): cada bit tem uma \textbf{transição no meio},
+  cuja direção codifica o valor.
   \[
     b_k = 1 \;\Rightarrow\; +A \text{ (1ª metade)},\; -A \text{ (2ª metade)}
   \]
   \[
     b_k = 0 \;\Rightarrow\; -A \text{ (1ª metade)},\; +A \text{ (2ª metade)}
   \]
+
+  \vspace{0.3cm}
   \begin{itemize}
     \item \alert{Sem componente DC} — transição no meio de cada bit.
     \item Usado em Ethernet 10BASE-T.
