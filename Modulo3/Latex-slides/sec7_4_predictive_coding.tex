@@ -1,6 +1,6 @@
 % ============================================
-% SEÇÃO 7.4: CODIFICAÇÃO PREDITIVA E DE FONTE
-% Delta Modulation, DPCM e Vocoder.
+% SEÇÃO 7.4: CODIFICAÇÃO PREDITIVA
+% Delta Modulation e DPCM.
 % ============================================
 
 % ------------------------------------------------------------------
@@ -26,45 +26,448 @@
   \begin{itemize}
     \item \textbf{Modulação Delta (DM):} 1 bit por amostra.
     \item \textbf{DPCM:} vários bits, com preditor.
-    \item \textbf{Vocoder:} vai além — transmite \emph{parâmetros} da voz.
   \end{itemize}
 \end{frame}
 
 % ------------------------------------------------------------------
 
-\begin{frame}{Modulação Delta (DM)}
-  Caso mais simples: \textbf{1 bit por amostra}. Transmite apenas se o
-  sinal \textbf{subiu} ($+\delta$) ou \textbf{desceu} ($-\delta$):
+\begin{frame}{Modulação Delta (DM): Gerador e Estimador}
+  \textbf{1 bit por amostra}: transmite só se o sinal subiu ($+\delta$) ou
+  desceu ($-\delta$).
   \[
     b[n] = \operatorname{sgn}\!\big(x[n] - \hat{x}[n-1]\big),
     \qquad
     \hat{x}[n] = \hat{x}[n-1] + \delta\,b[n].
   \]
 
+  \vspace{0.1cm}
+  \begin{columns}[c]
+    \column{0.52\textwidth}
+    \begin{center}{\scriptsize\textbf{Gerador (transmissor)}}\end{center}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth,
+       blk/.style={draw, rounded corners=3pt, minimum height=0.6cm,
+                   font=\tiny, fill=unbprimary!10, draw=unbprimary},
+       sm/.style={draw, circle, inner sep=1.2pt, font=\tiny}]
+      \node[sm] (s) at (0,0) {$\Sigma$};
+      \node[blk] (q) at (1.9,0) {Quant.\ 1 bit};
+      \node[blk] (acc) at (1.9,-1.2) {Acumulador};
+      \draw[->] (-1.2,0) node[left,font=\tiny]{$x[n]$} -- (s);
+      \node[font=\tiny] at (-0.27,0.2) {$+$};
+      \draw[->] (s) -- (q);
+      \draw[->] (q) -- (3.7,0) node[right,font=\tiny]{$b[n]$};
+      \draw[->] (3.0,0) |- (acc);
+      \draw[->] (acc) -| (s);
+      \node[font=\tiny] at (-0.22,-0.28) {$-$};
+      \node[font=\tiny,gray] at (0.85,-1.42) {$\hat{x}[n-1]$};
+    \end{tikzpicture}
+    \end{center}
+
+    \column{0.48\textwidth}
+    \begin{center}{\scriptsize\textbf{Estimador (receptor)}}\end{center}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth,
+       blk/.style={draw, rounded corners=3pt, minimum height=0.6cm,
+                   font=\tiny, fill=unbprimary!10, draw=unbprimary}]
+      \node[blk] (acc) at (0,0) {Acumulador};
+      \node[blk] (lpf) at (2.5,0) {Filtro PB};
+      \draw[->] (-1.6,0) node[left,font=\tiny]{$b[n]$} -- (acc);
+      \draw[->] (acc) -- (lpf) node[midway,above,font=\tiny]{$\hat{x}[n]$};
+      \draw[->] (lpf) -- (4.2,0) node[right,font=\tiny]{$\tilde{x}(t)$};
+    \end{tikzpicture}
+    \end{center}
+  \end{columns}
+
+  \vspace{0.05cm}
+  {\footnotesize O gerador realimenta um \textbf{acumulador} idêntico ao do
+  receptor; o estimador apenas \textbf{acumula} os $\pm\delta$ e suaviza com
+  um filtro passa-baixas. Exige \textbf{sobreamostragem} ($f_s \gg 2W$).}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Modulação Delta: Formalismo (passo a passo)}
+  A cada instante $n$, partindo da estimativa anterior $\hat{x}[n-1]$:
+
   \vspace{0.15cm}
+  \begin{columns}[c]
+    % ---- esquerda: diagrama do gerador, com destaque por etapa ----
+    \column{0.46\textwidth}
+    \begin{center}{\scriptsize\textbf{Gerador (transmissor)}}\end{center}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth,
+       blk/.style={draw, rounded corners=3pt, minimum height=0.6cm,
+                   font=\tiny, fill=unbprimary!10, draw=unbprimary},
+       sm/.style={draw, circle, inner sep=1.2pt, font=\tiny},
+       hl/.style={draw=UNB_GOLD, line width=1.4pt, rounded corners=3pt,
+                  inner sep=2.5pt}]
+      \node[sm]  (s)   at (0,0)    {$\Sigma$};
+      \node[blk] (q)   at (1.9,0)  {Quant.\ 1 bit};
+      \node[blk] (acc) at (1.9,-1.2) {Acumulador};
+      \draw[->] (-1.2,0) node[left,font=\tiny]{$x[n]$} -- (s);
+      \node[font=\tiny] at (-0.27,0.2) {$+$};
+      \draw[->] (s) -- (q) node[midway,above,font=\tiny]{$d[n]$};
+      \draw[->] (q) -- (3.7,0) node[right,font=\tiny]{$b[n]$};
+      \draw[->] (3.0,0) |- (acc);
+      \draw[->] (acc) -| (s);
+      \node[font=\tiny] at (-0.22,-0.28) {$-$};
+      \node[font=\tiny,gray] at (0.85,-1.42) {$\hat{x}[n-1]$};
+      % --- destaques por overlay ---
+      \node<2>[hl, fit=(s)] {};
+      \node<3>[hl, fit=(q)] {};
+      \node<4>[hl, fit=(acc)] {};
+      \node<5>[hl, fit=(acc)] {};
+    \end{tikzpicture}
+    \end{center}
+
+    % ---- direita: uma equação por vez (overlay) ----
+    \column{0.54\textwidth}
+    \begin{onlyenv}<1>
+      Quatro operações se repetem a cada amostra; o destaque dourado mostra
+      \emph{onde} cada uma acontece no gerador.
+    \end{onlyenv}
+
+    \begin{onlyenv}<2>
+      \textbf{1. Erro de predição} (no somador $\Sigma$):
+      \[ d[n] = x[n] - \hat{x}[n-1]. \]
+      Quanto a estimativa anterior errou a amostra atual.
+    \end{onlyenv}
+
+    \begin{onlyenv}<3>
+      \textbf{2. Quantização de 1 bit} — só o \emph{sinal} do erro:
+      \[ b[n] = \operatorname{sgn}\!\big(d[n]\big) \in \{+1,\,-1\}. \]
+      O único bit transmitido: subiu ($+1$) ou desceu ($-1$).
+    \end{onlyenv}
+
+    \begin{onlyenv}<4>
+      \textbf{3. Atualização do acumulador} (idêntica no gerador e no receptor):
+      \[ \hat{x}[n] = \hat{x}[n-1] + \delta\,b[n]. \]
+      Dá um passo de $\pm\delta$ na direção do erro.
+    \end{onlyenv}
+
+    \begin{onlyenv}<5>
+      \textbf{4. Forma fechada} — desenrolando a recursão com $\hat{x}[-1]=0$:
+      \[ \hat{x}[n] = \delta\sum_{k=0}^{n} b[k]. \]
+      O receptor só precisa \textbf{acumular} os bits.
+    \end{onlyenv}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Exemplo: Modulação Delta — O Sinal Amostrado}
+  Vamos codificar com DM ($\delta = 1$) a sequência de \textbf{8 amostras}
+  $x[n]$:
+
+  \vspace{0.05cm}
   \begin{center}
-  \begin{tikzpicture}[>=stealth,
-     blk/.style={draw, rounded corners=3pt, minimum height=0.72cm,
-                 font=\scriptsize, fill=unbprimary!10, draw=unbprimary},
-     sm/.style={draw, circle, inner sep=1.5pt, font=\scriptsize}]
-    \node[sm] (s) at (0,0) {$\Sigma$};
-    \node[blk] (q) at (2.2,0) {Quant.\ 1 bit};
-    \node[blk] (int) at (2.2,-1.3) {Integrador};
-    \draw[->] (-1.5,0) node[left,font=\scriptsize]{$x[n]$} -- (s);
-    \node[font=\tiny] at (-0.28,0.22) {$+$};
-    \draw[->] (s) -- (q);
-    \draw[->] (q) -- (4.6,0) node[right,font=\scriptsize]{$b[n]$};
-    \draw[->] (3.4,0) |- (int);
-    \draw[->] (int) -| (s);
-    \node[font=\tiny] at (-0.22,-0.30) {$-$};
-    \node[font=\tiny,gray] at (1.1,-1.55) {$\hat{x}[n]$};
+  \begin{tikzpicture}[>=stealth, x=0.9cm, y=0.8cm,
+      every node/.style={font=\tiny}]
+    \draw[->,gray!55] (-0.3,0)--(8.6,0) node[right,black]{$n$};
+    \draw[->,gray!55] (0,-0.3)--(0,3.9) node[above,black]{$x[n]$};
+    \foreach \n in {0,1,2,3,4,5,6,7}
+      \draw[gray!40] (\n,0.06)--(\n,-0.06) node[below,black]{\n};
+    \foreach \v in {1,2,3}
+      \draw[gray!40] (0.06,\v)--(-0.06,\v) node[left,black]{\v};
+    \foreach \n/\v in {0/0.8,1/1.9,2/2.7,3/3.1,4/2.9,5/2.2,6/1.0,7/0.2}{
+      \draw[UNB_GREEN!70!black, thick] (\n,0)--(\n,\v);
+      \fill[UNB_GREEN] (\n,\v) circle (2pt);
+    }
   \end{tikzpicture}
   \end{center}
 
+  \[
+    x[n] = \{\,0{,}8,\ 1{,}9,\ 2{,}7,\ 3{,}1,\ 2{,}9,\ 2{,}2,\ 1{,}0,\ 0{,}2\,\}
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Exemplo: Modulação Delta — Passo a Passo (gráfico)}
+  Predição $\hat{x}[n-1]$; cada passo é \textbf{fixo} $\pm\delta$, e ao lado,
+  em \textcolor{RED}{vermelho}, o \textbf{bit} enviado naquele passo
+  ($+\delta \to 1$, $-\delta \to 0$).
+
   \vspace{0.05cm}
-  {\footnotesize O receptor \textbf{acumula} (integra) os $\pm\delta$,
-  reconstruindo o sinal como uma escada. Exige \textbf{sobreamostragem}
-  ($f_s \gg 2W$) para a escada acompanhar o sinal.}
+  \begin{center}
+  \begin{tikzpicture}[>=stealth, x=0.9cm, y=0.7cm,
+      every node/.style={font=\tiny}]
+    \draw[->,gray!55] (-0.3,0)--(8.6,0) node[right,black]{$n$};
+    \draw[->,gray!55] (0,-0.3)--(0,4.7);
+    \foreach \n in {0,1,2,3,4,5,6,7}
+      \draw[gray!40] (\n,0.06)--(\n,-0.06) node[below,black]{\n};
+    \foreach \v in {1,2,3,4}
+      \draw[gray!40] (0.06,\v)--(-0.06,\v) node[left,black]{\v};
+    \foreach \n/\v in {0/0.8,1/1.9,2/2.7,3/3.1,4/2.9,5/2.2,6/1.0,7/0.2}
+      \fill[UNB_GREEN] (\n,\v) circle (1.7pt);
+    \node[UNB_GREEN!50!black] at (7.05,0.55) {$x[n]$};
+    \node[UNB_BLUE] at (2.6,4.5) {$\hat{x}[n]$ (escada)};
+    % construção passo a passo; o bit (vermelho) só aparece no passo atual
+    \onslide<1->{\draw[UNB_BLUE,thick,->](0,0)--(0,1); \fill[UNB_BLUE](0,1)circle(1.7pt);
+                 \node[UNB_BLUE] at (0.38,0.5){$+\delta$};}
+    \only<1>{\node[RED,anchor=west,font=\scriptsize] at (0.62,0.5){$\rightarrow$\,\texttt{1}};}
+    \onslide<2->{\draw[UNB_BLUE!40,densely dashed](0,1)--(1,1);
+                 \draw[UNB_BLUE,thick,->](1,1)--(1,2); \fill[UNB_BLUE](1,2)circle(1.7pt);
+                 \node[UNB_BLUE] at (1.38,1.5){$+\delta$};}
+    \only<2>{\node[RED,anchor=west,font=\scriptsize] at (1.62,1.5){$\rightarrow$\,\texttt{1}};}
+    \onslide<3->{\draw[UNB_BLUE!40,densely dashed](1,2)--(2,2);
+                 \draw[UNB_BLUE,thick,->](2,2)--(2,3); \fill[UNB_BLUE](2,3)circle(1.7pt);
+                 \node[UNB_BLUE] at (2.38,2.5){$+\delta$};}
+    \only<3>{\node[RED,anchor=west,font=\scriptsize] at (2.62,2.5){$\rightarrow$\,\texttt{1}};}
+    \onslide<4->{\draw[UNB_BLUE!40,densely dashed](2,3)--(3,3);
+                 \draw[UNB_BLUE,thick,->](3,3)--(3,4); \fill[UNB_BLUE](3,4)circle(1.7pt);
+                 \node[UNB_BLUE] at (3.38,3.5){$+\delta$};}
+    \only<4>{\node[RED,anchor=west,font=\scriptsize] at (3.62,3.5){$\rightarrow$\,\texttt{1}};}
+    \onslide<5->{\draw[UNB_BLUE!40,densely dashed](3,4)--(4,4);
+                 \draw[UNB_BLUE,thick,->](4,4)--(4,3); \fill[UNB_BLUE](4,3)circle(1.7pt);
+                 \node[UNB_BLUE] at (4.38,3.5){$-\delta$};}
+    \only<5>{\node[RED,anchor=west,font=\scriptsize] at (4.62,3.5){$\rightarrow$\,\texttt{0}};}
+    \onslide<6->{\draw[UNB_BLUE!40,densely dashed](4,3)--(5,3);
+                 \draw[UNB_BLUE,thick,->](5,3)--(5,2); \fill[UNB_BLUE](5,2)circle(1.7pt);
+                 \node[UNB_BLUE] at (5.38,2.5){$-\delta$};}
+    \only<6>{\node[RED,anchor=west,font=\scriptsize] at (5.62,2.5){$\rightarrow$\,\texttt{0}};}
+    \onslide<7->{\draw[UNB_BLUE!40,densely dashed](5,2)--(6,2);
+                 \draw[UNB_BLUE,thick,->](6,2)--(6,1); \fill[UNB_BLUE](6,1)circle(1.7pt);
+                 \node[UNB_BLUE] at (6.38,1.5){$-\delta$};}
+    \only<7>{\node[RED,anchor=west,font=\scriptsize] at (6.62,1.5){$\rightarrow$\,\texttt{0}};}
+    \onslide<8->{\draw[UNB_BLUE!40,densely dashed](6,1)--(7,1);
+                 \draw[UNB_BLUE,thick,->](7,1)--(7,0); \fill[UNB_BLUE](7,0)circle(1.7pt);
+                 \node[UNB_BLUE] at (7.38,0.5){$-\delta$};}
+    \only<8>{\node[RED,anchor=west,font=\scriptsize] at (7.62,0.5){$\rightarrow$\,\texttt{0}};}
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.03cm}
+  {\footnotesize Todos os passos têm o \textbf{mesmo tamanho} $\pm\delta$
+  (1 bit) — diferente do DPCM, cujos passos variam. Note o \textbf{overshoot}
+  em $n=3$ ($\hat{x}=4$ contra $x=3{,}1$).}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Exemplo: Modulação Delta (codificação)}
+  Passo $\delta = 1$, início $\hat{x}[-1] = 0$. A cada amostra calcula-se
+  $b[n] = \operatorname{sgn}(x[n]-\hat{x}[n-1])$ e atualiza-se
+  $\hat{x}[n] = \hat{x}[n-1] + \delta\,b[n]$:
+
+  \vspace{0.15cm}
+  \begin{center}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.25}
+  \begin{tabular}{l|cccccccc}
+    $n$ & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+    \hline
+    $x[n]$              & $0{,}8$ & $1{,}9$ & $2{,}7$ & $3{,}1$ & $2{,}9$ & $2{,}2$ & $1{,}0$ & $0{,}2$ \\
+    $\hat{x}[n-1]$      & $0$ & $1$ & $2$ & $3$ & $4$ & $3$ & $2$ & $1$ \\
+    $e[n] = x-\hat{x}[n-1]$ & $+0{,}8$ & $+0{,}9$ & $+0{,}7$ & $+0{,}1$ & $-1{,}1$ & $-0{,}8$ & $-1{,}0$ & $-0{,}8$ \\
+    $b[n]$              & $+$ & $+$ & $+$ & $+$ & $-$ & $-$ & $-$ & $-$ \\
+    $\hat{x}[n]$        & $1$ & $2$ & $3$ & $4$ & $3$ & $2$ & $1$ & $0$ \\
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.15cm}
+  Bitstream transmitido (\,$1 = +\delta$,\; $0 = -\delta$\,):
+  \[
+    \boxed{\;1\ 1\ 1\ 1\ 0\ 0\ 0\ 0\;}
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Exemplo: Demodulação Delta (reconstrução)}
+  \begin{columns}[T]
+    % ===== esquerda: diagrama do receptor + bitstream chegando =====
+    \column{0.44\textwidth}
+    {\footnotesize O receptor parte de $\hat{x}[-1]=0$ e só \textbf{acumula}
+    os passos $\pm\delta$ conforme os bits chegam ($\delta=1$):}
+
+    \vspace{0.3cm}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth,
+       blk/.style={draw, rounded corners=3pt, minimum height=0.6cm,
+                   font=\tiny, fill=unbprimary!10, draw=unbprimary}]
+      \node[blk] (acc) at (0,0) {Acumulador};
+      \node[blk] (lpf) at (2.7,0) {Filtro PB\,(passa-baixas)};
+      \draw[->] (-1.55,0) node[left,font=\tiny]{$b[n]$} -- (acc);
+      \draw[->] (acc) -- (lpf) node[midway,above,font=\tiny]{$\hat{x}[n]$};
+      \draw[->] (lpf) -- (4.2,0) node[right,font=\tiny]{$\tilde{x}(t)$};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.25cm}
+    % --- bitstream com ponteiro no bit corrente ---
+    \begin{center}
+    \begin{tikzpicture}[x=0.52cm, baseline, every node/.style={font=\scriptsize}]
+      \foreach \i/\b/\s in {0/1/+,1/1/+,2/1/+,3/1/+,4/0/-,5/0/-,6/0/-,7/0/-}{
+        \node at (\i,0) {\texttt{\b}};
+        \node[gray] at (\i,-0.6) {$\s\delta$};
+      }
+      \only<2>{\draw[UNB_GOLD,line width=1.3pt] (0,0) circle (0.3);}
+      \only<3>{\draw[UNB_GOLD,line width=1.3pt] (1,0) circle (0.3);}
+      \only<4>{\draw[UNB_GOLD,line width=1.3pt] (2,0) circle (0.3);}
+      \only<5>{\draw[UNB_GOLD,line width=1.3pt] (3,0) circle (0.3);}
+      \only<6>{\draw[UNB_GOLD,line width=1.3pt] (4,0) circle (0.3);}
+      \only<7>{\draw[UNB_GOLD,line width=1.3pt] (5,0) circle (0.3);}
+      \only<8>{\draw[UNB_GOLD,line width=1.3pt] (6,0) circle (0.3);}
+      \only<9>{\draw[UNB_GOLD,line width=1.3pt] (7,0) circle (0.3);}
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.25cm}
+    \begin{center}{\footnotesize
+      \only<1>{$\hat{x}[-1]=0$ \quad(estado inicial)}%
+      \only<2>{$\hat{x}[0]=0+\delta=1$}%
+      \only<3>{$\hat{x}[1]=1+\delta=2$}%
+      \only<4>{$\hat{x}[2]=2+\delta=3$}%
+      \only<5>{$\hat{x}[3]=3+\delta=4$ \quad\textcolor{RED}{(overshoot!)}}%
+      \only<6>{$\hat{x}[4]=4-\delta=3$}%
+      \only<7>{$\hat{x}[5]=3-\delta=2$}%
+      \only<8>{$\hat{x}[6]=2-\delta=1$}%
+      \only<9>{$\hat{x}[7]=1-\delta=0$}%
+    }\end{center}
+
+    \vspace{0.15cm}
+    \onslide<9->{\footnotesize Recupera a \textbf{escada} idêntica à do
+    codificador, sem o sinal original. O filtro passa-baixas suaviza e
+    devolve a forma de onda.}
+
+    % ===== direita: escada construída degrau a degrau =====
+    \column{0.56\textwidth}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, x=0.62cm, y=0.62cm,
+        every node/.style={font=\tiny}]
+      \draw[->,gray!55] (-0.3,0)--(8.6,0) node[right,black]{$n$};
+      \draw[->,gray!55] (0,-0.3)--(0,4.9);
+      \foreach \n in {0,1,2,3,4,5,6,7}
+        \draw[gray!40] (\n,0.06)--(\n,-0.06) node[below,black]{\n};
+      \foreach \v in {1,2,3,4}
+        \draw[gray!40] (0.06,\v)--(-0.06,\v) node[left,black]{\v};
+      \node[UNB_BLUE] at (5.6,4.4) {$\hat{x}[n]$ (escada)};
+      \node[UNB_GREEN!50!black] at (6.7,2.0) {$x[n]$};
+      % ponto de partida
+      \fill[UNB_BLUE] (0,0) circle (1.7pt);
+      % degraus revelados um a um (sample n no overlay n+2)
+      \onslide<2->{\draw[UNB_BLUE,very thick] (0,0)--(0,1)--(1,1);
+                   \fill[UNB_GREEN] (0,0.8) circle (1.6pt);}
+      \onslide<3->{\draw[UNB_BLUE,very thick] (1,1)--(1,2)--(2,2);
+                   \fill[UNB_GREEN] (1,1.9) circle (1.6pt);}
+      \onslide<4->{\draw[UNB_BLUE,very thick] (2,2)--(2,3)--(3,3);
+                   \fill[UNB_GREEN] (2,2.7) circle (1.6pt);}
+      \onslide<5->{\draw[UNB_BLUE,very thick] (3,3)--(3,4)--(4,4);
+                   \fill[UNB_GREEN] (3,3.1) circle (1.6pt);}
+      \onslide<6->{\draw[UNB_BLUE,very thick] (4,4)--(4,3)--(5,3);
+                   \fill[UNB_GREEN] (4,2.9) circle (1.6pt);}
+      \onslide<7->{\draw[UNB_BLUE,very thick] (5,3)--(5,2)--(6,2);
+                   \fill[UNB_GREEN] (5,2.2) circle (1.6pt);}
+      \onslide<8->{\draw[UNB_BLUE,very thick] (6,2)--(6,1)--(7,1);
+                   \fill[UNB_GREEN] (6,1.0) circle (1.6pt);}
+      \onslide<9->{\draw[UNB_BLUE,very thick] (7,1)--(7,0)--(8,0);
+                   \fill[UNB_GREEN] (7,0.2) circle (1.6pt);}
+      % marca do overshoot
+      \onslide<5->{\draw[RED,densely dashed] (3,4)--(3.0,3.1);
+                   \fill[RED] (3,3.1) circle (1.0pt);}
+    \end{tikzpicture}
+    \end{center}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Demodulação Delta: O Efeito do Filtro Passa-Baixas}
+  \begin{columns}[c]
+    \column{0.42\textwidth}
+    {\footnotesize
+    \textbf{PB = passa-baixas.} A escada $\hat{x}[n]$ carrega duas coisas:
+    \begin{itemize}
+      \item o \textbf{sinal desejado}, que varia devagar (baixa frequência,
+            dentro da banda $W$);
+      \item a \textbf{ondulação dos degraus} $\pm\delta$, que troca de nível a
+            cada amostra — energia em \textbf{alta frequência}, perto de $f_s$.
+    \end{itemize}
+
+    \vspace{0.15cm}
+    Como há \textbf{sobreamostragem} ($f_s \gg 2W$), essas duas faixas ficam
+    bem separadas. O filtro com corte $\approx W$ \textbf{deixa passar} o
+    sinal e \textbf{elimina} os degraus.
+
+    \vspace{0.2cm}
+    \onslide<2->{Resultado: a saída $\tilde{x}(t)$ é uma curva \textbf{suave},
+    próxima do sinal original $x(t)$ — os saltos $\delta$ desaparecem.}}
+
+    \column{0.58\textwidth}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, x=0.62cm, y=0.62cm,
+        every node/.style={font=\tiny}]
+      \draw[->,gray!55] (-0.3,0)--(8.6,0) node[right,black]{$n$};
+      \draw[->,gray!55] (0,-0.3)--(0,4.9);
+      \foreach \n in {0,1,2,3,4,5,6,7}
+        \draw[gray!40] (\n,0.06)--(\n,-0.06) node[below,black]{\n};
+      \foreach \v in {1,2,3,4}
+        \draw[gray!40] (0.06,\v)--(-0.06,\v) node[left,black]{\v};
+      % --- escada (entrada do filtro) ---
+      \draw[UNB_BLUE, very thick]
+        (0,0)--(0,1)--(1,1)--(1,2)--(2,2)--(2,3)--(3,3)--(3,4)--(4,4)--(4,3)
+        --(5,3)--(5,2)--(6,2)--(6,1)--(7,1)--(7,0)--(8,0);
+      \node[UNB_BLUE] at (5.7,4.5) {$\hat{x}[n]$ (escada)};
+      % --- saída suavizada do filtro ---
+      \onslide<2->{
+        \draw[RED, very thick, smooth, tension=0.7]
+          plot coordinates {(0,0.6)(0.8,1.6)(1.6,2.5)(2.4,3.1)
+                            (3.2,3.35)(4,3.0)(4.8,2.4)(5.6,1.7)
+                            (6.4,1.0)(7.2,0.4)(8,0.2)};
+        \node[RED] at (6.9,3.3) {$\tilde{x}(t)$ (filtrado)};
+      }
+    \end{tikzpicture}
+    \end{center}
+
+    \onslide<2->{\centering{\footnotesize O filtro \textbf{interpola} entre os
+    degraus, removendo a ondulação de quantização.}}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Erro na DM (1): Sobrecarga de Inclinação}
+  \begin{center}
+    \only<1>{\includegraphics[width=0.82\textwidth]{figures/cap7/dm_slope_overload_1}}%
+    \only<2>{\includegraphics[width=0.82\textwidth]{figures/cap7/dm_slope_overload_2}}%
+    \only<3>{\includegraphics[width=0.82\textwidth]{figures/cap7/dm_slope_overload_3}}%
+  \end{center}
+
+  \vspace{0.1cm}
+  {\footnotesize
+  \only<1>{Chega um sinal que \textbf{sobe muito rápido}. A escada só pode
+           andar $\pm\delta$ por amostra — será que ela acompanha?}%
+  \only<2>{Com $\delta$ \textbf{pequeno}, o passo máximo $\delta/T_s$ é menor
+           que a inclinação do sinal: a escada \textcolor{RED}{fica para
+           trás} — é a \textbf{sobrecarga de inclinação}.}%
+  \only<3>{\textbf{Ajuste:} aumentar $\delta$ eleva $\delta/T_s$ acima da
+           inclinação máxima e a escada \textcolor{UNB_GREEN}{volta a
+           acompanhar}. Condição: $\;\delta/T_s \ge \max|x'(t)|$.}%
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Erro na DM (2): Ruído Granular}
+  \begin{center}
+    \only<1>{\includegraphics[width=0.82\textwidth]{figures/cap7/dm_granular_1}}%
+    \only<2>{\includegraphics[width=0.82\textwidth]{figures/cap7/dm_granular_2}}%
+    \only<3>{\includegraphics[width=0.82\textwidth]{figures/cap7/dm_granular_3}}%
+  \end{center}
+
+  \vspace{0.1cm}
+  {\footnotesize
+  \only<1>{Agora um sinal \textbf{lento}, quase plano. A escada não pode
+           ficar parada: é obrigada a dar um passo $\pm\delta$ a cada
+           amostra.}%
+  \only<2>{Com $\delta$ \textbf{grande}, ela \textcolor{UNB_GOLD}{oscila em
+           torno do valor} (sobe-desce-sobe) mesmo com o sinal parado — é o
+           \textbf{ruído granular}.}%
+  \only<3>{\textbf{Ajuste:} reduzir $\delta$ encolhe a oscilação e a escada
+           \textcolor{UNB_GREEN}{cola no sinal}. Mas $\delta$ pequeno demais
+           reabre a sobrecarga: há um \textbf{compromisso}.}%
+  }
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -89,103 +492,567 @@
 
 % ------------------------------------------------------------------
 
-\begin{frame}{DPCM — PCM Diferencial}
-  Generaliza a DM: um \textbf{quantizador de $N$ bits} sobre o erro de
-  predição, com um \textbf{preditor} (linear) realimentado.
+\begin{frame}{DPCM — PCM Diferencial: Gerador e Estimador}
+  Generaliza a DM: \textbf{quantizador de $N$ bits} sobre o erro de predição
+  $e[n] = x[n]-\hat{x}[n]$, com \textbf{preditor} linear realimentado.
 
   \vspace{0.1cm}
-  \begin{center}
-  \begin{tikzpicture}[>=stealth,
-     blk/.style={draw, rounded corners=3pt, minimum height=0.72cm,
-                 font=\scriptsize, fill=unbprimary!10, draw=unbprimary},
-     sm/.style={draw, circle, inner sep=1.5pt, font=\scriptsize}]
-    \node[sm] (s1) at (0,0) {$\Sigma$};
-    \node[blk] (q) at (2.0,0) {Quant.\ $N$ bits};
-    \node[sm] (s2) at (4.2,0) {$\Sigma$};
-    \node[blk] (pred) at (4.2,-1.4) {Preditor};
-    \draw[->] (-1.4,0) node[left,font=\scriptsize]{$x[n]$} -- (s1);
-    \node[font=\tiny] at (-0.28,0.22) {$+$};
-    \draw[->] (s1) -- (q) node[midway,above,font=\tiny]{$e[n]$};
-    \draw[->] (q) -- (s2);
-    \draw[->] (q) -- ++(0,1.0) -| (6.1,0.0)
-         node[pos=0.25,above,font=\tiny]{$e_q[n]$}
-         node[right,font=\scriptsize]{canal};
-    \draw[->] (s2) -- (pred) node[midway,right,font=\tiny]{$x_r[n]$};
-    \draw[->] (pred) -| (s1);
-    \node[font=\tiny] at (-0.22,-0.30) {$-$};
-    \draw[->] (pred.west) -- ++(-0.6,0) |- (s2.south);
-    \node[font=\tiny,gray] at (3.2,-1.65) {$\hat{x}[n]$};
-  \end{tikzpicture}
-  \end{center}
+  \begin{columns}[c]
+    \column{0.58\textwidth}
+    \begin{center}{\scriptsize\textbf{Gerador (transmissor)}}\end{center}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, scale=0.88, transform shape,
+       blk/.style={draw, rounded corners=3pt, minimum height=0.6cm,
+                   font=\tiny, fill=unbprimary!10, draw=unbprimary},
+       sm/.style={draw, circle, inner sep=1.2pt, font=\tiny}]
+      \node[sm]  (s1)   at (0,0)      {$\Sigma$};
+      \node[blk] (q)    at (2.0,0)    {Quant.\ $N$ bits};
+      \node[sm]  (s2)   at (4.0,0)    {$\Sigma$};
+      \node[blk] (pred) at (2.5,-1.7) {Preditor};
+      \draw[->] (-1.3,0) node[left,font=\tiny]{$x[n]$} -- (s1);
+      \node[font=\tiny] at (-0.27,0.2) {$+$};
+      \draw[->] (s1) -- (q) node[midway,above,font=\tiny]{$e[n]$};
+      \draw[->] (q) -- (s2);
+      \node[font=\tiny] at (3.0,0.24) {$e_q[n]$};
+      \fill (3.45,0) circle (0.9pt);
+      \draw[->] (3.45,0) -- (3.45,1.15) node[above,font=\tiny]{canal};
+      \draw (s2) -- (5.2,0) node[midway,above,font=\tiny]{$x_r[n]$};
+      \draw[->] (5.2,0) |- (pred.east);
+      \coordinate (xb) at (2.5,-0.9);
+      \draw (pred.north) -- (xb);
+      \draw[->] (xb) -| (s1.south);
+      \draw[->] (xb) -| (s2.south);
+      \node[font=\tiny] at (-0.22,-0.28) {$-$};
+      \node[font=\tiny] at (4.22,-0.28) {$+$};
+      \node[font=\tiny,gray] at (1.05,-0.66) {$\hat{x}[n]$};
+    \end{tikzpicture}
+    \end{center}
+
+    \column{0.42\textwidth}
+    \begin{center}{\scriptsize\textbf{Estimador (receptor)}}\end{center}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, scale=0.88, transform shape,
+       blk/.style={draw, rounded corners=3pt, minimum height=0.6cm,
+                   font=\tiny, fill=unbprimary!10, draw=unbprimary},
+       sm/.style={draw, circle, inner sep=1.2pt, font=\tiny}]
+      \node[sm] (s) at (0,0) {$\Sigma$};
+      \node[blk] (pred) at (0,-1.3) {Preditor};
+      \draw[->] (-1.5,0) node[left,font=\tiny]{$e_q[n]$} -- (s);
+      \node[font=\tiny] at (-0.25,0.2) {$+$};
+      \draw[->] (s) -- (2.3,0) node[right,font=\tiny]{$x_r[n]$};
+      \draw[->] (1.5,0) |- (pred);
+      \draw[->] (pred) -| (s);
+      \node[font=\tiny] at (0.22,-0.28) {$+$};
+      \node[font=\tiny,gray] at (-0.95,-0.95) {$\hat{x}[n]$};
+    \end{tikzpicture}
+    \end{center}
+  \end{columns}
 
   \vspace{0.05cm}
-  {\footnotesize \textbf{Ganho de predição:} $G_p = \sigma_x^2/\sigma_e^2 > 1$
-  — o erro tem variância menor, economizando bits. A \textbf{DM é o caso
-  de 1 bit} com preditor de uma amostra. O ADPCM (G.726) usa DPCM
-  adaptativo: voz a 32 kb/s com qualidade do PCM de 64 kb/s.}
-\end{frame}
-
-% ------------------------------------------------------------------
-\subsection{Codificação de Fonte (Vocoder)}
-% ------------------------------------------------------------------
-
-\begin{frame}{Vocoder: Codificar a \emph{Fonte}, não a Onda}
-  PCM, DPCM e DM são \textbf{codificadores de forma de onda} — reproduzem
-  o sinal. O \textbf{vocoder} faz \textbf{codificação de fonte}: em vez da
-  onda, transmite \textbf{parâmetros} de um modelo de produção da voz.
-
-  \vspace{0.1cm}
-  \begin{center}
-  \begin{tikzpicture}[>=stealth,
-     blk/.style={draw, rounded corners=3pt, minimum height=0.72cm,
-                 font=\scriptsize, align=center, fill=unbprimary!10, draw=unbprimary}]
-    \node[blk] (pulse) at (0,0.65) {Trem de pulsos\\(pitch $T_0$)};
-    \node[blk] (noise) at (0,-0.65) {Ruído};
-    \node[draw, circle, inner sep=1pt, font=\scriptsize] (sw) at (2.0,0) {V/UV};
-    \node[draw, circle, inner sep=1pt, font=\scriptsize] (g) at (3.3,0) {$\times G$};
-    \node[blk] (lpc) at (5.2,0) {Filtro LPC\\(trato vocal)};
-    \draw[->] (pulse) -- (sw);
-    \draw[->] (noise) -- (sw);
-    \draw[->] (sw) -- (g);
-    \draw[->] (g) -- (lpc);
-    \draw[->] (lpc) -- ++(1.7,0) node[right,font=\scriptsize]{voz sintética};
-  \end{tikzpicture}
-  \end{center}
-
-  \vspace{0.05cm}
-  {\footnotesize Transmite \textbf{pitch}, \textbf{vozeado/não-vozeado},
-  \textbf{ganho} e os \textbf{coeficientes LPC} do filtro — pouquíssimos
-  bits. O receptor \emph{ressintetiza} a voz a partir desses parâmetros.}
+  {\footnotesize O transmissor contém uma \textbf{cópia do receptor}
+  (decodificador local) e prediz a partir de $x_r[n]$. \textbf{Ganho de
+  predição} $G_p = \sigma_x^2/\sigma_e^2 > 1$; a DM é o caso de 1 bit.}
 \end{frame}
 
 % ------------------------------------------------------------------
 
-\begin{frame}{Forma de Onda vs.\ Parâmetros: Taxas Típicas}
+\begin{frame}{DPCM: Formalismo (1) — Onde Cada Equação é Calculada}
+  \begin{columns}[c]
+    % ===== esquerda: diagrama do gerador com destaque por etapa =====
+    \column{0.5\textwidth}
+    \begin{center}{\scriptsize\textbf{Gerador (transmissor)}}\end{center}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, scale=0.74, transform shape,
+       blk/.style={draw, rounded corners=3pt, minimum height=0.6cm,
+                   font=\tiny, fill=unbprimary!10, draw=unbprimary},
+       sm/.style={draw, circle, inner sep=1.2pt, font=\tiny},
+       hl/.style={draw=UNB_GOLD, line width=1.6pt, rounded corners=3pt,
+                  inner sep=3pt}]
+      \node[sm]  (s1)   at (0,0)      {$\Sigma$};
+      \node[blk] (q)    at (2.0,0)    {Quant.\ $N$ bits};
+      \node[sm]  (s2)   at (4.0,0)    {$\Sigma$};
+      \node[blk] (pred) at (2.5,-1.7) {Preditor};
+      \draw[->] (-1.3,0) node[left,font=\tiny]{$x[n]$} -- (s1);
+      \node[font=\tiny] at (-0.27,0.2) {$+$};
+      \draw[->] (s1) -- (q) node[midway,above,font=\tiny]{$e[n]$};
+      \draw[->] (q) -- (s2);
+      \node[font=\tiny] at (3.0,0.24) {$e_q[n]$};
+      \fill (3.45,0) circle (0.9pt);
+      \draw[->] (3.45,0) -- (3.45,1.15) node[above,font=\tiny]{canal};
+      \draw (s2) -- (5.2,0) node[midway,above,font=\tiny]{$x_r[n]$};
+      \draw[->] (5.2,0) |- (pred.east);
+      \coordinate (xb) at (2.5,-0.9);
+      \draw (pred.north) -- (xb);
+      \draw[->] (xb) -| (s1.south);
+      \draw[->] (xb) -| (s2.south);
+      \node[font=\tiny] at (-0.22,-0.28) {$-$};
+      \node[font=\tiny] at (4.22,-0.28) {$+$};
+      \node[font=\tiny,gray] at (1.05,-0.66) {$\hat{x}[n]$};
+      % --- destaques por overlay ---
+      \node<2>[hl, fit=(pred)] {};
+      \node<3>[hl, fit=(s1)]   {};
+      \node<4>[hl, fit=(q)]    {};
+      \node<5>[hl, fit=(s2)]   {};
+    \end{tikzpicture}
+    \end{center}
+
+    % ===== direita: uma equação por vez =====
+    \column{0.5\textwidth}
+    \begin{onlyenv}<1>
+      {\footnotesize Três operações por amostra; o destaque dourado mostra
+      \emph{onde} cada uma acontece no gerador.}
+    \end{onlyenv}
+
+    \begin{onlyenv}<2>
+      \textbf{1. Predição} (bloco \emph{Preditor}), a partir das amostras já
+      reconstruídas:
+      \[ \hat{x}[n] = \sum_{i=1}^{p} a_i\,x_r[n-i]. \]
+      {\footnotesize Preditor linear de ordem $p$.}
+    \end{onlyenv}
+
+    \begin{onlyenv}<3>
+      \textbf{2. Erro de predição} (somador $\Sigma$ de entrada):
+      \[ e[n] = x[n] - \hat{x}[n]. \]
+      {\footnotesize O que a predição não acertou.}
+    \end{onlyenv}
+
+    \begin{onlyenv}<4>
+      \textbf{3. Quantização} (bloco \emph{Quant.}):
+      \[ e_q[n] = Q\big(e[n]\big) = e[n] + q[n]. \]
+      {\footnotesize $q[n]$ é o erro de quantização introduzido por
+      $Q(\cdot)$; só $e_q[n]$ vai ao canal.}
+    \end{onlyenv}
+
+    \begin{onlyenv}<5>
+      \textbf{4. Reconstrução} (somador $\Sigma$ de saída — idêntico no
+      receptor):
+      \[ x_r[n] = \hat{x}[n] + e_q[n]. \]
+      {\footnotesize Realimenta o preditor: o gerador vê o mesmo $x_r$ que o
+      receptor.}
+    \end{onlyenv}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{DPCM: Formalismo (2) — Erro de Reconstrução}
+  \begin{columns}[c]
+    % ===== esquerda: mesmo diagrama, foco no laço de reconstrução =====
+    \column{0.5\textwidth}
+    \begin{center}{\scriptsize\textbf{Gerador (transmissor)}}\end{center}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, scale=0.74, transform shape,
+       blk/.style={draw, rounded corners=3pt, minimum height=0.6cm,
+                   font=\tiny, fill=unbprimary!10, draw=unbprimary},
+       sm/.style={draw, circle, inner sep=1.2pt, font=\tiny},
+       hl/.style={draw=UNB_GOLD, line width=1.6pt, rounded corners=3pt,
+                  inner sep=3pt}]
+      \node[sm]  (s1)   at (0,0)      {$\Sigma$};
+      \node[blk] (q)    at (2.0,0)    {Quant.\ $N$ bits};
+      \node[sm]  (s2)   at (4.0,0)    {$\Sigma$};
+      \node[blk] (pred) at (2.5,-1.7) {Preditor};
+      \draw[->] (-1.3,0) node[left,font=\tiny]{$x[n]$} -- (s1);
+      \node[font=\tiny] at (-0.27,0.2) {$+$};
+      \draw[->] (s1) -- (q) node[midway,above,font=\tiny]{$e[n]$};
+      \draw[->] (q) -- (s2);
+      \node[font=\tiny] at (3.0,0.24) {$e_q[n]$};
+      \fill (3.45,0) circle (0.9pt);
+      \draw[->] (3.45,0) -- (3.45,1.15) node[above,font=\tiny]{canal};
+      \draw (s2) -- (5.2,0) node[midway,above,font=\tiny]{$x_r[n]$};
+      \draw[->] (5.2,0) |- (pred.east);
+      \coordinate (xb) at (2.5,-0.9);
+      \draw (pred.north) -- (xb);
+      \draw[->] (xb) -| (s1.south);
+      \draw[->] (xb) -| (s2.south);
+      \node[font=\tiny] at (-0.22,-0.28) {$-$};
+      \node[font=\tiny] at (4.22,-0.28) {$+$};
+      \node[font=\tiny,gray] at (1.05,-0.66) {$\hat{x}[n]$};
+      % --- destaques ---
+      \node<1->[hl, fit=(s2)] {};
+      \node<4->[draw=UNB_GREEN, line width=1.4pt, rounded corners=3pt,
+                inner sep=5pt, fit=(s2)(pred)] {};
+    \end{tikzpicture}
+    \end{center}
+    {\footnotesize\onslide<4->{O laço verde realimenta $x_r$ ao preditor — o
+    mesmo sinal que o receptor reconstrói.}}
+
+    % ===== direita: derivação passo a passo =====
+    \column{0.5\textwidth}
+    {\footnotesize\textbf{4. Erro total.} Na reconstrução
+    $x_r=\hat{x}+e_q$, substitua $e_q=e+q$:}
+    \vspace{-0.15cm}
+    \[ x_r[n] = \hat{x}[n] + e[n] + q[n]. \]
+
+    \onslide<2->{%
+    \vspace{-0.15cm}
+    {\footnotesize Como $e[n] = x[n]-\hat{x}[n]$, a predição se cancela:}
+    \vspace{-0.15cm}
+    \[
+      x_r[n] = \hat{x}[n] + \big(x[n]-\hat{x}[n]\big) + q[n].
+    \]}
+
+    \onslide<3->{%
+    \vspace{-0.2cm}
+    \[ \boxed{\,x_r[n] - x[n] = q[n]\,} \]}
+
+    \onslide<4->{%
+    \vspace{-0.1cm}
+    {\scriptsize O erro é \emph{só} o do quantizador $q[n]$ —
+    \textbf{não se acumula}: o gerador prediz a partir de $x_r$ (o que o
+    receptor também vê), não de $x$.}}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{DPCM: O Estimador no Receptor}
+  \begin{columns}[c]
+    % ===== esquerda: diagrama do receptor com destaque por etapa =====
+    \column{0.46\textwidth}
+    \begin{center}{\scriptsize\textbf{Estimador (receptor)}}\end{center}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, scale=0.82, transform shape,
+       blk/.style={draw, rounded corners=3pt, minimum height=0.6cm,
+                   font=\tiny, fill=unbprimary!10, draw=unbprimary},
+       sm/.style={draw, circle, inner sep=1.2pt, font=\tiny},
+       hl/.style={draw=UNB_GOLD, line width=1.6pt, rounded corners=3pt,
+                  inner sep=3pt}]
+      \node[sm]  (s)    at (0,0)      {$\Sigma$};
+      \node[blk] (pred) at (1.3,-1.5) {Preditor};
+      \draw[->] (-1.7,0) node[left,font=\tiny]{$e_q[n]$} -- (s);
+      \node[font=\tiny] at (-0.28,0.2) {$+$};
+      \draw (s) -- (2.9,0) node[midway,above,font=\tiny]{$x_r[n]$};
+      \draw[->] (2.4,0) |- (pred.east);
+      \coordinate (rb) at (1.3,-0.8);
+      \draw (pred.north) -- (rb);
+      \draw[->] (rb) -| (s.south);
+      \node[font=\tiny] at (0.22,-0.28) {$+$};
+      \node[font=\tiny,gray] at (0.55,-0.58) {$\hat{x}[n]$};
+      % --- destaques por overlay ---
+      \node<2>[hl, fit=(pred)] {};
+      \node<3>[hl, fit=(s)]    {};
+    \end{tikzpicture}
+    \end{center}
+    {\footnotesize O receptor \emph{não} tem o subtrator de entrada: recebe
+    $e_q[n]$ do canal e apenas reconstrói.}
+
+    % ===== direita: derivação passo a passo =====
+    \column{0.54\textwidth}
+    \begin{onlyenv}<1>
+      {\footnotesize O receptor usa um \textbf{preditor idêntico} ao do
+      gerador, alimentado pelas mesmas amostras já reconstruídas $x_r$.
+      Duas operações bastam.}
+    \end{onlyenv}
+
+    \begin{onlyenv}<2>
+      \textbf{1. Predição} (bloco \emph{Preditor}):
+      \[ \hat{x}[n] = \sum_{i=1}^{p} a_i\,x_r[n-i]. \]
+      {\footnotesize Mesmos coeficientes $a_i$ do transmissor.}
+    \end{onlyenv}
+
+    \begin{onlyenv}<3>
+      \textbf{2. Reconstrução} (somador $\Sigma$):
+      \[ x_r[n] = \hat{x}[n] + e_q[n]. \]
+      {\footnotesize Exatamente a mesma conta do decodificador local do
+      gerador.}
+    \end{onlyenv}
+
+    \begin{onlyenv}<4->
+      \textbf{3. Igualdade gerador--receptor.}
+      {\footnotesize Preditor e soma idênticos, partindo do mesmo $x_r$:
+      o receptor reproduz o $x_r$ do gerador.} Logo, do passo anterior
+      ($x_r = x + q$):
+      \vspace{-0.1cm}
+      \[ \boxed{\,x_r[n] = x[n] + q[n]\,} \]
+      {\footnotesize Recupera o sinal a menos do erro de quantização $q[n]$,
+      sem acúmulo.}
+    \end{onlyenv}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Exemplo: DPCM — O Sinal Amostrado}
+  Vamos codificar a sequência de \textbf{8 amostras} $x[n]$ abaixo (um sinal
+  de voz/sensor já amostrado):
+
+  \vspace{0.05cm}
   \begin{center}
-  \renewcommand{\arraystretch}{1.3}
-  \footnotesize
-  \begin{tabular}{l l c}
+  \begin{tikzpicture}[>=stealth, x=0.9cm, y=0.58cm,
+      every node/.style={font=\tiny}]
+    \draw[->,gray!55] (-0.3,0)--(8.6,0) node[right,black]{$n$};
+    \draw[->,gray!55] (0,-0.3)--(0,5.4) node[above,black]{$x[n]$};
+    \foreach \n in {0,1,2,3,4,5,6,7}
+      \draw[gray!40] (\n,0.06)--(\n,-0.06) node[below,black]{\n};
+    \foreach \v in {1,2,3,4,5}
+      \draw[gray!40] (0.06,\v)--(-0.06,\v) node[left,black]{\v};
+    \foreach \n/\v in {0/2.1,1/3.9,2/4.3,3/4.6,4/3.4,5/1.8,6/0.7,7/0.2}{
+      \draw[UNB_GREEN!70!black, thick] (\n,0)--(\n,\v);
+      \fill[UNB_GREEN] (\n,\v) circle (2pt);
+    }
+  \end{tikzpicture}
+  \end{center}
+
+  \[
+    x[n] = \{\,2{,}1,\ 3{,}9,\ 4{,}3,\ 4{,}6,\ 3{,}4,\ 1{,}8,\ 0{,}7,\ 0{,}2\,\}
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Exemplo: DPCM — O Quantizador}
+  Quantizador \textbf{uniforme mid-tread}, passo $\Delta = 1$ e
+  $2^3 = 8$ níveis: arredonda o erro $e[n]$ ao inteiro mais próximo,
+  $e_q = \Delta\cdot\operatorname{round}(e/\Delta)$, e o codifica em
+  \textbf{3 bits} (complemento de dois).
+
+  \vspace{0.1cm}
+  \begin{columns}[c]
+    \column{0.58\textwidth}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, x=0.6cm, y=0.42cm,
+        every node/.style={font=\tiny}]
+      \draw[->,gray!55] (-5,0)--(4.5,0) node[right,black]{$e$};
+      \draw[->,gray!55] (0,-5)--(0,4.3) node[above,black]{$e_q$};
+      \foreach \k in {-4,-3,-2,-1,1,2,3}
+        \draw[gray!40] (\k,0.15)--(\k,-0.15) node[below,black]{\k};
+      \foreach \k in {-4,-3,-2,-1,1,2,3}
+        \draw[gray!40] (0.15,\k)--(-0.15,\k) node[left,black]{\k};
+      \draw[UNB_BLUE, very thick]
+        (-4.5,-4)--(-3.5,-4)--(-3.5,-3)--(-2.5,-3)--(-2.5,-2)--(-1.5,-2)
+        --(-1.5,-1)--(-0.5,-1)--(-0.5,0)--(0.5,0)--(0.5,1)--(1.5,1)
+        --(1.5,2)--(2.5,2)--(2.5,3)--(3.5,3);
+      \node[UNB_BLUE] at (2.7,0.9) {$e_q = Q(e)$};
+    \end{tikzpicture}
+    \end{center}
+
+    \column{0.42\textwidth}
+    \scriptsize
+    \renewcommand{\arraystretch}{1.1}
+    \begin{tabular}{c|c}
+      nível $e_q$ & código \\
+      \hline
+      $+3$ & \texttt{011} \\
+      $+2$ & \texttt{010} \\
+      $+1$ & \texttt{001} \\
+      $0$  & \texttt{000} \\
+      $-1$ & \texttt{111} \\
+      $-2$ & \texttt{110} \\
+      $-3$ & \texttt{101} \\
+      $-4$ & \texttt{100} \\
+    \end{tabular}
+  \end{columns}
+
+  \vspace{0.1cm}
+  {\footnotesize Ex.: $e=1{,}9 \Rightarrow e_q=2$ (\texttt{010});\quad
+  $e=-1{,}2 \Rightarrow e_q=-1$ (\texttt{111}).}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Exemplo: DPCM — Passo a Passo (gráfico)}
+  \begin{columns}[c]
+    % ===== esquerda: diagrama do gerador, palavra saindo ao canal =====
+    \column{0.42\textwidth}
+    \begin{center}{\scriptsize\textbf{Gerador (transmissor)}}\end{center}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, scale=0.66, transform shape,
+       blk/.style={draw, rounded corners=3pt, minimum height=0.6cm,
+                   font=\tiny, fill=unbprimary!10, draw=unbprimary},
+       sm/.style={draw, circle, inner sep=1.2pt, font=\tiny}]
+      \node[sm]  (s1)   at (0,0)      {$\Sigma$};
+      \node[blk] (q)    at (2.0,0)    {Quant.\ $3$ bits};
+      \node[sm]  (s2)   at (4.0,0)    {$\Sigma$};
+      \node[blk] (pred) at (2.5,-1.7) {Preditor};
+      \draw[->] (-1.3,0) node[left,font=\tiny]{$x[n]$} -- (s1);
+      \node[font=\tiny] at (-0.27,0.2) {$+$};
+      \draw[->] (s1) -- (q) node[midway,above,font=\tiny]{$e[n]$};
+      \draw[->] (q) -- (s2);
+      \node[font=\tiny] at (3.05,0.26) {$e_q[n]$};
+      % caminho dos bits ao canal (vermelho)
+      \fill[RED] (3.5,0) circle (1pt);
+      \draw[->,RED,thick] (3.5,0) -- (3.5,1.05);
+      \node[font=\tiny] at (4.45,1.0) {canal};
+      \draw (s2) -- (5.2,0) node[midway,above,font=\tiny]{$x_r[n]$};
+      \draw[->] (5.2,0) |- (pred.east);
+      \coordinate (xb) at (2.5,-0.9);
+      \draw (pred.north) -- (xb);
+      \draw[->] (xb) -| (s1.south);
+      \draw[->] (xb) -| (s2.south);
+      \node[font=\tiny] at (-0.22,-0.28) {$-$};
+      \node[font=\tiny] at (4.22,-0.28) {$+$};
+      \node[font=\tiny,gray] at (1.05,-0.66) {$\hat{x}[n]$};
+      % palavra de 3 bits emitida (sincronizada com o gráfico)
+      \only<1>{\node[RED,font=\scriptsize] at (3.5,1.4) {\texttt{010}};}
+      \only<2>{\node[RED,font=\scriptsize] at (3.5,1.4) {\texttt{010}};}
+      \only<3>{\node[RED,font=\scriptsize] at (3.5,1.4) {\texttt{000}};}
+      \only<4>{\node[RED,font=\scriptsize] at (3.5,1.4) {\texttt{001}};}
+      \only<5>{\node[RED,font=\scriptsize] at (3.5,1.4) {\texttt{110}};}
+      \only<6>{\node[RED,font=\scriptsize] at (3.5,1.4) {\texttt{111}};}
+      \only<7>{\node[RED,font=\scriptsize] at (3.5,1.4) {\texttt{111}};}
+      \only<8>{\node[RED,font=\scriptsize] at (3.5,1.4) {\texttt{111}};}
+    \end{tikzpicture}
+    \end{center}
+
+    % ===== direita: o gráfico passo a passo =====
+    \column{0.58\textwidth}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, x=0.6cm, y=0.5cm,
+        every node/.style={font=\tiny}]
+      \draw[->,gray!55] (-0.3,0)--(8.6,0) node[right,black]{$n$};
+      \draw[->,gray!55] (0,-0.3)--(0,5.8);
+      \foreach \n in {0,1,2,3,4,5,6,7}
+        \draw[gray!40] (\n,0.06)--(\n,-0.06) node[below,black]{\n};
+      \foreach \v in {1,2,3,4,5}
+        \draw[gray!40] (0.06,\v)--(-0.06,\v) node[left,black]{\v};
+      \foreach \n/\v in {0/2.1,1/3.9,2/4.3,3/4.6,4/3.4,5/1.8,6/0.7,7/0.2}
+        \fill[UNB_GREEN] (\n,\v) circle (1.7pt);
+      \node[UNB_GREEN!50!black] at (7.1,1.05) {$x[n]$};
+      \node[UNB_BLUE] at (3.4,5.5) {$x_r[n]$ (reconstrução)};
+      \onslide<1->{\draw[UNB_BLUE,thick,->](0,0)--(0,2); \fill[UNB_BLUE](0,2)circle(1.7pt);
+                   \node[UNB_BLUE] at (0.4,1){$+2$};}
+      \only<1>{\node[RED,anchor=west,font=\scriptsize] at (0.7,1){\texttt{010}};}
+      \onslide<2->{\draw[UNB_BLUE!40,densely dashed](0,2)--(1,2);
+                   \draw[UNB_BLUE,thick,->](1,2)--(1,4); \fill[UNB_BLUE](1,4)circle(1.7pt);
+                   \node[UNB_BLUE] at (1.4,3){$+2$};}
+      \only<2>{\node[RED,anchor=west,font=\scriptsize] at (1.7,3){\texttt{010}};}
+      \onslide<3->{\draw[UNB_BLUE!40,densely dashed](1,4)--(2,4);
+                   \fill[UNB_BLUE](2,4)circle(1.7pt);
+                   \node[UNB_BLUE] at (2.0,4.55){$0$};}
+      \only<3>{\node[RED,anchor=west,font=\scriptsize] at (2.3,4.55){\texttt{000}};}
+      \onslide<4->{\draw[UNB_BLUE!40,densely dashed](2,4)--(3,4);
+                   \draw[UNB_BLUE,thick,->](3,4)--(3,5); \fill[UNB_BLUE](3,5)circle(1.7pt);
+                   \node[UNB_BLUE] at (3.4,4.5){$+1$};}
+      \only<4>{\node[RED,anchor=west,font=\scriptsize] at (3.7,4.5){\texttt{001}};}
+      \onslide<5->{\draw[UNB_BLUE!40,densely dashed](3,5)--(4,5);
+                   \draw[UNB_BLUE,thick,->](4,5)--(4,3); \fill[UNB_BLUE](4,3)circle(1.7pt);
+                   \node[UNB_BLUE] at (4.42,4){$-2$};}
+      \only<5>{\node[RED,anchor=west,font=\scriptsize] at (4.7,4){\texttt{110}};}
+      \onslide<6->{\draw[UNB_BLUE!40,densely dashed](4,3)--(5,3);
+                   \draw[UNB_BLUE,thick,->](5,3)--(5,2); \fill[UNB_BLUE](5,2)circle(1.7pt);
+                   \node[UNB_BLUE] at (5.42,2.5){$-1$};}
+      \only<6>{\node[RED,anchor=west,font=\scriptsize] at (5.7,2.5){\texttt{111}};}
+      \onslide<7->{\draw[UNB_BLUE!40,densely dashed](5,2)--(6,2);
+                   \draw[UNB_BLUE,thick,->](6,2)--(6,1); \fill[UNB_BLUE](6,1)circle(1.7pt);
+                   \node[UNB_BLUE] at (6.42,1.5){$-1$};}
+      \only<7>{\node[RED,anchor=west,font=\scriptsize] at (6.7,1.5){\texttt{111}};}
+      \onslide<8->{\draw[UNB_BLUE!40,densely dashed](6,1)--(7,1);
+                   \draw[UNB_BLUE,thick,->](7,1)--(7,0); \fill[UNB_BLUE](7,0)circle(1.7pt);
+                   \node[UNB_BLUE] at (7.42,0.5){$-1$};}
+      \only<8>{\node[RED,anchor=west,font=\scriptsize] at (7.7,0.5){\texttt{111}};}
+    \end{tikzpicture}
+    \end{center}
+  \end{columns}
+
+  \vspace{0.05cm}
+  {\footnotesize A linha tracejada carrega $x_r[n-1]$ para a predição seguinte;
+  a distância até o ponto \textcolor{UNB_GREEN}{verde} é o erro antes da
+  quantização. O passo $e_q[n]$ vira a palavra de bits que sai ao canal.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Exemplo: DPCM (codificação)}
+  Preditor $\hat{x}[n] = x_r[n-1]$ e o \textbf{quantizador acima}
+  ($\Delta = 1$), com $x_r[-1]=0$. Aplica-se $e=x-\hat{x}$, $e_q=Q(e)$,
+  $x_r=\hat{x}+e_q$ a cada amostra:
+
+  \vspace{0.1cm}
+  \begin{center}
+  \scriptsize
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{l|cccccccc}
+    $n$ & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
     \hline
-    \textbf{Técnica} & \textbf{Tipo} & \textbf{Taxa típica} \\
-    \hline
-    PCM (G.711)            & forma de onda            & $64$ kb/s \\
-    ADPCM (G.726)          & forma de onda (preditiva)& $16$–$40$ kb/s \\
-    Modulação Delta        & forma de onda (1 bit)    & $\sim 32$ kb/s \\
-    CELP (AMR / EVS)        & híbrido                  & $5$–$13$ kb/s \\
-    Vocoder LPC-10         & paramétrico (fonte)      & $2{,}4$ kb/s \\
-    \hline
+    $x[n]$                & $2{,}1$ & $3{,}9$ & $4{,}3$ & $4{,}6$ & $3{,}4$ & $1{,}8$ & $0{,}7$ & $0{,}2$ \\
+    $\hat{x}[n]=x_r[n-1]$ & $0$ & $2$ & $4$ & $4$ & $5$ & $3$ & $2$ & $1$ \\
+    $e[n]=x-\hat{x}$      & $2{,}1$ & $1{,}9$ & $0{,}3$ & $0{,}6$ & $-1{,}6$ & $-1{,}2$ & $-1{,}3$ & $-0{,}8$ \\
+    $e_q[n]=Q(e)$         & $2$ & $2$ & $0$ & $1$ & $-2$ & $-1$ & $-1$ & $-1$ \\
+    $x_r[n]=\hat{x}+e_q$  & $2$ & $4$ & $4$ & $5$ & $3$ & $2$ & $1$ & $0$ \\
+    código (3 bits)       & \texttt{010} & \texttt{010} & \texttt{000} & \texttt{001} & \texttt{110} & \texttt{111} & \texttt{111} & \texttt{111} \\
   \end{tabular}
   \end{center}
 
-  \vspace{0.3cm}
-  \begin{itemize}
-    \item \textbf{Forma de onda:} alta qualidade, taxa alta — reproduz o
-          sinal fielmente.
-    \item \textbf{Paramétrico:} taxa baixíssima, voz mais ``sintética'' —
-          modela a produção da fala.
-    \item \textbf{Híbrido (CELP):} o melhor dos dois — base dos codecs
-          celulares modernos.
-  \end{itemize}
+  \vspace{0.1cm}
+  Bitstream transmitido (complemento de dois, 3 bits/amostra):
+  \[
+    \boxed{\;\texttt{010}\ \texttt{010}\ \texttt{000}\ \texttt{001}\ \texttt{110}\ \texttt{111}\ \texttt{111}\ \texttt{111}\;}
+  \]
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Exemplo: DPCM (recuperação)}
+  \begin{columns}[T]
+    % ===== esquerda: estimador + conta do passo =====
+    \column{0.46\textwidth}
+    \begin{center}{\scriptsize\textbf{Estimador (receptor)}}\end{center}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, scale=0.66, transform shape,
+       blk/.style={draw, rounded corners=3pt, minimum height=0.6cm,
+                   font=\tiny, fill=unbprimary!10, draw=unbprimary},
+       sm/.style={draw, circle, inner sep=1.2pt, font=\tiny}]
+      \node[blk] (dec)  at (0,0)      {Decod.};
+      \node[sm]  (s)    at (2.1,0)    {$\Sigma$};
+      \node[blk] (pred) at (2.6,-1.6) {Preditor};
+      \draw[->] (-1.7,0) node[left,font=\tiny]{palavra} -- (dec);
+      \draw[->] (dec) -- (s) node[midway,above,font=\tiny]{$e_q[n]$};
+      \node[font=\tiny] at (1.83,0.22) {$+$};
+      \draw[->] (s) -- (4.6,0) node[right,font=\tiny]{$x_r[n]$};
+      \draw[->] (3.8,0) |- (pred.east);
+      \coordinate (rb) at (2.6,-0.8);
+      \draw (pred.north) -- (rb);
+      \draw[->] (rb) -| (s.south);
+      \node[font=\tiny] at (2.33,-0.28) {$+$};
+      \node[font=\tiny,gray] at (1.55,-0.55) {$\hat{x}[n]$};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.15cm}
+    {\footnotesize Predição $\hat{x}[n]=x_r[n-1]$. A cada passo: chega a
+    palavra, decodifica $e_q$ e soma.}
+
+    \vspace{0.15cm}
+    \begin{center}\footnotesize
+      \only<1>{Início: $x_r[-1]=0$.\\[3pt]Aguardando a primeira palavra\ldots}%
+      \only<2>{Chega \textcolor{RED}{\texttt{010}} $\Rightarrow$ $e_q=\textcolor{UNB_BLUE}{+2}$\\[3pt]$x_r[0]=x_r[-1]+e_q=0+2=\mathbf{2}$}%
+      \only<3>{Chega \textcolor{RED}{\texttt{010}} $\Rightarrow$ $e_q=\textcolor{UNB_BLUE}{+2}$\\[3pt]$x_r[1]=x_r[0]+e_q=2+2=\mathbf{4}$}%
+      \only<4>{Chega \textcolor{RED}{\texttt{000}} $\Rightarrow$ $e_q=\textcolor{UNB_BLUE}{0}$\\[3pt]$x_r[2]=x_r[1]+e_q=4+0=\mathbf{4}$}%
+      \only<5>{Chega \textcolor{RED}{\texttt{001}} $\Rightarrow$ $e_q=\textcolor{UNB_BLUE}{+1}$\\[3pt]$x_r[3]=x_r[2]+e_q=4+1=\mathbf{5}$}%
+      \only<6>{Chega \textcolor{RED}{\texttt{110}} $\Rightarrow$ $e_q=\textcolor{UNB_BLUE}{-2}$\\[3pt]$x_r[4]=x_r[3]+e_q=5-2=\mathbf{3}$}%
+      \only<7>{Chega \textcolor{RED}{\texttt{111}} $\Rightarrow$ $e_q=\textcolor{UNB_BLUE}{-1}$\\[3pt]$x_r[5]=x_r[4]+e_q=3-1=\mathbf{2}$}%
+      \only<8>{Chega \textcolor{RED}{\texttt{111}} $\Rightarrow$ $e_q=\textcolor{UNB_BLUE}{-1}$\\[3pt]$x_r[6]=x_r[5]+e_q=2-1=\mathbf{1}$}%
+      \only<9>{Chega \textcolor{RED}{\texttt{111}} $\Rightarrow$ $e_q=\textcolor{UNB_BLUE}{-1}$\\[3pt]$x_r[7]=x_r[6]+e_q=1-1=\mathbf{0}$}%
+    \end{center}
+
+    % ===== direita: gráfico reconstruído ponto a ponto =====
+    \column{0.54\textwidth}
+    \begin{center}
+    \begin{tikzpicture}[>=stealth, x=0.58cm, y=0.5cm,
+        every node/.style={font=\tiny}]
+      \draw[->,gray!55] (-0.3,0)--(8.6,0) node[right,black]{$n$};
+      \draw[->,gray!55] (0,-0.3)--(0,5.8);
+      \foreach \n in {0,1,2,3,4,5,6,7}
+        \draw[gray!40] (\n,0.06)--(\n,-0.06) node[below,black]{\n};
+      \foreach \v in {1,2,3,4,5}
+        \draw[gray!40] (0.06,\v)--(-0.06,\v) node[left,black]{\v};
+      \node[UNB_BLUE] at (5.4,5.0) {$x_r[n]$};
+      \node[UNB_GREEN!50!black] at (6.8,1.5) {$x[n]$};
+      \onslide<2->{\fill[UNB_BLUE](0,2)circle(1.7pt); \fill[UNB_GREEN](0,2.1)circle(1.5pt);}
+      \onslide<3->{\draw[UNB_BLUE,very thick](0,2)--(1,4); \fill[UNB_BLUE](1,4)circle(1.7pt); \fill[UNB_GREEN](1,3.9)circle(1.5pt);}
+      \onslide<4->{\draw[UNB_BLUE,very thick](1,4)--(2,4); \fill[UNB_BLUE](2,4)circle(1.7pt); \fill[UNB_GREEN](2,4.3)circle(1.5pt);}
+      \onslide<5->{\draw[UNB_BLUE,very thick](2,4)--(3,5); \fill[UNB_BLUE](3,5)circle(1.7pt); \fill[UNB_GREEN](3,4.6)circle(1.5pt);}
+      \onslide<6->{\draw[UNB_BLUE,very thick](3,5)--(4,3); \fill[UNB_BLUE](4,3)circle(1.7pt); \fill[UNB_GREEN](4,3.4)circle(1.5pt);}
+      \onslide<7->{\draw[UNB_BLUE,very thick](4,3)--(5,2); \fill[UNB_BLUE](5,2)circle(1.7pt); \fill[UNB_GREEN](5,1.8)circle(1.5pt);}
+      \onslide<8->{\draw[UNB_BLUE,very thick](5,2)--(6,1); \fill[UNB_BLUE](6,1)circle(1.7pt); \fill[UNB_GREEN](6,0.7)circle(1.5pt);}
+      \onslide<9->{\draw[UNB_BLUE,very thick](6,1)--(7,0); \fill[UNB_BLUE](7,0)circle(1.7pt); \fill[UNB_GREEN](7,0.2)circle(1.5pt);}
+    \end{tikzpicture}
+    \end{center}
+  \end{columns}
+
+  {\scriptsize\onslide<9->{\centering Reconstrói \textbf{exatamente} o $x_r[n]$
+  do transmissor (preditor idêntico ao do gerador); com $N=3$ bits acompanha
+  bem melhor que a DM de 1 bit.\par}}
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -218,6 +1085,5 @@
           para sinais não-uniformes (voz).
     \item \textbf{DM / DPCM} exploram a correlação entre amostras
           (codificação de forma de onda).
-    \item \textbf{Vocoder} transmite parâmetros da fonte — taxa muito baixa.
   \end{itemize}
 \end{frame}

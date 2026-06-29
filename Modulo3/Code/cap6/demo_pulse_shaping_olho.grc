@@ -6,12 +6,12 @@ options:
     cmake_opt: ''
     comment: ''
     copyright: ''
-    description: "Pr\xE1tica 08 - Amostragem e Aliasing"
+    description: "Formata\xE7\xE3o de pulso (RRC), ISI e diagrama de olho"
     gen_cmake: 'On'
     gen_linking: dynamic
     generate_options: qt_gui
     hier_block_src_path: '.:'
-    id: pratica_08_amostragem_aliasing
+    id: demo_pulse_shaping_olho
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -22,8 +22,8 @@ options:
     run_options: prompt
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: "Pr\xE1tica 08 - Amostragem e Aliasing"
-    window_size: (1280,900)
+    title: "Demo: Formata\xE7\xE3o de Pulso, ISI e Diagrama de Olho"
+    window_size: (1280,1000)
   states:
     bus_sink: false
     bus_source: false
@@ -33,74 +33,136 @@ options:
     state: enabled
 
 blocks:
-- name: decim
+- name: alpha
   id: variable_qtgui_range
   parameters:
-    comment: "Fator de decima\xE7\xE3o"
+    comment: Fator de roll-off do cosseno levantado
     gui_hint: 0,0,1,1
-    label: "Fator de decima\xE7\xE3o (decim)"
-    min_len: '200'
-    orient: QtCore.Qt.Horizontal
-    rangeType: int
-    start: '2'
-    step: '1'
-    stop: '20'
-    value: '4'
-    widget: counter_slider
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [200, 12]
-    rotation: 0
-    state: enabled
-- name: f_sinal
-  id: variable_qtgui_range
-  parameters:
-    comment: "Frequ\xEAncia do sinal de entrada"
-    gui_hint: 0,1,1,1
-    label: "Frequ\xEAncia do sinal (Hz)"
+    label: Roll-off alpha
     min_len: '200'
     orient: QtCore.Qt.Horizontal
     rangeType: float
-    start: '500'
-    step: '500'
-    stop: '20000'
-    value: '1000'
+    start: '0.0'
+    step: '0.05'
+    stop: '1.0'
+    value: '0.35'
     widget: counter_slider
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [450, 12]
+    coordinate: [520, 12]
     rotation: 0
     state: enabled
-- name: fs_eff
-  id: variable
+- name: noise_amp
+  id: variable_qtgui_range
   parameters:
-    comment: "Taxa de amostragem efetiva ap\xF3s decima\xE7\xE3o"
-    value: samp_rate/decim
+    comment: "Amplitude do ru\xEDdo do canal (AWGN)"
+    gui_hint: 0,1,1,1
+    label: "Ru\xEDdo do canal (AWGN)"
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '0.0'
+    step: '0.02'
+    stop: '0.6'
+    value: '0.0'
+    widget: counter_slider
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 260]
+    coordinate: [760, 12]
+    rotation: 0
+    state: enabled
+- name: ntaps
+  id: variable
+  parameters:
+    comment: "N\xFAmero de coeficientes do filtro RRC"
+    value: 11*sps+1
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [360, 120]
     rotation: 0
     state: enabled
 - name: samp_rate
   id: variable
   parameters:
-    comment: Taxa de amostragem
-    value: '48000'
+    comment: Taxa de amostragem (samples/s)
+    value: '32000'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 160]
+    coordinate: [8, 120]
     rotation: 0
     state: enabled
-- name: freq_sink_decim
-  id: qtgui_freq_sink_x
+- name: sps
+  id: variable
+  parameters:
+    comment: "Amostras por s\xEDmbolo (fixa)"
+    value: '8'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [120, 120]
+    rotation: 0
+    state: enabled
+- name: sym_rate
+  id: variable
+  parameters:
+    comment: "Taxa de s\xEDmbolos Rs = samp_rate/sps"
+    value: samp_rate/sps
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [232, 120]
+    rotation: 0
+    state: enabled
+- name: add_canal
+  id: blocks_add_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: "Sinal + ru\xEDdo"
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [920, 360]
+    rotation: 0
+    state: enabled
+- name: chunks_to_symbols
+  id: digital_chunks_to_symbols_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: Mapeia 0 -> -1 e 1 -> +1 (2-PAM)
+    dimension: '1'
+    in_type: byte
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_ports: '1'
+    out_type: float
+    symbol_table: '[-1, 1]'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [240, 308]
+    rotation: 0
+    state: enabled
+- name: eye_sink_rx
+  id: qtgui_eye_sink_x
   parameters:
     affinity: ''
     alias: ''
@@ -115,291 +177,25 @@ blocks:
     alpha8: '1.0'
     alpha9: '1.0'
     autoscale: 'False'
-    average: '1.0'
-    axislabels: 'True'
-    bw: fs_eff
-    color1: '"blue"'
-    color10: '"dark blue"'
-    color2: '"red"'
-    color3: '"green"'
-    color4: '"black"'
-    color5: '"cyan"'
-    color6: '"magenta"'
-    color7: '"yellow"'
-    color8: '"dark red"'
-    color9: '"dark green"'
-    comment: ''
-    ctrlpanel: 'False'
-    fc: '0'
-    fftsize: '4096'
-    freqhalf: 'True'
-    grid: 'True'
-    gui_hint: 3,1,1,1
-    label: Relative Gain
-    label1: Sem filtro AA
-    label10: ''''''
-    label2: Com filtro AA
-    label3: ''''''
-    label4: ''''''
-    label5: ''''''
-    label6: ''''''
-    label7: ''''''
-    label8: ''''''
-    label9: ''''''
-    legend: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    name: '"Espectro Decimado"'
-    nconnections: '2'
-    norm_window: 'False'
-    showports: 'False'
-    tr_chan: '0'
-    tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
-    tr_tag: '""'
-    type: float
-    units: dB
-    update_time: '0.10'
-    width1: '1'
-    width10: '1'
-    width2: '1'
-    width3: '1'
-    width4: '1'
-    width5: '1'
-    width6: '1'
-    width7: '1'
-    width8: '1'
-    width9: '1'
-    wintype: window.WIN_HANN
-    ymax: '10'
-    ymin: '-100'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1056, 660.0]
-    rotation: 0
-    state: enabled
-- name: freq_sink_original
-  id: qtgui_freq_sink_x
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    autoscale: 'False'
-    average: '1.0'
-    axislabels: 'True'
-    bw: samp_rate
-    color1: '"blue"'
-    color10: '"dark blue"'
-    color2: '"red"'
-    color3: '"green"'
-    color4: '"black"'
-    color5: '"cyan"'
-    color6: '"magenta"'
-    color7: '"yellow"'
-    color8: '"dark red"'
-    color9: '"dark green"'
-    comment: ''
-    ctrlpanel: 'False'
-    fc: '0'
-    fftsize: '4096'
-    freqhalf: 'True'
-    grid: 'True'
-    gui_hint: 2,1,1,1
-    label: Relative Gain
-    label1: Sinal original
-    label10: ''''''
-    label2: ''''''
-    label3: ''''''
-    label4: ''''''
-    label5: ''''''
-    label6: ''''''
-    label7: ''''''
-    label8: ''''''
-    label9: ''''''
-    legend: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    name: '"Espectro Original"'
-    nconnections: '1'
-    norm_window: 'False'
-    showports: 'False'
-    tr_chan: '0'
-    tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
-    tr_tag: '""'
-    type: float
-    units: dB
-    update_time: '0.10'
-    width1: '1'
-    width10: '1'
-    width2: '1'
-    width3: '1'
-    width4: '1'
-    width5: '1'
-    width6: '1'
-    width7: '1'
-    width8: '1'
-    width9: '1'
-    wintype: window.WIN_HANN
-    ymax: '10'
-    ymin: '-100'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [1072, 228.0]
-    rotation: 0
-    state: enabled
-- name: keep_1_in_n_com_filtro
-  id: blocks_keep_one_in_n
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: "Decima\xE7\xE3o com filtro anti-aliasing"
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    n: decim
-    type: float
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [800, 616.0]
-    rotation: 0
-    state: enabled
-- name: keep_1_in_n_sem_filtro
-  id: blocks_keep_one_in_n
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: "Decima\xE7\xE3o sem filtro anti-aliasing"
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    n: decim
-    type: float
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [776, 448.0]
-    rotation: 0
-    state: enabled
-- name: lpf_aa
-  id: low_pass_filter
-  parameters:
-    affinity: ''
-    alias: ''
-    beta: '6.76'
-    comment: "Filtro anti-aliasing antes da decima\xE7\xE3o"
-    cutoff_freq: fs_eff/2*0.9
-    decim: '1'
-    gain: '1'
-    interp: '1'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samp_rate: samp_rate
-    type: fir_filter_fff
-    width: '200'
-    win: window.WIN_HAMMING
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [584, 572.0]
-    rotation: 0
-    state: enabled
-- name: src_sinal
-  id: analog_sig_source_x
-  parameters:
-    affinity: ''
-    alias: ''
-    amp: '1.0'
-    comment: Sinal senoidal x(t) = cos(2*pi*f_sinal*t)
-    freq: f_sinal
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    offset: '0'
-    phase: '0'
-    samp_rate: samp_rate
-    showports: 'False'
-    type: float
-    waveform: analog.GR_SQR_WAVE
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [104, 460.0]
-    rotation: 0
-    state: enabled
-- name: throttle
-  id: blocks_throttle2
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    ignoretag: 'True'
-    limit: auto
-    maximum: '0.1'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samples_per_second: samp_rate
-    type: float
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [392, 484.0]
-    rotation: 0
-    state: enabled
-- name: time_sink_decim
-  id: qtgui_time_sink_x
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    autoscale: 'True'
     axislabels: 'True'
     color1: blue
-    color10: dark blue
-    color2: red
-    color3: green
-    color4: black
-    color5: cyan
-    color6: magenta
-    color7: yellow
-    color8: dark red
-    color9: dark green
-    comment: ''
+    color10: blue
+    color2: blue
+    color3: blue
+    color4: blue
+    color5: blue
+    color6: blue
+    color7: blue
+    color8: blue
+    color9: blue
+    comment: "Diagrama de olho ap\xF3s o filtro casado"
     ctrlpanel: 'False'
     entags: 'True'
     grid: 'True'
-    gui_hint: 3,0,1,1
-    label1: Sem filtro AA
+    gui_hint: 2,0,1,2
+    label1: Signal 1
     label10: Signal 10
-    label2: Com filtro AA
+    label2: Signal 2
     label3: Signal 3
     label4: Signal 4
     label5: Signal 5
@@ -418,11 +214,10 @@ blocks:
     marker7: '-1'
     marker8: '-1'
     marker9: '-1'
-    name: '"Sinais Decimados (Tempo)"'
-    nconnections: '2'
+    nconnections: '1'
+    samp_per_symbol: sps
     size: '1024'
-    srate: fs_eff
-    stemplot: 'False'
+    srate: samp_rate
     style1: '1'
     style10: '1'
     style2: '1'
@@ -452,17 +247,181 @@ blocks:
     width8: '1'
     width9: '1'
     ylabel: Amplitude
-    ymax: '1.5'
-    ymin: '-1.5'
+    ymax: '2.5'
+    ymin: '-2.5'
     yunit: '""'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1048, 420.0]
+    coordinate: [1280, 588.0]
     rotation: 0
     state: enabled
-- name: time_sink_original
+- name: freq_sink_tx
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: 'Espectro: banda ocupada ~ (1+alpha)*Rs/2'
+    ctrlpanel: 'False'
+    fc: '0'
+    fftsize: '2048'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: 1,1,1,1
+    label: Relative Gain
+    label1: ''
+    label10: ''''''
+    label2: ''''''
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '"Espectro do sinal formatado"'
+    nconnections: '1'
+    norm_window: 'False'
+    showports: 'False'
+    tr_chan: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_tag: '""'
+    type: float
+    units: dB
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: window.WIN_BLACKMAN_hARRIS
+    ymax: '10'
+    ymin: '-100'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1144, 20.0]
+    rotation: 0
+    state: enabled
+- name: glfsr
+  id: digital_glfsr_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: "Bits pseudo-aleat\xF3rios (0/1)"
+    degree: '8'
+    mask: '0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    repeat: 'True'
+    seed: '1'
+    type: byte
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 220.0]
+    rotation: 0
+    state: enabled
+- name: noise
+  id: analog_noise_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: noise_amp
+    comment: "Ru\xEDdo gaussiano do canal"
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    noise_type: analog.GR_GAUSSIAN
+    seed: '0'
+    type: float
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [660, 480]
+    rotation: 0
+    state: enabled
+- name: rx_rrc
+  id: root_raised_cosine_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: alpha
+    comment: Filtro casado RRC -> RRC*RRC = cosseno levantado (ISI nula)
+    decim: '1'
+    gain: '1'
+    interp: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    ntaps: ntaps
+    samp_rate: samp_rate
+    sym_rate: sym_rate
+    type: fir_filter_fff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1080, 344]
+    rotation: 0
+    state: enabled
+- name: throttle
+  id: blocks_throttle2
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: "Limita CPU na taxa de s\xEDmbolos"
+    ignoretag: 'True'
+    limit: auto
+    maximum: '0.1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: sym_rate
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [470, 320]
+    rotation: 0
+    state: enabled
+- name: time_sink_tx
   id: qtgui_time_sink_x
   parameters:
     affinity: ''
@@ -489,12 +448,12 @@ blocks:
     color7: yellow
     color8: dark red
     color9: dark green
-    comment: ''
+    comment: "Forma de onda formatada (dom\xEDnio do tempo)"
     ctrlpanel: 'False'
     entags: 'True'
     grid: 'True'
-    gui_hint: 2,0,1,1
-    label1: Sinal original
+    gui_hint: 1,0,1,1
+    label1: Signal 1
     label10: Signal 10
     label2: Signal 2
     label3: Signal 3
@@ -515,9 +474,9 @@ blocks:
     marker7: '-1'
     marker8: '-1'
     marker9: '-1'
-    name: '"Sinal Original (Tempo)"'
+    name: '"Formata\xE7\xE3o de Pulso RRC (tempo)"'
     nconnections: '1'
-    size: '1024'
+    size: '512'
     srate: samp_rate
     stemplot: 'False'
     style1: '1'
@@ -549,28 +508,50 @@ blocks:
     width8: '1'
     width9: '1'
     ylabel: Amplitude
-    ymax: '1.5'
-    ymin: '-1.5'
+    ymax: '2'
+    ymin: '-2'
     yunit: '""'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [800, 180]
+    coordinate: [1144, 172.0]
+    rotation: 0
+    state: enabled
+- name: tx_rrc
+  id: root_raised_cosine_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: alpha
+    comment: Filtro formatador RRC (interpola por sps)
+    decim: '1'
+    gain: sps
+    interp: sps
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    ntaps: ntaps
+    samp_rate: samp_rate
+    sym_rate: sym_rate
+    type: interp_fir_filter_fff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [660, 296]
     rotation: 0
     state: enabled
 
 connections:
-- [keep_1_in_n_com_filtro, '0', freq_sink_decim, '1']
-- [keep_1_in_n_com_filtro, '0', time_sink_decim, '1']
-- [keep_1_in_n_sem_filtro, '0', freq_sink_decim, '0']
-- [keep_1_in_n_sem_filtro, '0', time_sink_decim, '0']
-- [lpf_aa, '0', keep_1_in_n_com_filtro, '0']
-- [src_sinal, '0', throttle, '0']
-- [throttle, '0', freq_sink_original, '0']
-- [throttle, '0', keep_1_in_n_sem_filtro, '0']
-- [throttle, '0', lpf_aa, '0']
-- [throttle, '0', time_sink_original, '0']
+- [add_canal, '0', rx_rrc, '0']
+- [chunks_to_symbols, '0', throttle, '0']
+- [glfsr, '0', chunks_to_symbols, '0']
+- [noise, '0', add_canal, '1']
+- [rx_rrc, '0', eye_sink_rx, '0']
+- [throttle, '0', tx_rrc, '0']
+- [tx_rrc, '0', add_canal, '0']
+- [tx_rrc, '0', freq_sink_tx, '0']
+- [tx_rrc, '0', time_sink_tx, '0']
 
 metadata:
   file_format: 1

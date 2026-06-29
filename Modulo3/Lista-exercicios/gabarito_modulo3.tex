@@ -1,0 +1,694 @@
+\documentclass[11pt,a4paper]{article}
+
+% ============================================
+% PACOTES
+% ============================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{mdframed}
+\geometry{margin=2.3cm}
+
+% ============================================
+% ESTILO
+% ============================================
+\definecolor{unbprimary}{HTML}{003B5C}
+\definecolor{unbsecondary}{HTML}{006633}
+
+\titleformat{\section}{\large\bfseries\color{unbprimary}}{\thesection}{0.6em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small Princípios de Comunicação --- Módulo 3}
+\rhead{\small Gabarito}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ============================================
+% COMANDOS
+% ============================================
+\newcommand{\SQNR}{\mathrm{SQNR}}
+\newcommand{\SNR}{\mathrm{SNR}}
+\newcommand{\sinc}{\operatorname{sinc}}
+\newcommand{\rect}{\operatorname{rect}}
+\newcommand{\sgn}{\operatorname{sgn}}
+
+\newcounter{quest}
+\newcommand{\Q}{\par\medskip\noindent\refstepcounter{quest}%
+  \textbf{\color{unbprimary}Questão \thequest.}\enspace}
+\newcommand{\resp}[1]{\ensuremath{\boxed{#1}}}
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries\color{unbprimary} Gabarito --- Lista do Módulo 3}\\[4pt]
+  {\large Conversão A/D e Transmissão Digital}\\[6pt]
+  {\small Universidade de Brasília --- Prof.\ Daniel Costa Araújo}
+\end{center}
+
+\vspace{0.2cm}
+\noindent\rule{\textwidth}{0.6pt}
+\small
+Convenções: $\log_{10}2\approx0{,}301$, $\log_{10}3\approx0{,}477$,
+$Q^{-1}(10^{-6})\approx4{,}75$. Respostas finais em caixa.
+\normalsize
+
+% ##################################################################
+\section*{Capítulo 7 --- Conversão Analógico-Digital}
+
+% ------------------------------------------------------------------
+\section{Amostragem}
+
+\Q\textit{Amostrador ideal e interpolação sinc.}
+
+\textbf{(a)} O trem de impulsos é periódico de período $T_s$, logo
+$\delta_{T_s}(t)=\sum_k c_k e^{j2\pi k f_s t}$ com
+$c_k=\frac1{T_s}\int_{-T_s/2}^{T_s/2}\delta(t)e^{-j2\pi kf_st}dt=\frac1{T_s}=f_s$.
+Assim $\delta_{T_s}(t)=f_s\sum_k e^{j2\pi kf_st}$ e
+\[
+  g_s(t)=g(t)\delta_{T_s}(t)=f_s\sum_k g(t)e^{j2\pi kf_st}
+  \;\xrightarrow{\;\mathcal F\;}\;
+  G_s(f)=f_s\sum_{k=-\infty}^{\infty}G(f-kf_s),
+\]
+pois a multiplicação por $e^{j2\pi kf_st}$ desloca o espectro de $kf_s$.
+
+\textbf{(b)} Para $f_s>2W$ as réplicas não se sobrepõem. Filtrando com
+$H(f)=\frac1{f_s}\rect\!\big(\frac{f}{2W}\big)$ obtém-se
+$\hat G(f)=G_s(f)H(f)=G(f)$. No tempo,
+$h(t)=\mathcal F^{-1}\{H\}=\frac{2W}{f_s}\sinc(2Wt)$. Tomando o caso de
+Nyquist $f_s=2W$ e $g_s(t)=\sum_n g(nT_s)\delta(t-nT_s)$:
+\[
+  g(t)=g_s(t)*h(t)=\sum_n g(nT_s)\,h(t-nT_s)
+       =\sum_{n}g(nT_s)\,\sinc\!\Big(\frac{t-nT_s}{T_s}\Big).
+\]
+
+\textbf{(c)} Em $t=mT_s$: $\sinc\!\big(\frac{mT_s-nT_s}{T_s}\big)=\sinc(m-n)
+=\delta[m-n]$, pois o $\sinc$ vale $1$ em $0$ e $0$ nos demais inteiros.
+Logo a soma colapsa em \resp{g(mT_s)}: a curva passa exatamente pelas amostras.
+
+\Q\textit{Aliasing, $f_s=5$ kHz, $f_s/2=2{,}5$ kHz.}
+
+\textbf{(a)} Frequência aparente $=\min_k|f_0-kf_s|$:
+\[
+  1500\to1500,\quad
+  3200\to|3200-5000|=1800,\quad
+  6000\to|6000-5000|=1000\ \text{Hz}.
+\]
+\textbf{(b)} Só $1500$ Hz está abaixo de $f_s/2$; $3200$ e $6000$ sofrem
+aliasing. Após o filtro de corte $2{,}5$ kHz:
+\[
+  \resp{\hat g(t)=4\cos(2\pi1500t)+2\cos(2\pi1800t)+\cos(2\pi1000t)}.
+\]
+\textbf{(c)} A maior componente é $6$ kHz, logo $f_s>12$ kHz. Em
+$f_s=12$ kHz a réplica encosta na banda (guarda nula); usando, por exemplo,
+$f_s=16$ kHz a banda de guarda é $f_s-2W=16-12=\resp{4\ \text{kHz}}$.
+
+\Q\textit{Anti-aliasing Butterworth, $W=20$ kHz, $f_c=20$ kHz, $A_s\ge50$ dB.}
+
+Em $f=f_s-W$, com $(f/f_c)^{2N}\gg1$:
+$A\approx20N\log_{10}(f/f_c)$.
+
+\textbf{(a)} $f_s=48$: transição $f_s-2W=48-40=\mathbf{8}$ kHz.
+$f/f_c=28/20=1{,}4$, $\log_{10}1{,}4=0{,}146$:
+\[
+  20N(0{,}146)=2{,}92N\ge50\;\Rightarrow\;N\ge17{,}1\;\Rightarrow\;\resp{N=18}.
+\]
+\textbf{(b)} $f_s=44{,}1$: $f/f_c=24{,}1/20=1{,}205$,
+$\log_{10}1{,}205=0{,}081$:
+$20N(0{,}081)=1{,}62N\ge50\Rightarrow N\ge30{,}9\Rightarrow\resp{N=31}$.
+
+\textbf{(c)} Aproximar a réplica da banda útil (reduzir $f_s$) estreita a
+transição e exige ordem altíssima. Por isso áudio de $20$ kHz usa
+sobreamostragem com decimação digital, em vez de um filtro analógico
+de ordem $\sim20$--$30$.
+
+\Q\textit{Segurador de ordem zero.}
+
+\textbf{(a)} $h_{\text{ZOH}}(t)=\rect\!\big(\frac{t-T_s/2}{T_s}\big)$ é um
+retângulo de largura $T_s$ deslocado de $T_s/2$:
+\[
+  H_{\text{ZOH}}(f)=T_s\sinc(fT_s)e^{-j\pi fT_s}
+  \;\Rightarrow\;|H_{\text{ZOH}}(f)|=T_s|\sinc(fT_s)|.
+\]
+\textbf{(b)} Atenuação $=-20\log_{10}|\sinc(WT_s)|$, com $WT_s=W/f_s$:
+\[
+  f_s=2W:\ \sinc(0{,}5)=\tfrac{2}{\pi}=0{,}637\to\mathbf{3{,}92\ dB};\quad
+  f_s=4W:\ \sinc(0{,}25)=0{,}900\to\mathbf{0{,}91\ dB};
+\]
+\[
+  f_s=8W:\ \sinc(0{,}125)=0{,}974\to\mathbf{0{,}22\ dB}.
+\]
+\textbf{(c)} Ganho do equalizador $=1/|\sinc(WT_s)|$:
+$1{,}57$ $(+3{,}92$ dB$)$, $1{,}11$ $(+0{,}91$ dB$)$ e
+$1{,}03$ $(+0{,}22$ dB$)$. Quanto maior a sobreamostragem, menor a queda
+e menor a equalização necessária.
+
+\Q\textit{Voz $W=4$ kHz, Butterworth $N=3$, $A_s\ge40$ dB.}
+
+\textbf{(a)} $A\approx10\log_{10}\big[(\,(f_s-W)/f_c\,)^{2N}\big]=60\log_{10}r$,
+$r=(f_s-4)/4$. Impondo $\ge40$:
+$\log_{10}r\ge0{,}667\Rightarrow r\ge4{,}64\Rightarrow f_s-4\ge18{,}6
+\Rightarrow\resp{f_s\ge22{,}6\ \text{kHz}}$.
+
+\textbf{(b)} Sobreamostragem $f_s/2W=22{,}6/8\approx2{,}8$. Com $n=10$:
+$R_b=n f_s=10\cdot22600=226$ kb/s, contra $80$ kb/s na taxa de Nyquist
+$f_s=8$ kHz: $\sim146$ kb/s a mais.
+
+\textbf{(c)} No exemplo de aula $f_s=16$ kHz bastava $N=5$. Limitado a
+$N=3$, foi preciso subir $f_s$ a $22{,}6$ kHz: menor ordem do filtro custa
+maior taxa de amostragem e de dados.
+
+% ------------------------------------------------------------------
+\section{Quantização}
+
+\Q\textit{Ruído de quantização.}
+
+\textbf{(a)} $P_q=\int_{-\Delta/2}^{\Delta/2}e^2\frac1\Delta\,de
+=\frac1\Delta\big[\frac{e^3}{3}\big]_{-\Delta/2}^{\Delta/2}
+=\frac1\Delta\cdot\frac{\Delta^3}{12}=\resp{\dfrac{\Delta^2}{12}}$.
+
+\textbf{(b)} $\SQNR=\frac{P_s}{\Delta^2/12}=\frac{12P_s}{\Delta^2}$, com
+$\Delta=V_{pp}/2^n$:
+$\SQNR=\frac{12P_s}{V_{pp}^2}2^{2n}$. Em dB:
+\[
+  \SQNR_{\text{dB}}=10\log_{10}\!\Big(\tfrac{12P_s}{V_{pp}^2}\Big)+20n\log_{10}2
+  =\resp{6{,}02\,n+10\log_{10}\!\big(\tfrac{12P_s}{V_{pp}^2}\big)}.
+\]
+\textbf{(c)} Senoide cheia: $P_s=A^2/2$, $V_{pp}=2A$, então
+$\frac{12P_s}{V_{pp}^2}=\frac{6A^2}{4A^2}=1{,}5$ e
+$10\log_{10}1{,}5=1{,}76$. Logo $\SQNR_{\text{dB}}=6{,}02n+1{,}76$.
+
+\Q\textit{ADC 12 bits, $\pm5$ V.}
+
+\textbf{(a)} $V_{pp}=10$, $L=2^{12}=4096$:
+$\Delta=10/4096=\mathbf{2{,}44\ mV}$,
+$P_q=\Delta^2/12=\mathbf{4{,}97\times10^{-7}\ V^2}$.
+
+\textbf{(b)} Senoide $A=4$ V: $P_s=A^2/2=8$ V$^2$.
+$\SQNR=8/4{,}97\!\times\!10^{-7}=1{,}61\!\times\!10^{7}\to\mathbf{72{,}1\ dB}$.
+O fundo de escala ($A=5$ V) daria $74{,}0$ dB; o recuo de
+$20\log_{10}(4/5)=-1{,}9$ dB explica a diferença.
+
+\textbf{(c)} $\SQNR_{\text{dB}}=6{,}02n+10\log_{10}(12\cdot8/100)
+=6{,}02n-0{,}18$. Impondo $\ge80$:
+$n\ge13{,}3\Rightarrow\resp{n=14\ \text{bits}}$.
+
+\Q\textit{Condições de Lloyd-Max.}
+
+\textbf{(a)} $\dfrac{\partial D}{\partial\hat y_k}
+=\int_{b_{k-1}}^{b_k}-2(x-\hat y_k)p(x)dx=0
+\Rightarrow\hat y_k=\dfrac{\int_{b_{k-1}}^{b_k}xp\,dx}{\int_{b_{k-1}}^{b_k}p\,dx}$
+(centróide).
+
+\textbf{(b)} Pela regra de Leibniz,
+$\dfrac{\partial D}{\partial b_k}=(b_k-\hat y_k)^2p(b_k)
+-(b_k-\hat y_{k+1})^2p(b_k)=0$. Como $p(b_k)>0$ e
+$\hat y_k<b_k<\hat y_{k+1}$:
+$b_k-\hat y_k=\hat y_{k+1}-b_k\Rightarrow b_k=\dfrac{\hat y_k+\hat y_{k+1}}2$
+(ponto médio).
+
+\textbf{(c)} Lloyd alterna: fixa fronteiras e recalcula níveis pela (a);
+fixa níveis e recalcula fronteiras pela (b); repete até convergir.
+
+\Q\textit{Sensor $p(x)=(4-x)/8$ em $[0,4]$, 2 níveis, $b=2$.}
+
+Usando $\int_0^b p=\frac1{16}(8b-b^2)$, $\int_0^b xp=\frac1{24}(6b^2-b^3)$ e
+$\int_0^4 xp=\tfrac43$ (média).
+
+\textbf{(a)} Iteração 1 com $b=2$:
+$\hat y_1=\frac{2/3}{3/4}=\frac89=0{,}889$,
+$\hat y_2=\frac{4/3-2/3}{1/4}=\frac{2/3}{1/4}=\frac83=2{,}667$;
+$b=\frac{\hat y_1+\hat y_2}2=\frac{16}{9}=\mathbf{1{,}778}$.
+
+\textbf{(b)} Iteração 2 com $b=1{,}778$:
+$\int_0^b p=0{,}691$, $\int_0^b xp=0{,}556$, logo
+$\hat y_1=0{,}804$; $\hat y_2=\frac{1{,}333-0{,}556}{1-0{,}691}=2{,}52$;
+$b=\frac{0{,}804+2{,}52}2=\mathbf{1{,}66}$ (caminhando para o ótimo
+$b\approx1{,}53$).
+
+\textbf{(c)} Para o uniforme $b=2$, $\hat y_1=1$, $\hat y_2=3$:
+$D_{\text{unif}}=\int_0^2(x-1)^2p+\int_2^4(x-3)^2p=0{,}25+0{,}083=\mathbf{0{,}333}$.
+O ótimo converge para $D_{\text{ot}}\approx0{,}247$, logo
+$10\log_{10}(0{,}333/0{,}247)=\resp{+1{,}3\ \text{dB}}$.
+
+\Q\textit{Laplaciana, 1 bit.}
+
+\textbf{(a)} Por simetria $b_0=0$. No lado positivo,
+$\int_0^\infty\frac1{2\beta}e^{-x/\beta}dx=\tfrac12$ e
+$\int_0^\infty x\frac1{2\beta}e^{-x/\beta}dx=\tfrac\beta2$, então
+$\hat y_+=\frac{\beta/2}{1/2}=\beta$. Níveis $\resp{\pm\beta}$.
+
+\textbf{(b)} Com $u=x/\beta$:
+$D=2\int_0^\infty(x-\beta)^2\frac1{2\beta}e^{-x/\beta}dx
+=\beta^2\int_0^\infty(u-1)^2e^{-u}du=\beta^2(\,2-2+1\,)=\beta^2$.
+Como $\sigma^2=2\beta^2$: $\SQNR=\sigma^2/D=2\to\mathbf{3{,}0\ dB}$.
+
+\textbf{(c)} A regra dos $6$ dB/bit (senoide cheia) daria $7{,}8$ dB com
+1 bit; a Laplaciana, com caudas longas e muita massa perto de zero, rende
+apenas $3$ dB. A regra vale para a senoide de fundo de escala, não para
+distribuições muito concentradas.
+
+\Q\textit{Gaussiano, $V_{pp}=2k\sigma$.}
+
+\textbf{(a)} $P_s=\sigma^2$, $\frac{12P_s}{V_{pp}^2}=\frac{12\sigma^2}{4k^2\sigma^2}
+=\frac3{k^2}$. Logo
+$\SQNR_{\text{dB}}=6{,}02n+10\log_{10}3-20\log_{10}k
+=\resp{6{,}02n+4{,}77-20\log_{10}k}$.
+
+\textbf{(b)} $k=4$: $\SQNR=6{,}02n-7{,}27\ge90\Rightarrow n\ge16{,}2\Rightarrow
+\resp{n=17}$.
+
+\textbf{(c)} $k=2$: $\SQNR=6{,}02n-1{,}25$, cerca de $6$ dB melhor para o
+mesmo $n$. Porém $k=2$ corta em $\pm2\sigma$ (ceifamento em
+$\sim4{,}6\%$ do tempo), contra $\sim6\times10^{-5}$ com $k=4$.
+
+% ------------------------------------------------------------------
+\section{PCM e Companding}
+
+\Q\textit{G.711.}
+
+\textbf{(a)} $R_b=nf_s=8\cdot8000=\mathbf{64}$ kb/s;
+$B_{\min}=R_b/2=\mathbf{32}$ kHz.
+
+\textbf{(b)} $\SQNR=1{,}76+6{,}02\cdot8=\mathbf{50}$ dB.
+
+\textbf{(c)} E1: $32$ canais $\times64$ kb/s $=\mathbf{2{,}048}$ Mb/s;
+$B_{\min}=R_b/2=\mathbf{1{,}024}$ MHz.
+
+\Q\textit{Lei $\mu$, $\mu=255$, $\ln256=5{,}545$.}
+
+\textbf{(a)} $C(x)=\ln(1+255|x|)/5{,}545$:
+$x{=}0{,}01\to0{,}229$; $x{=}0{,}1\to0{,}591$; $x{=}0{,}9\to0{,}981$.
+O sinal fraco é fortemente amplificado.
+
+\textbf{(b)} $\Delta_x\approx\Delta_y/C'(x)$, $\Delta_y=2/256$,
+$C'(x)=\frac{\mu}{\ln(1+\mu)(1+\mu|x|)}$:
+$x{=}0{,}01\to6{,}0\times10^{-4}$; $x{=}0{,}1\to4{,}5\times10^{-3}$;
+$x{=}0{,}9\to3{,}9\times10^{-2}$. O passo efetivo cresce com a amplitude
+(degraus finos perto de zero, largos nos picos).
+
+\textbf{(c)} $C^{-1}(y)=(256^{|y|}-1)/255$:
+$0{,}229\to0{,}010$, $0{,}591\to0{,}100$, $0{,}981\to0{,}900$ --- recupera
+as entradas.
+
+\Q\textit{Companding: princípio.}
+
+\textbf{(a)} $C'(x)\propto1/|x|\Rightarrow C(x)\propto\ln|x|$. Quantizando a
+saída com passo $\Delta_y$, o passo de entrada é
+$\Delta_x\approx\Delta_y/C'(x)\propto|x|$.
+
+\textbf{(b)} Ruído local $\propto\Delta_x^2\propto x^2$; potência local do
+sinal $\propto x^2$. Então $\SQNR_{\text{local}}\propto x^2/x^2=$ constante.
+
+\textbf{(c)} A voz varia mais de $40$ dB em amplitude; o $\SQNR$ constante
+mantém qualidade tanto nos trechos fracos quanto nos fortes.
+
+\Q\textit{Sinal fraco $-40$ dBFS, $n=8$.}
+
+\textbf{(a)} Senoide $-40$ dBFS: $A=0{,}01$, $P_s=5\times10^{-5}$.
+$\Delta=2/256$, $P_q=\Delta^2/12=5{,}1\times10^{-6}$.
+$\SQNR=P_s/P_q\to\mathbf{9{,}9\ dB}$ (igual a $49{,}9-40$).
+
+\textbf{(b)} Mantendo o companding no valor de fundo de escala
+$\approx50$ dB, o ganho é $50-9{,}9\approx\resp{40\ \text{dB}}$.
+Na prática a $\mu$-law estabiliza em $\sim38$ dB, ainda $\sim28$ dB acima
+do uniforme neste nível.
+
+\textbf{(c)} Recuperar $40$ dB com bits: $\Delta n=40/6{,}02\approx6{,}6\to
+\mathbf{7}$ bits a mais (o uniforme precisaria de $\sim15$ bits).
+
+\Q\textit{CD vs telefonia.}
+
+\textbf{(a)} CD: $R_b=44100\cdot16\cdot2=\mathbf{1{,}411}$ Mb/s,
+$\SQNR=\mathbf{98}$ dB. G.711: $64$ kb/s, $50$ dB.
+
+\textbf{(b)} Razão de taxas $1{,}411\text{M}/64\text{k}=\mathbf{22{,}1}$;
+diferença de $\SQNR=98-50=\mathbf{48}$ dB ($8$ bits $\times6$).
+
+\textbf{(c)} VoLTE: $R_b=16\cdot16000=\mathbf{256}$ kb/s, $\SQNR\approx98$ dB.
+É comprimida por codec (AMR-WB, $\sim12$--$24$ kb/s) porque $256$ kb/s é
+alto demais para o rádio.
+
+% ------------------------------------------------------------------
+\section{Codificação Preditiva}
+
+\Q\textit{DM, $\delta=1$, $\hat x[-1]=0$, $x=\{0{,}5;1{,}6;2{,}8;3{,}9;4{,}2;3{,}5;2{,}0;0{,}6\}$.}
+
+\textbf{(a)}
+\[
+  \begin{array}{l|cccccccc}
+   n & 0&1&2&3&4&5&6&7\\\hline
+   \hat x[n-1] & 0&1&2&3&4&5&4&3\\
+   e[n] & 0{,}5&0{,}6&0{,}8&0{,}9&0{,}2&-1{,}5&-2{,}0&-2{,}4\\
+   b[n] & +&+&+&+&+&-&-&-\\
+   \hat x[n] & 1&2&3&4&5&4&3&2
+  \end{array}
+\]
+Fluxo: \resp{1\,1\,1\,1\,1\,0\,0\,0}.
+
+\textbf{(b)} Nos trechos íngremes ($n{=}0$--$3$ subindo, $\Delta x\approx1{,}1>\delta$;
+$n{=}5$--$7$ descendo, $|\Delta x|>\delta$) há \textbf{sobrecarga de
+inclinação}. Não há platôs longos, então o ruído granular é pequeno aqui.
+
+\textbf{(c)} Com $\delta=1{,}5$, $\hat x=\{1{,}5;3{,}0;1{,}5;3{,}0;4{,}5;3{,}0;1{,}5;0\}$.
+Erro quadrático médio: $\delta=1\Rightarrow\overline{e^2}=0{,}54$;
+$\delta=1{,}5\Rightarrow\overline{e^2}=0{,}80$. O passo maior introduz
+oscilação (granular) e piora o erro.
+
+\Q\textit{DM para senoide.}
+
+\textbf{(a)} Inclinação máxima do sinal $=A\,2\pi f_0$; a escada anda
+$\delta/T_s=\delta f_s$. Sem sobrecarga: \resp{\delta f_s\ge2\pi f_0A}.
+
+\textbf{(b)} $f_s\ge\frac{2\pi f_0A}\delta=\frac{2\pi\cdot1000\cdot1}{0{,}05}
+=\resp{125{,}7\ \text{kHz}}$.
+
+\textbf{(c)} Ruído granular $\approx\delta^2/3$ distribuído em $[0,f_s/2]$;
+na banda $W$ resta $N_q=\frac{\delta^2}3\frac{2W}{f_s}$. No limite de
+sobrecarga $\delta=2\pi f_0A/f_s$:
+\[
+  \SNR=\frac{A^2/2}{N_q}=\frac{3A^2f_s}{4\delta^2W}
+  =\frac{3f_s^3}{16\pi^2f_0^2W}\ \propto f_s^3,
+\]
+ou seja $+9$ dB por oitava de sobreamostragem.
+
+\Q\textit{DPCM: erro só de quantização.}
+
+\textbf{(a)} $x_r=\hat x+e_q=\hat x+(e+q)=\hat x+(x-\hat x)+q\Rightarrow
+\resp{x_r-x=q}$.
+
+\textbf{(b)} O receptor usa o mesmo preditor alimentado por $x_r$, logo
+reproduz $x_r=x+q$: o erro não se acumula.
+
+\textbf{(c)} $G_p=\sigma_x^2/\sigma_e^2>1$. Como o $\SQNR$ melhora por $G_p$,
+economizam-se $\frac{10\log_{10}G_p}{6{,}02}$ bits para o mesmo $\SQNR$.
+
+\Q\textit{Preditor de 1ª ordem.}
+
+\textbf{(a)} $\sigma_e^2=R_x[0]-2aR_x[1]+a^2R_x[0]$;
+$\frac{d}{da}=0\Rightarrow a=R_x[1]/R_x[0]=\rho$. Então
+$\sigma_e^2=\sigma_x^2(1-\rho^2)$ e $G_p=1/(1-\rho^2)$.
+
+\textbf{(b)} $\rho=0{,}9$: $G_p=1/0{,}19=5{,}26\to\mathbf{7{,}2}$ dB;
+bits economizados $\approx7{,}2/6{,}02\approx\resp{1{,}2\ \text{bit}}$.
+
+\textbf{(c)} $\rho=0{,}95$: $G_p=1/0{,}0975=10{,}3\to10{,}1$ dB
+($\approx1{,}7$ bit). Perto de $\rho=1$ o ganho cresce muito rápido.
+
+% ##################################################################
+\section*{Capítulo 6 --- Transmissão Digital em Banda Base}
+
+\section{Sistemas de Comunicação Digital}
+
+\Q\textit{$B=1{,}2$ MHz, pulsos de Nyquist ($R_s=2B$).}
+
+\textbf{(a)} $R_s=2B=2{,}4$ Mbaud; binário $R_b=R_s=\mathbf{2{,}4}$ Mb/s.
+
+\textbf{(b)}
+\[
+  \begin{array}{c|ccc}
+   M & R_s & R_b & \eta=R_b/B\\\hline
+   2 & 2{,}4\text{M} & 2{,}4\text{M} & 2\\
+   4 & 2{,}4\text{M} & 4{,}8\text{M} & 4\\
+   8 & 2{,}4\text{M} & 7{,}2\text{M} & 6
+  \end{array}
+\]
+\textbf{(c)} $\log_2M\ge R_b/(2B)=6/2{,}4=2{,}5\Rightarrow M\ge5{,}66\Rightarrow
+\resp{M=8}$ ($3$ bits/símbolo), pois $M=4$ daria só $4{,}8$ Mb/s.
+
+\section{Codificação de Linha}
+
+\Q\textit{Sequência $[1,0,1,1,0,0,1,0]$.}
+
+\textbf{(a)} Polar NRZ: $+A,-A,+A,+A,-A,-A,+A,-A$. Manchester: cada bit é
+uma transição no meio do intervalo ($1$: $+\!\to\!-$; $0$: $-\!\to\!+$).
+AMI: $0\to0$; $1\to$ pulsos $+A,-A,+A,-A$ alternados.
+
+\textbf{(b)} A sequência tem $4$ uns e $4$ zeros, então o polar NRZ tem
+nível médio $\mathbf{0}$; Manchester tem CC nulo por construção; AMI também
+($+A,-A,+A,-A$ soma zero). Primeiro nulo espectral: polar NRZ e AMI em
+$R_b=2$ MHz; Manchester em $2R_b=4$ MHz.
+
+\textbf{(c)} Marcas em $n=0,2,3,6$ recebem $+A,-A,+A,-A$. Duas marcas de
+mesma polaridade consecutivas indicam erro (violação bipolar). Longas
+sequências de zeros não geram transições e o relógio se perde; corrige-se
+com substituição B8ZS/HDB3 ou embaralhamento.
+
+\Q\textit{CC e banda dos códigos.}
+
+\textbf{(a)} Pulso Manchester: $+A$ na 1ª metade, $-A$ na 2ª, logo
+$\int_0^{T_b}=A\frac{T_b}2-A\frac{T_b}2=0$, independente do bit. CC nulo.
+
+\textbf{(b)} $R_b=10$ Mb/s: polar NRZ tem 1º nulo em $10$ MHz; Manchester em
+$20$ MHz. O 10BASE-T escolheu Manchester pelas transições garantidas
+(recuperação de relógio) e CC nulo (acoplamento por transformador), ao
+custo do dobro de banda.
+
+\textbf{(c)} Para enlace sem CC e com detecção de erro embutida, escolhe-se
+AMI/bipolar: CC nulo e detecção por violação de alternância.
+
+\section{Formatação de Pulso}
+
+\Q\textit{Critério de Nyquist.}
+
+\textbf{(a)} A versão amostrada $\sum_n p(nT)\delta(t-nT)$ tem espectro
+$\frac1T\sum_kP(f-k/T)$. Zero ISI exige $p(nT)=\delta[n]$, isto é, a
+amostragem dá $\delta(t)$, cujo espectro é $1$. Logo
+$\frac1T\sum_kP(f-k/T)=1\Rightarrow\resp{\sum_kP(f-k/T)=T}$.
+
+\textbf{(b)} $p(t)=\sinc(t/T)\Rightarrow P(f)=T\rect(fT)$, que somado às
+réplicas dá $T$ constante. Banda $W=1/(2T)$.
+
+\textbf{(c)} Com erro $\epsilon$, $\text{ISI}=\sum_{k\ne0}a_k
+\sinc(k+\epsilon/T)$; como $\sinc\sim1/k$, a soma se comporta como a série
+harmônica $\sum1/k$, que diverge --- o $\sinc$ puro é muito sensível a erro
+de sincronismo.
+
+\Q\textit{Cosseno levantado, $R_s=10$ Mbaud.}
+
+\textbf{(a)} $W=(1+\alpha)R_s/2=(1+\alpha)\cdot5$ MHz:
+$\alpha{=}0\to5$; $0{,}25\to6{,}25$; $0{,}5\to7{,}5$; $1\to10$ MHz.
+
+\textbf{(b)} $\eta=2/(1+\alpha)$: $2$; $1{,}6$; $1{,}33$; $1$ bits/s/Hz.
+
+\textbf{(c)} $B=7$ MHz: $(1+\alpha)5\le7\Rightarrow\alpha\le0{,}4$, logo
+$\resp{\alpha_{\max}=0{,}4}$. Mais perto desse limite, menos margem de
+robustez no pulso.
+
+\Q\textit{Sinc vs cosseno levantado.}
+
+\textbf{(a)} O $\sinc$ decai como $1/|t|$; o cosseno levantado com
+$\alpha>0$ ganha o fator $\cos(\pi\alpha t/T)/[1-(2\alpha t/T)^2]$, que faz
+as caudas decaírem como $1/|t|^3$ --- muito mais robusto a jitter.
+
+\textbf{(b)} $4$-PAM, $R_b=100$ Mb/s: $R_s=R_b/\log_24=50$ Mbaud,
+$W=(1{,}3)50/2=\mathbf{32{,}5}$ MHz. Binário de mesma taxa:
+$R_s=100$ Mbaud, $W=(1{,}3)50=\mathbf{65}$ MHz. O $4$-PAM ocupa metade da
+banda.
+
+\textbf{(c)} $\alpha$ entre $0{,}2$ e $0{,}5$ equilibra excesso de banda
+(cresce com $\alpha$) e robustez do olho a jitter (melhora com $\alpha$).
+
+\section{Diagrama de Olho}
+
+\Q\textit{Diagrama de olho.}
+
+\textbf{(a)} $2$-PAM: $1$ olho, limiar em $0$. $4$-PAM (níveis
+$-3,-1,+1,+3$): $3$ olhos, limiares em $-2d,0,+2d$.
+
+\textbf{(b)} Abertura vertical $\leftrightarrow$ margem de ruído; abertura
+horizontal $\leftrightarrow$ margem de temporização. Aumentar $\alpha$
+alarga a abertura horizontal (mais robusto a jitter).
+
+\textbf{(c)} Distância nível--limiar $=d=0{,}3$ V. Exigindo $d\ge3\sigma$:
+$\sigma\le d/3=\resp{0{,}1\ \text{V}}$.
+
+\section{Modulação por Amplitude de Pulso M-ária}
+
+\Q\textit{Energia média do $M$-PAM.}
+
+\textbf{(a)} $E_s=\frac1M\sum_{m=1}^M(2m-1-M)^2d^2$.
+
+\textbf{(b)} Como $\sum_{m=1}^M(2m-1-M)^2=\frac{M(M^2-1)}3$:
+$E_s=\frac{d^2}M\cdot\frac{M(M^2-1)}3=\resp{\dfrac{(M^2-1)d^2}3}$.
+
+\textbf{(c)} $E_b=E_s/\log_2M$. Para $d=1$:
+$M{=}4\Rightarrow E_s=5,\ E_b=2{,}5$; $M{=}8\Rightarrow E_s=21,\ E_b=7$.
+
+\Q\textit{Erro do $M$-PAM, $\frac{E_b}{N_0}=10$ dB.}
+
+\textbf{(a)} Argumento $\sqrt{\frac{3\log_2M}{M^2-1}\frac{2E_b}{N_0}}$ e
+$P_s=2(1-\tfrac1M)Q(\cdot)$:
+\[
+  M{=}2:\ Q(\sqrt{20})=Q(4{,}47)\to\mathbf{3{,}9\times10^{-6}};
+\]
+\[
+  M{=}4:\ 1{,}5\,Q(\sqrt8)=1{,}5\,Q(2{,}83)\to\mathbf{3{,}5\times10^{-3}};\quad
+  M{=}8:\ 1{,}75\,Q(1{,}69)\to\mathbf{8{,}0\times10^{-2}}.
+\]
+\textbf{(b)} Para $P_s=10^{-6}$:
+$M{=}2\Rightarrow\mathbf{10{,}5}$ dB; $M{=}4\Rightarrow\mathbf{14{,}7}$ dB;
+$M{=}8\Rightarrow\mathbf{19{,}2}$ dB.
+
+\textbf{(c)} Penalidade $2$-PAM $\to8$-PAM: $19{,}2-10{,}5\approx\resp{8{,}7\ \text{dB}}$
+para triplicar a eficiência espectral ($3$ bits/símbolo contra $1$).
+
+\Q\textit{Projeto integrado.}
+
+\textbf{(a)} $R_b=nf_s=12\cdot8000=\mathbf{96}$ kb/s;
+$\SQNR=1{,}76+6{,}02\cdot12=\mathbf{74}$ dB.
+
+\textbf{(b)} $B=(1+\alpha)R_s/2\Rightarrow R_s\le\frac{2B}{1{,}25}=38{,}4$ kbaud.
+$\log_2M\ge R_b/R_s=96/38{,}4=2{,}5\Rightarrow\resp{M=8}$. Com $M=8$:
+$R_s=R_b/3=32$ kbaud, $B=(1{,}25)32/2=20$ kHz $\le24$ kHz. ($M=4$ exigiria
+$30$ kHz, não cabe.)
+
+\textbf{(c)} Pelo item da Questão 29, $8$-PAM com $P_s=10^{-6}$ exige
+$E_b/N_0\approx\mathbf{19{,}2}$ dB. Mais bits de quantização elevam $R_b$,
+o que força $M$ maior para caber em $B$, o que por sua vez exige mais
+potência ($E_b/N_0$): qualidade, banda e potência ficam acoplados.
+
+% ##################################################################
+\section*{Aplicações --- Interfaces Digitais de Alta Velocidade}
+
+\section{Padrões: USB, PCIe, HDMI e PAM-4}
+
+\Q\textit{USB: 8b/10b vs 128b/132b.}
+
+\textbf{(a)} Eficiência $=$ bits de dados / bits transmitidos.
+$8b/10b\Rightarrow 8/10=80\%$; USB 3.0: $5\times0{,}8=\mathbf{4}$ Gb/s $=500$ MB/s.
+$128b/132b\Rightarrow 128/132=97\%$; USB 3.1: $10\cdot\frac{128}{132}=\mathbf{9{,}70}$ Gb/s
+$\approx1{,}21$ GB/s.
+
+\textbf{(b)} NRZ, um símbolo por bit codificado: $R_s=5$ e $10$ Gbaud, logo
+$B_{\min}=R_s/2=\resp{2{,}5\ \text{e}\ 5\ \text{GHz}}$.
+
+\textbf{(c)} Sem transições frequentes o relógio do receptor não é recuperado e
+o nível CC faz o acoplamento capacitivo derivar (\emph{baseline wander}). O
+$8b/10b$ garante densidade de transições e CC nulo.
+
+\textbf{(d)} O $8b/10b$ custa $25\%$ de sobrecarga; ao dobrar a sinalização para
+$10$ Gb/s isso desperdiçaria $2{,}5$ Gb/s. O $128b/132b$ custa só $3\%$, então
+quase toda a taxa vira payload.
+
+\Q\textit{PCI Express, por lane.}
+
+\textbf{(a)} Payload $=$ GT/s $\times$ eficiência:
+\[
+  \text{Gen1: }2{,}5\cdot0{,}8=2{,}0\ (\text{250 MB/s});\quad
+  \text{Gen2: }4{,}0\ (\text{500 MB/s});
+\]
+\[
+  \text{Gen3: }8\cdot\tfrac{128}{130}=7{,}88;\quad
+  \text{Gen4: }15{,}75;\quad
+  \text{Gen5: }31{,}5\ \text{Gb/s}\ (\approx\mathbf{3{,}94}\ \text{GB/s}).
+\]
+
+\textbf{(b)} Gen5 NRZ a $32$ GT/s: $R_s=32$ Gbaud $\Rightarrow f_{\text{Nyq}}=R_s/2=16$ GHz.
+Gen6 PAM-4 a $64$ GT/s: $R_s=32$ Gbaud ($2$ bits/símbolo) $\Rightarrow f_{\text{Nyq}}=16$ GHz.
+\resp{\text{Gen6 dobra a taxa mantendo } f_{\text{Nyq}}=16\ \text{GHz}.}
+
+\textbf{(c)} Os $4$ níveis dão abertura de olho $1/3$ e penalidade
+$20\log_{10}3\approx9{,}5$ dB de SNR; a margem menor exige FEC e equalização
+para manter a BER.
+
+\Q\textit{HDMI: vídeo e versão.}
+
+\textbf{(a)} Taxa $=$ px $\times$ fps $\times$ bpp:
+\[
+  \text{1080p60/24}=1920\cdot1080\cdot60\cdot24\approx2{,}99\ \text{Gb/s};\quad
+  \text{4K60/24}\approx11{,}94;
+\]
+\[
+  \text{4K120/30}\approx29{,}86;\quad \text{8K60/24}\approx47{,}78\ \text{Gb/s}.
+\]
+
+\textbf{(b)} Capacidades $8{,}16$ / $14{,}4$ / $42{,}7$ Gb/s:
+$2{,}99\!\to\!\mathbf{1.4}$;\ $11{,}94\!\to\!\mathbf{2.0}$;\
+$29{,}86\!\to\!\mathbf{2.1}$;\ $47{,}78>42{,}7\!\to\!\mathbf{2.1}$.
+
+\textbf{(c)} O TMDS usa $8b/10b$ (relógio embutido e CC nulo, $25\%$ de
+sobrecarga); o HDMI 2.1 trocou para o FRL com $16b/18b$ ($11\%$), liberando
+mais payload.
+
+\textbf{(d)} O 8K60 ($47{,}78>42{,}7$) só cabe com \resp{\text{DSC}}, a compressão
+visualmente sem perdas do HDMI 2.1.
+
+\Q\textit{PAM-4 vs NRZ.}
+
+\textbf{(a)} À mesma $R_s$: NRZ leva $\log_2 2=1$ bit/símbolo e o PAM-4
+$\log_2 4=2$; logo $R_b^{\text{PAM-4}}=2R_b^{\text{NRZ}}$.
+
+\textbf{(b)} Para a mesma amplitude $V$, o NRZ tem um espaço $V$ e o PAM-4
+reparte em $3$ espaços de $V/3$; a penalidade é
+$20\log_{10}\frac{V}{V/3}=20\log_{10}3\approx\resp{9{,}5\ \text{dB}}$.
+
+\textbf{(c)} A perda de margem exige FEC e equalização, mas compensa: dobra a
+taxa de bits sem aumentar a banda do canal e do conector.
+
+\section{Ethernet, Áudio e Projeto de Enlace}
+
+\Q\textit{Ethernet em par trançado.}
+
+\textbf{(a)} Taxa por par $=R_b/4$ e bits por símbolo $=$ (taxa por par)/(baud):
+\[
+  \text{1000BASE-T: }\tfrac{1\text{G}}{4}=250\ \text{Mb/s},\ \tfrac{250\text{M}}{125\text{M}}=\mathbf{2}\ \text{bits/símbolo};
+\]
+\[
+  \text{10GBASE-T: }\tfrac{10\text{G}}{4}=2{,}5\ \text{Gb/s},\ \tfrac{2{,}5\text{G}}{800\text{M}}=\mathbf{3{,}125}\ \text{bits/símbolo}.
+\]
+
+\textbf{(b)} $2$ bits/símbolo pedem $\ge4$ níveis --- usa-se PAM-5 (nível extra
+para o código treliça); $3{,}125$ bits/símbolo pedem $\ge2^{3{,}125}\approx9$
+níveis --- usa-se PAM-16 com codificação.
+
+\textbf{(c)} A banda do cabo limita o baud a $\approx2B$ (Cat5e $100$ MHz, Cat6a
+$500$ MHz). Não se pode multiplicar o baud por $10$, então a única saída para
+$10\times$ a taxa é aumentar os bits por símbolo, isto é, a ordem do PAM.
+
+\Q\textit{Áudio: CD vs estúdio.}
+
+\textbf{(a)} CD: $44{,}1\text{k}\times16\times2=\mathbf{1{,}411}$ Mb/s.
+Estúdio: $192\text{k}\times24\times2=\mathbf{9{,}216}$ Mb/s.
+
+\textbf{(b)} $\SQNR=6{,}02n+1{,}76$: CD $\to\mathbf{98}$ dB; estúdio $\to\mathbf{146}$ dB.
+
+\textbf{(c)} Nyquist $=f_s/2$: CD $\to22{,}05$ kHz; estúdio $\to96$ kHz.
+
+\textbf{(d)} A audição humana vai a $\sim20$ kHz e $\sim120$ dB. O CD já cobre a
+banda audível e quase toda a faixa dinâmica; $192$ kHz e $24$ bits ultrapassam o
+limite perceptivo --- o ganho é margem para \emph{produção} (edição,
+processamento, \emph{headroom}), não audibilidade na reprodução.
+
+\Q\textit{Projeto de enlace: $50$ Gb/s úteis, $B=25$ GHz.}
+
+\textbf{(a)} NRZ com Nyquist $R_s\approx2B=50$ Gbaud dá $R_b=50$ Gb/s brutos;
+com $128b/130b$ o payload é $50\cdot\frac{128}{130}=49{,}2$ Gb/s $<50$ --- e
+$R_s=2B$ é o limite teórico ideal. \resp{\text{NRZ n\~ao atende em 1 lane}.}
+
+\textbf{(b)} PAM-4: $R_s=2B=50$ Gbaud com $2$ bits/símbolo dá $100$ Gb/s brutos;
+com $128b/130b$, $\approx98{,}5$ Gb/s de payload --- folga grande. Para entregar
+exatamente $50$ Gb/s bastam $R_s\approx25{,}4$ Gbaud, isto é
+$f_{\text{Nyq}}\approx12{,}7$ GHz $<25$ GHz.
+
+\textbf{(c)} Sobrecargas: $8b/10b$ $25\%$, $64b/66b$ $3\%$, $128b/130b$ $1{,}5\%$.
+Escolhe-se o $128b/130b$, que quase não reduz o payload.
+
+\textbf{(d)} \resp{\text{PAM-4} + 128b/130b + \text{FEC em 1 lane}} atende aos
+$50$ Gb/s com margem; o NRZ exigiria $\sim2$ lanes ou sinalização em $2B$
+impraticável. O preço é a penalidade de $\approx9{,}5$ dB de SNR, compensada por
+FEC e equalização.
+
+\vspace{0.3cm}
+\noindent\rule{\textwidth}{0.6pt}
+\begin{center}\small
+Fim do gabarito --- 37 questões.
+\end{center}
+
+\end{document}

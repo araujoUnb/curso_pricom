@@ -38,79 +38,72 @@
 \end{frame}
 
 % ------------------------------------------------------------------
-\subsection{Interpretação}
-% ------------------------------------------------------------------
 
-\begin{frame}{Leitura do Diagrama de Olho}
-  O diagrama de olho revela, \textbf{de uma só vez}, diversas
-  informações sobre a qualidade do enlace:
-
-  \vspace{0.3cm}
-  \begin{itemize}
-    \item \textbf{Abertura vertical} → margem de ruído disponível.
-    \begin{itemize}
-      \item Quanto maior, mais ruído o sistema tolera.
-    \end{itemize}
-
-    \vspace{0.2cm}
-    \item \textbf{Abertura horizontal} → margem de temporização (\textit{timing margin}).
-    \begin{itemize}
-      \item Quanto mais larga, menos sensível a \textit{jitter}.
-    \end{itemize}
-
-    \vspace{0.2cm}
-    \item \textbf{Espessura das trilhas} → quantidade de ISI e ruído.
-    \begin{itemize}
-      \item Trilhas finas = pouco ISI; trilhas grossas = ISI severa.
-    \end{itemize}
-
-    \vspace{0.2cm}
-    \item \textbf{Cruzamentos} (\textit{zero crossings}) → variações de temporização (\textit{jitter}).
-  \end{itemize}
-\end{frame}
-
-% ------------------------------------------------------------------
-
-\begin{frame}{Parâmetros do Diagrama de Olho}
+\begin{frame}{Construção do Diagrama de Olho (passo a passo)}
   \begin{center}
-    \begin{tikzpicture}[scale=1.0]
-      % "Eye" shape
-      \draw[thick, UNB_BLUE] (0,0) .. controls (1.5,1.2) and (3.5,1.2) .. (5,0);
-      \draw[thick, UNB_BLUE] (0,0) .. controls (1.5,-1.2) and (3.5,-1.2) .. (5,0);
-      \draw[thick, UNB_BLUE!50] (0,0) .. controls (1.5,0.6) and (3.5,0.6) .. (5,0);
-      \draw[thick, UNB_BLUE!50] (0,0) .. controls (1.5,-0.6) and (3.5,-0.6) .. (5,0);
-
-      % Vertical opening
-      \draw[<->, thick, RED] (2.5, -0.85) -- (2.5, 0.85);
-      \node[right, RED, font=\footnotesize\bfseries] at (2.6, 0) {Abertura vertical};
-
-      % Horizontal opening
-      \draw[<->, thick, UNB_GREEN] (0.8, 0) -- (4.2, 0);
-      \node[above, UNB_GREEN, font=\footnotesize\bfseries] at (2.5, 0.05) {Abertura horizontal};
-
-      % Optimal sampling
-      \draw[dashed, thick, UNB_GOLD] (2.5, -1.5) -- (2.5, 1.5);
-      \node[above, UNB_GOLD, font=\footnotesize\bfseries] at (2.5, 1.5) {Instante ótimo};
-
-      % Labels
-      \node[below, font=\footnotesize] at (0, -1.4) {$0$};
-      \node[below, font=\footnotesize] at (2.5, -1.4) {$T$};
-      \node[below, font=\footnotesize] at (5, -1.4) {$2T$};
-
-      % ISI annotation
-      \draw[<->, thick, PURPLE] (5.3, -1.2) -- (5.3, -0.6);
-      \node[right, PURPLE, font=\footnotesize\bfseries] at (5.4, -0.9) {ISI};
-    \end{tikzpicture}
+    \only<1>{\includegraphics[width=0.82\textwidth,height=0.62\textheight,keepaspectratio]{figures/cap6/eye_build_1}}%
+    \only<2->{\includegraphics[width=0.82\textwidth,height=0.62\textheight,keepaspectratio]{figures/cap6/eye_build_2}}%
   \end{center}
-
-  \vspace{0.2cm}
+  \vspace{-0.05cm}
   {\footnotesize
-    A abertura vertical indica a \textbf{margem de ruído};
-    a horizontal, a \textbf{margem de temporização}.
-    O instante ótimo de amostragem é no centro do olho.}
+    \only<1>{\textbf{Passo 1.} Receba o sinal $r(t)$ após a filtragem — vários símbolos em sequência.}%
+    \only<2->{\textbf{Passo 2.} Corte o sinal em trechos de duração $2T$ (cada faixa colorida é um trecho).}%
+  }
 \end{frame}
 
 % ------------------------------------------------------------------
+
+\begin{frame}{Construção do Olho: Trecho a Trecho}
+  \begin{center}
+    \only<1>{\includegraphics[width=0.80\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/eye_overlay_1}}%
+    \only<2>{\includegraphics[width=0.80\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/eye_overlay_2}}%
+    \only<3>{\includegraphics[width=0.80\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/eye_overlay_3}}%
+    \only<4>{\includegraphics[width=0.80\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/eye_overlay_4}}%
+    \only<5>{\includegraphics[width=0.80\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/eye_overlay_5}}%
+    \only<6>{\includegraphics[width=0.80\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/eye_overlay_6}}%
+    \only<7->{\includegraphics[width=0.80\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/eye_overlay_7}}%
+  \end{center}
+  \vspace{-0.05cm}
+  {\footnotesize
+    \only<1>{Selecione o primeiro trecho de $2T$ no sinal (em cima): ele vira a primeira curva do olho (embaixo).}%
+    \only<2-6>{Cada novo trecho destacado em cima é \textbf{sobreposto}, alinhado ao mesmo intervalo $[0,2T]$, embaixo.}%
+    \only<7->{Repetindo para \textbf{muitos} trechos, a sobreposição forma o ``olho''; a abertura em $t/T=1$ é o instante ótimo de decisão.}%
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Leitura do Diagrama de Olho: Análise Guiada}
+  \begin{columns}[c]
+    \column{0.58\textwidth}
+    \centering
+    \begin{tikzpicture}
+      \node[anchor=south west,inner sep=0] (img) at (0,0)
+        {\includegraphics[width=\linewidth]{figures/cap6/eye_analise_base}};
+      \begin{scope}[x={(img.south east)},y={(img.north west)}]
+        \draw[gray!35] (0,0) rectangle (1,1);
+        \node[font=\tiny,gray] at (0.5,-0.045) {$t/T=1$};
+        \onslide<2->{\draw[UNB_GOLD,very thick,dashed] (0.5,0) -- (0.5,1);}
+        \onslide<3->{\draw[<->,RED,line width=1.4pt] (0.5,0.25) -- (0.5,0.75);}
+        \onslide<4->{\draw[<->,UNB_GREEN,line width=1.4pt] (0.34,0.5) -- (0.66,0.5);}
+        \onslide<5->{\node[draw=PURPLE,circle,minimum size=9pt,line width=1pt] at (0.25,0.5){};
+                     \node[draw=PURPLE,circle,minimum size=9pt,line width=1pt] at (0.75,0.5){};}
+        \onslide<6->{\draw[->,TEAL,line width=1.2pt] (0.52,0.97) -- (0.43,0.85);}
+      \end{scope}
+    \end{tikzpicture}
+
+    \column{0.42\textwidth}
+    \scriptsize
+    \onslide<2->{\begin{tikzpicture}\node[draw=UNB_GOLD,fill=UNB_GOLD!12,rounded corners,inner sep=4pt,text width=0.9\linewidth]{\textbf{Instante ótimo} --- amostrar em $t/T=1$, no centro do olho.};\end{tikzpicture}\par\vspace{4pt}}
+    \onslide<3->{\begin{tikzpicture}\node[draw=RED,fill=RED!10,rounded corners,inner sep=4pt,text width=0.9\linewidth]{\textbf{Abertura vertical} --- margem de ruído; quanto maior, mais ruído o sistema tolera.};\end{tikzpicture}\par\vspace{4pt}}
+    \onslide<4->{\begin{tikzpicture}\node[draw=UNB_GREEN,fill=UNB_GREEN!12,rounded corners,inner sep=4pt,text width=0.9\linewidth]{\textbf{Abertura horizontal} --- margem de temporização; quanto mais larga, menos sensível a jitter.};\end{tikzpicture}\par\vspace{4pt}}
+    \onslide<5->{\begin{tikzpicture}\node[draw=PURPLE,fill=PURPLE!10,rounded corners,inner sep=4pt,text width=0.9\linewidth]{\textbf{Cruzamentos} --- o espalhamento dos pontos revela o jitter de relógio.};\end{tikzpicture}\par\vspace{4pt}}
+    \onslide<6->{\begin{tikzpicture}\node[draw=TEAL,fill=TEAL!12,rounded corners,inner sep=4pt,text width=0.9\linewidth]{\textbf{Espessura das trilhas} --- revela a ISI e o ruído residual.};\end{tikzpicture}}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+
 \subsection{Exemplos Práticos}
 % ------------------------------------------------------------------
 
@@ -134,4 +127,32 @@
       $\alpha = 0$: olho estreito (sensível a jitter).
       $\alpha = 1$: olho mais largo e robusto.}
   \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------
+\subsection{Demonstração no GNU Radio}
+% ------------------------------------------------------------------
+
+\begin{frame}{Demonstração ao Vivo: Diagrama de Olho}
+  O mesmo flowgraph \texttt{demo\_pulse\_shaping\_olho.grc} traz um
+  \emph{QT GUI Eye Sink} após o filtro casado. Movendo os sliders de
+  $\alpha$ e de ruído, observa-se o olho abrir e fechar em tempo real.
+
+  \vspace{0.15cm}
+  \begin{columns}[c]
+    \column{0.5\textwidth}
+    \begin{center}
+      \includegraphics[width=\textwidth]{figures/cap6/demo_gr_eye_alpha}
+    \end{center}
+
+    \column{0.5\textwidth}
+    \begin{center}
+      \includegraphics[width=\textwidth]{figures/cap6/demo_gr_eye_ruido}
+    \end{center}
+  \end{columns}
+
+  \vspace{0.1cm}
+  {\footnotesize O roll-off menor estreita a abertura horizontal e deixa o
+  sistema mais sensível a erros de temporização; o ruído do canal reduz a
+  abertura vertical e encolhe a margem de decisão.}
 \end{frame}

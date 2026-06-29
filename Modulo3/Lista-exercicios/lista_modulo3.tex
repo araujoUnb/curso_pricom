@@ -1,0 +1,609 @@
+\documentclass[11pt,a4paper]{article}
+
+% ============================================
+% PACOTES
+% ============================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\geometry{margin=2.4cm}
+
+% ============================================
+% ESTILO
+% ============================================
+\definecolor{unbprimary}{HTML}{003B5C}
+\definecolor{unbsecondary}{HTML}{006633}
+
+\titleformat{\section}{\large\bfseries\color{unbprimary}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalsize\bfseries\color{unbsecondary}}{\thesubsection}{0.6em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small Princípios de Comunicação --- Módulo 3}
+\rhead{\small Lista de Exercícios}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ============================================
+% COMANDOS
+% ============================================
+\newcommand{\SQNR}{\mathrm{SQNR}}
+\newcommand{\SNR}{\mathrm{SNR}}
+\newcommand{\sinc}{\operatorname{sinc}}
+\newcommand{\rect}{\operatorname{rect}}
+\newcommand{\sgn}{\operatorname{sgn}}
+
+% contador de questões contínuo entre seções
+\newcounter{quest}
+\newcommand{\Q}{\par\medskip\noindent\refstepcounter{quest}\textbf{Questão \thequest.}\enspace}
+
+\begin{document}
+
+% ============================================
+% CABEÇALHO
+% ============================================
+\begin{center}
+  {\LARGE\bfseries\color{unbprimary} Lista de Exercícios }\\[4pt]
+  {\large Conversão A/D e Transmissão Digital}\\[2pt]
+  {\normalsize Capítulos 5 e 6 de Lathi \& Ding e Capítulo 7 de Proakis \& Salehi}\\[6pt]
+  {\small Universidade de Brasília --- Laboratório de Telecomunicações}\\
+  {\small Prof.\ Daniel Costa Araújo}
+\end{center}
+
+\vspace{0.3cm}
+\noindent\rule{\textwidth}{0.6pt}
+
+\small
+Em todas as questões numéricas, apresente o desenvolvimento completo, com as
+unidades, e comente o significado de engenharia do resultado. Onde aparece
+$Q(x)=\frac{1}{\sqrt{2\pi}}\int_x^{\infty}e^{-u^2/2}\,du$, use a tabela da função
+de erro. Considere $\log_{10}2\approx 0{,}301$ e $\log_{10}3\approx 0{,}477$.
+\normalsize
+
+\vspace{0.2cm}
+
+% ##################################################################
+\section*{Capítulo 7 --- Conversão Analógico-Digital}
+\addcontentsline{toc}{section}{Capítulo 7}
+
+% ------------------------------------------------------------------
+\section{Amostragem}
+% ------------------------------------------------------------------
+
+\Q Considere o amostrador ideal $g_s(t)=g(t)\,\delta_{T_s}(t)$, com
+$\delta_{T_s}(t)=\sum_{n}\delta(t-nT_s)$ e $g(t)$ limitado a $|f|<W$.
+\begin{enumerate}[label=(\alph*)]
+  \item Expandindo o trem de impulsos em série de Fourier exponencial,
+        demonstre que
+        \[
+          G_s(f)=f_s\sum_{k=-\infty}^{\infty}G(f-kf_s),\qquad f_s=1/T_s .
+        \]
+  \item A partir do espectro acima e de um filtro passa-baixas ideal de corte
+        $W$, demonstre a fórmula de interpolação
+        \[
+          g(t)=\sum_{n=-\infty}^{\infty} g(nT_s)\,
+                \sinc\!\left(\frac{t-nT_s}{T_s}\right).
+        \]
+  \item Prove que a curva interpolada passa exatamente pelas amostras, isto é,
+        avalie a soma em $t=mT_s$ e mostre que resulta $g(mT_s)$.
+\end{enumerate}
+
+\Q O sinal
+\[
+  g(t)=4\cos(2\pi\,1500\,t)+2\cos(2\pi\,3200\,t)+\cos(2\pi\,6000\,t)
+\]
+é amostrado a $f_s=5\,\text{kHz}$ e depois passa por um filtro passa-baixas
+ideal de reconstrução com corte em $f_s/2$.
+\begin{enumerate}[label=(\alph*)]
+  \item Determine a frequência aparente na banda base de cada uma das três
+        componentes após a amostragem.
+  \item Identifique quais componentes sofrem aliasing e escreva a expressão do
+        sinal $\hat g(t)$ que sai do filtro de reconstrução.
+  \item Qual a menor taxa de amostragem que evitaria qualquer aliasing? Que
+        banda de guarda ela deixa para um filtro anti-aliasing real?
+\end{enumerate}
+
+\Q Projete o front-end de aquisição de um sinal de áudio de banda
+$W=20\,\text{kHz}$. O filtro anti-aliasing é um Butterworth com corte
+$f_c=W$ e exige-se que a primeira réplica espectral, que começa em $f_s-W$,
+esteja atenuada em pelo menos $50\,\text{dB}$. Lembre que
+$A(f)=10\log_{10}\!\big[1+(f/f_c)^{2N}\big]$.
+\begin{enumerate}[label=(\alph*)]
+  \item Para $f_s=48\,\text{kHz}$, calcule a banda de transição disponível e a
+        ordem mínima $N$ do filtro.
+  \item Refaça o cálculo para $f_s=44{,}1\,\text{kHz}$ e compare a ordem obtida.
+  \item Discuta quantitativamente o compromisso entre taxa de amostragem e
+        ordem do filtro a partir dos dois resultados.
+\end{enumerate}
+
+\Q Um conversor D/A real segura cada amostra por $T_s$, com resposta ao
+impulso $h_{\text{ZOH}}(t)=\rect\!\big((t-T_s/2)/T_s\big)$.
+\begin{enumerate}[label=(\alph*)]
+  \item Demonstre que $|H_{\text{ZOH}}(f)|=T_s\,|\sinc(fT_s)|$.
+  \item Calcule a atenuação em dB introduzida na borda da banda, $f=W$, para os
+        fatores de sobreamostragem $f_s=2W$, $f_s=4W$ e $f_s=8W$.
+  \item Para cada caso, determine o ganho que o equalizador
+        $H_{\text{eq}}(f)=1/\sinc(fT_s)$ deve fornecer em $f=W$ e comente por
+        que a sobreamostragem reduz a necessidade de equalização.
+\end{enumerate}
+
+\Q Um sistema deve amostrar um sinal de voz de banda $W=4\,\text{kHz}$. O
+projetista dispõe apenas de filtros anti-aliasing Butterworth de ordem máxima
+$N=3$, com corte $f_c=W$, e precisa garantir atenuação mínima de
+$40\,\text{dB}$ na primeira réplica.
+\begin{enumerate}[label=(\alph*)]
+  \item Determine a menor frequência de amostragem $f_s$ que satisfaz o
+        requisito de atenuação.
+  \item Calcule o fator de sobreamostragem $f_s/2W$ resultante e a taxa de bits
+        adicional gerada caso a quantização use $n=10$ bits por amostra.
+  \item Compare com a solução do exemplo de aula, em que $f_s=16\,\text{kHz}$
+        exigia $N=5$, e discuta o compromisso entre ordem do filtro e taxa de
+        dados.
+\end{enumerate}
+
+% ------------------------------------------------------------------
+\section{Quantização}
+% ------------------------------------------------------------------
+
+\Q Modelo estatístico do ruído de quantização uniforme.
+\begin{enumerate}[label=(\alph*)]
+  \item Partindo da densidade uniforme $p(e_q)=1/\Delta$ em
+        $[-\Delta/2,\Delta/2]$, demonstre que a potência do ruído é
+        $P_q=\Delta^2/12$.
+  \item Para um quantizador de $n$ bits, faixa $V_{pp}$ e sinal de potência
+        média $P_s$, demonstre a expressão geral
+        \[
+          \SQNR_{\text{dB}}=6{,}02\,n+10\log_{10}\!\left(\frac{12\,P_s}{V_{pp}^2}\right).
+        \]
+  \item Particularize para uma senoide que ocupa toda a faixa e recupere
+        $\SQNR_{\text{dB}}\approx 6{,}02\,n+1{,}76$.
+\end{enumerate}
+
+\Q Um conversor A/D de $12$ bits tem faixa de entrada $\pm 5\,\text{V}$.
+\begin{enumerate}[label=(\alph*)]
+  \item Calcule o passo $\Delta$ e a potência do ruído de quantização $P_q$.
+  \item Uma senoide de amplitude $4\,\text{V}$ é aplicada à entrada. Calcule o
+        $\SQNR$ em dB e compare com o valor de fundo de escala, explicando a
+        perda devida ao recuo de amplitude.
+  \item Quantos bits seriam necessários para que essa mesma senoide de
+        $4\,\text{V}$ atingisse $\SQNR\ge 80\,\text{dB}$?
+\end{enumerate}
+
+\Q Demonstre as duas condições de otimalidade do quantizador de Lloyd-Max para
+uma densidade $p(x)$ qualquer, minimizando a distorção
+$D=\sum_k\int_{b_{k-1}}^{b_k}(x-\hat y_k)^2 p(x)\,dx$.
+\begin{enumerate}[label=(\alph*)]
+  \item Fazendo $\partial D/\partial \hat y_k=0$, mostre que cada nível é o
+        centróide do seu intervalo.
+  \item Usando a regra de Leibniz em $\partial D/\partial b_k=0$, mostre que cada
+        fronteira é o ponto médio entre os níveis vizinhos.
+  \item Explique por que essas duas condições, aplicadas alternadamente,
+        constituem o algoritmo de Lloyd.
+\end{enumerate}
+
+\Q Um sensor gera um sinal em $[0,4]\,\text{V}$ com densidade
+$p(x)=\dfrac{4-x}{8}$. Projete um quantizador de $2$ níveis pelo algoritmo de
+Lloyd, partindo da fronteira uniforme $b=2\,\text{V}$.
+\begin{enumerate}[label=(\alph*)]
+  \item Calcule os centróides $\hat y_1,\hat y_2$ de cada lado e a nova
+        fronteira $b$.
+  \item Execute uma segunda iteração, recalculando níveis e fronteira.
+  \item Calcule a distorção $D$ do quantizador ótimo e do quantizador uniforme
+        de mesma fronteira, e expresse o ganho de $\SQNR$ em dB.
+\end{enumerate}
+
+\Q Para um sinal Laplaciano $p(x)=\dfrac{1}{2\beta}e^{-|x|/\beta}$, de variância
+$\sigma^2=2\beta^2$, considere um quantizador simétrico de $1$ bit.
+\begin{enumerate}[label=(\alph*)]
+  \item Mostre, por simetria e pela condição de centróide, que os níveis ótimos
+        são $\pm\beta$ e que a fronteira ótima é $b_0=0$.
+  \item Demonstre que a distorção vale $D=\beta^2$ e, portanto,
+        $\SQNR=\sigma^2/D=2$, ou seja $3\,\text{dB}$.
+  \item Compare esse resultado de $1$ bit com a previsão da regra de
+        $6\,\text{dB/bit}$ e comente a diferença.
+\end{enumerate}
+
+\Q O fator de carga de um quantizador é a razão entre a faixa total $V_{pp}$ e
+o valor eficaz do sinal. Considere um sinal de áudio modelado como gaussiano de
+desvio $\sigma$, quantizado em $n$ bits com a faixa ajustada para
+$V_{pp}=2\,k\,\sigma$, onde $k$ é o fator de pico que evita ceifamento.
+\begin{enumerate}[label=(\alph*)]
+  \item Demonstre que $\SQNR_{\text{dB}}=6{,}02\,n+4{,}77-20\log_{10}k$.
+  \item Para $k=4$, que corresponde a uma probabilidade de ceifamento
+        desprezível, calcule o número de bits necessário para
+        $\SQNR\ge 90\,\text{dB}$.
+  \item Discuta o impacto de escolher $k=2$ em vez de $k=4$ sobre o $\SQNR$ e
+        sobre o risco de ceifamento.
+\end{enumerate}
+
+% ------------------------------------------------------------------
+\section{PCM e Companding}
+% ------------------------------------------------------------------
+
+\Q Projeto de um sistema PCM de telefonia segundo a recomendação ITU-T G.711.
+A voz tem banda $W=3{,}4\,\text{kHz}$, amostrada a $f_s=8\,\text{kHz}$, com
+$n=8$ bits por amostra.
+\begin{enumerate}[label=(\alph*)]
+  \item Calcule a taxa de bits $R_b$ de um canal e a largura de banda mínima de
+        Nyquist necessária para transmitir esse fluxo em banda base.
+  \item Calcule o $\SQNR$ máximo, supondo senoide em fundo de escala.
+  \item Um quadro E1 multiplexa $30$ canais de voz mais $2$ canais de
+        sinalização e sincronismo, cada um a $64\,\text{kb/s}$. Determine a taxa
+        agregada e a largura de banda mínima de Nyquist do tronco.
+\end{enumerate}
+
+\Q A lei $\mu$ é definida por
+$C_\mu(x)=\sgn(x)\dfrac{\ln(1+\mu|x|)}{\ln(1+\mu)}$, com $|x|\le 1$ e
+$\mu=255$.
+\begin{enumerate}[label=(\alph*)]
+  \item Calcule a saída do compressor para as entradas normalizadas
+        $|x|=0{,}01$, $0{,}1$ e $0{,}9$ e comente como cada faixa é tratada.
+  \item Para um quantizador uniforme de $8$ bits aplicado ao sinal comprimido,
+        estime o passo efetivo de quantização visto pelo sinal original em cada
+        uma dessas três amplitudes.
+  \item Verifique numericamente que a expansão $C_\mu^{-1}(y)=\sgn(y)\dfrac{(1+\mu)^{|y|}-1}{\mu}$
+        recupera as entradas do item (a).
+\end{enumerate}
+
+\Q Demonstração do princípio do companding. Considere um compressor logarítmico
+ideal cuja derivada satisfaz $C'(x)\propto 1/|x|$ na faixa de operação.
+\begin{enumerate}[label=(\alph*)]
+  \item Mostre que, ao quantizar uniformemente a saída do compressor com passo
+        $\Delta_y$, o passo efetivo sobre o sinal de entrada é
+        $\Delta_x\approx \Delta_y/C'(x)\propto |x|$.
+  \item Conclua que a razão sinal-ruído de quantização local
+        $\hat x^2/\Delta_x^2$ é aproximadamente independente da amplitude e,
+        portanto, o $\SQNR$ é constante em ampla faixa dinâmica.
+  \item Explique por que esse comportamento é desejável para a voz, cuja
+        amplitude varia ao longo de mais de $40\,\text{dB}$.
+\end{enumerate}
+
+\Q Comparação quantitativa entre quantização uniforme e companding para um
+sinal fraco. Uma senoide com nível $-40\,\text{dBFS}$ é quantizada com
+$n=8$ bits, faixa normalizada $[-1,1]$.
+\begin{enumerate}[label=(\alph*)]
+  \item Calcule o $\SQNR$ do quantizador uniforme para essa senoide fraca.
+  \item Estimando que a lei $\mu$ com $\mu=255$ mantenha o $\SQNR$ praticamente
+        igual ao de fundo de escala, calcule o ganho em dB do companding sobre a
+        quantização uniforme nesse nível.
+  \item Determine quantos bits a mais o quantizador uniforme precisaria para
+        igualar o $\SQNR$ que o companding oferece ao sinal fraco.
+\end{enumerate}
+
+\Q Comparação de sistemas de áudio. Um CD usa $f_s=44{,}1\,\text{kHz}$ e
+$n=16$ bits por canal, em dois canais estéreo. A telefonia G.711 usa
+$f_s=8\,\text{kHz}$ e $n=8$ bits.
+\begin{enumerate}[label=(\alph*)]
+  \item Calcule a taxa de bits bruta de cada sistema e o $\SQNR$ máximo de cada
+        um.
+  \item Determine a razão entre as duas taxas de bits e entre os dois valores de
+        $\SQNR$ em dB.
+  \item A voz \emph{wideband} do VoLTE usa $W=7\,\text{kHz}$, $f_s=16\,\text{kHz}$
+        e $n=16$ bits. Calcule sua taxa PCM bruta e explique por que ela é
+        comprimida por um codec antes de ir ao rádio.
+\end{enumerate}
+
+% ------------------------------------------------------------------
+\section{Codificação Preditiva}
+% ------------------------------------------------------------------
+
+\Q Considere a sequência de amostras
+$x[n]=\{0{,}5,\ 1{,}6,\ 2{,}8,\ 3{,}9,\ 4{,}2,\ 3{,}5,\ 2{,}0,\ 0{,}6\}$,
+codificada por modulação delta com passo $\delta=1$ e $\hat x[-1]=0$.
+\begin{enumerate}[label=(\alph*)]
+  \item Monte a tabela com $\hat x[n-1]$, o erro $e[n]$, o bit $b[n]$ e a saída
+        $\hat x[n]$, e escreva o fluxo de bits transmitido.
+  \item Identifique em quais instantes ocorre sobrecarga de inclinação e em
+        quais ocorre ruído granular.
+  \item Refaça o item (a) com $\delta=1{,}5$ e compare o erro quadrático médio
+        de reconstrução nos dois casos.
+\end{enumerate}
+
+\Q Projeto de um modulador delta para uma senoide $x(t)=A\cos(2\pi f_0 t)$,
+amostrada a $f_s$, com passo $\delta$.
+\begin{enumerate}[label=(\alph*)]
+  \item Demonstre que a condição para não haver sobrecarga de inclinação é
+        $\delta f_s \ge 2\pi f_0 A$.
+  \item Para $A=1\,\text{V}$, $f_0=1\,\text{kHz}$ e $\delta=50\,\text{mV}$,
+        determine a frequência de amostragem mínima.
+  \item Sabendo que a potência do ruído granular vale aproximadamente
+        $\delta^2/3$ na banda do sinal e que o filtro de saída tem corte $W$,
+        obtenha uma expressão para o $\SNR$ da DM em função de $f_s$ e comente o
+        ganho de $9\,\text{dB}$ por oitava de sobreamostragem.
+\end{enumerate}
+
+\Q Demonstração da propriedade central do DPCM. No gerador, $e[n]=x[n]-\hat
+x[n]$, $e_q[n]=e[n]+q[n]$ e $x_r[n]=\hat x[n]+e_q[n]$, com o preditor
+realimentado por $x_r$.
+\begin{enumerate}[label=(\alph*)]
+  \item Demonstre que $x_r[n]-x[n]=q[n]$, isto é, o erro de reconstrução é apenas
+        o erro de quantização e não se acumula.
+  \item Mostre que o receptor, usando o mesmo preditor alimentado por $x_r$,
+        reproduz exatamente $x_r[n]=x[n]+q[n]$.
+  \item Defina o ganho de predição $G_p=\sigma_x^2/\sigma_e^2$ e explique por que
+        $G_p>1$ permite reduzir o número de bits para um mesmo $\SQNR$.
+\end{enumerate}
+
+\Q DPCM com preditor linear de primeira ordem $\hat x[n]=a\,x_r[n-1]$ aplicado a
+um sinal estacionário de variância $\sigma_x^2$ e coeficiente de correlação
+$\rho=R_x[1]/R_x[0]$.
+\begin{enumerate}[label=(\alph*)]
+  \item Minimizando $\sigma_e^2=E\{(x[n]-a\,x[n-1])^2\}$, demonstre que o
+        coeficiente ótimo é $a=\rho$ e que o ganho de predição é
+        $G_p=1/(1-\rho^2)$.
+  \item Para $\rho=0{,}9$, calcule $G_p$ em dB e estime quantos bits por amostra
+        o DPCM economiza em relação ao PCM para o mesmo $\SQNR$.
+  \item Repita para $\rho=0{,}95$ e comente a sensibilidade do ganho a $\rho$.
+\end{enumerate}
+
+% ##################################################################
+\section*{Capítulo 6 --- Transmissão Digital em Banda Base}
+\addcontentsline{toc}{section}{Capítulo 6}
+
+% ------------------------------------------------------------------
+\section{Sistemas de Comunicação Digital}
+% ------------------------------------------------------------------
+
+\Q Um sistema de transmissão em banda base envia
+$s(t)=\sum_k a_k\,p(t-kT)$ por um canal de largura de banda
+$B=1{,}2\,\text{MHz}$, usando pulsos de Nyquist.
+\begin{enumerate}[label=(\alph*)]
+  \item Para sinalização binária, determine a taxa de símbolos máxima e a taxa
+        de bits correspondente.
+  \item Repita para $M=4$ e $M=8$ níveis e tabele $R_s$, $R_b$ e a eficiência
+        espectral $\eta=R_b/B$.
+  \item Para transmitir $R_b=6\,\text{Mb/s}$ nesse canal, determine o menor $M$
+        admissível e o número de bits por símbolo correspondente.
+\end{enumerate}
+
+% ------------------------------------------------------------------
+\section{Codificação de Linha}
+% ------------------------------------------------------------------
+
+\Q Considere a sequência de bits $[1,0,1,1,0,0,1,0]$ com taxa
+$R_b=2\,\text{Mb/s}$ e amplitude $A$.
+\begin{enumerate}[label=(\alph*)]
+  \item Desenhe as formas de onda nos códigos polar NRZ, Manchester e AMI.
+  \item Calcule o nível médio CC de cada código para essa sequência e indique a
+        frequência do primeiro nulo espectral de cada um.
+  \item Aplique a regra de alternância do AMI à sequência e mostre como uma longa
+        cadeia de zeros prejudicaria a sincronização; proponha uma solução
+        prática.
+\end{enumerate}
+
+\Q Análise do conteúdo CC e da banda dos códigos de linha.
+\begin{enumerate}[label=(\alph*)]
+  \item Para o código Manchester, calcule a integral do pulso de bit ao longo de
+        $T_b$ e demonstre que o valor médio CC é nulo independentemente da
+        sequência.
+  \item Compare as larguras de banda mínimas dos códigos polar NRZ e Manchester
+        para $R_b=10\,\text{Mb/s}$ e justifique por que o padrão Ethernet
+        10BASE-T adotou Manchester apesar do custo em banda.
+  \item Discuta, em termos de presença de CC, recuperação de relógio e detecção
+        de erro, qual código você escolheria para um enlace que não transmite CC
+        e precisa de detecção de erro embutida.
+\end{enumerate}
+
+% ------------------------------------------------------------------
+\section{Formatação de Pulso}
+% ------------------------------------------------------------------
+
+\Q Critério de Nyquist para ISI nula.
+\begin{enumerate}[label=(\alph*)]
+  \item Demonstre que a condição no tempo $p(nT)=\delta[n]$ é equivalente à
+        condição na frequência $\sum_{k}P\!\left(f-\frac{k}{T}\right)=T$ para
+        todo $f$.
+  \item Mostre que o pulso sinc $p(t)=\sinc(t/T)$ satisfaz o critério e
+        determine sua largura de banda.
+  \item Explique, calculando a soma de ISI quando há um pequeno erro de
+        sincronismo $\epsilon$, por que o pulso sinc puro é frágil a erros de
+        temporização.
+\end{enumerate}
+
+\Q Um enlace usa pulso de cosseno levantado com taxa de símbolos
+$R_s=10\,\text{Mbaud}$.
+\begin{enumerate}[label=(\alph*)]
+  \item Calcule a largura de banda ocupada $W=(1+\alpha)R_s/2$ para
+        $\alpha=0$, $0{,}25$, $0{,}5$ e $1$.
+  \item Para sinalização binária, tabele a eficiência espectral
+        $\eta=2/(1+\alpha)$ nos mesmos valores de $\alpha$.
+  \item Dado um canal de banda $B=7\,\text{MHz}$, determine o maior $\alpha$ que
+        permite manter $R_s=10\,\text{Mbaud}$ e comente o efeito sobre a
+        robustez do pulso.
+\end{enumerate}
+
+\Q Comparação entre pulso sinc e cosseno levantado quanto ao decaimento das
+caudas.
+\begin{enumerate}[label=(\alph*)]
+  \item Justifique que as caudas do sinc decaem como $1/|t|$ e as do cosseno
+        levantado com $\alpha>0$ decaem como $1/|t|^3$.
+  \item Projete a banda de um sistema que transmite $R_b=100\,\text{Mb/s}$ em
+        $4$-PAM com $\alpha=0{,}3$ e compare com a banda exigida por uma
+        transmissão binária de mesma taxa de bits e mesmo $\alpha$.
+  \item Explique, em termos do diagrama de olho e da sensibilidade a jitter, por
+        que na prática se escolhe $\alpha$ entre $0{,}2$ e $0{,}5$.
+\end{enumerate}
+
+% ------------------------------------------------------------------
+\section{Diagrama de Olho}
+% ------------------------------------------------------------------
+
+\Q Um diagrama de olho é obtido na recepção de um sistema PAM cujo pulso é um
+cosseno levantado.
+\begin{enumerate}[label=(\alph*)]
+  \item Para $2$-PAM e para $4$-PAM, indique quantas aberturas de olho aparecem e
+        em que posições verticais ficam os limiares de decisão.
+  \item Relacione a abertura vertical com a margem de ruído e a abertura
+        horizontal com a margem de temporização, e explique como o fator de
+        roll-off $\alpha$ altera cada uma.
+  \item Em um $4$-PAM com níveis $\{-3,-1,+1,+3\}d$, a abertura vertical de cada
+        olho na ausência de ISI vale $2d$. Se o ruído tem desvio $\sigma$ e
+        $d=0{,}3\,\text{V}$, determine o maior $\sigma$ tolerável para que o
+        instante de decisão fique a pelo menos $3\sigma$ do limiar.
+\end{enumerate}
+
+% ------------------------------------------------------------------
+\section{Modulação por Amplitude de Pulso M-ária}
+% ------------------------------------------------------------------
+
+\Q Demonstração da energia média de uma constelação $M$-PAM com níveis
+igualmente espaçados $a_k\in\{\pm d,\pm 3d,\dots,\pm(M-1)d\}$ e símbolos
+equiprováveis.
+\begin{enumerate}[label=(\alph*)]
+  \item Demonstre que a energia média por símbolo é
+        $E_s=\dfrac{(M^2-1)d^2}{3}$.
+  \item Usando $\sum_{m=1}^{M}(2m-1-M)^2=\dfrac{M(M^2-1)}{3}$, refaça a
+        demonstração de forma fechada.
+  \item Obtenha a energia média por bit $E_b=E_s/\log_2 M$ e calcule
+        $E_s$ e $E_b$ para $M=4$ e $M=8$ com $d=1$.
+\end{enumerate}
+
+\Q Desempenho de erro do $M$-PAM em ruído gaussiano, com
+$P_s=2\left(1-\frac1M\right)Q\!\left(\sqrt{\dfrac{3\log_2 M}{M^2-1}\cdot\dfrac{2E_b}{N_0}}\right)$.
+\begin{enumerate}[label=(\alph*)]
+  \item Para $E_b/N_0=10\,\text{dB}$, calcule $P_s$ em $2$-PAM, $4$-PAM e
+        $8$-PAM.
+  \item Determine, para cada um dos três valores de $M$, o $E_b/N_0$ em dB
+        necessário para atingir $P_s=10^{-6}$.
+  \item Quantifique a penalidade em dB de passar de $2$-PAM para $8$-PAM ao mesmo
+        $P_s=10^{-6}$ e relacione esse custo com o ganho de eficiência espectral.
+\end{enumerate}
+
+\Q Projeto integrado da cadeia completa, da voz ao rádio em banda base. Uma voz
+de banda $W=3{,}4\,\text{kHz}$ é amostrada a $f_s=8\,\text{kHz}$ e quantizada
+com $n=12$ bits, e o fluxo PCM resultante deve ser transmitido em $M$-PAM com
+pulso de cosseno levantado de roll-off $\alpha=0{,}25$ por um canal de banda
+$B=24\,\text{kHz}$ e densidade de ruído $N_0$.
+\begin{enumerate}[label=(\alph*)]
+  \item Calcule a taxa de bits PCM $R_b$ e o $\SQNR$ máximo do digitalizador.
+  \item Determine o menor número de níveis $M$ e a taxa de símbolos $R_s$ que
+        cabem na banda $B$ disponível com o roll-off dado.
+  \item Para a constelação escolhida, determine o $E_b/N_0$ necessário para
+        garantir $P_s\le 10^{-6}$ e discuta o compromisso global entre qualidade
+        da quantização, banda ocupada e potência exigida.
+\end{enumerate}
+
+% ##################################################################
+\section*{Aplicações --- Interfaces Digitais de Alta Velocidade}
+\addcontentsline{toc}{section}{Aplicações}
+
+\noindent\small
+Estas questões conectam os conceitos do módulo --- taxa de bits, critério de
+Nyquist, codificação de linha, PAM $M$-ário e quantização --- aos padrões reais
+de comunicação. O objetivo é comparar tecnologias e versões e decidir
+parâmetros de projeto. Use $R_b=R_s\log_2 M$, $B_{\min}=R_s/2$ e
+$\SQNR_{\mathrm{dB}}\approx 6{,}02\,n+1{,}76$.
+\normalsize
+
+% ------------------------------------------------------------------
+\section{Padrões: USB, PCIe, HDMI e PAM-4}
+% ------------------------------------------------------------------
+
+\Q O USB 3.0 sinaliza a $5$ Gb/s com codificação $8b/10b$; o USB 3.1 Gen 2
+sinaliza a $10$ Gb/s com $128b/132b$.
+\begin{enumerate}[label=(\alph*)]
+  \item Calcule a taxa de dados útil de cada versão e a eficiência de cada
+        codificação.
+  \item Determine a taxa de símbolos e a banda mínima de Nyquist de cada uma,
+        supondo NRZ com um símbolo por bit codificado.
+  \item Explique, em termos de balanceamento CC e recuperação de relógio, por
+        que esses enlaces não enviam os bits sem codificação de linha.
+  \item Justifique a migração de $8b/10b$ para $128b/132b$ ao dobrar a taxa de
+        sinalização.
+\end{enumerate}
+
+\Q As gerações do PCI Express, por lane: Gen1 $2{,}5$ GT/s e Gen2 $5$ GT/s usam
+$8b/10b$; Gen3 $8$, Gen4 $16$ e Gen5 $32$ GT/s usam $128b/130b$; todas em NRZ.
+A Gen6 $64$ GT/s usa PAM-4 com FEC.
+\begin{enumerate}[label=(\alph*)]
+  \item Calcule o payload por lane, em GB/s, de Gen1 a Gen5.
+  \item Para a Gen5, NRZ a $32$ Gbaud, e para a Gen6, PAM-4, determine a taxa de
+        símbolos e a frequência de Nyquist do canal, e mostre que a Gen6 dobra a
+        taxa de bits sem aumentar a banda.
+  \item Discuta o custo do PAM-4 frente ao NRZ em abertura de olho e margem de
+        ruído, e por que a Gen6 introduziu FEC.
+\end{enumerate}
+
+\Q A taxa de vídeo não comprimido é o produto de pixels por quadro, quadros por
+segundo e bits por pixel. As capacidades de dados úteis aproximadas são:
+HDMI 1.4 $\approx 8{,}16$ Gb/s, HDMI 2.0 $\approx 14{,}4$ Gb/s, ambas com TMDS
+$8b/10b$ em $3$ canais, e HDMI 2.1 $\approx 42{,}7$ Gb/s, com FRL $16b/18b$ em
+$4$ lanes.
+\begin{enumerate}[label=(\alph*)]
+  \item Calcule a taxa para 1080p a $60$ Hz com $24$ bits/pixel; 4K
+        ($3840\times2160$) a $60$ Hz com $24$ bits; 4K a $120$ Hz com $30$ bits;
+        e 8K ($7680\times4320$) a $60$ Hz com $24$ bits.
+  \item Indique a menor versão de HDMI capaz de transportar cada um sem
+        compressão.
+  \item Explique o papel do TMDS $8b/10b$ e por que o HDMI 2.1 adotou o FRL com
+        $16b/18b$.
+  \item O 8K a $60$ Hz excede a capacidade da HDMI 2.1; que recurso permite
+        transmiti-lo mesmo assim?
+\end{enumerate}
+
+\Q Padrões recentes como PCIe 6.0, Ethernet 200/400G e GDDR6X trocaram o NRZ
+pelo PAM-4.
+\begin{enumerate}[label=(\alph*)]
+  \item Demonstre que, à mesma taxa de símbolos, o PAM-4 transporta o dobro de
+        bits do NRZ.
+  \item Mantida a mesma amplitude pico a pico, demonstre que a abertura de olho
+        do PAM-4 é $1/3$ da do NRZ e que a penalidade de relação sinal-ruído é
+        $20\log_{10}3\approx 9{,}5$ dB.
+  \item Explique por que essa migração veio acompanhada de FEC e equalização e
+        por que, ainda assim, compensa.
+\end{enumerate}
+
+% ------------------------------------------------------------------
+\section{Ethernet, Áudio e Projeto de Enlace}
+% ------------------------------------------------------------------
+
+\Q O 1000BASE-T transporta $1$ Gb/s em $4$ pares de Cat5e a $125$ Mbaud por par
+com PAM-5; o 10GBASE-T transporta $10$ Gb/s em $4$ pares de Cat6a a $800$ Mbaud
+por par com PAM-16.
+\begin{enumerate}[label=(\alph*)]
+  \item Para cada um, calcule a taxa de bits por par e o número de bits por
+        símbolo.
+  \item Relacione o número de bits por símbolo com a ordem do PAM empregada.
+  \item Explique por que, ao subir de $1$ para $10$ Gb/s no mesmo tipo de
+        cabeamento, foi preciso aumentar a ordem do PAM em vez de apenas elevar
+        a taxa de símbolos.
+\end{enumerate}
+
+\Q Compare o áudio de CD, $44{,}1$ kHz, $16$ bits, $2$ canais, com o áudio de
+estúdio, $192$ kHz, $24$ bits, $2$ canais.
+\begin{enumerate}[label=(\alph*)]
+  \item Calcule a taxa de bits bruta de cada um.
+  \item Calcule a faixa dinâmica, isto é, o SQNR de fundo de escala, de cada um.
+  \item Determine a maior frequência de áudio representável em cada taxa.
+  \item Discuta se $192$ kHz e $24$ bits trazem benefício audível, dado o limite
+        da audição humana de cerca de $20$ kHz e $120$ dB.
+\end{enumerate}
+
+\Q Projete um enlace serial que entregue $50$ Gb/s de dados úteis por lane sobre
+um canal de banda utilizável $B=25$ GHz.
+\begin{enumerate}[label=(\alph*)]
+  \item Com NRZ e sinalização de Nyquist $R_s\approx 2B$, qual a taxa de
+        símbolos e a taxa de bits máximas? É suficiente?
+  \item Refaça o cálculo com PAM-4.
+  \item Escolha entre $8b/10b$, $64b/66b$ e $128b/130b$ e recalcule o payload,
+        justificando a escolha pela sobrecarga.
+  \item Conclua qual combinação de modulação, codificação e número de lanes
+        atende ao requisito, e o preço pago em relação sinal-ruído e FEC.
+\end{enumerate}
+
+\vspace{0.4cm}
+\noindent\rule{\textwidth}{0.6pt}
+\begin{center}\small
+Referências: Proakis \& Salehi, \emph{Communication Systems Engineering}, 2.\,ed.;
+Lathi \& Ding, \emph{Modern Digital and Analog Communication Systems}, 4.\,ed.;
+Haykin \& Moher, \emph{Communication Systems}, 5.\,ed.; Sklar,
+\emph{Digital Communications}, 2.\,ed.
+\end{center}
+
+\end{document}

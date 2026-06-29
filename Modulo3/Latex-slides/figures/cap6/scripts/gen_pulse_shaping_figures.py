@@ -249,9 +249,171 @@ def gen_pulse_comparison():
     print("  [OK] pulse_shaping_comparison.pdf")
 
 
+def gen_isi_sequences():
+    """Sequencias animadas (1 simbolo por vez) para overlay: topo = pulsos
+    individuais, base = sinal total em preto; etapa final com setas nos
+    instantes de decisao. Gera isi_sinc_{1..6} e isi_gauss_{1..6}."""
+    T = 1.0
+    t = np.linspace(-4*T, 8*T, 3000)
+    bits = [1, -1, 1, 1, -1]
+    colors = [UNB_BLUE, RED, UNB_GREEN, UNB_GOLD, PURPLE]
+    decis = list(range(len(bits)))            # instantes t/T = 0..4
+    xlim, ylim = [-3, 7], [-1.8, 2.15]
+
+    def pulse_of(kind, k, b):
+        if kind == 'sinc':
+            return b * np.sinc((t - k*T) / T)
+        return b * np.exp(-((t - k*T) / (0.8*T))**2)
+
+    def sample_at(arr, n):
+        return arr[np.argmin(np.abs(t - n*T))]
+
+    def make(kind, prefix, title_top):
+        nb = len(bits)
+        for step in range(1, nb + 2):          # 1..5 constroi, 6 = anotado
+            nact = min(step, nb)
+            final = (step == nb + 1)
+            fig, (axT, axB) = plt.subplots(2, 1, figsize=(9, 5.0))
+
+            total = np.zeros_like(t)
+            for n in range(nact):
+                p = pulse_of(kind, n, bits[n])
+                total += p
+                axT.plot(t / T, p, color=colors[n], lw=1.1, alpha=0.65, ls='--')
+                axT.plot(n, bits[n], 'o', color=colors[n], ms=8, zorder=5)
+
+            for axx in (axT, axB):
+                for d in decis:
+                    axx.axvline(d, color='gray', lw=0.3, ls=':')
+                axx.axhline(0, color='black', lw=0.5)
+                axx.set_xlim(xlim)
+                axx.set_ylim(ylim)
+                axx.set_ylabel('Amplitude', fontsize=12)
+            axT.set_title(title_top, fontweight='bold')
+            axT.tick_params(labelbottom=False)
+
+            axB.plot(t / T, total, color='black', lw=2.5, label='Sinal total')
+            mk = 'o' if kind == 'sinc' else 's'
+            mc = UNB_GREEN if kind == 'sinc' else RED
+            for n in range(nact):
+                axB.plot(n, sample_at(total, n), mk, color=mc, ms=8, zorder=5)
+            axB.set_xlabel(r'Tempo ($t / T$)', fontsize=12)
+            axB.legend(fontsize=10, loc='upper right')
+
+            if final:
+                if kind == 'sinc':
+                    for d in decis:
+                        sv = sample_at(total, d)
+                        off = 0.45 if sv >= 0 else -0.45
+                        axB.annotate('', xy=(d, sv), xytext=(d, sv + off),
+                                     arrowprops=dict(arrowstyle='->',
+                                                     color=UNB_GREEN, lw=1.6))
+                    axB.text(-2.9, 1.78, 'nos instantes t = nT: amostra = simbolo  '
+                             '(sem ISI)', color=UNB_GREEN, fontsize=10,
+                             fontweight='bold')
+                else:
+                    for n in decis:
+                        ideal, act = bits[n], sample_at(total, n)
+                        axB.plot([n - 0.18, n + 0.18], [ideal, ideal],
+                                 color='gray', lw=1.0, ls='-')
+                        axB.annotate('', xy=(n, act), xytext=(n, ideal),
+                                     arrowprops=dict(arrowstyle='->',
+                                                     color=RED, lw=1.6))
+                    axB.text(-2.9, 1.78, 'amostra deslocada do simbolo (cinza)  '
+                             '->  ISI', color=RED, fontsize=10, fontweight='bold')
+
+            plt.tight_layout()
+            plt.savefig('../%s_%d.pdf' % (prefix, step), bbox_inches='tight')
+            plt.close()
+        print("  [OK] %s_1..%d.pdf" % (prefix, nb + 1))
+
+    make('sinc', 'isi_sinc', r'(a) Pulsos sinc ideais — um pulso por simbolo')
+    make('gauss', 'isi_gauss', r'(b) Pulsos gaussianos — mais largos que $T$')
+
+
+def gen_sinc_timing():
+    """Ilustra por que o sinc puro e fragil a erro de temporizacao:
+    amostra ideal (t=0) vs amostra com erro (t=eps), e a divergencia da
+    serie harmonica (pior caso de ISI). Gera sinc_timing_{1,2} e
+    sinc_harmonic."""
+    T = 1.0
+    eps = 0.25
+    t = np.linspace(-4.6, 4.6, 4000)
+    ks = list(range(-4, 5))            # vizinhos -4..4, todos +1 (pior caso)
+    pulses = [np.sinc((t - k) / T) for k in ks]
+    total = np.sum(pulses, axis=0)
+
+    def at(tt):
+        return np.sum([np.sinc((tt - k) / T) for k in ks])
+
+    def base(offset_sample):
+        fig, ax = plt.subplots(figsize=(8.6, 3.6))
+        for p in pulses:
+            ax.plot(t, p, color=UNB_BLUE, lw=0.8, alpha=0.30, ls='--')
+        ax.plot(t, total, color='black', lw=2.3, label='sinal (todos $+1$)')
+        for k in ks:
+            ax.axvline(k, color='gray', lw=0.3, ls=':')
+        ax.axhline(0, color='black', lw=0.5)
+        ax.set_xlim([-4.6, 4.6])
+        ax.set_ylim([-0.7, 1.9])
+        ax.set_xlabel(r'Tempo ($t/T$)', fontsize=12)
+        ax.set_ylabel('Amplitude', fontsize=12)
+        return fig, ax
+
+    # --- (1) amostragem ideal em t=0 ---
+    fig, ax = base(False)
+    ax.plot(0, at(0), 'o', color=UNB_GREEN, ms=10, zorder=6)
+    ax.annotate('amostra ideal em $t=0$:\nso o pulso central conta',
+                xy=(0, at(0)), xytext=(1.1, 1.55),
+                color=UNB_GREEN, fontsize=10, fontweight='bold',
+                arrowprops=dict(arrowstyle='->', color=UNB_GREEN, lw=1.4))
+    ax.legend(fontsize=9, loc='upper left')
+    plt.tight_layout(); plt.savefig('../sinc_timing_1.pdf', bbox_inches='tight'); plt.close()
+
+    # --- (2) amostragem com erro t=eps ---
+    fig, ax = base(True)
+    ax.axvline(eps, color=RED, lw=1.0, ls='-', alpha=0.7)
+    ax.plot(eps, at(eps), 's', color=RED, ms=10, zorder=6)
+    # contribuicoes dos vizinhos em t=eps (setas curtas)
+    for k in ks:
+        if k == 0:
+            continue
+        v = np.sinc((eps - k) / T)
+        ax.annotate('', xy=(eps, v), xytext=(eps, 0),
+                    arrowprops=dict(arrowstyle='->', color=RED, lw=1.0, alpha=0.7))
+    ax.annotate('amostra em $t=\\epsilon$:\nvizinhos ja nao valem 0',
+                xy=(eps, at(eps)), xytext=(1.2, 1.55),
+                color=RED, fontsize=10, fontweight='bold',
+                arrowprops=dict(arrowstyle='->', color=RED, lw=1.4))
+    ax.legend(fontsize=9, loc='upper left')
+    plt.tight_layout(); plt.savefig('../sinc_timing_2.pdf', bbox_inches='tight'); plt.close()
+
+    # --- (3) serie harmonica: contribuicao ~1/k e soma parcial diverge ---
+    N = 16
+    kk = np.arange(1, N + 1)
+    contrib = 1.0 / kk
+    Hn = np.cumsum(contrib)
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(8.8, 3.4))
+    a1.bar(kk, contrib, color=UNB_BLUE, alpha=0.8)
+    a1.set_title(r'Contribuicao de ISI por vizinho $\sim 1/k$', fontweight='bold')
+    a1.set_xlabel(r'vizinho $k$', fontsize=11)
+    a1.set_ylabel(r'$|$ISI$_k| / (\epsilon/T)$', fontsize=11)
+    a2.plot(kk, Hn, 'o-', color=RED, lw=1.8, ms=4, label=r'$\sum_{k=1}^{N} 1/k$')
+    a2.plot(kk, np.log(kk) + 0.5772, '--', color='gray', lw=1.2,
+            label=r'$\ln N + \gamma$')
+    a2.set_title('Soma parcial cresce sem limite (diverge)', fontweight='bold')
+    a2.set_xlabel(r'$N$ vizinhos somados', fontsize=11)
+    a2.set_ylabel('ISI pior caso acumulada', fontsize=11)
+    a2.legend(fontsize=10, loc='upper left')
+    plt.tight_layout(); plt.savefig('../sinc_harmonic.pdf', bbox_inches='tight'); plt.close()
+    print("  [OK] sinc_timing_{1,2}.pdf, sinc_harmonic.pdf")
+
+
 if __name__ == '__main__':
     print("Gerando figuras de formatação de pulso...")
     gen_isi_illustration()
+    gen_isi_sequences()
+    gen_sinc_timing()
     gen_raised_cosine_time()
     gen_raised_cosine_freq()
     gen_pulse_comparison()
