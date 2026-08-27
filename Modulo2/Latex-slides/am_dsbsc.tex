@@ -1065,7 +1065,7 @@ P_m = \frac{3^2}{2} + \frac{2^2}{2} = 4.5 + 2 = \boxed{6.5\,\text{W}}
 P_s = \frac{A_c^2 P_m}{2} = \frac{400 \times 6.5}{2} = \boxed{1300\,\text{W}}
 \]
 
-\textbf{c) Componentes:} 4 raias espectrais
+\textbf{c) Componentes:} 4 componentes espectrais
 
 \begin{center}
 \begin{tikzpicture}[>=latex, scale=0.6]
@@ -1792,43 +1792,72 @@ Para PLL de 1ª ordem ($F(s) = 1$, \; $K = K_d K_v$):
 \[
 \boxed{\Theta_e(s) = \Phi(s)\cdot\frac{s}{s + K}}
 \]
-
-O erro depende da \textbf{entrada} $\Phi(s)$. Vamos analisar dois cenários:
-\begin{enumerate}\setlength{\itemsep}{1pt}
-\item \textbf{Degrau de fase} --- mudança brusca (ex: reflexão, chaveamento)
-\item \textbf{Rampa de fase} --- desvio contínuo de frequência (ex: Doppler)
-\end{enumerate}
 }
 
 \only<5>{
-\textbf{Perturbação 1: Degrau de fase} (PLL 1ª ordem)
+\textbf{Função de transferência de erro --- interpretação}
+
+\vspace{0.2cm}
+
+\[
+\boxed{\Theta_e(s) = \Phi(s)\cdot\frac{s}{s + K}}
+\]
+
+\vspace{0.2cm}
+
+O zero em $s = 0$ atenua as componentes lentas da fase de entrada: o PLL acompanha
+variações lentas e o erro só persiste onde $\Phi(s)$ cresce mais rápido do que o laço consegue seguir.
+
+\vspace{0.2cm}
+
+O erro depende da \textbf{entrada} $\Phi(s)$. Vamos analisar dois cenários:
+\begin{enumerate}\setlength{\itemsep}{1pt}
+\item \textbf{Degrau de fase} --- mudança brusca, como reflexão ou chaveamento
+\item \textbf{Rampa de fase} --- desvio contínuo de frequência, como o efeito Doppler
+\end{enumerate}
+}
+
+\only<6>{
+\textbf{Perturbação 1: Degrau de fase} --- PLL de 1ª ordem
 
 \vspace{0.1cm}
 
 \textbf{Passo 1:} Definir a entrada e sua transformada.
+\vspace{-0.15cm}
 \[
 \phi(t) = \phi_0\,u(t) \quad\xrightarrow{\;\mathcal{L}\;}\quad \Phi(s) = \frac{\phi_0}{s}
 \]
 
+\vspace{-0.25cm}
+
 \textbf{Passo 2:} Substituir na expressão do erro.
+\vspace{-0.15cm}
 \[
 \Theta_e(s) = \Phi(s)\cdot\frac{s}{s+K} = \frac{\phi_0}{\cancel{s}}\cdot\frac{\cancel{s}}{s+K} = \frac{\phi_0}{s+K}
 \]
 
-\textbf{Passo 3:} Voltar ao tempo (transformada inversa).
+\vspace{-0.25cm}
+
+\textbf{Passo 3:} Voltar ao tempo pela transformada inversa.
+\vspace{-0.15cm}
 \[
 \frac{\phi_0}{s + K} \quad\xrightarrow{\;\mathcal{L}^{-1}\;}\quad \boxed{\theta_e(t) = \phi_0\,e^{-Kt}, \quad t \geq 0}
 \]
 
-\textbf{Passo 4:} Valor em regime permanente ($t \to \infty$).
+\vspace{-0.25cm}
+
+\textbf{Passo 4:} Valor em regime permanente, com $t \to \infty$.
+\vspace{-0.15cm}
 \[
 \theta_e(\infty) = \phi_0\,e^{-K\cdot\infty} = \boxed{0}
 \]
 
+\vspace{-0.1cm}
+
 O erro \textbf{decai exponencialmente} a zero com constante de tempo $\tau = 1/K$.
 }
 
-\only<6>{
+\only<7>{
 \textbf{Perturbação 1: Degrau de fase} --- visualização
 
 \vspace{0.2cm}
@@ -1870,63 +1899,88 @@ O erro \textbf{decai exponencialmente} a zero com constante de tempo $\tau = 1/K
 Para PLL de 2ª ordem ($F(s) = 1 + a/s$): o resultado é o mesmo ($\theta_e \to 0$), mas com convergência mais rápida. Ambas as ordens \textbf{eliminam} o erro para degrau.
 }
 
-\only<7>{
-\textbf{Perturbação 2: Rampa de fase / Doppler} (PLL 1ª ordem)
+\only<8>{
+\textbf{Perturbação 2: Rampa de fase / Doppler} --- PLL de 1ª ordem
 
-\vspace{0.1cm}
+\vspace{0.15cm}
 
 \textbf{Passo 1:} Definir a entrada e sua transformada.
 \[
 \phi(t) = \Delta\omega\,t \quad\xrightarrow{\;\mathcal{L}\;}\quad \Phi(s) = \frac{\Delta\omega}{s^2}
 \]
 
+\vspace{0.1cm}
+
 \textbf{Passo 2:} Substituir na expressão do erro.
 \[
 \Theta_e(s) = \frac{\Delta\omega}{s^2}\cdot\frac{s}{s+K} = \frac{\Delta\omega}{s(s+K)}
 \]
 
+\vspace{0.1cm}
+
 \textbf{Passo 3:} Frações parciais.
 \[
 \frac{\Delta\omega}{s(s+K)} = \frac{\Delta\omega}{K}\left(\frac{1}{s} - \frac{1}{s+K}\right)
 \]
+}
+
+\only<9>{
+\textbf{Perturbação 2: Rampa de fase / Doppler} --- regime permanente
+
+\vspace{0.15cm}
 
 \textbf{Passo 4:} Voltar ao tempo.
 \[
 \boxed{\theta_e(t) = \frac{\Delta\omega}{K}\left(1 - e^{-Kt}\right), \quad t \geq 0}
 \]
 
+\vspace{0.2cm}
+
 \textbf{Passo 5:} Valor em regime permanente.
 \[
-\theta_e(\infty) = \frac{\Delta\omega}{K}(1 - 0) = \boxed{\frac{\Delta\omega}{K}} \quad\text{(erro finito!)}
-\]
-}
-
-\only<8>{
-\textbf{Perturbação 2: Rampa} --- PLL de 2ª ordem
-
-\vspace{0.15cm}
-
-Com $F(s) = 1 + \frac{a}{s}$, a função de transferência de erro muda:
-\[
-1-H(s) = \frac{s^2}{s^2 + Ks + Ka}
-\]
-
-Substituindo $\Phi(s) = \Delta\omega/s^2$:
-\[
-\Theta_e(s) = \frac{\cancel{s^2}}{s^2 + Ks + Ka}\cdot\frac{\Delta\omega}{\cancel{s^2}} = \frac{\Delta\omega}{s^2 + Ks + Ka}
-\]
-
-Pelo teorema do valor final:
-\[
-\theta_e(\infty) = \lim_{s\to 0}\, s\cdot\frac{\Delta\omega}{s^2 + Ks + Ka} = \frac{0}{Ka} = \boxed{0}
+\theta_e(\infty) = \frac{\Delta\omega}{K}(1 - 0) = \boxed{\frac{\Delta\omega}{K}}
 \]
 
 \vspace{0.2cm}
 
-O integrador no filtro $F(s)$ \textbf{elimina} o erro para rampa --- o PLL de 2ª ordem rastreia perfeitamente um desvio Doppler constante.
+O erro não vai a zero: o PLL de 1ª ordem segue a rampa com um atraso de fase constante,
+tanto menor quanto maior o ganho $K$ do laço.
 }
 
-\only<9>{
+\only<10>{
+\textbf{Perturbação 2: Rampa} --- PLL de 2ª ordem
+
+\vspace{0.1cm}
+
+Com $F(s) = 1 + \frac{a}{s}$, a função de transferência de erro muda:
+\vspace{-0.15cm}
+\[
+1-H(s) = \frac{s^2}{s^2 + Ks + Ka}
+\]
+
+\vspace{-0.25cm}
+
+Substituindo $\Phi(s) = \Delta\omega/s^2$:
+\vspace{-0.15cm}
+\[
+\Theta_e(s) = \frac{\cancel{s^2}}{s^2 + Ks + Ka}\cdot\frac{\Delta\omega}{\cancel{s^2}} = \frac{\Delta\omega}{s^2 + Ks + Ka}
+\]
+
+\vspace{-0.25cm}
+
+Pelo teorema do valor final:
+\vspace{-0.15cm}
+\[
+\theta_e(\infty) = \lim_{s\to 0}\, s\cdot\frac{\Delta\omega}{s^2 + Ks + Ka} = \frac{0}{Ka} = \boxed{0}
+\]
+
+\vspace{-0.1cm}
+
+O integrador no filtro $F(s)$ \textbf{elimina} o erro para rampa: o PLL de 2ª ordem rastreia
+perfeitamente um desvio Doppler constante.
+}
+
+\only<11>{
 \textbf{Resumo: erro em regime permanente}
 
 \vspace{0.3cm}
@@ -2190,22 +2244,32 @@ Para PLL de 1ª ordem, a constante de tempo é:
 \tau = \frac{1}{K}
 \]
 
+\vspace{0.1cm}
+
 \[
-\tau = \frac{1}{2\pi \times 2000} = \boxed{0{,}08\,\text{ms}} \quad\text{(rápido!)}
+\tau = \frac{1}{2\pi \times 2000} = \boxed{0{,}08\,\text{ms}}
 \]
 
 \vspace{0.3cm}
 
+A aquisição é rápida frente à escala de tempo da mensagem de áudio, cujo período
+característico é da ordem de milissegundos.
+}
+
+\only<5>{
 \textbf{d) Um PLL de 2ª ordem seria melhor?}
 
 \vspace{0.3cm}
 
-Sim! PLL de 2ª ordem tem erro \textbf{zero} para rampa de fase:
+Sim. O PLL de 2ª ordem tem erro \textbf{zero} para rampa de fase:
 \[
 \theta_e(\infty) = 0 \quad\text{para Doppler constante}
 \]
 
-O de 1ª ordem sempre terá erro residual $\Delta\omega/K$, que só pode ser reduzido aumentando $K$ --- mas $K$ grande demais amplifica ruído.
+\vspace{0.2cm}
+
+O de 1ª ordem sempre terá erro residual $\Delta\omega/K$, que só pode ser reduzido
+aumentando $K$ --- mas $K$ grande demais alarga a banda do laço e amplifica ruído.
 }
 
 \end{frame}
