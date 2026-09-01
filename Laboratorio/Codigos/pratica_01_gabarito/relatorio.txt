@@ -1,123 +1,164 @@
-=================================================================
+======================================================================
 PRÁTICA 01 — FFT E ANÁLISE ESPECTRAL
 GABARITO DO PROFESSOR
-Data: 2026-06-20 11:39
+Data: 2026-08-18 10:00
 GNU Radio: 3.10.12.0
-Sample Rate: 32000 Hz | Amostras: 32768
+Taxa de amostragem: 32000 Hz | amostras por captura: 262144
+Espectro: média de potência entre blocos, equivalente a Average = High
 Saída: /home/daniel/Documentos/UnB/Aulas/curso_pricom/Laboratorio/Codigos/pratica_01_gabarito
-=================================================================
+======================================================================
 
-=================================================================
-ETAPA 1: Configuração inicial — Tom único 1 kHz
-=================================================================
-  Pico: 1000 Hz @ -12.0 dB
+======================================================================
+ETAPA 1: Configuração inicial — tom único de 1 kHz
+======================================================================
+  Pico em 1000.0 Hz com nível -12.0 dB
+  Nível previsto para amp1 = 1,0 com janela Hann: 20 log10(amp1 * sum(w) / 2N) = -12,0 dB
   Resultado: OK
-  -> etapa1_tom_1kHz.png
+  -> figuras/etapa1_tom_1kHz.png
 
-=================================================================
-ETAPA 2: Variação de frequência do tom único
-=================================================================
-  f=  500 Hz → pico=   500 Hz (bin k= 16) @ -12.0 dB
-  f= 1000 Hz → pico=  1000 Hz (bin k= 32) @ -12.0 dB
-  f= 2000 Hz → pico=  2000 Hz (bin k= 64) @ -12.0 dB
-  f= 4000 Hz → pico=  4000 Hz (bin k=128) @ -12.0 dB
-  -> etapa2_variacao_freq.png
+======================================================================
+ETAPA 2: Tom único e posição do pico
+======================================================================
+
+   f1 (Hz) |  k = f1*N/fs |   fk (Hz) |  pico lido (Hz) |  nivel (dB)
+  ---------+--------------+-----------+-----------------+------------
+       500 |         16.0 |     500.0 |           500.0 |       -12.0
+      1000 |         32.0 |    1000.0 |          1000.0 |       -12.0
+      2000 |         64.0 |    2000.0 |          2000.0 |       -12.0
+      4000 |        128.0 |    4000.0 |          4000.0 |       -12.0
+
+  -> figuras/etapa2_variacao_freq.png
   -> dados/etapa2_freq_vs_bin.csv
 
-  Resposta Q1: f_k = k·f_s/N. Cada frequência aparece exatamente no bin correspondente.
+  Q1: as quatro frequências são múltiplos exatos de Δf = 31.25 Hz, portanto k é inteiro e o pico
+  lido coincide com f1. Uma frequência que não seja múltipla de Δf
+  aparece no índice mais próximo, com erro de leitura de até Δf/2 = 15.62 Hz.
 
-=================================================================
-ETAPA 3: Sinal com dois tons (1000 Hz + 2500 Hz)
-=================================================================
-  Tom 1 (1000 Hz, A=1.0): -12.0 dB
-  Tom 2 (2500 Hz, A=0.5): -18.1 dB
-  Diferença: 6.0 dB (esperado: ~6.0 dB)
-  -> etapa3_dois_tons.png
+======================================================================
+ETAPA 3: Sinal com dois tons — 1000 Hz e 2500 Hz
+======================================================================
+  Tom 1: 1000 Hz, amp1 = 1.0 -> -12.0 dB
+  Tom 2: 2500 Hz, amp2 = 0.5 -> -18.1 dB
+  Diferença medida: 6.0 dB
+  Diferença prevista por 20 log10(amp1/amp2): 6.0 dB
+  -> figuras/etapa3_dois_tons.png
+  -> dados/etapa3_dois_tons.csv
 
-  Resposta Q3: Sim, superposição linear. DFT é linear,
-  logo X[k] = X1[k] + X2[k]. Não há intermodulação.
+  Q3: a transformada é linear, logo X[k] = X1[k] + X2[k]. Como as
+  duas frequências caem em índices distintos, cada pico conserva o
+  nível que teria isoladamente e a diferença entre eles reproduz
+  20 log10(amp1/amp2). Um elemento não linear no caminho geraria
+  harmônicos e produtos de intermodulação em 1500 Hz, 3500 Hz e
+  outras combinações de f1 e f2, que não aparecem aqui.
 
-=================================================================
-ETAPA 4: Resolução espectral — efeito do FFT size
-=================================================================
+======================================================================
+ETAPA 4: Resolução espectral — critério da profundidade do vale
+======================================================================
 
-  Tons em 1000 Hz e 1200 Hz (Δ=200 Hz):
-       N |  Δf (Hz) |   Separados?
-  -------+----------+-------------
-     256 |    125.0 |          Não
-     512 |     62.5 |          Sim
-    1024 |     31.2 |          Sim
-    2048 |     15.6 |          Sim
-    4096 |      7.8 |          Sim
+  Tons em 1000 Hz e 1200 Hz com amplitudes iguais, janela Hann, sem ruído
+  Critério: resolvidos se D = A_min - V >= 3 dB
 
-  -> etapa4_resolucao_fft.png
+       N |  Δf (Hz) |     Δk |  A_min (dB) |    V (dB) |   D (dB) |  D>=3 dB
+  -------+----------+--------+-------------+-----------+----------+---------
+     256 |   125.00 |   1.60 |       -12.6 |     -13.0 |      0.3 |      Não
+     512 |    62.50 |   3.20 |       -12.3 |     -21.0 |      8.7 |      Sim
+    1024 |    31.25 |   6.40 |       -13.0 |     -60.6 |     47.6 |      Sim
+    2048 |    15.62 |  12.80 |       -12.3 |     -85.4 |     73.2 |      Sim
+    4096 |     7.81 |  25.60 |       -12.9 |    -101.3 |     88.4 |      Sim
+
+  -> figuras/etapa4_resolucao_fft.png
   -> dados/etapa4_resolucao.csv
 
-  Resposta Q2: Para separar tons com Δ=100 Hz:
-    Δf = f_s/N ≤ 100  →  N ≥ 32000/100 = 320
-    Menor potência de 2: N = 512 (Δf = 62.5 Hz)
+  Q2:
+  Menor N que satisfaz D >= 3 dB: N = 512, com Δk = 3.20.
+  Com N = 256 tem-se Δk = 1.60, ou seja, os dois tons caem
+  dentro do mesmo lóbulo principal da janela Hann, cuja largura é de
+  aproximadamente 4 índices. Por isso o vale não atinge 3 dB.
+  Para tons separados de 100 Hz, exigir o mesmo Δk = 3.20 dá
+    N >= Δk * fs / 100 = 3.20 * 32000 / 100 = 1024  ->  N = 1024 como potência de 2.
+  O limite ingênuo Δf <= 100 Hz daria N >= 320, ou seja N = 512, que
+  é insuficiente: ele garante um índice de separação, mas não a
+  profundidade de vale exigida pelo critério.
 
-=================================================================
+======================================================================
 ETAPA 5: Efeito do ruído gaussiano
-=================================================================
+======================================================================
 
-    noise |  Piso(dB) |  SNR₁(dB)       Tom1 |  SNR₂(dB)       Tom2
-  --------+-----------+----------------------+---------------------
-      0.0 |     -80.0 |      68.0    visível |      61.9    visível
-      0.5 |     -42.2 |      30.0    visível |      23.1    visível
-      1.0 |     -36.2 |      23.9    visível |      16.0    visível
-      2.0 |     -30.1 |      17.7    visível |       7.6    visível
-      5.0 |     -22.2 |       9.2    visível |      -0.9  MASCARADO
-     10.0 |     -16.2 |       2.3  MASCARADO |       2.4  MASCARADO
+  f1 = 1000 Hz com amp1 = 1.0, f2 = 2500 Hz com amp2 = 0.5, N = 1024, janela Hann
+  Critério de visibilidade: SNR_disp >= 6 dB
 
-  -> etapa5_ruido.png
+   sigma |  SNR1 (dB) |  SNR2 (dB) |   P (dB) |  A2 (dB) |  A2-P (dB) |      tom 2
+  -------+------------+------------+----------+----------+------------+-----------
+     0.5 |        3.0 |       -3.0 |    -40.4 |    -18.0 |       22.3 |    visível
+     1.0 |       -3.0 |       -9.0 |    -34.4 |    -18.0 |       16.4 |    visível
+     2.0 |       -9.0 |      -15.1 |    -28.3 |    -17.7 |       10.6 |    visível
+     5.0 |      -17.0 |      -23.0 |    -20.4 |    -16.2 |        4.2 |  MASCARADO
+    10.0 |      -23.0 |      -29.0 |    -14.4 |    -13.0 |        1.4 |  MASCARADO
+
+  -> figuras/etapa5_ruido.png
   -> dados/etapa5_ruido.csv
 
-  Resposta Q4: O piso de ruído sobe uniformemente.
-  O tom de menor amplitude (A=0.5) é mascarado primeiro.
-  Critério mínimo: SNR ≈ 0-3 dB para detecção visual.
+  Q4:
+  O tom 2 satisfaz o critério até sigma = 2,0 e o perde em sigma = 5,0.
+  Como A2 - P cai 20 log10(sigma), o limiar exato é sigma = 3.3.
+  Em sigma = 1,0 a SNR de banda larga do tom 2 vale -9.0 dB, enquanto
+  a SNR do display vale 16.4 dB. A diferença de 25.4 dB é o ganho
+  de processamento da FFT: o tom se concentra em um único índice,
+  enquanto o ruído se distribui pelos N/2 índices da faixa exibida.
+  Dobrar o FFT Size reduz o piso em 3 dB e aumenta a SNR do display
+  em 3 dB, sem alterar a SNR de banda larga.
 
-=================================================================
+======================================================================
 ETAPA 6: Funções de janela e vazamento espectral
-=================================================================
+======================================================================
 
-  Tom em 1050 Hz (off-bin, maximiza vazamento):
-              Janela |  Pico(dB) |  Larg -3dB(Hz) |  Supressão(dB)
-  -------------------+-----------+----------------+---------------
-         Rectangular |      -8.4 |             31 |           27.3
-                Hann |     -13.0 |             62 |           68.2
-             Hamming |     -12.5 |             62 |           45.8
-     Blackman-Harris |     -14.3 |             62 |           76.3
+  Δf = 31.25 Hz para N = 1024
+  f = 1000 Hz  ->  k = 32.0, índice exato. Com janela retangular o vazamento
+    cai para -164.5 dB, valor que corresponde ao piso numérico do cálculo e fica
+    muito abaixo do piso do gráfico: na prática não há vazamento.
+  f = 1050 Hz  ->  k = 33.6, entre dois índices. O maior lóbulo lateral
+    sobe para -36.7 dB, a apenas 28.2 dB do pico.
+  É por isso que a Etapa 6 usa 1050 Hz e não 1000 Hz.
 
-  -> etapa6_janelas.png
+  Tom em 1050 Hz, N = 1024, sem ruído
+
+            Janela |  A_pico (dB) |    L (dB) |   S (dB) |  larg -3 dB (Hz)
+  -----------------+--------------+-----------+----------+-----------------
+       Rectangular |         -8.4 |     -36.7 |     28.2 |             35.2
+              Hann |        -13.0 |     -83.4 |     70.5 |             42.6
+           Hamming |        -12.5 |     -59.1 |     46.6 |             40.1
+   Blackman-harris |        -15.5 |    -114.5 |     99.0 |             56.2
+
+  -> figuras/etapa6_janelas.png
   -> dados/etapa6_janelas.csv
 
-  Resposta Q5:
-  - Rectangular: pico mais alto, mas lóbulos laterais elevados (vazamento).
-  - Hann: pico ~6 dB menor, mas lóbulos laterais muito mais baixos.
-  - Blackman-Harris: maior supressão de lóbulos, pico ligeiramente menor.
-  Tradeoff: resolução em amplitude vs. vazamento espectral.
+  Q5:
+  Ordem por supressão S, do maior para o menor: Blackman-harris (99 dB) > Hann (70 dB) > Hamming (47 dB) > Rectangular (28 dB)
+  Ordem por largura do lóbulo principal, da menor para a maior: Rectangular (35 Hz) < Hamming (40 Hz) < Hann (43 Hz) < Blackman-harris (56 Hz)
+  Maior nível de pico: Rectangular com -8.4 dB.
+  As duas propriedades são opostas porque suprimir lóbulos laterais
+  exige suavizar as bordas do bloco, o que reduz a energia efetiva
+  da janela e alarga o lóbulo principal. A janela retangular tem o
+  lóbulo mais estreito e o pico mais alto, mas a pior supressão; a
+  Blackman-harris faz o oposto. Hann e Hamming ficam entre as duas.
 
-=================================================================
-TABELA DE PARÂMETROS — 3 CENÁRIOS DE REFERÊNCIA
-=================================================================
-  Parâmetro              |    Cenário A |    Cenário B |    Cenário C
-  -----------------------+--------------+--------------+-------------
-  f₁ (Hz)                |         1000 |         1000 |         1000
-  f₂ (Hz)                |            — |         2500 |         2500
-  A₁                     |          1.0 |          1.0 |          1.0
-  A₂                     |            — |          0.5 |          0.5
-  samp_rate (Hz)         |        32000 |        32000 |        32000
-  FFT Size               |         1024 |         1024 |         1024
-  noise_amp              |            0 |            0 |          5.0
-  Janela                 |         Hann |         Hann |         Hann
+======================================================================
+TABELA DE PARÂMETROS — três cenários de referência
+======================================================================
+  Parâmetro          |  Cenário A |  Cenário B |  Cenário C
+  -------------------+------------+------------+-----------
+  freq1 (Hz)         |       1000 |       1000 |       1000
+  freq2 (Hz)         |          — |       2500 |       2500
+  amp1               |        1,0 |        1,0 |        1,0
+  amp2               |          0 |        0,5 |        0,5
+  samp_rate (Hz)     |      32000 |      32000 |      32000
+  FFT Size           |       1024 |       1024 |       1024
+  noise_amp          |          0 |          0 |        5,0
+  FFT Window         |       Hann |       Hann |       Hann
+  -> figuras/cenario_A_tom_unico.png
+  -> figuras/cenario_B_dois_tons.png
+  -> figuras/cenario_C_dois_tons_ruido.png
 
-  -> cenario_A_tom_unico.png
-
-  -> cenario_B_dois_tons.png
-
-  -> cenario_C_dois_tons_ruido.png
-
-=================================================================
+======================================================================
 GABARITO COMPLETO GERADO COM SUCESSO
-=================================================================
+======================================================================

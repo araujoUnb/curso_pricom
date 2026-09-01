@@ -1,5 +1,5 @@
 """
-Gráfico esperado -- Prática 06: Phase-Locked Loop (PLL)
+Gráfico esperado -- Prática 07: Phase-Locked Loop (PLL)
 Gera 'grafico_esperado.png' com quatro subplots:
   1. Processo de lock: convergência do erro de fase para diferentes loop_bw
   2. Resposta ao degrau de frequência (mudança de frequência de entrada)
@@ -131,7 +131,7 @@ ax4.set_title('4 – Faixa de captura: erro vs desvio de frequência', fontweigh
 ax4.set_xlabel('Desvio de frequência $\\Delta f$ (Hz)'); ax4.set_ylabel('Erro estacionário (rad)')
 ax4.legend(fontsize=9); ax4.grid(True, alpha=0.3)
 
-fig.suptitle('Prática 06 – PLL: gráfico esperado',
+fig.suptitle('Prática 07 – PLL: gráfico esperado',
              fontsize=13, fontweight='bold')
 fig.savefig('grafico_esperado.png', dpi=180, bbox_inches='tight')
 print('Salvo: grafico_esperado.png')

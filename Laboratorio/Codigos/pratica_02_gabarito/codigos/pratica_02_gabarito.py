@@ -11,14 +11,27 @@ reproduzindo todas as etapas do enunciado e gerando:
   3. CSVs com resultados tabulados
   4. Relatorio resumo em texto
 
+Correspondencia com o enunciado:
+  script etapa1 -> enunciado Etapa 1 (modulador DSB-SC)
+  script etapa2 -> enunciado Etapa 2 (variacao de fm)
+  script etapa3 -> enunciado Etapa 3, parte 1 (demodulacao coerente)
+  script etapa4 -> enunciado Etapa 3, parte 2 (erro de fase)
+  script etapa5 -> enunciado Etapa 4 (ajuste do LPF)
+
+O oscilador local e construido como
+    cos(2*pi*fc*t + theta) = cos(theta)*cos(2*pi*fc*t) - sin(theta)*sin(2*pi*fc*t)
+que e exatamente a estrutura do flowgraph .grc entregue aos alunos.
+Essa forma preserva a coerencia com a portadora de transmissao quando
+theta e alterado em tempo de execucao, o que nao ocorre se o erro de
+fase for aplicado no campo Phase Offset do bloco Signal Source.
+
 Execucao:
     /usr/bin/python3 pratica_02_gabarito.py
 
 Saida:
-    ./pratica_02_gabarito/
-        figuras/          -- PNGs de referencia
-        dados/            -- CSVs com dados brutos
-        relatorio.txt     -- Relatorio completo
+    ../figuras/          -- PNGs de referencia
+    ../dados/            -- CSVs com dados brutos
+    ../relatorio.txt     -- Relatorio completo
 """
 
 import os
@@ -45,14 +58,27 @@ except ImportError:
 from gnuradio.filter import firdes
 
 # =====================================================================
-# CONFIGURACAO
+# CONFIGURACAO (identica a do enunciado e do flowgraph .grc)
 # =====================================================================
 SAMP_RATE = 48000
-FC = 5000          # Frequencia da portadora (Hz)
-FM = 500           # Frequencia da mensagem (Hz)
-AMP_C = 1.0        # Amplitude da portadora
-AMP_M = 1.0        # Amplitude da mensagem
-N_SAMPLES = 48000  # 1 segundo de dados
+FC = 5000           # Frequencia da portadora (Hz)
+FM = 1000           # Frequencia da mensagem (Hz)
+AMP_C = 1.0         # Amplitude da portadora
+AMP_M = 1.0         # Amplitude da mensagem
+N_SAMPLES = 48000   # 1 segundo de dados
+
+LPF_CUTOFF = 1.5 * FM   # Corte nominal do LPF de demodulacao (Hz)
+LPF_WIDTH = 300         # Largura de transicao do LPF (Hz)
+
+# Valores varridos em cada etapa (espelham as tabelas do enunciado)
+FM_SWEEP = [500, 1000, 2000, 4000]
+PHASE_SWEEP = [0, 15, 30, 45, 60, 90]
+CUTOFF_SWEEP = [500, 1500, 3000, 9500, 12000]
+
+# 7680 pontos dao df = 6,25 Hz: todas as frequencias de interesse
+# (multiplos de 500 Hz) caem exatamente sobre um bin, o que elimina a
+# perda de scalloping da janela e permite ler a amplitude diretamente.
+FFT_SIZE = 7680
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIG_DIR = os.path.join(BASE_DIR, "figuras")
@@ -106,15 +132,20 @@ class DSBSCModulator(gr.top_block):
 
 
 class DSBSCDemodulator(gr.top_block):
-    """Flowgraph: DSB-SC -> multiplicar por portadora local -> LPF."""
+    """Flowgraph: DSB-SC -> oscilador local com erro de fase -> LPF.
+
+    O oscilador local usa a decomposicao em quadratura
+    cos(w t + theta) = cos(theta) cos(w t) - sin(theta) sin(w t),
+    de modo que theta e um ganho e nao a fase inicial de um NCO.
+    """
 
     def __init__(self, fm=FM, fc=FC, phase_error_deg=0.0,
-                 lpf_cutoff=None, lpf_transition=200,
+                 lpf_cutoff=None, lpf_transition=LPF_WIDTH,
                  n_samples=N_SAMPLES):
         gr.top_block.__init__(self, "DSB-SC Demodulator")
 
         if lpf_cutoff is None:
-            lpf_cutoff = 1.5 * fm
+            lpf_cutoff = LPF_CUTOFF
 
         phase_rad = np.deg2rad(phase_error_deg)
 
@@ -131,20 +162,27 @@ class DSBSCDemodulator(gr.top_block):
         self.connect(self.msg_src, (self.mod_mult, 0))
         self.connect(self.carrier_tx, (self.mod_mult, 1))
 
-        # Portadora local do demodulador (com erro de fase)
-        self.carrier_rx = analog.sig_source_f(
-            SAMP_RATE, analog.GR_COS_WAVE, fc, 1.0, 0,
-            phase_rad)
+        # Oscilador local em quadratura, sempre coerente com carrier_tx
+        self.lo_cos = analog.sig_source_f(
+            SAMP_RATE, analog.GR_COS_WAVE, fc, 1.0, 0)
+        self.lo_sin = analog.sig_source_f(
+            SAMP_RATE, analog.GR_SIN_WAVE, fc, 1.0, 0)
+        self.gain_i = blocks.multiply_const_ff(float(np.cos(phase_rad)))
+        self.gain_q = blocks.multiply_const_ff(float(-np.sin(phase_rad)))
+        self.lo_sum = blocks.add_ff()
+        self.connect(self.lo_cos, self.gain_i, (self.lo_sum, 0))
+        self.connect(self.lo_sin, self.gain_q, (self.lo_sum, 1))
 
-        # Demodulador: multiplicar por portadora local
+        # Demodulador: multiplicar pelo oscilador local
         self.demod_mult = blocks.multiply_ff()
         self.connect(self.mod_mult, (self.demod_mult, 0))
-        self.connect(self.carrier_rx, (self.demod_mult, 1))
+        self.connect(self.lo_sum, (self.demod_mult, 1))
 
         # Filtro passa-baixa
-        lpf_taps = firdes.low_pass(1, SAMP_RATE, lpf_cutoff,
-                                   lpf_transition)
-        self.lpf = filter.fir_filter_fff(1, lpf_taps)
+        self.lpf_taps = firdes.low_pass(1, SAMP_RATE, lpf_cutoff,
+                                        lpf_transition)
+        self.fir_delay = (len(self.lpf_taps) - 1) // 2
+        self.lpf = filter.fir_filter_fff(1, self.lpf_taps)
         self.connect(self.demod_mult, self.lpf)
 
         # Captura saida demodulada
@@ -162,18 +200,30 @@ class DSBSCDemodulator(gr.top_block):
         self.sink_mod = blocks.vector_sink_f()
         self.connect(self.mod_mult, self.head_mod, self.sink_mod)
 
+    def run_and_collect(self):
+        """Executa e devolve (mensagem, dsbsc, demodulado)."""
+        self.run()
+        return (np.array(self.sink_msg.data()),
+                np.array(self.sink_mod.data()),
+                np.array(self.sink_out.data()))
+
 
 # =====================================================================
 # FUNCOES DE ANALISE
 # =====================================================================
-def spectrum(data, fft_size=4096):
-    """Retorna (freqs_hz, magnitude_dB) usando janela Hann."""
+def spectrum(data, fft_size=FFT_SIZE, start=0):
+    """Retorna (freqs_hz, magnitude_dB) com janela Hann.
+
+    A magnitude e compensada pelo ganho coerente da janela: uma
+    senoide de amplitude A aparece com 20*log10(A) dB.
+    """
     w = np.hanning(fft_size)
-    seg = data[:fft_size] if len(data) >= fft_size else data
+    seg = np.asarray(data[start:start + fft_size], dtype=float)
     if len(seg) < fft_size:
         seg = np.pad(seg, (0, fft_size - len(seg)))
     X = np.fft.rfft(seg * w)
-    mag = 20 * np.log10(np.abs(X) / fft_size + 1e-12)
+    scale = 2.0 / (fft_size * np.mean(w))
+    mag = 20 * np.log10(np.abs(X) * scale + 1e-15)
     freqs = np.fft.rfftfreq(fft_size, 1.0 / SAMP_RATE)
     return freqs, mag
 
@@ -182,10 +232,37 @@ def find_peak_near(freqs, mag, target_freq, margin=100):
     """Encontra pico espectral proximo a target_freq."""
     mask = np.abs(freqs - target_freq) < margin
     if not np.any(mask):
-        return target_freq, -100.0
+        return target_freq, -200.0
     idx = np.where(mask)[0]
     best = idx[np.argmax(mag[idx])]
     return freqs[best], mag[best]
+
+
+def amp_at(data, freq, start=0, fft_size=FFT_SIZE):
+    """Amplitude linear da componente em freq, em regime permanente."""
+    freqs, mag = spectrum(data, fft_size=fft_size, start=start)
+    _, peak_db = find_peak_near(freqs, mag, freq, margin=60)
+    return 10 ** (peak_db / 20.0)
+
+
+def steady_start(fir_delay):
+    """Primeira amostra livre do transitorio do FIR."""
+    return 2 * fir_delay + SAMP_RATE // 20
+
+
+def aligned_window(demod, msg, fir_delay, n_pts):
+    """Recorta saida e referencia ja compensando o atraso de grupo.
+
+    A amostra demod[n] corresponde a entrada msg[n - fir_delay];
+    o recorte devolve os dois vetores sobre o mesmo eixo de tempo,
+    depois do transitorio do filtro.
+    """
+    s = steady_start(fir_delay)
+    n = min(n_pts, len(demod) - s, len(msg) - (s - fir_delay))
+    if n <= 0:
+        return np.array([]), np.array([]), np.array([])
+    t = np.arange(n) / SAMP_RATE * 1000.0
+    return t, demod[s:s + n], msg[s - fir_delay:s - fir_delay + n]
 
 
 def save_csv(filename, header, rows):
@@ -207,6 +284,31 @@ plt.rcParams.update({
     'grid.alpha': 0.3,
     'font.size': 10,
 })
+
+
+# =====================================================================
+# VERIFICACAO PREVIA: coerencia do oscilador local
+# =====================================================================
+def verificar_oscilador():
+    """Confere que a lei cos(theta) e reproduzida pelo flowgraph."""
+    log("\n" + "=" * 65)
+    log("VERIFICACAO: coerencia do oscilador local em quadratura")
+    log("=" * 65)
+
+    pior = 0.0
+    for phase_deg in PHASE_SWEEP:
+        tb = DSBSCDemodulator(phase_error_deg=phase_deg)
+        _, _, demod = tb.run_and_collect()
+        medido = amp_at(demod, FM, start=steady_start(tb.fir_delay))
+        teorico = 0.5 * np.cos(np.deg2rad(phase_deg))
+        pior = max(pior, abs(medido - teorico))
+
+    log(f"  Maior desvio |medido - 0.5 cos(theta)|: {pior:.5f}")
+    if pior < 5e-3:
+        log("  OK: oscilador local coerente com a portadora de transmissao.")
+    else:
+        log("  ATENCAO: desvio acima do esperado, verificar o flowgraph.")
+    return pior
 
 
 # =====================================================================
@@ -245,7 +347,8 @@ def etapa1():
     axes[1, 0].set_xlabel('Frequencia (Hz)')
     axes[1, 0].set_ylabel('Magnitude (dB)')
     axes[1, 0].set_title('Espectro da Mensagem')
-    axes[1, 0].set_xlim([0, SAMP_RATE / 2])
+    axes[1, 0].set_xlim([0, 2 * (FC + FM)])
+    axes[1, 0].set_ylim([-120, 10])
     axes[1, 0].axvline(FM, color='r', ls='--', alpha=0.5, label=f'{FM} Hz')
     axes[1, 0].legend(fontsize=8)
 
@@ -255,13 +358,14 @@ def etapa1():
     axes[1, 1].set_xlabel('Frequencia (Hz)')
     axes[1, 1].set_ylabel('Magnitude (dB)')
     axes[1, 1].set_title('Espectro DSB-SC')
-    axes[1, 1].set_xlim([0, SAMP_RATE / 2])
+    axes[1, 1].set_xlim([0, 2 * (FC + FM)])
+    axes[1, 1].set_ylim([-120, 10])
     axes[1, 1].axvline(FC - FM, color='#2ca02c', ls='--', alpha=0.6,
-                        label=f'fc-fm = {FC - FM} Hz')
+                       label=f'fc-fm = {FC - FM} Hz')
     axes[1, 1].axvline(FC + FM, color='#ff7f0e', ls='--', alpha=0.6,
-                        label=f'fc+fm = {FC + FM} Hz')
+                       label=f'fc+fm = {FC + FM} Hz')
     axes[1, 1].axvline(FC, color='gray', ls=':', alpha=0.5,
-                        label=f'fc = {FC} Hz (suprimida)')
+                       label=f'fc = {FC} Hz (suprimida)')
     axes[1, 1].legend(fontsize=8)
 
     fig.suptitle("Etapa 1: Modulador DSB-SC", fontsize=13, fontweight='bold')
@@ -273,10 +377,12 @@ def etapa1():
     # Verificar bandas laterais e ausencia de portadora
     _, mag_lsb = find_peak_near(freqs_m, mag_m, FC - FM)
     _, mag_usb = find_peak_near(freqs_m, mag_m, FC + FM)
-    _, mag_carrier = find_peak_near(freqs_m, mag_m, FC, margin=50)
+    _, mag_carrier = find_peak_near(freqs_m, mag_m, FC, margin=60)
 
     log(f"  Banda lateral inferior (fc-fm = {FC - FM} Hz): {mag_lsb:.1f} dB")
     log(f"  Banda lateral superior (fc+fm = {FC + FM} Hz): {mag_usb:.1f} dB")
+    log(f"  Amplitude de cada banda lateral: {10 ** (mag_lsb / 20):.4f} "
+        f"(teorico Am/2 = {AMP_M / 2:.4f})")
     log(f"  Portadora (fc = {FC} Hz): {mag_carrier:.1f} dB")
     log(f"  Supressao da portadora: {max(mag_lsb, mag_usb) - mag_carrier:.1f} dB")
     log(f"  -> etapa1_dsbsc_modulador.png")
@@ -293,15 +399,16 @@ def etapa2():
     log("ETAPA 2: Variacao da frequencia da mensagem")
     log("=" * 65)
 
-    test_freqs = [200, 500, 1000, 2000]
     fig, axes = plt.subplots(2, 2, figsize=(15, 9))
     csv_rows = []
 
-    log(f"\n  {'fm (Hz)':>8} | {'LSB (Hz)':>10} | {'USB (Hz)':>10} | "
-        f"{'LSB (dB)':>10} | {'USB (dB)':>10}")
-    log(f"  {'-'*8}-+-{'-'*10}-+-{'-'*10}-+-{'-'*10}-+-{'-'*10}")
+    log(f"\n  {'fm (Hz)':>8} | {'LSB teor.':>10} | {'LSB med.':>10} | "
+        f"{'USB teor.':>10} | {'USB med.':>10} | {'LSB (dB)':>9} | "
+        f"{'USB (dB)':>9}")
+    log(f"  {'-'*8}-+-{'-'*10}-+-{'-'*10}-+-{'-'*10}-+-{'-'*10}-+-"
+        f"{'-'*9}-+-{'-'*9}")
 
-    for ax, fm in zip(axes.flat, test_freqs):
+    for ax, fm in zip(axes.flat, FM_SWEEP):
         tb = DSBSCModulator(fm=fm, fc=FC)
         tb.run()
         mod_data = np.array(tb.sink_mod.data())
@@ -316,16 +423,19 @@ def etapa2():
                    label=f'fc-fm={FC - fm}')
         ax.axvline(FC + fm, color='#ff7f0e', ls='--', alpha=0.6,
                    label=f'fc+fm={FC + fm}')
-        ax.axvline(FC, color='gray', ls=':', alpha=0.4)
+        ax.axvline(FC, color='gray', ls=':', alpha=0.4, label=f'fc={FC}')
         ax.set_title(f'fm = {fm} Hz')
         ax.set_xlabel('Frequencia (Hz)')
         ax.set_ylabel('dB')
-        ax.set_xlim([0, min(FC + fm + 2000, SAMP_RATE / 2)])
+        ax.set_xlim([0, min(FC + max(FM_SWEEP) + 2000, SAMP_RATE / 2)])
+        ax.set_ylim([-120, 10])
         ax.legend(fontsize=7)
 
-        log(f"  {fm:>8} | {lsb_freq:>10.0f} | {usb_freq:>10.0f} | "
-            f"{lsb_mag:>10.1f} | {usb_mag:>10.1f}")
-        csv_rows.append([fm, FC - fm, FC + fm, f"{lsb_mag:.1f}",
+        log(f"  {fm:>8} | {FC - fm:>10} | {lsb_freq:>10.0f} | "
+            f"{FC + fm:>10} | {usb_freq:>10.0f} | {lsb_mag:>9.1f} | "
+            f"{usb_mag:>9.1f}")
+        csv_rows.append([fm, FC - fm, f"{lsb_freq:.0f}", FC + fm,
+                         f"{usb_freq:.0f}", f"{lsb_mag:.1f}",
                          f"{usb_mag:.1f}"])
 
     plt.suptitle("Etapa 2: Variacao da Frequencia da Mensagem",
@@ -336,14 +446,19 @@ def etapa2():
     plt.close()
 
     save_csv("etapa2_bandas_laterais.csv",
-             ["fm_Hz", "LSB_Hz", "USB_Hz", "LSB_dB", "USB_dB"],
+             ["fm_Hz", "LSB_teorica_Hz", "LSB_medida_Hz",
+              "USB_teorica_Hz", "USB_medida_Hz", "LSB_dB", "USB_dB"],
              csv_rows)
 
-    log(f"\n  -> etapa2_variacao_fm.png")
+    log(f"\n  Resolucao da FFT: {SAMP_RATE / FFT_SIZE:.2f} Hz "
+        f"(FFT de {FFT_SIZE} pontos)")
+    log(f"  -> etapa2_variacao_fm.png")
     log(f"  -> dados/etapa2_bandas_laterais.csv")
     log(f"\n  Resposta Q2: As bandas laterais aparecem em fc +/- fm.")
     log(f"  Ao aumentar fm, as bandas se afastam simetricamente de fc.")
     log(f"  A largura de banda do sinal DSB-SC e 2*fm.")
+    log(f"  Quando fm -> fc a banda inferior chega a 0 Hz; para fm > fc")
+    log(f"  ela se dobra sobre o eixo e as duas bandas se cruzam.")
 
 
 # =====================================================================
@@ -354,64 +469,43 @@ def etapa3():
     log("ETAPA 3: Demodulacao coerente")
     log("=" * 65)
 
-    tb = DSBSCDemodulator(fm=FM, fc=FC, phase_error_deg=0.0,
-                          lpf_cutoff=1.5 * FM, lpf_transition=200)
-    tb.run()
+    tb = DSBSCDemodulator(fm=FM, fc=FC, phase_error_deg=0.0)
+    msg_data, mod_data, demod_data = tb.run_and_collect()
+    fir_delay = tb.fir_delay
+    s0 = steady_start(fir_delay)
 
-    msg_data = np.array(tb.sink_msg.data())
-    mod_data = np.array(tb.sink_mod.data())
-    demod_data = np.array(tb.sink_out.data())
-
-    # Compensar atraso do filtro FIR
-    lpf_taps = firdes.low_pass(1, SAMP_RATE, 1.5 * FM, 200)
-    fir_delay = len(lpf_taps) // 2
-
-    # Normalizar para comparacao
-    # A saida teorica e (1/2)cos(2pi fm t) -> amplitude 0.5
-    # Alinhar no tempo e normalizar
-    demod_aligned = demod_data[fir_delay:]
-    msg_aligned = msg_data[:len(demod_aligned)]
-
-    # Medir amplitude do sinal demodulado (regime permanente)
-    steady_start = max(fir_delay, SAMP_RATE // 10)  # apos transiente
-    if steady_start < len(demod_data):
-        demod_amp = np.max(np.abs(demod_data[steady_start:])) if \
-            steady_start < len(demod_data) else 0
-    else:
-        demod_amp = np.max(np.abs(demod_data))
+    demod_amp = amp_at(demod_data, FM, start=s0)
 
     # --- Plots ---
     fig, axes = plt.subplots(3, 1, figsize=(15, 10))
 
-    n_pts = int(10 * SAMP_RATE / 1000)  # 10 ms
+    n_pts = int(5 * SAMP_RATE / 1000)  # 5 ms
     t = np.arange(n_pts) / SAMP_RATE * 1000
 
     # Mensagem original
-    axes[0].plot(t, msg_data[:n_pts], linewidth=0.8, color='#1f77b4',
+    axes[0].plot(t, msg_data[:n_pts], linewidth=0.9, color='#1f77b4',
                  label='Mensagem original')
     axes[0].set_ylabel('Amplitude')
     axes[0].set_title('Mensagem original: cos(2pi fm t)')
     axes[0].legend(fontsize=8)
 
     # Sinal DSB-SC
-    axes[1].plot(t, mod_data[:n_pts], linewidth=0.8, color='#d62728',
+    axes[1].plot(t, mod_data[:n_pts], linewidth=0.9, color='#d62728',
                  label='DSB-SC')
     axes[1].set_ylabel('Amplitude')
     axes[1].set_title('Sinal DSB-SC modulado')
     axes[1].legend(fontsize=8)
 
-    # Sinal demodulado vs original (escalado)
-    t_demod = np.arange(n_pts) / SAMP_RATE * 1000
-    axes[2].plot(t_demod, msg_data[:n_pts] * 0.5, linewidth=0.8,
-                 color='#1f77b4', alpha=0.5, label='Mensagem (x0.5)')
-    if fir_delay < n_pts:
-        n_show = min(n_pts, len(demod_data))
-        t_d = np.arange(n_show) / SAMP_RATE * 1000
-        axes[2].plot(t_d, demod_data[:n_show], linewidth=0.8,
-                     color='#2ca02c', label='Demodulado')
-    axes[2].set_xlabel('Tempo (ms)')
+    # Sinal demodulado vs original, ja alinhados pelo atraso do FIR
+    td, dem_w, msg_w = aligned_window(demod_data, msg_data, fir_delay, n_pts)
+    axes[2].plot(td, msg_w * 0.5, linewidth=1.4, color='#1f77b4',
+                 alpha=0.45, label='Mensagem x 0.5 (referencia)')
+    axes[2].plot(td, dem_w, linewidth=0.9, color='#2ca02c',
+                 label='Demodulado (LPF)')
+    axes[2].set_xlabel('Tempo (ms) apos o transitorio do filtro')
     axes[2].set_ylabel('Amplitude')
-    axes[2].set_title('Sinal demodulado (apos LPF)')
+    axes[2].set_title(f'Sinal demodulado, corte do LPF = {LPF_CUTOFF:.0f} Hz, '
+                      f'atraso de grupo compensado ({fir_delay} amostras)')
     axes[2].legend(fontsize=8)
 
     fig.suptitle("Etapa 3: Demodulacao Coerente DSB-SC",
@@ -421,16 +515,21 @@ def etapa3():
                 dpi=150, bbox_inches='tight')
     plt.close()
 
+    erro_max = float(np.max(np.abs(dem_w - 0.5 * msg_w))) if len(dem_w) else 0.0
+
     log(f"  Atraso do filtro FIR: {fir_delay} amostras "
         f"({fir_delay / SAMP_RATE * 1000:.2f} ms)")
     log(f"  Amplitude demodulada (regime permanente): {demod_amp:.4f}")
     log(f"  Amplitude teorica: 0.5000 (identidade trigonometrica)")
+    log(f"  Erro maximo ponto a ponto apos alinhamento: {erro_max:.5f}")
     log(f"  -> etapa3_demodulacao.png")
     log(f"\n  Resposta Q5: A amplitude de saida e metade da original.")
     log(f"  cos(2pi fm t) * cos(2pi fc t) * cos(2pi fc t)")
     log(f"  = cos(2pi fm t) * (1/2)[1 + cos(2pi 2fc t)]")
     log(f"  = (1/2)cos(2pi fm t) + (1/2)cos(2pi fm t)cos(2pi 2fc t)")
     log(f"  Apos LPF: (1/2)cos(2pi fm t)")
+    log(f"  O unico efeito adicional e o atraso de grupo do filtro FIR,")
+    log(f"  constante e igual a (N-1)/2 amostras; nao e distorcao.")
 
 
 # =====================================================================
@@ -441,7 +540,6 @@ def etapa4():
     log("ETAPA 4: Erro de fase na demodulacao")
     log("=" * 65)
 
-    phase_errors = [0, 15, 30, 45, 60, 90]
     fig, axes = plt.subplots(2, 3, figsize=(17, 9))
     csv_rows = []
 
@@ -449,23 +547,12 @@ def etapa4():
         f"{'Amp. teorica':>13} | {'cos(phi)':>10} | {'Erro (%)':>10}")
     log(f"  {'-'*14}-+-{'-'*12}-+-{'-'*13}-+-{'-'*10}-+-{'-'*10}")
 
-    for ax, phase_deg in zip(axes.flat, phase_errors):
-        tb = DSBSCDemodulator(fm=FM, fc=FC, phase_error_deg=phase_deg,
-                              lpf_cutoff=1.5 * FM, lpf_transition=200)
-        tb.run()
+    for ax, phase_deg in zip(axes.flat, PHASE_SWEEP):
+        tb = DSBSCDemodulator(fm=FM, fc=FC, phase_error_deg=phase_deg)
+        msg_data, _, demod_data = tb.run_and_collect()
+        fir_delay = tb.fir_delay
 
-        msg_data = np.array(tb.sink_msg.data())
-        demod_data = np.array(tb.sink_out.data())
-
-        # Medir amplitude em regime permanente
-        lpf_taps = firdes.low_pass(1, SAMP_RATE, 1.5 * FM, 200)
-        fir_delay = len(lpf_taps) // 2
-        steady_start = max(fir_delay + SAMP_RATE // 10,
-                           len(demod_data) // 4)
-        if steady_start < len(demod_data):
-            measured_amp = np.max(np.abs(demod_data[steady_start:]))
-        else:
-            measured_amp = np.max(np.abs(demod_data))
+        measured_amp = amp_at(demod_data, FM, start=steady_start(fir_delay))
 
         # Valor teorico: (1/2) * cos(phase_error)
         theoretical_amp = 0.5 * np.cos(np.deg2rad(phase_deg))
@@ -474,26 +561,31 @@ def etapa4():
         if theoretical_amp > 0.01:
             error_pct = abs(measured_amp - theoretical_amp) / \
                 theoretical_amp * 100
+            error_txt = f"{error_pct:.2f}"
         else:
-            error_pct = measured_amp * 100  # deve ser proximo de 0
+            # Em 90 graus o valor teorico e zero: reporta a atenuacao em dB
+            atten_db = 20 * np.log10(measured_amp / 0.5 + 1e-15)
+            error_txt = f"{atten_db:.1f} dB"
 
         log(f"  {phase_deg:>14} | {measured_amp:>12.4f} | "
             f"{theoretical_amp:>13.4f} | {cos_phi:>10.4f} | "
-            f"{error_pct:>10.2f}")
+            f"{error_txt:>10}")
         csv_rows.append([phase_deg, f"{measured_amp:.4f}",
                          f"{theoretical_amp:.4f}", f"{cos_phi:.4f}",
-                         f"{error_pct:.2f}"])
+                         error_txt])
 
-        # Plot
-        n_pts = int(10 * SAMP_RATE / 1000)
-        t = np.arange(n_pts) / SAMP_RATE * 1000
-
-        ax.plot(t, msg_data[:n_pts] * 0.5, linewidth=0.8,
-                color='#1f77b4', alpha=0.4, label='Ref (x0.5)')
-        n_show = min(n_pts, len(demod_data))
-        ax.plot(np.arange(n_show) / SAMP_RATE * 1000,
-                demod_data[:n_show], linewidth=0.8,
-                color='#2ca02c', label='Demodulado')
+        # Plot alinhado e sem transitorio
+        n_pts = int(5 * SAMP_RATE / 1000)
+        td, dem_w, msg_w = aligned_window(demod_data, msg_data,
+                                          fir_delay, n_pts)
+        ax.plot(td, msg_w * 0.5, linewidth=1.4, color='#1f77b4',
+                alpha=0.35, label='Ref x0.5')
+        ax.plot(td, dem_w, linewidth=0.9, color='#2ca02c',
+                label='Demodulado')
+        ax.axhline(theoretical_amp, color='#d62728', ls='--', lw=0.8,
+                   alpha=0.7, label='0.5 cos(phi)')
+        ax.axhline(-theoretical_amp, color='#d62728', ls='--', lw=0.8,
+                   alpha=0.7)
         ax.set_title(f'phi = {phase_deg} graus (cos={cos_phi:.2f})')
         ax.set_xlabel('Tempo (ms)')
         ax.set_ylabel('Amplitude')
@@ -509,7 +601,7 @@ def etapa4():
 
     save_csv("etapa4_fase_vs_amplitude.csv",
              ["fase_graus", "amp_medida", "amp_teorica", "cos_phi",
-              "erro_pct"],
+              "erro"],
              csv_rows)
 
     log(f"\n  -> etapa4_erro_fase.png")
@@ -528,64 +620,80 @@ def etapa5():
     log("ETAPA 5: Efeito do corte do filtro passa-baixa")
     log("=" * 65)
 
-    cutoff_factors = [0.5, 1.0, 1.5, 2.0, 3.0]
-    n_plots = len(cutoff_factors)
-    fig, axes = plt.subplots(n_plots, 1, figsize=(15, 3.5 * n_plots))
+    f_img_low = 2 * FC - FM   # termo de frequencia dupla, lado inferior
+    f_img_high = 2 * FC + FM  # termo de frequencia dupla, lado superior
+
+    n_plots = len(CUTOFF_SWEEP)
+    fig, axes = plt.subplots(n_plots, 2, figsize=(15, 3.1 * n_plots))
     csv_rows = []
 
-    log(f"\n  {'Corte':>10} | {'fc_lpf (Hz)':>12} | {'Amp. saida':>12} | "
-        f"{'Qualidade':>12}")
-    log(f"  {'-'*10}-+-{'-'*12}-+-{'-'*12}-+-{'-'*12}")
+    log(f"\n  Termo de frequencia dupla em 2fc -/+ fm = "
+        f"{f_img_low} e {f_img_high} Hz")
+    log(f"  Faixa util do corte: fm = {FM} Hz  <  fcorte  <  "
+        f"2fc - fm = {f_img_low} Hz\n")
+    log(f"  {'fcorte (Hz)':>12} | {'Amp. em fm':>11} | "
+        f"{'Residuo 2fc':>12} | {'Qualidade':>26}")
+    log(f"  {'-'*12}-+-{'-'*11}-+-{'-'*12}-+-{'-'*26}")
 
-    for ax, factor in zip(axes, cutoff_factors):
-        cutoff = factor * FM
+    for row, cutoff in zip(axes, CUTOFF_SWEEP):
+        ax_t, ax_f = row
 
         tb = DSBSCDemodulator(fm=FM, fc=FC, phase_error_deg=0.0,
-                              lpf_cutoff=cutoff, lpf_transition=200)
-        tb.run()
+                              lpf_cutoff=cutoff)
+        msg_data, _, demod_data = tb.run_and_collect()
+        fir_delay = tb.fir_delay
+        s0 = steady_start(fir_delay)
 
-        msg_data = np.array(tb.sink_msg.data())
-        demod_data = np.array(tb.sink_out.data())
+        amp_msg = amp_at(demod_data, FM, start=s0)
+        amp_img = max(amp_at(demod_data, f_img_low, start=s0),
+                      amp_at(demod_data, f_img_high, start=s0))
 
-        # Medir amplitude e distorcao
-        lpf_taps = firdes.low_pass(1, SAMP_RATE, cutoff, 200)
-        fir_delay = len(lpf_taps) // 2
-        steady_start = max(fir_delay + SAMP_RATE // 10,
-                           len(demod_data) // 4)
-        if steady_start < len(demod_data):
-            measured_amp = np.max(np.abs(demod_data[steady_start:]))
-        else:
-            measured_amp = np.max(np.abs(demod_data))
-
-        # Classificar qualidade
-        if cutoff < FM:
-            quality = "Atenuado"
-        elif cutoff < 1.2 * FM:
+        # Classificacao a partir da medida, nao de uma regra fixa
+        if amp_msg < 0.4 * 0.5:
+            quality = "Mensagem atenuada"
+        elif amp_img > 0.05 * 0.5:
+            quality = "Vazamento do termo em 2fc"
+        elif amp_msg < 0.9 * 0.5:
             quality = "Limiar"
         else:
-            quality = "Bom"
+            quality = "Recuperacao fiel"
 
-        log(f"  {factor:>8.1f}xfm | {cutoff:>12.0f} | "
-            f"{measured_amp:>12.4f} | {quality:>12}")
-        csv_rows.append([f"{factor}xfm", cutoff, f"{measured_amp:.4f}",
+        log(f"  {cutoff:>12} | {amp_msg:>11.4f} | {amp_img:>12.4f} | "
+            f"{quality:>26}")
+        csv_rows.append([cutoff, f"{amp_msg:.4f}", f"{amp_img:.4f}",
                          quality])
 
-        # Plot
-        n_pts = int(10 * SAMP_RATE / 1000)
-        t = np.arange(n_pts) / SAMP_RATE * 1000
+        # Painel de tempo, alinhado e sem transitorio
+        n_pts = int(5 * SAMP_RATE / 1000)
+        td, dem_w, msg_w = aligned_window(demod_data, msg_data,
+                                          fir_delay, n_pts)
+        ax_t.plot(td, msg_w * 0.5, linewidth=1.4, color='#1f77b4',
+                  alpha=0.35, label='Ref x0.5')
+        ax_t.plot(td, dem_w, linewidth=0.9, color='#2ca02c',
+                  label='Demodulado')
+        ax_t.set_title(f'fcorte = {cutoff} Hz -- {quality}')
+        ax_t.set_xlabel('Tempo (ms)')
+        ax_t.set_ylabel('Amplitude')
+        ax_t.set_ylim([-0.8, 0.8])
+        ax_t.legend(fontsize=7)
 
-        ax.plot(t, msg_data[:n_pts] * 0.5, linewidth=0.8,
-                color='#1f77b4', alpha=0.4, label='Ref (x0.5)')
-        n_show = min(n_pts, len(demod_data))
-        ax.plot(np.arange(n_show) / SAMP_RATE * 1000,
-                demod_data[:n_show], linewidth=0.8,
-                color='#2ca02c', label='Demodulado')
-        ax.set_title(f'LPF cutoff = {factor}xfm = {cutoff:.0f} Hz '
-                     f'({quality})')
-        ax.set_xlabel('Tempo (ms)')
-        ax.set_ylabel('Amplitude')
-        ax.set_ylim([-0.7, 0.7])
-        ax.legend(fontsize=7)
+        # Painel de espectro da saida
+        freqs, mag = spectrum(demod_data, start=s0)
+        ax_f.plot(freqs, mag, linewidth=0.8, color='#7f7f7f')
+        ax_f.axvline(FM, color='#2ca02c', ls='--', alpha=0.7,
+                     label=f'fm = {FM} Hz')
+        ax_f.axvline(f_img_low, color='#d62728', ls='--', alpha=0.7,
+                     label=f'2fc-fm = {f_img_low} Hz')
+        ax_f.axvline(f_img_high, color='#ff7f0e', ls='--', alpha=0.7,
+                     label=f'2fc+fm = {f_img_high} Hz')
+        ax_f.axvline(cutoff, color='k', ls=':', alpha=0.8,
+                     label='fcorte')
+        ax_f.set_xlim([0, 2 * FC + 3000])
+        ax_f.set_ylim([-120, 10])
+        ax_f.set_xlabel('Frequencia (Hz)')
+        ax_f.set_ylabel('dB')
+        ax_f.set_title('Espectro da saida do LPF')
+        ax_f.legend(fontsize=6)
 
     plt.suptitle("Etapa 5: Efeito do Corte do Filtro Passa-Baixa",
                  fontsize=13, fontweight='bold')
@@ -595,17 +703,18 @@ def etapa5():
     plt.close()
 
     save_csv("etapa5_lpf_cutoff.csv",
-             ["fator_corte", "cutoff_Hz", "amp_saida", "qualidade"],
+             ["cutoff_Hz", "amp_em_fm", "residuo_2fc", "qualidade"],
              csv_rows)
 
     log(f"\n  -> etapa5_lpf_cutoff.png")
     log(f"  -> dados/etapa5_lpf_cutoff.csv")
-    log(f"\n  Resposta Q4: O corte do LPF deve ser > fm para passar")
-    log(f"  a mensagem, mas < 2fc - fm para rejeitar o termo de")
-    log(f"  frequencia dupla (em torno de 2fc).")
-    log(f"  Com corte < fm, a mensagem e atenuada/distorcida.")
-    log(f"  Com corte muito alto, componentes de alta frequencia")
-    log(f"  (produto da multiplicacao) vazam para a saida.")
+    log(f"\n  Resposta Q4: a frequencia de corte deve satisfazer")
+    log(f"  fm < fcorte < 2fc - fm, ou seja {FM} < fcorte < {f_img_low} Hz.")
+    log(f"  Com fcorte < fm a propria mensagem e atenuada.")
+    log(f"  Com fcorte > 2fc - fm o termo de frequencia dupla gerado pela")
+    log(f"  multiplicacao passa pelo filtro e distorce a saida.")
+    log(f"  A largura de transicao define quanta atenuacao sobra para esse")
+    log(f"  termo quando o corte se aproxima de 2fc - fm.")
 
 
 # =====================================================================
@@ -619,9 +728,12 @@ if __name__ == '__main__':
     log(f"GNU Radio: {gr.version()}")
     log(f"Sample Rate: {SAMP_RATE} Hz | Amostras: {N_SAMPLES}")
     log(f"Portadora: fc = {FC} Hz | Mensagem: fm = {FM} Hz")
+    log(f"LPF nominal: corte = {LPF_CUTOFF:.0f} Hz | "
+        f"transicao = {LPF_WIDTH} Hz")
     log(f"Saida: {BASE_DIR}")
     log("=" * 65)
 
+    verificar_oscilador()
     etapa1()
     etapa2()
     etapa3()

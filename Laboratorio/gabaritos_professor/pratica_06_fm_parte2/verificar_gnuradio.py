@@ -1,6 +1,6 @@
 """
-Verificação via GNU Radio -- Prática 05 (Parte II)
-Roda o flowgraph equivalente ao pratica_05_fm_parte2.grc:
+Verificação via GNU Radio -- Prática 06
+Roda o flowgraph equivalente ao pratica_06_fm_parte2.grc:
 slope detector, discriminador balanceado e WBFM Receive em paralelo.
 Confirma que os três demoduladores recuperam a mensagem e compara
 fidelidade e robustez ao ruído.
@@ -21,7 +21,7 @@ DECIM = SAMP_RATE // AUDIO_RATE
 
 
 class FmDemodFlowgraph(gr.top_block):
-    """Replica pratica_05_fm_parte2.grc completo: três demoduladores em paralelo."""
+    """Replica pratica_06_fm_parte2.grc completo: três demoduladores em paralelo."""
 
     def __init__(self, fm_freq, max_dev, noise_amp, n_audio):
         gr.top_block.__init__(self)
@@ -166,7 +166,7 @@ def thd(sig, fs, fund_freq, n_harmonics=5):
 
 def main():
     print("=" * 60)
-    print("Verificação GNU Radio -- Prática 05 (Parte II)")
+    print("Verificação GNU Radio -- Prática 06")
     print("=" * 60)
 
     # Caso de referência: sem ruído
@@ -309,7 +309,7 @@ def main():
     ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3)
 
-    fig.suptitle('Prática 05 -- Parte II: verificação via GNU Radio',
+    fig.suptitle('Prática 06: verificação via GNU Radio',
                  fontsize=13, fontweight='bold')
     out_png = 'verificacao_gnuradio.png'
     fig.savefig(out_png, dpi=160, bbox_inches='tight')

@@ -2,7 +2,7 @@
 
 ## Alinhamento com cronograma
 
-- Semanas 7–8
+- Semanas 6–7
 - Tópicos: AM com portadora, índice de modulação
 
 ## Objetivo

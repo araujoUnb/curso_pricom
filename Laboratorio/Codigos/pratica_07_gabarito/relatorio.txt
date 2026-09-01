@@ -1,114 +1,287 @@
 =================================================================
-PRATICA 07 -- RUIDO EM DEMODULADORES AM E FM
+PRÁTICA 07 — PHASE-LOCKED LOOP (PLL)
 GABARITO DO PROFESSOR
-Data: 2026-03-20 08:42
+Data: 2026-05-26 10:23
 GNU Radio: 3.10.12.0
-AM: samp_rate=48000 Hz | fc=10000 Hz | fm=1000 Hz
-FM: samp_rate=480000 Hz | max_dev=10000 Hz | beta=10
-Niveis de ruido: [0, 0.05, 0.1, 0.2, 0.4, 0.7, 1.0]
-Amostras: 96000 (2.0 s)
-Saida: /home/daniel/Documentos/UnB/Aulas/curso_pricom/Laboratorio/Codigos/pratica_07_gabarito
+Sample Rate: 32000 Hz | Amostras: 32000
+Max Freq: 0.392699 rad/amostra | Min Freq: -0.392699 rad/amostra
+Saída: /home/daniel/Documentos/UnB/Aulas/curso_pricom/Laboratorio/Codigos/pratica_07_gabarito
 =================================================================
 
 =================================================================
-ETAPA 1: Cadeia AM DSB-SC com AWGN
+ETAPA 1: PLL básico com PLL Freq Det — Tom 1000 Hz
 =================================================================
-  Parametros: fc=10000 Hz, fm=1000 Hz, samp_rate=48000 Hz
-  Demodulacao coerente: multiplicar por oscilador local + LPF
-  Niveis de ruido (sigma): [0, 0.05, 0.1, 0.2, 0.4, 0.7, 1.0]
+  Frequência de entrada: 1000 Hz
+  Loop bandwidth: 0.062 rad/amostra
+  Valor de regime permanente: 0.196350
+  Tempo de convergência: 1.53 ms (amostra 49)
+  Overshoot: 4.4%
+  -> etapa1_pll_basico.png
 
-    sigma |  SNR_saida(dB) |      Qualidade
-  --------+----------------+---------------
-     0.00 |            inf |      Excelente
-     0.05 |           37.0 |      Excelente
-     0.10 |           31.0 |      Excelente
-     0.20 |           25.0 |            Bom
-     0.40 |           19.1 |       Razoavel
-     0.70 |           14.5 |       Razoavel
-     1.00 |           11.8 |       Razoavel
-
-  Resposta Q1: SNR de saida medido comparando o sinal
-    demodulado com a mensagem original. SNR = 10*log10(Ps/Pn)
-    onde Ps = variancia do sinal e Pn = variancia do erro.
-  Resposta Q2: AM degrada de forma aproximadamente linear
-    (graceful degradation): o ruido de saida cresce
-    proporcionalmente ao ruido de entrada.
-
-  -> etapa1_am_dsbsc_ruido.png
-  -> dados/etapa1_am_snr.csv
+  Resposta Q1: O PLL é composto por três blocos fundamentais:
+    - Detector de fase (PD): compara a fase do sinal de entrada
+      com a fase do oscilador local, gerando um sinal de erro.
+    - Filtro de loop (LF): suaviza o sinal de erro, controlando
+      a dinâmica de convergência.
+    - VCO (Voltage-Controlled Oscillator): ajusta sua frequência
+      com base no sinal de erro filtrado.
+    O conjunto forma uma malha de realimentação negativa que
+    sincroniza a frequência e fase do VCO com o sinal de entrada.
 
 =================================================================
-ETAPA 2: Cadeia FM com AWGN
-=================================================================
-  Parametros: fm=1000 Hz, max_dev=10000 Hz, beta=10
-  samp_rate_fm=480000 Hz (canal), audio_rate=48000 Hz (demod)
-  Niveis de ruido (sigma): [0, 0.05, 0.1, 0.2, 0.4, 0.7, 1.0]
-
-    sigma |  SNR_saida(dB) |      Qualidade
-  --------+----------------+---------------
-     0.00 |            inf |      Excelente
-     0.05 |           81.0 |      Excelente
-     0.10 |           75.0 |      Excelente
-     0.20 |           68.9 |      Excelente
-     0.40 |           40.5 |      Excelente
-     0.70 |           15.8 |       Razoavel
-     1.00 |            8.1 |           Ruim
-
-  Resposta Q3: FM degrada lentamente acima do limiar,
-    mas abaixo do limiar a degradacao e catastrofica
-    (aparecem 'clicks' de ruido impulsivo).
-
-  -> etapa2_fm_ruido.png
-  -> dados/etapa2_fm_snr.csv
-
-=================================================================
-ETAPA 3: Comparacao AM vs FM
+ETAPA 2: Processo de lock — Diferentes frequências de entrada
 =================================================================
 
-    sigma |  SNR_AM(dB) |  SNR_FM(dB) |  Vantagem FM(dB) |   Melhor
-  --------+-------------+-------------+------------------+---------
-     0.00 |         inf |         inf |              --- |      ---
-     0.05 |        37.0 |        81.0 |             44.0 |       FM
-     0.10 |        31.0 |        75.0 |             44.0 |       FM
-     0.20 |        25.0 |        68.9 |             43.9 |       FM
-     0.40 |        19.1 |        40.5 |             21.4 |       FM
-     0.70 |        14.5 |        15.8 |              1.3 |       FM
-     1.00 |        11.8 |         8.1 |             -3.7 |       AM
+   f_in (Hz) |  Valor final |  Conv (ms) |  Overshoot%
+  -----------+--------------+------------+------------
+         500 |     0.098175 |       1.53 |         4.4
+         800 |     0.157080 |       1.53 |         4.4
+        1000 |     0.196350 |       1.53 |         4.4
+        1200 |     0.235619 |       1.53 |         4.4
+        1500 |     0.294524 |       1.53 |         4.4
 
-  Resposta Q4: FM apresenta vantagem sobre AM acima do
-    limiar (threshold). O custo e largura de banda:
-    B_FM = 2*(beta+1)*fm >> B_AM = 2*fm.
-    Para beta=10: B_FM = 22 kHz vs B_AM = 2 kHz.
-  Resposta Q5: Para comparacao justa, deve-se usar mesma
-    potencia transmitida, mesma mensagem e mesmo N0.
+  -> etapa2_lock_process.png
+  -> dados/etapa2_lock_process.csv
 
-  -> etapa3_comparacao_am_fm.png
-  -> dados/etapa3_comparacao_am_fm.csv
+  Resposta Q2: O lock é detectado quando a saída do PLL
+    converge para um valor constante (sem oscilação).
+    Visualmente: a curva se torna uma linha plana no regime
+    permanente. O valor final é proporcional à frequência
+    de entrada.
 
 =================================================================
-ETAPA 4: FM com diferentes valores de beta
+ETAPA 3: Efeito da largura de banda do loop (loop_bw)
 =================================================================
 
-  Comparacao de desempenho FM para diferentes beta:
-  (fm=1000 Hz, audio_rate=48000 Hz)
-    sigma | SNR b=2  (dB) | SNR b=10 (dB) | SNR b=25 (dB)
-  --------+------------------+------------------+-----------------
-     0.00 |              inf |              inf |              inf
-     0.05 |             66.3 |             81.0 |             88.0
-     0.10 |             60.2 |             75.0 |             82.0
-     0.20 |             54.1 |             68.9 |             76.0
-     0.40 |             27.3 |             40.5 |             49.4
-     0.70 |              5.5 |             15.8 |             22.7
-     1.00 |              2.8 |              8.1 |             14.4
+   loop_bw |  Conv (ms) |  Overshoot% |  Ruído res.
+  ---------+------------+-------------+------------
+     0.010 |      18.12 |         2.5 |    0.000000
+     0.062 |       1.53 |         4.4 |    0.000000
+     0.200 |       0.50 |         4.7 |    0.000000
+     0.500 |       0.22 |         7.4 |    0.000001
 
-  Analise: maior beta => maior ganho de SNR acima do limiar,
-    porem o limiar tambem se desloca (exige SNR de entrada
-    maior para operar). Tradeoff: ganho FM vs largura de banda.
-    B_FM = 2*(beta+1)*fm (regra de Carson).
+  -> etapa3_loop_bw_individual.png
+  -> etapa3_loop_bw_overlay.png
+  -> dados/etapa3_loop_bw.csv
 
-  -> etapa4_fm_betas.png
-  -> etapa4_fm_betas_tempo.png
-  -> dados/etapa4_fm_betas.csv
+  Resposta Q3: Loop_bw mais largo resulta em convergência
+    mais rápida, porém com maior overshoot e maior
+    sensibilidade ao ruído. Loop_bw estreito converge
+    lentamente, mas com maior estabilidade e menor ruído
+    residual. Trata-se do clássico tradeoff entre
+    velocidade de resposta e estabilidade/filtragem.
+
+=================================================================
+ETAPA 4: Faixa de captura (capture range)
+=================================================================
+
+  Varredura de frequência com loop_bw = 0.062:
+   f_in (Hz) |  Valor final |  Ruído res. |   Locked
+  -----------+--------------+-------------+---------
+         200 |     0.039270 |    0.000000 |      SIM
+         400 |     0.078540 |    0.000000 |      SIM
+         600 |     0.117810 |    0.000000 |      SIM
+         800 |     0.157080 |    0.000000 |      SIM
+        1000 |     0.196350 |    0.000000 |      SIM
+        1200 |     0.235619 |    0.000000 |      SIM
+        1400 |     0.274889 |    0.000000 |      SIM
+        1600 |     0.314159 |    0.000000 |      SIM
+        1800 |     0.353429 |    0.000000 |      SIM
+
+  Faixa de captura medida: 200 — 1800 Hz
+  Largura medida: 1600 Hz
+  Valor teórico (loop_bw * fs / π): 631.5 Hz (largura total)
+
+  -> etapa4_capture_range.png
+  -> dados/etapa4_capture_range.csv
+
+  Resposta Q4: A faixa de captura é determinada pela
+    largura de banda do loop. Teoricamente, capture range
+    ≈ loop_bw × samp_rate / π em Hz (largura total).
+    Com loop_bw=0.062, o valor teórico é
+    ≈ 631.5 Hz. O valor medido pode ser maior
+    em simulação porque a janela de 1 s dá tempo para
+    pull-in fora do capture range estrito; o limite duro
+    é dado por max_freq/min_freq do bloco (±2000 Hz).
+
+=================================================================
+ETAPA 5: Efeito do ruído no PLL
+=================================================================
+
+  Parte A: Efeito do ruído (loop_bw = 0.062):
+   noise_amp |  Valor final | Jitter (std) |  Conv (ms)
+  -----------+--------------+--------------+-----------
+         0.0 |     0.196350 |     0.000000 |       0.78
+         0.1 |     0.196353 |     0.001875 |       1.12
+         0.3 |     0.196360 |     0.005685 |     148.44
+         0.5 |     0.196364 |     0.010033 |    1000.00
+         0.8 |     0.196356 |     0.018494 |    1000.00
+         1.0 |     0.196354 |     0.023289 |    1000.00
+
+  Parte B: Narrow vs Wide loop_bw com ruído:
+   noise_amp |  Jitter narrow |  Jitter wide
+  -----------+----------------+-------------
+         0.0 |       0.000000 |     0.000000
+         0.1 |       0.001875 |     0.010717
+         0.3 |       0.005685 |     0.032819
+         0.5 |       0.010033 |     0.058452
+         0.8 |       0.018494 |     0.106614
+         1.0 |       0.023289 |     0.140502
+
+  -> etapa5a_ruido_efeito.png
+  -> etapa5b_narrow_vs_wide.png
+  -> dados/etapa5a_ruido.csv
+  -> dados/etapa5b_narrow_vs_wide.csv
+
+  Resposta Q5: O ruído causa jitter (variação) na saída do
+    PLL. Com loop_bw mais largo, o PLL acompanha variações
+    mais rápidas, incluindo o ruído, resultando em maior
+    jitter. Com loop_bw estreito, o PLL filtra mais o ruído,
+    mantendo a saída mais estável. O tradeoff é: loop largo
+    = resposta rápida mas ruidosa; loop estreito = resposta
+    lenta mas limpa.
+
+=================================================================
+ETAPA 6: Jitter da estimativa de frequência em Hz
+=================================================================
+
+   noise_amp |  jitter_Hz lbw=0,062 |  jitter_Hz lbw=0,200
+  ------------------------------------------------------------
+         0.0 |                 0.00 |                 0.00
+         0.1 |                 9.55 |                54.58
+         0.3 |                28.95 |               167.15
+         0.5 |                51.10 |               297.69
+         1.0 |               118.61 |               715.57
+
+=================================================================
+ETAPA 7: Saturação fora da faixa de hold (±2000 Hz)
+=================================================================
+
+   f_in (Hz) |  mu (rad/am) |  f_est (Hz) |  desvio (Hz) |  locked
+  -----------------------------------------------------------------
+        1500 |     0.294524 |     1500.00 |        +0.00 |       1
+        1900 |     0.373064 |     1900.00 |        +0.00 |       1
+        2000 |     0.392699 |     2000.00 |        -0.00 |       1
+        2100 |     0.392699 |     2000.00 |      -100.00 |       1
+        2300 |     0.392699 |     2000.00 |      -300.00 |       1
+
+=================================================================
+ETAPA 8: Captura com janela curta (50 ms) — convergência teórica
+=================================================================
+
+  Janela curta = 1600 amostras (50 ms)
+   f_in (Hz) |  f_est (Hz) |  locked
+  ----------------------------------------
+         200 |      200.00 |       1
+         600 |      600.00 |       1
+        1000 |     1000.00 |       1
+        1400 |     1400.00 |       1
+        1800 |     1800.00 |       1
+
+  Df_cap medida (janela curta) = 1600 Hz
+  Df_cap teorica               = 631.5 Hz
+
+=================================================================
+ETAPA 9: Bias de f_est em janela curta sob ruído (f_in=1000)
+=================================================================
+
+  Janela curta = 1600 amostras
+   noise_amp |   f_est lbw=0,062 (Hz) |   f_est lbw=0,200 (Hz)
+  -----------------------------------------------------------------
+         0.0 |                1000.00 |                1000.00
+         0.3 |                1000.08 |                 999.07
+         0.5 |                 999.92 |                 998.63
+         1.0 |                1001.06 |                 911.39
+
+======================================================================
+TABELAS DO ENUNCIADO PREENCHIDAS COM OS VALORES MEDIDOS
+======================================================================
+
+Tabela 1 (tab:lock) — Etapa 2, loop_bw = 0,062
+--------------------------------------------------------------------------------
+ f_in (Hz) | Valor de regime (rad/am) |  f_est (Hz) |  Locked
+--------------------------------------------------------------------------------
+       500 |                 0.098175 |      500.00 |       1
+       800 |                 0.157080 |      800.00 |       1
+      1000 |                 0.196350 |     1000.00 |       1
+      1200 |                 0.235619 |     1200.00 |       1
+      1500 |                 0.294524 |     1500.00 |       1
+
+Tabela 2 (tab:pll) — Etapa 3, f_in = 1000 Hz
+----------------------------------------------------------------------
+ loop_bw |  t_conv (ms) |  Overshoot (%)
+----------------------------------------------------------------------
+   0.010 |        18.12 |            2.5
+   0.062 |         1.53 |            4.4
+   0.200 |         0.50 |            4.7
+   0.500 |         0.22 |            7.4
+
+Tabela 3 (tab:capture) — Etapa 4, loop_bw = 0,062
+--------------------------------------------------------------------------------
+ f_in (Hz) | Valor de regime (rad/am) |  f_est (Hz) |  Locked
+--------------------------------------------------------------------------------
+       200 |                 0.039270 |      200.00 |       1
+       600 |                 0.117810 |      600.00 |       1
+      1000 |                 0.196350 |     1000.00 |       1
+      1400 |                 0.274889 |     1400.00 |       1
+      1800 |                 0.353429 |     1800.00 |       1
+--------------------------------------------------------------------------------
+Df_cap medida (Hz): 1600
+Df_cap teorica (loop_bw * fs / pi) (Hz): 631.5
+
+Tabela 4 (tab:ruido) — Etapa 5, f_in = 1000 Hz
+----------------------------------------------------------------------
+ noise_amp |   Jitter loop_bw=0,062 |   Jitter loop_bw=0,200
+----------------------------------------------------------------------
+       0.0 |               0.000000 |               0.000000
+       0.1 |               0.001875 |               0.010717
+       0.3 |               0.005685 |               0.032819
+       0.5 |               0.010033 |               0.058452
+       1.0 |               0.023289 |               0.140502
+
+Tabela 5 (jitter em Hz) — Etapa 6
+----------------------------------------------------------------------
+ noise_amp |   jitter_Hz lbw=0,062 |   jitter_Hz lbw=0,200
+----------------------------------------------------------------------
+       0.0 |                  0.00 |                  0.00
+       0.1 |                  9.55 |                 54.58
+       0.3 |                 28.95 |                167.15
+       0.5 |                 51.10 |                297.69
+       1.0 |                118.61 |                715.57
+
+Tabela 6 (saturacao) — Etapa 7, loop_bw=0,062, sem ruido
+----------------------------------------------------------------------
+ f_in (Hz) |  f_est (Hz) |  desvio (Hz) |  locked
+----------------------------------------------------------------------
+      1500 |     1500.00 |        +0.00 |       1
+      1900 |     1900.00 |        +0.00 |       1
+      2000 |     2000.00 |        -0.00 |       1
+      2100 |     2000.00 |      -100.00 |       1
+      2300 |     2000.00 |      -300.00 |       1
+
+Tabela 7 (janela_curta) — Etapa 8, loop_bw=0,062, janela=50 ms
+----------------------------------------------------------------------
+ f_in (Hz) |  f_est (Hz) |  locked
+----------------------------------------------------------------------
+       200 |      200.00 |       1
+       600 |      600.00 |       1
+      1000 |     1000.00 |       1
+      1400 |     1400.00 |       1
+      1800 |     1800.00 |       1
+----------------------------------------------------------------------
+Df_cap medida (janela curta) (Hz): 1600
+Df_cap teorica               (Hz): 631.5
+
+Tabela 8 (bias_curto) — Etapa 9, f_in=1000, janela=50 ms
+----------------------------------------------------------------------
+ noise_amp |   f_est lbw=0,062 (Hz) |   f_est lbw=0,200 (Hz)
+----------------------------------------------------------------------
+       0.0 |                1000.00 |                1000.00
+       0.3 |                1000.08 |                 999.07
+       0.5 |                 999.92 |                 998.63
+       1.0 |                1001.06 |                 911.39
+
+-> /home/daniel/Documentos/UnB/Aulas/curso_pricom/Laboratorio/Codigos/pratica_07_gabarito/tabelas_enunciado.txt
 
 =================================================================
 GABARITO COMPLETO GERADO COM SUCESSO

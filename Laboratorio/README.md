@@ -9,8 +9,8 @@ Este diretório organiza **8 práticas de 50 minutos** alinhadas ao cronograma d
 3. `pratica_03_am_convencional` — AM com portadora (DSB+C)
 4. `pratica_04_ssb` — Modulação SSB
 5. `pratica_05_fm` — Modulação FM
-6. `pratica_06_pll` — Phase-Locked Loop (PLL)
-7. `pratica_07_ruido_demoduladores` — Ruído em demoduladores AM/FM
+6. `pratica_06_fm_parte2` — Demodulação FM: detector de inclinação e discriminador
+7. `pratica_07_pll` — Phase-Locked Loop (PLL)
 8. `pratica_08_amostragem_aliasing` — Amostragem e aliasing
 
 ## Estrutura de cada prática

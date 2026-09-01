@@ -216,10 +216,10 @@ class pratica_08_reconstrucao_zoh(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.set_fs_low(self.samp_rate//self.N_zoh)
-        self.throttle.set_sample_rate(self.samp_rate)
-        self.time_sink.set_samp_rate(self.samp_rate)
         self.freq_sink.set_frequency_range(0, self.samp_rate)
         self.src_real.set_sampling_freq(self.samp_rate)
+        self.throttle.set_sample_rate(self.samp_rate)
+        self.time_sink.set_samp_rate(self.samp_rate)
 
     def get_N_zoh(self):
         return self.N_zoh

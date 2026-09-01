@@ -10,11 +10,12 @@
 \usepackage{amsmath}
 \usepackage{xcolor}
 \usepackage{tcolorbox}
-\geometry{margin=2.5cm}
+\geometry{margin=2.3cm}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.5em}
 \tcbuselibrary{skins,breakable}
-\newtcolorbox{nota}[1][]{colback=yellow!10,colframe=orange!60!black,fonttitle=\bfseries,title=#1,breakable}
+\newtcolorbox{nota}[1][]{colback=yellow!10,colframe=orange!60!black,
+  fonttitle=\bfseries,title=#1,breakable}
 
 \begin{document}
 \begin{center}
@@ -26,107 +27,271 @@
   \rule{12cm}{0.8pt}
 \end{center}
 
-\section*{Gráfico esperado}
-\begin{center}
-  \includegraphics[width=0.88\textwidth]{grafico_esperado.png}
-\end{center}
-\textit{O gráfico acima foi gerado pelo script \texttt{gerar\_grafico.py} desta pasta.}
+\begin{nota}[Origem dos valores]
+Todos os números deste gabarito foram gerados por
+\texttt{Codigos/pratica\_01\_gabarito/codigos/pratica\_01\_gabarito.py}, que
+executa o mesmo \textit{flowgraph} da prática em modo headless e calcula o
+espectro do mesmo modo que o \texttt{QT GUI Frequency Sink}, ou seja
+$X_{\mathrm{dB}}[k] = 20\log_{10}(|X[k]|/N)$, com as janelas do próprio GNU
+Radio e média de potência entre blocos, equivalente a
+\textit{Average: High}. Os CSVs correspondentes estão em
+\texttt{Codigos/pratica\_01\_gabarito/dados/}.
 
+Aceitar tolerância de $\pm 2$\,dB nas leituras feitas na tela e de $\pm 1$
+índice espectral nas leituras de frequência. O eixo do bloco é
+\textit{Relative Gain}, de referência arbitrária, portanto avaliar apenas
+diferenças de níveis, nunca valores absolutos.
+\end{nota}
+
+% ==========================================================
+\section*{Gráficos esperados}
+
+As figuras abaixo são geradas por \texttt{pratica\_01\_gabarito.py} e ficam em
+\texttt{Codigos/pratica\_01\_gabarito/figuras/}. Servem de referência para
+comparar com as capturas de tela entregues pelo aluno.
+
+\begin{figure}[H]\centering
+  \includegraphics[width=0.92\textwidth]{../../Codigos/pratica_01_gabarito/figuras/cenario_C_dois_tons_ruido.png}
+  \caption*{Cenário C do enunciado: dois tons com \texttt{noise\_amp} $= 5{,}0$.
+    O tom de 2500\,Hz já não satisfaz o critério de visibilidade.}
+\end{figure}
+
+\begin{figure}[H]\centering
+  \includegraphics[width=0.92\textwidth]{../../Codigos/pratica_01_gabarito/figuras/etapa6_janelas.png}
+  \caption*{Etapa 6 com o tom em 1050\,Hz. A diferença entre a janela retangular
+    e a Blackman-harris passa de 70\,dB nas saias de vazamento. Com o tom em
+    1000\,Hz os quatro painéis ficariam indistinguíveis.}
+\end{figure}
+
+\clearpage
+
+% ==========================================================
+\section*{Tabelas de referência}
+
+\subsection*{Etapa 2 -- posição do pico}
+
+\begin{table}[H]\centering
+\begin{tabular}{c c c c}
+  \toprule
+  $f_1$ (Hz) & $k = f_1 N/f_s$ & $f_k$ (Hz) & Pico lido (Hz) \\
+  \midrule
+  500  & 16{,}0  & 500{,}0  & 500 \\
+  1000 & 32{,}0  & 1000{,}0 & 1000 \\
+  2000 & 64{,}0  & 2000{,}0 & 2000 \\
+  4000 & 128{,}0 & 4000{,}0 & 4000 \\
+  \bottomrule
+\end{tabular}
+\caption*{As quatro frequências são múltiplos exatos de $\Delta f = 31{,}25$\,Hz,
+logo $k$ é inteiro e o pico lido coincide com $f_1$.}
+\end{table}
+
+\subsection*{Etapa 4 -- resolução espectral, tons de 1000 e 1200\,Hz}
+
+\begin{table}[H]\centering
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{c c c c c c c}
+  \toprule
+  $N$ & $\Delta f$ (Hz) & $\Delta k$ & $A_{\min,\mathrm{dB}}$ &
+    $V_{\mathrm{dB}}$ & $D_{\mathrm{dB}}$ & $D_{\mathrm{dB}} \geq 3$\,dB? \\
+  \midrule
+  256  & 125{,}00 & 1{,}60  & $-12{,}6$ & $-13{,}0$  & 0{,}3  & Não \\
+  512  & 62{,}50  & 3{,}20  & $-12{,}3$ & $-21{,}0$  & 8{,}7  & Sim \\
+  1024 & 31{,}25  & 6{,}40  & $-13{,}0$ & $-60{,}6$  & 47{,}6 & Sim \\
+  2048 & 15{,}62  & 12{,}80 & $-12{,}3$ & $-85{,}4$  & 73{,}2 & Sim \\
+  4096 & 7{,}81   & 25{,}60 & $-12{,}9$ & $-101{,}3$ & 88{,}4 & Sim \\
+  \bottomrule
+\end{tabular}
+\caption*{A transição ocorre entre $N = 256$ e $N = 512$. Para $N \geq 1024$ o
+fundo do vale desce muito e o valor lido varia bastante com a média
+selecionada; aceitar qualquer valor que caracterize $D_{\mathrm{dB}} \gg 3$\,dB.}
+\end{table}
+
+\subsection*{Etapa 5 -- efeito do ruído}
+
+\begin{table}[H]\centering
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{c c c c c c}
+  \toprule
+  $\sigma$ & $\mathrm{SNR}_{1,\mathrm{dB}}$ & $\mathrm{SNR}_{2,\mathrm{dB}}$ &
+    $P_{\mathrm{dB}}$ & $A_{2,\mathrm{dB}} - P_{\mathrm{dB}}$ & Tom 2 visível? \\
+  \midrule
+  0{,}5  & 3{,}0     & $-3{,}0$  & $-40{,}4$ & 22{,}3 & Sim \\
+  1{,}0  & $-3{,}0$  & $-9{,}0$  & $-34{,}4$ & 16{,}4 & Sim \\
+  2{,}0  & $-9{,}0$  & $-15{,}1$ & $-28{,}3$ & 10{,}6 & Sim \\
+  5{,}0  & $-17{,}0$ & $-23{,}0$ & $-20{,}4$ & 4{,}2  & Não \\
+  10{,}0 & $-23{,}0$ & $-29{,}0$ & $-14{,}4$ & 1{,}4  & Não \\
+  \bottomrule
+\end{tabular}
+\caption*{Critério de visibilidade: $\mathrm{SNR}_{\mathrm{disp,dB}} \geq 6$\,dB.
+O tom 2 cruza o critério em $\sigma \approx 3{,}3$.}
+\end{table}
+
+\subsection*{Etapa 6 -- funções de janela, tom em 1050\,Hz}
+
+\begin{table}[H]\centering
+\begin{tabular}{l c c c c}
+  \toprule
+  Janela & $A_{\mathrm{pico,dB}}$ & $L_{\mathrm{dB}}$ & $S_{\mathrm{dB}}$ &
+    Largura a $-3$\,dB (Hz) \\
+  \midrule
+  Rectangular     & $-8{,}4$  & $-36{,}7$  & 28{,}2 & 35{,}2 \\
+  Hamming         & $-12{,}5$ & $-59{,}1$  & 46{,}6 & 40{,}1 \\
+  Hann            & $-13{,}0$ & $-83{,}4$  & 70{,}5 & 42{,}6 \\
+  Blackman-harris & $-15{,}5$ & $-114{,}5$ & 99{,}0 & 56{,}2 \\
+  \bottomrule
+\end{tabular}
+\caption*{As duas últimas colunas se ordenam em sentidos opostos, que é o
+resultado central da etapa. $L_{\mathrm{dB}}$ é lido fora de
+$f_1 \pm 300$\,Hz.}
+\end{table}
+
+% ==========================================================
 \section*{Respostas esperadas}
 
 \begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*, itemsep=1em]
 
-  \item \textbf{Qual é a relação entre a frequência de uma senoide no tempo e a posição do seu pico no espectro discreto?}
+  \item \textbf{Posição do pico e a relação $f_k = k f_s/N$.}
 
-    \textbf{Resposta esperada:} Cada senoide de frequência $f_0$ gera um pico no espectro no
-    bin $k = f_0 \cdot N / f_s$. A relação $f_k = k f_s/N$ mostra que o bin espectral é
-    proporcional à frequência: ao dobrar $f_0$, o pico se desloca para o dobro de $k$.
-    Para \texttt{samp\_rate}$=32000$ e $N=1024$, a resolução é
-    $\Delta f = 32000/1024 \approx 31{,}25$\,Hz/bin. O pico de 1000\,Hz deve aparecer no
-    bin $k \approx 32$.
+    Espera-se o cálculo explícito $k = f_1 N / f_s$. Para $f_1 = 2000$\,Hz,
+    $N = 1024$ e $f_s = 32000$\,Hz resulta $k = 64$, e
+    $f_k = 64 \cdot 32000/1024 = 2000$\,Hz. O aluno deve reconhecer que a
+    transformada só fornece amostras do espectro em múltiplos de
+    $\Delta f = 31{,}25$\,Hz. Uma frequência que não seja múltipla de
+    $\Delta f$ é atribuída ao índice mais próximo, o que limita o erro de
+    leitura a $\Delta f/2 = 15{,}6$\,Hz.
 
     \begin{nota}[Erros comuns]
-      Confundir bins com frequências em Hz sem aplicar a fórmula de conversão
-      $f_k = k f_s / N$. Outro erro frequente é não identificar que a resolução espectral
-      depende tanto de $N$ quanto de $f_s$.
+      Tratar bins e hertz como a mesma grandeza sem aplicar a conversão.
+      Afirmar que a resolução depende apenas de $N$, esquecendo $f_s$. Não
+      justificar o limite $\Delta f/2$.
     \end{nota}
 
-  \item \textbf{Como o tamanho da FFT (\textit{FFT size}) afeta a resolução espectral? Qual o tamanho mínimo para separar dois tons com $\Delta f_\text{tons} = 100$\,Hz e $f_s = 32000$\,Hz?}
+  \item \textbf{Menor $N$ pelo critério $D_{\mathrm{dB}} \geq 3$\,dB e extensão
+    para 100\,Hz.}
 
-    \textbf{Resposta esperada:} A resolução espectral é inversamente proporcional ao tamanho:
-    $\Delta f = f_s/N$. Para $N=256$: $\Delta f = 125$\,Hz; para $N=4096$:
-    $\Delta f \approx 7{,}8$\,Hz. Para separar dois tons com $\Delta f_\text{tons} = 100$\,Hz
-    e $f_s = 32000$\,Hz, é necessário $N \geq f_s / 100 = 320$, portanto $N = 512$ é o
-    mínimo adequado como potência de 2.
+    Da tabela da Etapa 4, o critério passa a ser satisfeito em $N = 512$, com
+    $\Delta k = 3{,}20$. Em $N = 256$ tem-se $\Delta k = 1{,}60$: os dois tons
+    caem dentro do mesmo lóbulo principal da janela Hann, que ocupa cerca de 4
+    índices, e por isso $D_{\mathrm{dB}} = 0{,}3$\,dB.
+
+    Exigindo o mesmo $\Delta k = 3{,}20$ para tons separados de 100\,Hz,
+    \[
+      N \;\geq\; \Delta k \cdot \frac{f_s}{100}
+        \;=\; 3{,}20 \cdot \frac{32000}{100} \;=\; 1024 ,
+    \]
+    ou seja $N = 1024$. O limite ingênuo $\Delta f \leq 100$\,Hz daria
+    $N \geq 320$, portanto $N = 512$, que é insuficiente: ele garante mais de
+    um índice de separação, mas não a profundidade de vale exigida, porque
+    ignora a largura do lóbulo principal da janela.
 
     \begin{nota}[Erros comuns]
-      Afirmar que FFT size maior ``aumenta precisão'' sem explicar a relação com $\Delta f$
-      e sem calcular o valor mínimo necessário para separar os dois tons.
+      Responder $N = 512$ usando apenas $\Delta f \leq 100$\,Hz. Essa resposta
+      vale no máximo metade da pontuação: o critério do enunciado é a
+      profundidade do vale, não o espaçamento de índices. Também é erro
+      preencher a coluna $D_{\mathrm{dB}}$ sem apresentar as leituras de
+      $A_{\min,\mathrm{dB}}$ e $V_{\mathrm{dB}}$ que a originaram.
     \end{nota}
 
-  \item \textbf{O que acontece ao espectro quando uma segunda senoide de frequência diferente é adicionada ao sinal?}
+  \item \textbf{Superposição dos dois tons.}
 
-    \textbf{Resposta esperada:} A DFT é uma transformada linear: o espectro de
-    $x_1(t) + x_2(t)$ é a soma dos espectros individuais. Dois picos independentes
-    aparecem em $f_1$ e $f_2$. Não há intermodulação na ausência de não-linearidades.
-    A amplitude de cada pico corresponde à amplitude de seu sinal de origem e não é
-    afetada pela presença do outro sinal.
+    A diferença medida entre os picos deve ser
+    $20\log_{10}(\mathrm{amp1}/\mathrm{amp2}) = 20\log_{10}(2) = 6{,}0$\,dB.
+    A justificativa é a linearidade da transformada: $X[k] = X_1[k] + X_2[k]$.
+    Como as duas frequências caem em índices distintos, cada pico conserva o
+    nível que teria isoladamente. Com um elemento não linear no caminho
+    apareceriam harmônicos e produtos de intermodulação, por exemplo em
+    1500\,Hz e 3500\,Hz, que não são observados aqui.
 
     \begin{nota}[Erros comuns]
-      Supor que os dois tons se ``misturam'' gerando componentes cruzadas ou harmônicos
-      adicionais simplesmente pela soma, o que não ocorre em sistemas lineares.
+      Afirmar que os espectros se combinam por convolução: a convolução ocorre
+      no produto de sinais, não na soma. Dizer apenas que ``aparecem dois
+      picos'' sem verificar a diferença de 6\,dB.
     \end{nota}
 
-  \item \textbf{Como o ruído gaussiano branco afeta a identificação de componentes espectrais de baixa amplitude?}
+  \item \textbf{Limiar de visibilidade e ganho de processamento.}
 
-    \textbf{Resposta esperada:} O ruído gaussiano branco eleva o piso espectral
-    uniformemente em $\sigma^2/f_s$ por bin. Componentes com amplitude abaixo do piso
-    de ruído ficam mascaradas. O SNR mínimo para visualização é de aproximadamente 0\,dB.
-    Para \texttt{noise\_amp}$= 0{,}2$, componentes com amplitude $< 0{,}2$ tendem a ser
-    encobertas, tornando-se indistinguíveis do piso de ruído.
+    Da tabela da Etapa 5, o tom 2 satisfaz o critério até $\sigma = 2{,}0$ e o
+    perde em $\sigma = 5{,}0$. Como $A_{2,\mathrm{dB}} - P_{\mathrm{dB}}$ cai
+    $20\log_{10}\sigma$, o limiar exato é $\sigma \approx 3{,}3$.
+
+    Em $\sigma = 1{,}0$ a SNR de banda larga do tom 2 vale $-9{,}0$\,dB,
+    enquanto a SNR do display vale $16{,}4$\,dB. A diferença de $25{,}4$\,dB é o
+    ganho de processamento da FFT: o tom concentra sua energia em um único
+    índice, enquanto o ruído se reparte pelos $N/2$ índices exibidos. Dobrar o
+    \textit{FFT Size} baixa o piso em 3\,dB e eleva a SNR do display em 3\,dB,
+    sem alterar a SNR de banda larga. É por isso que um tom com SNR de banda
+    larga negativa ainda aparece com clareza na tela.
 
     \begin{nota}[Erros comuns]
-      Descrever o efeito apenas qualitativamente (``o piso sobe'') sem relacionar com o
-      valor de $\sigma^2/f_s$ por bin e sem definir o critério de SNR mínimo para detecção.
+      Confundir \texttt{noise\_amp} com SNR, ou tratá-lo como porcentagem. Foi
+      o erro mais frequente em 2026/1. Responder apenas ``o piso sobe'' sem
+      nenhum valor em dB. Não perceber que as duas SNR são grandezas
+      diferentes e que a do display depende de $N$.
     \end{nota}
 
-  \item \textbf{Como as diferentes funções de janela (retangular, Hann, Blackman-Harris) influenciam o espectro obtido?}
+  \item \textbf{Compromisso entre supressão e largura.}
 
-    \textbf{Resposta esperada:} A janela retangular tem lóbulos laterais altos ($-13$\,dB)
-    mas lóbulo principal estreito, preservando melhor a amplitude do pico e a resolução.
-    A janela de Hann tem lóbulos laterais muito mais baixos ($-31$\,dB) mas lóbulo principal
-    $2\times$ mais largo (menor vazamento espectral). A janela Blackman-Harris oferece
-    atenuação ainda maior dos lóbulos ($-92$\,dB) a custo de lóbulo principal mais largo.
-    Para análise de frequências próximas, Hann ou Hamming são boas opções práticas.
+    Ordem por supressão, do maior para o menor:
+    Blackman-harris (99\,dB), Hann (70\,dB), Hamming (47\,dB),
+    Rectangular (28\,dB). Ordem por largura do lóbulo principal, da menor para
+    a maior: Rectangular (35\,Hz), Hamming (40\,Hz), Hann (43\,Hz),
+    Blackman-harris (56\,Hz). As duas ordens são inversas.
+
+    A janela retangular preserva o maior nível de pico, $-8{,}4$\,dB, e a
+    Blackman-harris oferece a maior supressão. As duas propriedades não podem
+    ser maximizadas ao mesmo tempo porque suprimir lóbulos laterais exige
+    suavizar as bordas do bloco, o que reduz $\sum_n w[n]$ e alarga o lóbulo
+    principal.
+
+    A Etapa 6 usa 1050\,Hz porque 1000\,Hz cai exatamente sobre o índice
+    $k = 32$: nesse caso o bloco de $N$ amostras contém um número inteiro de
+    períodos, não há descontinuidade nas bordas e o vazamento desaparece no
+    piso do gráfico, tornando as quatro janelas indistinguíveis. Em 1050\,Hz o
+    índice seria $k = 33{,}6$ e o vazamento fica cerca de 28\,dB abaixo do pico
+    com janela retangular.
 
     \begin{nota}[Erros comuns]
-      Dizer que a janela retangular é ``sempre pior'' sem mencionar que ela preserva
-      melhor a resolução espectral e a amplitude dos picos. O tradeoff entre lóbulo
-      principal e lóbulos laterais deve ser discutido.
+      Dizer que a retangular é ``sempre pior''. Comparar janelas sem valores em
+      dB. Não responder por que a etapa usa 1050\,Hz, que é o ponto conceitual
+      da questão.
     \end{nota}
 
 \end{enumerate}
 
+% ==========================================================
 \section*{Critérios de correção}
-\begin{tabular}{ll}
+
+\begin{table}[H]\centering
+\begin{tabular}{l c}
   \toprule
   Critério & Pontuação \\
   \midrule
-  Q1 -- Identificação correta do bin e aplicação da fórmula $f_k = k f_s/N$ & 1,0 ponto \\
-  Q2 -- Cálculo de $\Delta f$ e determinação do $N$ mínimo como potência de 2  & 1,0 ponto \\
-  Q3 -- Linearidade da DFT e ausência de intermodulação                        & 1,0 ponto \\
-  Q4 -- Conceito de piso de ruído e critério de SNR mínimo para detecção       & 1,0 ponto \\
-  Q5 -- Comparação de janelas: lóbulos laterais vs.\ lóbulo principal          & 1,0 ponto \\
+  Fundamentação teórica com as equações da prática        & 1{,}0 \\
+  Tabelas da Etapa 2 e da Etapa 4 preenchidas             & 1{,}0 \\
+  Tabelas da Etapa 5 e da Etapa 6 preenchidas             & 1{,}0 \\
+  Capturas dos três cenários, no tempo e na frequência    & 1{,}0 \\
+  Q1 -- cálculo de $k$ e limite $\Delta f/2$              & 1{,}0 \\
+  Q2 -- menor $N$ pelo critério do vale e extensão        & 1{,}0 \\
+  Q3 -- linearidade e diferença de 6\,dB verificada       & 1{,}0 \\
+  Q4 -- limiar de $\sigma$ e ganho de processamento       & 1{,}0 \\
+  Q5 -- compromisso entre supressão e largura             & 1{,}0 \\
+  Conclusão e organização do relatório                    & 1{,}0 \\
   \midrule
-  \textbf{Total} & \textbf{5,0 pontos} \\
+  \textbf{Total} & \textbf{10{,}0} \\
   \bottomrule
 \end{tabular}
+\end{table}
 
-\bigskip
 \begin{nota}[Nota de correção geral]
-  Priorizar coerência física e evidência experimental (capturas de tela, tabelas).
-  Respostas sem evidência visual devem ter desconto. Não penalizar pequenos erros
-  de cálculo se o raciocínio físico estiver correto.
+Priorizar a evidência experimental. Resposta sem o valor medido que a sustenta
+não recebe pontuação integral, mesmo que o raciocínio esteja correto. Não
+penalizar diferenças de até $\pm 2$\,dB em relação a este gabarito, nem o uso
+de uma média diferente no painel de controle.
+
+Em 2026/1 a fundamentação teórica teve 12 zeros em 29 relatórios, porque o
+modelo entregue ao aluno não tinha essa seção. Confirmar que o modelo divulgado
+no SIGAA contém uma seção de fundamentação teórica antes de aplicar esse
+critério.
 \end{nota}
 
 \end{document}

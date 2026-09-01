@@ -31,6 +31,9 @@
   \includegraphics[width=0.88\textwidth]{grafico_esperado.png}
 \end{center}
 \textit{O gráfico acima foi gerado pelo script \texttt{gerar\_grafico.py} desta pasta.}
+As curvas numéricas de referência, com $f_c = 5000$\,Hz e $f_m = 1000$\,Hz, estão em
+\texttt{Laboratorio/Codigos/pratica\_02\_gabarito}, geradas pelo script
+\texttt{pratica\_02\_gabarito.py} executado sobre o GNU Radio.
 
 \section*{Respostas esperadas}
 
@@ -42,8 +45,8 @@
     $m(t) = A_m\cos(2\pi f_m t)$, o produto resulta em
     $S(f) = \tfrac{A_m}{2}[\delta(f-(f_c-f_m)) + \delta(f-(f_c+f_m))]$.
     O coeficiente em $f_c$ é zero porque não há componente constante (DC) em $m(t)$.
-    No espectro do GNU Radio, a ausência do pico em $f_c = 10000$\,Hz confirma que
-    toda a energia está nas bandas laterais.
+    No espectro do GNU Radio, a ausência de componente em $f_c = 5000$\,Hz confirma
+    que toda a energia está nas bandas laterais.
 
     \begin{nota}[Erros comuns]
       Não relacionar a ausência da portadora com a falta de componente DC na mensagem.
@@ -53,10 +56,11 @@
   \item \textbf{Como a variação de $f_m$ afeta as posições das bandas laterais no espectro?}
 
     \textbf{Resposta esperada:} As bandas laterais são $f_\text{BL} = f_c \pm f_m$.
-    Para $f_c = 10000$\,Hz: $f_m=500 \to 9500/10500$\,Hz; $f_m=1000 \to 9000/11000$\,Hz;
-    $f_m=2000 \to 8000/12000$\,Hz; $f_m=4000 \to 6000/14000$\,Hz. A simetria em relação
+    Para $f_c = 5000$\,Hz: $f_m=500 \to 4500/5500$\,Hz; $f_m=1000 \to 4000/6000$\,Hz;
+    $f_m=2000 \to 3000/7000$\,Hz; $f_m=4000 \to 1000/9000$\,Hz. A simetria em relação
     a $f_c$ confirma que o DSB-SC transmite informação redundante nas duas bandas
-    laterais.
+    laterais.  Ao levar $f_m$ a 5000\,Hz a banda inferior chega a 0\,Hz e, acima
+    disso, ela se dobra sobre o eixo de frequências e as duas bandas se cruzam.
 
     \begin{nota}[Erros comuns]
       Medir incorretamente a posição dos picos por erros de cursor no espectro, ou não
@@ -74,19 +78,31 @@
     \begin{nota}[Erros comuns]
       Descrever apenas qualitativamente (``sinal cai'') sem calcular os valores de
       $\cos\theta$ para os erros de fase específicos indicados no roteiro.
+      Atenção também ao relatório que registra máximo fora de 0° ou saída não nula
+      em 90°: isso indica que o erro de fase foi aplicado no campo
+      \textit{Phase Offset} do \texttt{Signal Source}, o que quebra a coerência com
+      a portadora de transmissão.  O roteiro atual usa ganhos em quadratura
+      justamente para evitar esse caso, e a medição deve seguir $0{,}5\cos\theta$
+      com erro abaixo de $1\%$.
     \end{nota}
 
   \item \textbf{Quais são os critérios para escolher a frequência de corte do filtro passa-baixas na demodulação?}
 
-    \textbf{Resposta esperada:} O filtro deve ter frequência de corte entre $f_m$ e
-    $2f_c - f_m$. Um corte muito baixo ($ < f_m$) atenua o próprio sinal mensagem.
-    Um corte muito alto ($ > f_c$) permite que os componentes dobrados em $2f_c$
-    passem e corrompam o sinal. O valor ótimo é $f_\text{cutoff} \approx 1{,}5\,f_m$.
-    A largura de transição também é relevante para a atenuação dos termos em $2f_c$.
+    \textbf{Resposta esperada:} O critério é $f_m < f_\text{corte} < 2f_c - f_m$,
+    que para $f_c = 5000$\,Hz e $f_m = 1000$\,Hz corresponde a
+    $1000 < f_\text{corte} < 9000$\,Hz.  Um corte abaixo de $f_m$ atenua o próprio
+    sinal mensagem: em 500\,Hz a saída é praticamente nula.  Um corte acima de
+    $2f_c - f_m$ deixa passar o termo de frequência dupla: em 9500\,Hz a componente
+    de 9000\,Hz aparece na saída com amplitude $0{,}25$ e a forma de onda deixa de ser
+    senoidal.  O valor recomendado é $f_\text{corte} \approx 1{,}5\,f_m$.
+    A largura de transição também é relevante quando o corte se aproxima de
+    $2f_c - f_m$, pois define quanta atenuação ainda sobra para esse termo.
 
     \begin{nota}[Erros comuns]
       Não perceber que o LPF serve para eliminar os termos em $2f_c$ gerados pelo
       produto de demodulação, focando apenas na atenuação de ruído fora de banda.
+      Também é comum escrever que basta $f_\text{corte} < f_c$: o limite correto é
+      $2f_c - f_m$, e um corte entre $f_c$ e $2f_c - f_m$ continua funcionando.
     \end{nota}
 
   \item \textbf{Como a mensagem recuperada se compara com a mensagem original em amplitude e forma?}

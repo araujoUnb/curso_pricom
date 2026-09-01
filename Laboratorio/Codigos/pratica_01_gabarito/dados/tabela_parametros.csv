@@ -1,0 +1,9 @@
+parametro,cenario_A,cenario_B,cenario_C
+freq1 (Hz),1000,1000,1000
+freq2 (Hz),—,2500,2500
+amp1,"1,0","1,0","1,0"
+amp2,0,"0,5","0,5"
+samp_rate (Hz),32000,32000,32000
+FFT Size,1024,1024,1024
+noise_amp,0,0,"5,0"
+FFT Window,Hann,Hann,Hann

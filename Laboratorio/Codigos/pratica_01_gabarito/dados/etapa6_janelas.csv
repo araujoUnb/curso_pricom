@@ -1,5 +1,5 @@
-janela,pico_dB,largura_3dB_Hz,supressao_dB
-Rectangular,-8.4,31,27.3
-Hann,-13.0,62,68.2
-Hamming,-12.5,62,45.8
-Blackman-Harris,-14.3,62,76.3
+janela,A_pico_dB,L_dB,S_dB,largura_3dB_Hz
+Rectangular,-8.4,-36.7,28.2,35.2
+Hann,-13.0,-83.4,70.5,42.6
+Hamming,-12.5,-59.1,46.6,40.1
+Blackman-harris,-15.5,-114.5,99.0,56.2

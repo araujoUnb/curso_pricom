@@ -15,7 +15,7 @@ import matplotlib.gridspec as gridspec
 # Parâmetros
 # ------------------------------------------------------------------
 fs = 48_000
-fc = 10_000
+fc = 5_000
 fm_vals = [500, 1_000, 2_000, 4_000]   # Hz
 fm_default = 1_000
 Am = 1.0
@@ -40,12 +40,15 @@ carrier = Ac * np.cos(2 * np.pi * fc * t)
 dsb_sc = msg * carrier
 
 # Demodulação coerente com diferentes erros de fase
+NTAPS = 385          # mesma ordem do LPF do fluxograma (transicao de 300 Hz)
+FIR_DELAY = NTAPS // 2
+
+
 def demodulate(s, fc_in, fs_in, phase_rad, cutoff=1500):
     from scipy.signal import firwin, lfilter
     local_osc = np.cos(2 * np.pi * fc_in * np.arange(len(s)) / fs_in + phase_rad)
     mixed = s * local_osc
-    ntaps = 65
-    h = firwin(ntaps, cutoff / (fs_in / 2), window='hamming')
+    h = firwin(NTAPS, cutoff / (fs_in / 2), window='hamming')
     return lfilter(h, [1.0], mixed)
 
 try:
@@ -53,7 +56,7 @@ try:
     demod_90 = demodulate(dsb_sc, fc, fs, np.pi / 2)
 except ImportError:
     # Se scipy não disponível, usa convolução manual simples
-    N_taps = 65
+    N_taps = NTAPS
     cutoff_n = 1500.0 / (fs / 2)
     h = np.sinc(cutoff_n * (np.arange(N_taps) - N_taps // 2)) * np.hanning(N_taps)
     h /= h.sum()
@@ -89,8 +92,8 @@ ax2.axvline((fc - fm_default) / 1e3, color='C1', ls='--', lw=1.0,
 ax2.axvline((fc + fm_default) / 1e3, color='C2', ls='--', lw=1.0,
             label=f'$f_c + f_m$ = {(fc+fm_default)/1000:.1f} kHz')
 ax2.axvline(fc / 1e3, color='red', ls=':', lw=0.8, alpha=0.6,
-            label=f'$f_c$ = {fc/1000:.0f} kHz (sem pico!)')
-ax2.set_xlim(7, 13)
+            label=f'$f_c$ = {fc/1000:.0f} kHz, sem componente')
+ax2.set_xlim(2, 8)
 ax2.set_title('2 – Espectro DSB-SC (sem portadora)', fontweight='bold')
 ax2.set_xlabel('Frequência (kHz)')
 ax2.set_ylabel('Magnitude')
@@ -99,12 +102,16 @@ ax2.grid(True, alpha=0.3)
 
 # --- 3. Demodulação com erro de fase ---
 ax3 = fig.add_subplot(gs[1, 0])
-delay = 65 // 2   # atraso do filtro FIR
-ax3.plot(t[delay:n_show+delay] * 1e3, msg[delay:n_show+delay],
-         label='Original', lw=1.5, ls='--')
-ax3.plot(t[delay:n_show+delay] * 1e3, demod_0[delay:n_show+delay] * 2,
+# A amostra demod[n] corresponde a msg[n - FIR_DELAY]; o recorte abaixo
+# compensa esse atraso de grupo e comeca depois do transitorio do filtro.
+ini = NTAPS
+sl_d = slice(ini, ini + n_show)
+sl_m = slice(ini - FIR_DELAY, ini - FIR_DELAY + n_show)
+ax3.plot(t[:n_show] * 1e3, msg[sl_m],
+         label='Original', lw=2.0, ls='--', alpha=0.55)
+ax3.plot(t[:n_show] * 1e3, demod_0[sl_d] * 2,
          label='Demodulado (0°, ×2)', lw=1.5)
-ax3.plot(t[delay:n_show+delay] * 1e3, demod_90[delay:n_show+delay] * 2,
+ax3.plot(t[:n_show] * 1e3, demod_90[sl_d] * 2,
          label='Demodulado (90°, ×2)', lw=1.2, ls='-.', alpha=0.85)
 ax3.set_title('3 – Demodulação coerente: fase 0° vs 90°', fontweight='bold')
 ax3.set_xlabel('Tempo (ms)')
@@ -119,9 +126,10 @@ for fm_i, color in zip(fm_vals, colors):
     dsb_i = Am * np.cos(2 * np.pi * fm_i * t) * carrier
     f_i, m_i = fft_onesided(dsb_i, fs)
     ax4.plot(f_i / 1e3, m_i, color=color, lw=1.3,
-             label=f'$f_m$ = {fm_i} Hz → BLs em {(fc-fm_i)//1000:.0f}/{(fc+fm_i)//1000:.0f} kHz')
-ax4.axvline(fc / 1e3, color='red', ls=':', lw=0.8, alpha=0.5, label='$f_c$ (sem pico)')
-ax4.set_xlim(4, 16)
+             label=f'$f_m$ = {fm_i} Hz → BLs em {fc-fm_i}/{fc+fm_i} Hz')
+ax4.axvline(fc / 1e3, color='red', ls=':', lw=0.8, alpha=0.5,
+            label='$f_c$, sem componente')
+ax4.set_xlim(0, 11)
 ax4.set_title('4 – Espectro para diferentes $f_m$', fontweight='bold')
 ax4.set_xlabel('Frequência (kHz)')
 ax4.set_ylabel('Magnitude')

@@ -7,30 +7,58 @@
 
 ## Objetivo
 
-Construir um modulador e demodulador coerente DSB-SC no GNU Radio e avaliar recuperação de mensagem.
+Construir um modulador e um demodulador coerente DSB-SC no GNU Radio, avaliar o
+efeito do erro de fase do oscilador local e determinar o intervalo válido de
+frequência de corte do filtro passa-baixas.
 
 ## Pré-requisitos
 
 - Conceito de portadora e sinal mensagem
 - Multiplicação no domínio do tempo
+- Identidade do produto de cossenos
+
+## Parâmetros
+
+`samp_rate = 48000`, `fc = 5000`, `fm = 1000`, amplitudes unitárias.
+
+Com esses valores a mensagem fica em 1 kHz, as bandas laterais em 4 e 6 kHz e o
+termo de frequência dupla da demodulação em `2*fc ± fm` = 9 e 11 kHz. O critério
+do filtro passa-baixas, `fm < f_corte < 2*fc - fm`, corresponde a
+`1000 < f_corte < 9000` Hz e é verificável dentro da faixa de amostragem.
 
 ## Roteiro (50 min)
 
-1. **(0–8 min)** Configurar mensagem senoidal de baixa frequência e portadora de frequência mais alta.
-2. **(8–18 min)** Implementar modulação DSB-SC com bloco de multiplicação.
-3. **(18–28 min)** Visualizar espectro e identificar bandas laterais e ausência de linha de portadora.
-4. **(28–40 min)** Implementar demodulação coerente (multiplicação por oscilador local + LPF).
-5. **(40–47 min)** Testar erro de sincronismo de fase/frequência no oscilador local.
-6. **(47–50 min)** Consolidar observações para relatório.
+1. **(0–12 min)** Etapa 1: modulador DSB-SC e verificação da ausência de
+   componente em `fc`.
+2. **(12–22 min)** Etapa 2: variação de `fm` e registro das bandas laterais,
+   incluindo o caso `fm >= fc`.
+3. **(22–38 min)** Etapa 3: demodulador coerente com oscilador local em
+   quadratura e varredura do erro de fase de 0° a 90°.
+4. **(38–46 min)** Etapa 4: varredura da frequência de corte do filtro em 500,
+   1500, 3000, 9500 e 12000 Hz.
+5. **(46–50 min)** Etapa 5: capturas de tela e consolidação das tabelas.
 
 ## Entregáveis
 
-- Diagrama do flowgraph (print).
-- Comparação entre sinal mensagem original e recuperado.
-- Comentário sobre efeito de erro de fase na demodulação coerente.
+Relatório em PDF contendo:
+
+- Captura do espectro do sinal modulado, com as bandas laterais identificadas e
+  a ausência da portadora.
+- Captura do sinal demodulado com fase 0° e com fase 90°.
+- Captura da saída demodulada com corte acima de `2*fc - fm`.
+- Tabelas 2, 3 e 4 preenchidas.
+- Respostas às 5 questões.
 
 ## Critérios de avaliação
 
-- Fluxo corretamente implementado
+- Fluxograma corretamente implementado
 - Identificação correta das bandas laterais
-- Interpretação dos efeitos de sincronismo
+- Concordância entre a amplitude medida e `0,5·cos(θ)`
+- Interpretação do critério de corte do filtro passa-baixas
+
+## Arquivos
+
+- `enunciado_pratica_02.tex` / `.pdf` — enunciado do aluno
+- `pratica_02_am_dsbsc.grc` — fluxograma de referência
+- `../gabaritos_professor/pratica_02_am_dsb_sc/` — gabarito e critérios
+- `../Codigos/pratica_02_gabarito/` — validação numérica sobre o GNU Radio

@@ -2,7 +2,7 @@
 
 ## Alinhamento com cronograma
 
-- Semanas 17–18
+- Semanas 16–17
 - Módulo 3 — conversão analógico-digital: amostragem, Nyquist, aliasing e quantização PCM
 
 ## Objetivo
