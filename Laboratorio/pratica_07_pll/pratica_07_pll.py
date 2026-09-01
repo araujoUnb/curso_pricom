@@ -5,9 +5,9 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: Prática 06 - Phase-Locked Loop (PLL)
+# Title: Prática 07 - Phase-Locked Loop (PLL)
 # Author: Prof. Daniel Costa Araújo
-# Description: Prática 06 - Phase-Locked Loop (PLL)
+# Description: Prática 07 - Phase-Locked Loop (PLL)
 # GNU Radio version: 3.10.12.0
 
 from PyQt5 import Qt
@@ -29,12 +29,12 @@ import threading
 
 
 
-class pratica_06_pll(gr.top_block, Qt.QWidget):
+class pratica_07_pll(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "Prática 06 - Phase-Locked Loop (PLL)", catch_exceptions=True)
+        gr.top_block.__init__(self, "Prática 07 - Phase-Locked Loop (PLL)", catch_exceptions=True)
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("Prática 06 - Phase-Locked Loop (PLL)")
+        self.setWindowTitle("Prática 07 - Phase-Locked Loop (PLL)")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -52,7 +52,7 @@ class pratica_06_pll(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("gnuradio/flowgraphs", "pratica_06_pll")
+        self.settings = Qt.QSettings("gnuradio/flowgraphs", "pratica_07_pll")
 
         try:
             geometry = self.settings.value("geometry")
@@ -214,7 +214,7 @@ class pratica_06_pll(gr.top_block, Qt.QWidget):
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("gnuradio/flowgraphs", "pratica_06_pll")
+        self.settings = Qt.QSettings("gnuradio/flowgraphs", "pratica_07_pll")
         self.settings.setValue("geometry", self.saveGeometry())
         self.stop()
         self.wait()
@@ -271,7 +271,7 @@ class pratica_06_pll(gr.top_block, Qt.QWidget):
 
 
 
-def main(top_block_cls=pratica_06_pll, options=None):
+def main(top_block_cls=pratica_07_pll, options=None):
 
     qapp = Qt.QApplication(sys.argv)
 

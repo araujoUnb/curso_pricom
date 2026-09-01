@@ -22,9 +22,9 @@
 
 \tcbuselibrary{skins,breakable}
 \newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
-  fonttitle=\bfseries, title=#1, breakable}
+  fonttitle=\bfseries, title={#1}, breakable}
 \newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
-  fonttitle=\bfseries, title=#1, breakable}
+  fonttitle=\bfseries, title={#1}, breakable}
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -48,7 +48,7 @@
 \vspace{0.3cm}
 \textbf{Duração:} 50 minutos \hfill
 \textbf{Software:} GNU Radio Companion $\geq$ 3.10 \hfill
-\textbf{Semestre:} 2026/1
+\textbf{Semestre:} 2026/2
 
 \bigskip
 
@@ -106,7 +106,8 @@ envoltória simples introduz distorção. A \textbf{eficiência} de modulação 
     \texttt{Multiply Const}     & Math Operators       & Escalar por $\mu$ \\
     \texttt{Add Const}          & Math Operators       & Somar DC = 1.0 \\
     \texttt{Multiply}           & Math Operators       & Produto com portadora \\
-    \texttt{Envelope Detector}  & Level Controls       & Detecção de envoltória \\
+    \texttt{Abs}                & Math Operators       & Retifica o sinal AM \\
+    \texttt{Low Pass Filter}    & Filters              & Extrai a envoltória \\
     \texttt{DC Blocker}         & Filters              & Remove DC da saída \\
     \texttt{Throttle}           & Misc Operators       & Controle de CPU \\
     \texttt{QT GUI Time Sink}   & Instrumentation      & Formas de onda \\
@@ -189,13 +190,26 @@ envoltória simples introduz distorção. A \textbf{eficiência} de modulação 
 
 \subsection*{Etapa 3 -- Detecção de envoltória (28--42 min)}
 
+O detector de envoltória é montado a partir de três blocos, na ordem
+retificação, filtragem e remoção de DC. Essa é a tradução direta do que o
+detector faz: o \texttt{Abs} calcula $|s(t)|$, o filtro passa-baixas descarta
+a portadora e retém apenas a variação lenta que carrega a mensagem, e o
+\texttt{DC Blocker} remove o nível médio deixado pela retificação.
+
 \begin{instrucao}[Construção do detector de envoltória]
 \begin{enumerate}[label=\arabic*.]
-  \item Localize o bloco \texttt{Envelope Detector} (em \textit{Level Controls}).
-    Configure: Bandwidth = 0.05 (taxa de decaimento da envoltória).
-  \item Conecte a saída do \texttt{Throttle} ao \texttt{Envelope Detector}.
-  \item Adicione \texttt{DC Blocker} após o \texttt{Envelope Detector}
-    para remover a componente DC.
+  \item Adicione \texttt{Abs} com \textit{Type} em \textit{Float} e conecte a
+    saída do \texttt{Throttle} à entrada dele.
+  \item Adicione \texttt{Low Pass Filter} após o \texttt{Abs} e configure:
+    \textit{Type} = \textit{Float}$\to$\textit{Float (Decimating)},
+    \textit{Decimation} = 1, \textit{Gain} = 1,
+    \textit{Sample Rate} = \texttt{samp\_rate},
+    \textit{Cutoff Freq} = \texttt{fm*2},
+    \textit{Transition Width} = 300 e \textit{Window} = \textit{Hamming}.
+    A frequência de corte precisa ficar acima de $f_m$ e bem abaixo de $f_c$,
+    para deixar passar a mensagem e barrar a portadora.
+  \item Adicione \texttt{DC Blocker} após o filtro, com \textit{Type} em
+    \textit{float} e \textit{Length} = 32, para remover a componente DC.
   \item Conecte ao terceiro canal do \texttt{QT GUI Time Sink}:
     canal 1 = mensagem original, canal 2 = sinal AM, canal 3 = envoltória
     detectada.
@@ -270,12 +284,5 @@ O entregável é o relatório no modelo definido no SIGAA contendo:
   \item Tabela de registro preenchida com cálculo de $\eta$.
   \item Respostas às 5 questões.
 \end{itemize}
-
-\begin{atencao}[Dica -- Envelope Detector]
-Se o bloco \texttt{Envelope Detector} não estiver disponível na sua versão,
-implemente manualmente: use \texttt{Complex to Mag} (após converter para
-complexo) ou calcule $|x|$ usando um bloco \texttt{Transcendental} com
-função \texttt{abs}, seguido de um \texttt{Low Pass Filter} para suavizar.
-\end{atencao}
 
 \end{document}

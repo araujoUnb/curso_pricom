@@ -2,7 +2,7 @@
 
 ## Alinhamento com cronograma
 
-- Semanas 11–12
+- Semanas 10–11
 - Tópicos: FM, índice de modulação e largura de banda
 
 ## Objetivo

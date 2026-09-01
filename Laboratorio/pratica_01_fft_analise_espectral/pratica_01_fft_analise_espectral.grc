@@ -432,10 +432,10 @@ blocks:
     color8: '"dark red"'
     color9: '"dark green"'
     comment: ''
-    ctrlpanel: 'False'
+    ctrlpanel: 'True'
     fc: '0'
     fftsize: '1024'
-    freqhalf: 'True'
+    freqhalf: 'False'
     grid: 'True'
     gui_hint: 3,1,1,1
     label: Relative Gain

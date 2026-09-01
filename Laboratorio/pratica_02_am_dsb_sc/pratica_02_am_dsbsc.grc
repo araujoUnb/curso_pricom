@@ -34,6 +34,23 @@ options:
 
 blocks:
 # ============================================
+# IMPORTS
+# ============================================
+- name: import_math
+  id: import
+  parameters:
+    alias: ''
+    comment: 'Necessário para cos() e sin() do oscilador local'
+    imports: import math
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 88]
+    rotation: 0
+    state: enabled
+
+# ============================================
 # VARIÁVEIS
 # ============================================
 - name: samp_rate
@@ -53,7 +70,7 @@ blocks:
   id: variable
   parameters:
     comment: 'Frequência da portadora'
-    value: '10000'
+    value: '5000'
   states:
     bus_sink: false
     bus_source: false
@@ -122,6 +139,37 @@ blocks:
     rotation: 0
     state: enabled
 
+# Decomposição em quadratura do oscilador local:
+#   cos(2*pi*fc*t + theta) = cos(theta)*cos(2*pi*fc*t) - sin(theta)*sin(2*pi*fc*t)
+# Assim theta entra como ganho, e não como fase inicial de um NCO. Isso
+# preserva a coerência com a portadora de transmissão quando o slider é
+# movido com o fluxograma em execução.
+- name: ganho_i
+  id: variable
+  parameters:
+    comment: 'cos(theta): ramo em fase'
+    value: 'math.cos(phase_rad)'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [860, 12]
+    rotation: 0
+    state: enabled
+
+- name: ganho_q
+  id: variable
+  parameters:
+    comment: '-sin(theta): ramo em quadratura'
+    value: '-math.sin(phase_rad)'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [980, 12]
+    rotation: 0
+    state: enabled
+
 - name: lpf_cutoff
   id: variable_qtgui_range
   parameters:
@@ -133,7 +181,7 @@ blocks:
     rangeType: float
     start: '200'
     step: '100'
-    stop: '10000'
+    stop: '12000'
     value: '1500'
     widget: counter_slider
   states:
@@ -197,19 +245,25 @@ blocks:
     rotation: 0
     state: enabled
 
-# Oscilador local para demodulação: cos(2*pi*fc*t + phase_rad)
-- name: src_local
+# ============================================
+# OSCILADOR LOCAL COM ERRO DE FASE
+# cos(2*pi*fc*t + theta)
+#   = ganho_i * cos(2*pi*fc*t) + ganho_q * sin(2*pi*fc*t)
+# Os dois osciladores têm fase inicial fixa em zero e nunca são
+# reprogramados em tempo de execução; apenas os ganhos mudam.
+# ============================================
+- name: lo_cos
   id: analog_sig_source_x
   parameters:
     affinity: ''
     alias: ''
     amp: '1.0'
-    comment: 'Oscilador local (demod)'
+    comment: 'Oscilador local, ramo em fase'
     freq: fc
     maxoutbuf: '0'
     minoutbuf: '0'
     offset: '0'
-    phase: phase_rad
+    phase: '0'
     samp_rate: samp_rate
     showports: 'False'
     type: float
@@ -218,7 +272,88 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [480, 500]
+    coordinate: [80, 560]
+    rotation: 0
+    state: enabled
+
+- name: lo_sin
+  id: analog_sig_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: '1.0'
+    comment: 'Oscilador local, ramo em quadratura'
+    freq: fc
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: float
+    waveform: analog.GR_SIN_WAVE
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [80, 680]
+    rotation: 0
+    state: enabled
+
+- name: gain_i
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'cos(theta)'
+    const: ganho_i
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [300, 572]
+    rotation: 0
+    state: enabled
+
+- name: gain_q
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: '-sin(theta)'
+    const: ganho_q
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [300, 692]
+    rotation: 0
+    state: enabled
+
+- name: lo_sum
+  id: blocks_add_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Oscilador local resultante'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [500, 612]
     rotation: 0
     state: enabled
 
@@ -587,7 +722,12 @@ connections:
 - [mult_mod, '0', throttle, '0']
 # Demodulador: sinal modulado × oscilador local
 - [throttle, '0', mult_demod, '0']
-- [src_local, '0', mult_demod, '1']
+# Oscilador local em quadratura
+- [lo_cos, '0', gain_i, '0']
+- [lo_sin, '0', gain_q, '0']
+- [gain_i, '0', lo_sum, '0']
+- [gain_q, '0', lo_sum, '1']
+- [lo_sum, '0', mult_demod, '1']
 # Filtro passa-baixas
 - [mult_demod, '0', lpf, '0']
 # Visualização no tempo: 3 canais

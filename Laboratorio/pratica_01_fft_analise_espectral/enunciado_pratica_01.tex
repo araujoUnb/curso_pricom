@@ -49,7 +49,7 @@
 \vspace{0.3cm}
 \textbf{Duração:} 50 minutos \hfill
 \textbf{Software:} GNU Radio Companion (GRC) $\geq$ 3.10 \hfill
-\textbf{Semestre:} 2026/1
+\textbf{Semestre:} 2026/2
 
 \bigskip
 
@@ -62,38 +62,154 @@ Ao final desta prática o aluno deverá ser capaz de:
     sinais senoidais no domínio do tempo e da frequência.
   \item Relacionar a frequência de uma senoide com a posição do pico no
     espectro de magnitude da FFT.
-  \item Analisar o efeito do tamanho da FFT (\textit{FFT size}) na resolução
-    espectral.
-  \item Observar o impacto do ruído gaussiano na identificação de componentes
-    espectrais de baixa amplitude.
-  \item Comparar o vazamento espectral gerado por diferentes funções de janela.
+  \item Medir a resolução espectral e decidir, por um critério numérico, se
+    dois tons próximos estão resolvidos.
+  \item Quantificar o efeito do ruído gaussiano sobre a relação sinal-ruído
+    observada no espectro.
+  \item Medir a supressão de lóbulos laterais produzida por diferentes
+    funções de janela.
 \end{itemize}
 
 % ======================================================
-\section{Fundamentos teóricos (síntese)}
+\section{Fundamentos teóricos}
 
-A \textbf{Transformada Discreta de Fourier (DFT)} de um sinal $x[n]$ com
-$N$ amostras é:
-\begin{equation}
-  X[k] = \sum_{n=0}^{N-1} x[n]\,e^{-j2\pi kn/N}, \quad k = 0, 1, \ldots, N-1.
-\end{equation}
-Cada bin $k$ corresponde à frequência analógica:
-\begin{equation}
-  f_k = \frac{k \cdot f_s}{N},
-\end{equation}
-onde $f_s$ é a taxa de amostragem.  A \textbf{resolução espectral} é:
-\begin{equation}
-  \Delta f = \frac{f_s}{N}.
-\end{equation}
-Aumentar $N$ (FFT size) melhora $\Delta f$ mas exige mais amostras.
+\subsection*{Transformada discreta de Fourier}
 
-Um sinal com ruído aditivo branco gaussiano $w[n] \sim \mathcal{N}(0,\sigma^2)$
-eleva o \textbf{piso de ruído} espectral de forma uniforme, dificultando a
-identificação de componentes fracas.
+A transformada discreta de Fourier de um sinal $x[n]$ com $N$ amostras é
+\begin{equation}
+  X[k] = \sum_{n=0}^{N-1} x[n]\,e^{-j2\pi kn/N}, \quad k = 0, 1, \ldots, N-1 .
+\end{equation}
+Cada índice $k$ corresponde à frequência analógica
+\begin{equation}
+  f_k = \frac{k \cdot f_s}{N}, \qquad 0 \le k < N/2 ,
+  \label{eq:fk}
+\end{equation}
+onde $f_s$ é a taxa de amostragem. O espaçamento entre índices vizinhos
+define a resolução espectral
+\begin{equation}
+  \Delta f = \frac{f_s}{N} .
+  \label{eq:df}
+\end{equation}
+Como o sinal é real, os índices $k \ge N/2$ reproduzem em espelho as
+frequências negativas e não carregam informação nova. Por isso o
+\texttt{QT GUI Frequency Sink} desta prática é configurado para exibir apenas
+a faixa de $0$ a $f_s/2$.
 
-A \textbf{função de janela} (retangular, Hann, Hamming, Blackman) atenua
-os lóbulos laterais causados pela descontinuidade do sinal na borda do buffer,
-reduzindo o \textbf{vazamento espectral}.
+\subsection*{Nível em dB exibido pelo analisador}
+
+O \texttt{QT GUI Frequency Sink} não exibe a magnitude $|X[k]|$, e sim o nível
+em decibéis
+\begin{equation}
+  X_{\mathrm{dB}}[k] = 20\log_{10}\!\left(\frac{|X[k]|}{N}\right) .
+  \label{eq:db}
+\end{equation}
+Todo valor lido no gráfico nesta prática é um valor dessa função, ou seja, um
+nível em dB, e não uma amplitude. É por isso que os símbolos usados a seguir
+levam o índice dB.
+
+Uma senoide de amplitude $A$ cuja frequência coincide exatamente com um índice
+espectral produz, depois de multiplicada pela janela $w[n]$, o nível de pico
+\begin{equation}
+  A_{\mathrm{pico,dB}}
+    = 20\log_{10}\!\left(\frac{A \sum_{n=0}^{N-1} w[n]}{2N}\right) .
+  \label{eq:pico}
+\end{equation}
+O fator $2$ aparece porque a senoide real distribui sua energia entre as
+frequências positiva e negativa, e a soma $\sum_n w[n]$ depende da janela
+escolhida. O eixo vertical do bloco é rotulado \textit{Relative Gain}, ou seja,
+a referência de $0$~dB é arbitrária e não corresponde a nenhuma potência física
+em watts. Também não se trata de densidade espectral de potência: o bloco não
+divide o resultado pela largura de banda de cada índice, de modo que a leitura
+não está em dB por hertz.
+
+Por isso nenhuma das grandezas medidas nesta prática é um nível absoluto. Todas
+são diferenças entre dois níveis lidos no mesmo gráfico, e uma diferença em dB é
+sempre a razão entre as magnitudes correspondentes,
+\begin{equation}
+  A_{\mathrm{dB}} - B_{\mathrm{dB}}
+    = 20\log_{10}\!\left(\frac{|X_A|}{|X_B|}\right) .
+  \label{eq:razao}
+\end{equation}
+Isso torna as medições independentes da referência do eixo e dá significado
+físico às três grandezas obtidas nas Etapas 4, 5 e 6.
+
+\subsection*{Critério de resolução de dois tons}
+
+Aumentar $N$ reduz $\Delta f$, mas exige mais amostras e mais processamento.
+Para decidir se dois tons de frequências $f_1$ e $f_2$ estão resolvidos, não
+basta observar o gráfico: adota-se um critério numérico. Define-se a separação
+em índices espectrais
+\begin{equation}
+  \Delta k = \frac{|f_2 - f_1|}{\Delta f}
+  \label{eq:dk}
+\end{equation}
+e mede-se, no espectro exibido, a profundidade do vale entre os dois picos
+\begin{equation}
+  D_{\mathrm{dB}} = A_{\min,\mathrm{dB}} - V_{\mathrm{dB}} ,
+  \label{eq:vale}
+\end{equation}
+onde $A_{\min,\mathrm{dB}}$ é o menor dos dois níveis de pico e
+$V_{\mathrm{dB}}$ é o menor nível registrado entre eles, ambos lidos na escala
+da equação~\eqref{eq:db}. Pela equação~\eqref{eq:razao}, $D_{\mathrm{dB}}$ é a
+razão entre a magnitude do pico mais baixo e a magnitude do fundo do vale.
+Nesta prática os dois tons são considerados resolvidos quando
+\begin{equation}
+  D_{\mathrm{dB}} \geq 3~\text{dB} .
+  \label{eq:criterio}
+\end{equation}
+Se os dois picos se fundem em um único lóbulo, não existe vale e adota-se
+$D_{\mathrm{dB}} = 0$~dB.
+
+\subsection*{Relação sinal-ruído}
+
+O bloco \texttt{Noise Source} gaussiano tem como parâmetro de amplitude o
+desvio padrão $\sigma$ do ruído, de modo que a potência de ruído na banda
+completa é $\sigma^2$. Uma senoide de amplitude $A$ tem potência média
+$A^2/2$. A relação sinal-ruído de banda larga é, portanto,
+\begin{equation}
+  \mathrm{SNR}_{\mathrm{dB}}
+    = 10\log_{10}\!\left(\frac{A^{2}/2}{\sigma^{2}}\right) .
+  \label{eq:snr}
+\end{equation}
+Aqui o fator é $10$ e não $20$ porque o argumento já é uma razão de potências,
+enquanto na equação~\eqref{eq:db} o argumento é uma razão de magnitudes.
+No espectro exibido pela FFT observa-se um valor diferente. Cada índice
+espectral concentra apenas $1/N$ da banda, de modo que o piso de ruído por
+índice fica bem abaixo da potência total de ruído. A grandeza que se mede na
+tela é
+\begin{equation}
+  \mathrm{SNR}_{\mathrm{disp,dB}} = A_{\mathrm{pico,dB}} - P_{\mathrm{dB}} ,
+  \label{eq:snrdisp}
+\end{equation}
+onde $P_{\mathrm{dB}}$ é o nível médio do piso de ruído lido no gráfico. A
+diferença $\mathrm{SNR}_{\mathrm{disp,dB}} - \mathrm{SNR}_{\mathrm{dB}}$ é o
+ganho de processamento da FFT, que cresce com $N$. Nesta prática um tom é
+considerado visível quando
+$\mathrm{SNR}_{\mathrm{disp,dB}} \geq 6$~dB.
+
+\subsection*{Vazamento espectral e funções de janela}
+
+Quando a frequência do tom coincide exatamente com uma das frequências da
+equação~\eqref{eq:fk}, o bloco de $N$ amostras contém um número inteiro de
+períodos e a FFT concentra toda a energia em um único índice. Esse é um caso
+particular. Quando a frequência cai entre dois índices, o bloco não é
+periódico, surge uma descontinuidade nas bordas e a energia se espalha por
+todo o espectro. Esse espalhamento é o vazamento espectral.
+
+A função de janela multiplica o bloco de amostras por um perfil que vai a zero
+nas bordas, suavizando a descontinuidade. O efeito é medido por duas grandezas
+opostas: a supressão de lóbulos laterais
+\begin{equation}
+  S_{\mathrm{dB}} = A_{\mathrm{pico,dB}} - L_{\mathrm{dB}} ,
+  \label{eq:supressao}
+\end{equation}
+e a largura do lóbulo principal a $-3$~dB. Aqui $L_{\mathrm{dB}}$ é o maior
+nível observado fora da faixa de $\pm 300$~Hz em torno do tom. Essa faixa corresponde a
+$9{,}6$ índices espectrais para $N = 1024$ e deixa de fora o lóbulo principal
+de todas as janelas comparadas, inclusive a Blackman-harris, cujo lóbulo
+principal ocupa cerca de 8 índices. Janelas que suprimem mais os lóbulos
+laterais alargam o lóbulo principal e reduzem o nível do pico. É esse
+compromisso que a Etapa 6 mede.
 
 % ======================================================
 \section{Materiais e blocos GNU Radio}
@@ -104,144 +220,294 @@ reduzindo o \textbf{vazamento espectral}.
     \toprule
     \textbf{Bloco GRC} & \textbf{Localização no GRC} & \textbf{Função} \\
     \midrule
-    \texttt{Variable}          & Miscellaneous       & Define \texttt{samp\_rate} \\
-    \texttt{Signal Source}     & Waveform Generators & Gera senoide de teste \\
-    \texttt{Noise Source}      & Waveform Generators & Ruído gaussiano branco \\
-    \texttt{Add}               & Math Operators      & Soma de dois sinais \\
-    \texttt{Throttle}          & Misc Operators      & Limita CPU em simulação \\
-    \texttt{QT GUI Time Sink}  & Instrumentation     & Osciloscópio virtual \\
-    \texttt{QT GUI Freq Sink}  & Instrumentation     & Analisador de espectro \\
-    \texttt{QT GUI Range}      & GUI Widgets         & Controle deslizante \\
+    \texttt{Variable}          & Variables               & Define \texttt{samp\_rate} \\
+    \texttt{QT GUI Range}      & GUI Widgets $>$ QT      & Controle deslizante \\
+    \texttt{Signal Source}     & Waveform Generators     & Gera senoide de teste \\
+    \texttt{Noise Source}      & Waveform Generators     & Ruído gaussiano branco \\
+    \texttt{Add}               & Math Operators          & Soma de dois sinais \\
+    \texttt{Throttle}          & Misc                    & Limita a taxa em simulação \\
+    \texttt{QT GUI Time Sink}  & Instrumentation $>$ QT  & Osciloscópio virtual \\
+    \texttt{QT GUI Freq Sink}  & Instrumentation $>$ QT  & Analisador de espectro \\
     \bottomrule
   \end{tabular}
   \caption{Blocos utilizados na Prática 01.}
+  \label{tab:blocos}
 \end{table}
 
 % ======================================================
-\section{Roteiro de montagem e execução (50 min)}
+\section{Como ler valores no espectro}
 
-\subsection*{Etapa 1 -- Configuração inicial (0--8 min)}
+Todas as etapas quantitativas exigem a leitura de níveis em dB no
+\texttt{QT GUI Frequency Sink}. Os recursos abaixo estão disponíveis com o
+\textit{flowgraph} em execução.
+
+\begin{instrucao}[Procedimento de leitura]
+\begin{enumerate}[label=\arabic*.]
+  \item O painel de controle à direita do gráfico permite alterar
+    \textit{FFT Size}, \textit{FFT Window} e \textit{Average} sem parar o
+    \textit{flowgraph}. Os mesmos ajustes estão no menu do botão direito
+    sobre o gráfico.
+  \item Antes de qualquer leitura de nível, ajuste \textit{Average} para
+    \textit{High}. A média estabiliza o traço e torna reprodutível a leitura
+    do piso de ruído e do fundo do vale.
+  \item Posicione o cursor do mouse sobre o ponto de interesse. As
+    coordenadas de frequência e magnitude aparecem junto ao cursor.
+  \item Registre sempre o par frequência e nível em dB, nunca apenas a
+    impressão visual.
+\end{enumerate}
+\end{instrucao}
+
+% ======================================================
+\section{Roteiro de montagem e execução}
+
+\subsection*{Etapa 1 -- Configuração inicial, 0 a 8 min}
 
 \begin{instrucao}[Passo a passo: criando o flowgraph base]
 \begin{enumerate}[label=\arabic*.]
-  \item Abra o \textbf{GNU Radio Companion} e crie um novo arquivo
-    (\texttt{File > New}).
-  \item Dê um duplo clique no bloco \texttt{Options} (canto superior esquerdo)
-    e defina:
-    \begin{itemize}
-      \item \textit{Output Language:} Python
-      \item \textit{Generate Options:} QT GUI
-    \end{itemize}
+  \item Abra o GNU Radio Companion e crie um novo arquivo com
+    \texttt{File > New}.
+  \item Dê um duplo clique no bloco \texttt{Options} e defina
+    \textit{Output Language} como Python e \textit{Generate Options} como
+    QT GUI.
   \item Adicione um bloco \texttt{Variable} e defina
     \texttt{samp\_rate = 32000}.
-  \item Adicione um \texttt{Signal Source}. Configure:
+  \item Adicione quatro blocos \texttt{QT GUI Range} com os identificadores
+    \texttt{freq1}, \texttt{amp1}, \texttt{freq2} e \texttt{amp2}, conforme a
+    Tabela~\ref{tab:sliders}.
+  \item Adicione um \texttt{Signal Source} e configure
+    \textit{Output Type} como Float, \textit{Waveform} como Cosine,
+    \textit{Frequency} como \texttt{freq1}, \textit{Amplitude} como
+    \texttt{amp1} e \textit{Sample Rate} como \texttt{samp\_rate}.
+  \item Adicione um \texttt{Throttle} com \textit{Output Type} Float e
+    \textit{Sample Rate} igual a \texttt{samp\_rate}.
+  \item Adicione um \texttt{QT GUI Time Sink} com \textit{Type} Float,
+    \textit{Number of Points} 1024 e \textit{Sample Rate} igual a
+    \texttt{samp\_rate}.
+  \item Adicione um \texttt{QT GUI Frequency Sink} e configure:
     \begin{itemize}
-      \item \textit{Output Type:} Float
-      \item \textit{Waveform:} Cosine
-      \item \textit{Frequency:} \texttt{1000} (Hz)
-      \item \textit{Amplitude:} \texttt{1.0}
-      \item \textit{Sample Rate:} \texttt{samp\_rate}
+      \item \textit{Type:} Float
+      \item \textit{FFT Size:} 1024
+      \item \textit{Window Type:} Hann
+      \item \textit{Spectrum Width:} Half, para exibir apenas a faixa de
+        $0$ a $f_s/2$
+      \item \textit{Bandwidth (Hz):} \texttt{samp\_rate}
+      \item \textit{Control Panel:} Yes
+      \item \textit{Y min:} $-140$ \quad \textit{Y max:} $10$
     \end{itemize}
-  \item Adicione um \texttt{Throttle} (Output Type: Float,
-    Sample Rate: \texttt{samp\_rate}).
-  \item Adicione um \texttt{QT GUI Time Sink} (Type: Float, Number of Points:
-    1024).
-  \item Adicione um \texttt{QT GUI Freq Sink} (Type: Float, FFT Size: 1024).
-  \item Conecte: \texttt{Signal Source} $\to$ \texttt{Throttle} $\to$
-    \texttt{QT GUI Time Sink} \emph{e} $\to$ \texttt{QT GUI Freq Sink}.
-  \item Execute (\texttt{F6}) e verifique se o osciloscópio mostra uma
-    senoide de 1\,kHz.
-\end{enumerate}
-\end{instrucao}
-
-\subsection*{Etapa 2 -- Tom único: variação de frequência (8--18 min)}
-
-\begin{instrucao}[Atividade 2.1 -- Variar frequência]
-\begin{enumerate}[label=\arabic*.]
-  \item Adicione um bloco \texttt{QT GUI Range} configurado como variável
-    \texttt{freq1} com mínimo 200, máximo 8000, passo 100 e valor padrão 1000.
-  \item Altere o campo \textit{Frequency} do \texttt{Signal Source} para
-    \texttt{freq1}.
-  \item Execute. Use o controle deslizante para variar \texttt{freq1}.
-  \item \textbf{Registre} a posição do pico no espectro para 500, 1000,
-    2000 e 4000\,Hz.
-\end{enumerate}
-\end{instrucao}
-
-\subsection*{Etapa 3 -- Sinal multitonal: dois tons (18--28 min)}
-
-\begin{instrucao}[Atividade 3.1 -- Segundo tom e bloco Add]
-\begin{enumerate}[label=\arabic*.]
-  \item Adicione um segundo \texttt{Signal Source} com frequência
-    \texttt{freq2 = 2500} (crie a variável \texttt{freq2} como
-    \texttt{QT GUI Range}).  Amplitude: 0.5.
-  \item Adicione um bloco \texttt{Add} (Float). Conecte os dois
-    \texttt{Signal Source} às suas entradas.
-  \item Desconecte o primeiro \texttt{Signal Source} do \texttt{Throttle}
-    e conecte a saída do \texttt{Add} ao \texttt{Throttle}.
-  \item Execute. \textbf{Identifique} os dois picos no espectro. Relacione
-    cada pico com seu \texttt{Signal Source}.
-\end{enumerate}
-\end{instrucao}
-
-\subsection*{Etapa 4 -- Resolução espectral: efeito do FFT size (28--36 min)}
-
-\begin{instrucao}[Atividade 4.1 -- Variar FFT size]
-\begin{enumerate}[label=\arabic*.]
-  \item Dê duplo clique no \texttt{QT GUI Freq Sink}. Teste os seguintes
-    valores de \textit{FFT Size}: 256, 512, 1024, 2048 e 4096.
-  \item Para cada valor, calcule a resolução espectral $\Delta f = f_s/N$
-    e preencha a Tabela~\ref{tab:fftsizes}.
-  \item Observe: frequências próximas (ex.: 1000 e 1200\,Hz) se separam
-    melhor com FFT maior?
+  \item Conecte \texttt{Signal Source} $\to$ \texttt{Throttle} e a saída do
+    \texttt{Throttle} tanto ao \texttt{QT GUI Time Sink} quanto ao
+    \texttt{QT GUI Frequency Sink}.
+  \item Execute com \texttt{F6} e confirme que o osciloscópio mostra uma
+    senoide e que o espectro apresenta um único pico em 1\,kHz.
+  \item Confira a escala em dB do gráfico: reduza \texttt{amp1} de $1{,}0$ para
+    $0{,}5$ e verifique que o pico desce cerca de $6$\,dB, conforme a
+    equação~\eqref{eq:razao}. Volte \texttt{amp1} para $1{,}0$.
 \end{enumerate}
 \end{instrucao}
 
 \begin{table}[H]
   \centering
-  \begin{tabular}{c c c}
+  \begin{tabular}{l c c c c}
     \toprule
-    \textbf{FFT Size ($N$)} & \textbf{$\Delta f$ calculado (Hz)} &
-      \textbf{Picos bem separados? (S/N)} \\
+    \textbf{Identificador} & \textbf{Mínimo} & \textbf{Máximo} &
+      \textbf{Passo} & \textbf{Valor padrão} \\
     \midrule
-    256   &  &  \\
-    512   &  &  \\
-    1024  &  &  \\
-    2048  &  &  \\
-    4096  &  &  \\
+    \texttt{freq1}      & 200 & 8000 & 100  & 1000 \\
+    \texttt{amp1}       & 0   & 2    & 0{,}1 & 1{,}0 \\
+    \texttt{freq2}      & 200 & 8000 & 100  & 2500 \\
+    \texttt{amp2}       & 0   & 2    & 0{,}1 & 0{,}5 \\
+    \texttt{noise\_amp} & 0   & 10   & 0{,}1 & 0 \\
     \bottomrule
   \end{tabular}
-  \caption{Resolução espectral vs.\ tamanho da FFT.}
+  \caption{Configuração dos blocos \texttt{QT GUI Range}. O slider
+    \texttt{noise\_amp} é criado na Etapa 5.}
+  \label{tab:sliders}
+\end{table}
+
+\subsection*{Etapa 2 -- Tom único e posição do pico, 8 a 16 min}
+
+\begin{instrucao}[Atividade 2.1 -- Variar a frequência]
+\begin{enumerate}[label=\arabic*.]
+  \item Com o \textit{flowgraph} em execução, ajuste \texttt{freq1} para
+    500, 1000, 2000 e 4000\,Hz.
+  \item Para cada valor, leia no gráfico a frequência do pico e preencha a
+    Tabela~\ref{tab:bins}.
+  \item Calcule o índice espectral esperado $k = f_1 N / f_s$ com $N = 1024$
+    e compare com a frequência lida usando a equação~\eqref{eq:fk}.
+\end{enumerate}
+\end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c}
+    \toprule
+    \textbf{$f_1$ configurada (Hz)} & \textbf{$k = f_1 N/f_s$ calculado} &
+      \textbf{$f_k$ calculado (Hz)} & \textbf{Pico lido (Hz)} \\
+    \midrule
+    500  &  &  &  \\
+    1000 &  &  &  \\
+    2000 &  &  &  \\
+    4000 &  &  &  \\
+    \bottomrule
+  \end{tabular}
+  \caption{Relação entre frequência configurada e índice espectral.}
+  \label{tab:bins}
+\end{table}
+
+\subsection*{Etapa 3 -- Sinal com dois tons, 16 a 24 min}
+
+\begin{instrucao}[Atividade 3.1 -- Segundo tom e bloco Add]
+\begin{enumerate}[label=\arabic*.]
+  \item Adicione um segundo \texttt{Signal Source} com \textit{Frequency}
+    igual a \texttt{freq2} e \textit{Amplitude} igual a \texttt{amp2}.
+  \item Adicione um bloco \texttt{Add} do tipo Float e conecte os dois
+    \texttt{Signal Source} às suas entradas.
+  \item Desconecte o primeiro \texttt{Signal Source} do \texttt{Throttle} e
+    conecte a saída do \texttt{Add} ao \texttt{Throttle}.
+  \item Execute com \texttt{freq1 = 1000}, \texttt{amp1 = 1{,}0},
+    \texttt{freq2 = 2500} e \texttt{amp2 = 0{,}5}.
+  \item Leia o nível em dB de cada um dos dois picos e registre a diferença.
+    Compare essa diferença com o valor previsto por
+    $20\log_{10}(\mathrm{amp1}/\mathrm{amp2})$.
+\end{enumerate}
+\end{instrucao}
+
+\subsection*{Etapa 4 -- Resolução espectral, 24 a 34 min}
+
+\begin{instrucao}[Atividade 4.1 -- Medir a profundidade do vale]
+\begin{enumerate}[label=\arabic*.]
+  \item Ajuste os sliders para \texttt{freq1 = 1000}, \texttt{freq2 = 1200},
+    \texttt{amp1 = amp2 = 1{,}0}. As amplitudes iguais são necessárias para
+    que o critério da equação~\eqref{eq:criterio} seja aplicado sem
+    ambiguidade.
+  \item Ajuste \textit{Average} para \textit{High} e confirme que
+    \textit{FFT Window} está em \textit{Hann}, como definido na Etapa~1. A
+    janela determina a largura do lóbulo principal e portanto o valor de
+    $D$, de modo que toda a Tabela~\ref{tab:fftsizes} deve ser preenchida
+    com a mesma janela.
+  \item Percorra os valores de \textit{FFT Size} 256, 512, 1024, 2048 e 4096
+    no painel de controle do \texttt{QT GUI Frequency Sink}.
+  \item Para cada valor, calcule $\Delta f$ pela equação~\eqref{eq:df} e
+    $\Delta k$ pela equação~\eqref{eq:dk}, leia $A_{\min}$ e $V$ no gráfico,
+    calcule $D$ pela equação~\eqref{eq:vale} e aplique o critério da
+    equação~\eqref{eq:criterio}. Preencha a Tabela~\ref{tab:fftsizes}.
+  \item Identifique em qual valor de $N$ o critério passa a ser satisfeito e
+    compare com o valor de $\Delta k$ correspondente.
+\end{enumerate}
+\end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \setlength{\tabcolsep}{4.5pt}
+  \begin{tabular}{c c c c c c c}
+    \toprule
+    \textbf{$N$} & \textbf{$\Delta f$ (Hz)} & \textbf{$\Delta k$} &
+      \textbf{$A_{\min}$ (dB)} & \textbf{$V$ (dB)} &
+      \textbf{$D$ (dB)} & \textbf{$D \geq 3$\,dB?} \\
+    \midrule
+    256   &  &  &  &  &  &  \\
+    512   &  &  &  &  &  &  \\
+    1024  &  &  &  &  &  &  \\
+    2048  &  &  &  &  &  &  \\
+    4096  &  &  &  &  &  &  \\
+    \bottomrule
+  \end{tabular}
+  \caption{Resolução espectral medida com tons em 1000 e 1200\,Hz e
+    amplitudes iguais. Calculadas: $\Delta f$ e $\Delta k$. Lidas no
+    gráfico: $A_{\min}$ e $V$.}
   \label{tab:fftsizes}
 \end{table}
 
-\subsection*{Etapa 5 -- Efeito do ruído (36--44 min)}
+\subsection*{Etapa 5 -- Efeito do ruído, 34 a 42 min}
 
-\begin{instrucao}[Atividade 5.1 -- Adicionar ruído gaussiano]
+\begin{instrucao}[Atividade 5.1 -- Medir a SNR]
 \begin{enumerate}[label=\arabic*.]
-  \item Adicione um \texttt{Noise Source} (Type: Float, Noise Type: Gaussian,
-    Amplitude: \texttt{noise\_amp}).
-  \item Crie uma variável \texttt{noise\_amp} como \texttt{QT GUI Range}
-    (min: 0, max: 10, passo: 0.1, padrão: 0).
-  \item Adicione um segundo \texttt{Add} para somar o sinal com o ruído.
-    Conecte o sinal multitonal e o \texttt{Noise Source} a este Add.
-  \item Aumente gradualmente \texttt{noise\_amp} e observe quando cada um
-    dos dois tons deixa de ser visível.
+  \item Crie a variável \texttt{noise\_amp} como \texttt{QT GUI Range}
+    conforme a Tabela~\ref{tab:sliders}.
+  \item Adicione um \texttt{Noise Source} com \textit{Type} Float,
+    \textit{Noise Type} Gaussian e \textit{Amplitude} igual a
+    \texttt{noise\_amp}.
+  \item Adicione um segundo bloco \texttt{Add} do tipo Float. Conecte a saída
+    do primeiro \texttt{Add} e a saída do \texttt{Noise Source} às suas
+    entradas, e a saída deste segundo \texttt{Add} ao \texttt{Throttle}.
+  \item Volte à configuração de dois tons separados:
+    \texttt{freq1 = 1000}, \texttt{amp1 = 1{,}0}, \texttt{freq2 = 2500},
+    \texttt{amp2 = 0{,}5}, com \textit{FFT Size} 1024.
+  \item Para cada valor de \texttt{noise\_amp} da Tabela~\ref{tab:snr},
+    calcule as duas SNR de banda larga pela equação~\eqref{eq:snr}, leia o
+    nível do piso de ruído $P$ em uma região sem tons, leia o nível do pico
+    do segundo tom e calcule $\mathrm{SNR}_{\mathrm{disp}}$ pela
+    equação~\eqref{eq:snrdisp}.
+  \item Determine o menor valor de \texttt{noise\_amp} para o qual o segundo
+    tom deixa de satisfazer o critério de visibilidade de 6\,dB.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 6 -- Funções de janela e vazamento espectral (44--50 min)}
+\begin{table}[H]
+  \centering
+  \setlength{\tabcolsep}{4.5pt}
+  \begin{tabular}{c c c c c c}
+    \toprule
+    \textbf{\texttt{noise\_amp} $\sigma$} & \textbf{$\mathrm{SNR}_1$ (dB)} &
+      \textbf{$\mathrm{SNR}_2$ (dB)} & \textbf{Piso $P$ (dB)} &
+      \textbf{$A_2 - P$ (dB)} & \textbf{Tom 2 visível?} \\
+    \midrule
+    0{,}5 &  &  &  &  &  \\
+    1{,}0 &  &  &  &  &  \\
+    2{,}0 &  &  &  &  &  \\
+    5{,}0 &  &  &  &  &  \\
+    10{,}0 &  &  &  &  &  \\
+    \bottomrule
+  \end{tabular}
+  \caption{Efeito do ruído. Calculadas pela equação~\eqref{eq:snr}:
+    $\mathrm{SNR}_1$ e $\mathrm{SNR}_2$. Lidos no gráfico: $P$ e $A_2$.}
+  \label{tab:snr}
+\end{table}
 
-\begin{instrucao}[Atividade 6.1 -- Comparar janelas]
+\subsection*{Etapa 6 -- Funções de janela, 42 a 50 min}
+
+\begin{instrucao}[Atividade 6.1 -- Medir a supressão de lóbulos laterais]
 \begin{enumerate}[label=\arabic*.]
-  \item No \texttt{QT GUI Freq Sink}, abra a aba \textit{Config}
-    (clique com botão direito $\to$ \textit{Properties}) e altere a janela:
-    teste \textbf{Rectangular}, \textbf{Hann}, \textbf{Hamming} e
-    \textbf{Blackman-Harris}.
-  \item Observe a largura dos picos e a altura dos lóbulos laterais.
-  \item Registre capturas de tela para pelo menos 2 janelas.
+  \item Ajuste \texttt{noise\_amp = 0} e \texttt{amp2 = 0}, de modo a
+    restar um único tom sem ruído.
+  \item Ajuste \texttt{freq1 = 1050}\,Hz. Esse valor não coincide com nenhuma
+    das frequências da equação~\eqref{eq:fk} para $N = 1024$, o que produz
+    vazamento espectral visível. Confirme antes de prosseguir: selecione a
+    janela Rectangular e compare \texttt{freq1 = 1000}\,Hz com
+    \texttt{freq1 = 1050}\,Hz. Em 1000\,Hz o vazamento desaparece no piso do
+    gráfico, porque essa frequência cai exatamente sobre o índice $k = 32$;
+    em 1050\,Hz ele fica cerca de 28\,dB abaixo do pico. Volte a
+    \texttt{freq1 = 1050}\,Hz para as medições.
+  \item Mantenha \textit{FFT Size} em 1024 e \textit{Average} em \textit{High}.
+  \item Percorra as opções de \textit{FFT Window} do painel de controle:
+    Rectangular, Hann, Hamming e Blackman-harris.
+  \item Para cada janela, leia o nível do pico $A_{\mathrm{pico}}$ e a largura
+    do lóbulo principal a $-3$\,dB. Em seguida leia $L$ como o maior nível
+    observado fora da faixa de 750 a 1350\,Hz, ou seja $f_1 \pm 300$\,Hz.
+    Calcule a supressão $S$ pela equação~\eqref{eq:supressao} e preencha a
+    Tabela~\ref{tab:janelas}.
+  \item Capture a tela para pelo menos duas janelas.
 \end{enumerate}
 \end{instrucao}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l c c c c}
+    \toprule
+    \textbf{Janela} & \textbf{$A_{\mathrm{pico}}$ (dB)} & \textbf{$L$ (dB)} &
+      \textbf{$S = A_{\mathrm{pico}} - L$ (dB)} &
+      \textbf{Largura a $-3$\,dB (Hz)} \\
+    \midrule
+    Rectangular      &  &  &  &  \\
+    Hann             &  &  &  &  \\
+    Hamming          &  &  &  &  \\
+    Blackman-harris  &  &  &  &  \\
+    \bottomrule
+  \end{tabular}
+  \caption{Comparação de janelas com tom em 1050\,Hz e $N = 1024$. O nível
+    $L$ é lido fora da faixa $f_1 \pm 300$\,Hz.}
+  \label{tab:janelas}
+\end{table}
 
 % ======================================================
 \section{Tabela de registro de parâmetros}
@@ -253,64 +519,86 @@ reduzindo o \textbf{vazamento espectral}.
     \textbf{Parâmetro} & \textbf{Cenário A} & \textbf{Cenário B} &
       \textbf{Cenário C} \\
     \midrule
-    Tom único $f_1$ (Hz)      &  &  &  \\
-    Tom único $f_2$ (Hz)      & --  &  &  \\
-    Amplitude $A_1$            &  &  &  \\
-    Amplitude $A_2$            & --  &  &  \\
-    \texttt{samp\_rate} (Hz)  & 32000 & 32000 & 32000 \\
-    FFT Size                   &  &  &  \\
-    Nível de ruído             & 0 & 0 &  \\
-    Janela utilizada           &  &  &  \\
+    \texttt{freq1} (Hz)        &  &  &  \\
+    \texttt{freq2} (Hz)        & --  &  &  \\
+    \texttt{amp1}              &  &  &  \\
+    \texttt{amp2}              & --  &  &  \\
+    \texttt{samp\_rate} (Hz)   & 32000 & 32000 & 32000 \\
+    \textit{FFT Size}          &  &  &  \\
+    \texttt{noise\_amp}        & 0 & 0 &  \\
+    \textit{FFT Window}        &  &  &  \\
     \bottomrule
   \end{tabular}
-  \caption{Parâmetros registrados nos três cenários.}
+  \caption{Parâmetros registrados nos três cenários: tom único, dois tons e
+    dois tons com ruído.}
+  \label{tab:parametros}
 \end{table}
 
 % ======================================================
 \section{Perguntas para o relatório}
 
-Responda as seguintes questões no seu relatório, apoiando as respostas
-com figuras e a tabela de parâmetros.
+Responda as questões abaixo apoiando cada resposta nas tabelas preenchidas e
+nas capturas de tela. Respostas sem os valores medidos não recebem pontuação
+integral.
 
 \begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
 
-  \item Qual foi a relação observada entre a frequência configurada no
-    \texttt{Signal Source} e a posição do pico no espectro de magnitude?
-    Como a relação $f_k = k\,f_s/N$ explica esse comportamento?
+  \item A partir da Tabela~\ref{tab:bins}, mostre que a posição do pico é
+    prevista pela equação~\eqref{eq:fk}. Apresente o cálculo de $k$ para
+    $f_1 = 2000$\,Hz e explique por que o pico lido pode diferir da
+    frequência configurada em até $\Delta f/2$.
 
-  \item Como a escolha do \texttt{FFT size} afetou a resolução espectral
-    $\Delta f$? Para separar dois tons com diferença de 100\,Hz usando
-    \texttt{samp\_rate = 32000}, qual é o menor \texttt{FFT size} necessário?
+  \item Com base na Tabela~\ref{tab:fftsizes}, determine o menor valor de
+    $N$ que satisfaz o critério $D \geq 3$\,dB para tons separados de
+    200\,Hz e informe o $\Delta k$ correspondente. Em seguida, usando o mesmo
+    valor de $\Delta k$ como referência e $f_s = 32000$\,Hz, calcule o menor
+    \textit{FFT Size} necessário para resolver dois tons separados de
+    100\,Hz. Compare o resultado com o limite $\Delta f \leq 100$\,Hz.
 
-  \item O que mudou no espectro ao adicionar a segunda senoide? O espectro
-    resultante é simplesmente a soma dos dois espectros individuais? Justifique.
+  \item A partir dos níveis medidos na Etapa 3, verifique se a diferença
+    entre os dois picos corresponde a $20\log_{10}(\mathrm{amp1}/\mathrm{amp2})$.
+    O espectro resultante é a soma dos espectros individuais? Justifique com
+    a propriedade da transformada que sustenta a resposta e explique o que
+    seria observado caso houvesse um elemento não linear no caminho do sinal.
 
-  \item Qual foi o efeito do aumento de \texttt{noise\_amp} na identificação
-    dos componentes espectrais? Qual é o critério mínimo de SNR que permitiu
-    visualizar o tom de menor amplitude?
+  \item Usando a Tabela~\ref{tab:snr}, indique o menor valor de $\sigma$ para
+    o qual o segundo tom deixa de satisfazer o critério
+    $\mathrm{SNR}_{\mathrm{disp}} \geq 6$\,dB. Explique por que
+    $\mathrm{SNR}_{\mathrm{disp}}$ é consideravelmente maior que a SNR de
+    banda larga da equação~\eqref{eq:snr} e diga o que aconteceria com essa
+    diferença ao dobrar o \textit{FFT Size}.
 
-  \item Como a função de janela influenciou o \textbf{vazamento espectral}?
-    Compare janela retangular e Hann: qual delas preserva melhor a amplitude
-    do pico e qual reduz melhor os lóbulos laterais?
+  \item A partir da Tabela~\ref{tab:janelas}, ordene as quatro janelas por
+    supressão $S$ e por largura do lóbulo principal. Identifique qual janela
+    preserva o maior nível de pico e qual oferece a maior supressão, e
+    explique por que essas duas propriedades não podem ser maximizadas ao
+    mesmo tempo. Justifique também por que a Etapa 6 usa 1050\,Hz e não
+    1000\,Hz.
 
 \end{enumerate}
 
 % ======================================================
 \section{Entregáveis}
 
-O entregável é o relatório no modelo definido no SIGAA contendo:
+O entregável é o relatório em PDF no modelo definido no SIGAA, contendo:
 
 \begin{itemize}
-  \item Capturas de tela: tom único, dois tons, dois tons com ruído --
-    todas no espectro e no tempo.
-  \item Tabela de resolução espectral, Tabela~2 deste enunciado, preenchida.
-  \item Respostas às 5 questões obrigatórias com justificativa técnica.
+  \item Fundamentação teórica com as equações~\eqref{eq:fk} a
+    \eqref{eq:supressao} e a explicação do papel de cada uma na prática.
+  \item Capturas de tela nos três cenários da Tabela~\ref{tab:parametros},
+    cada uma no domínio do tempo e no domínio da frequência.
+  \item Tabelas~\ref{tab:bins}, \ref{tab:fftsizes}, \ref{tab:snr},
+    \ref{tab:janelas} e \ref{tab:parametros} preenchidas com os valores
+    medidos.
+  \item Respostas às cinco questões, cada uma referenciando os valores
+    numéricos obtidos.
 \end{itemize}
 
-\begin{atencao}[Dica de execução]
-Se o GNU Radio travar ou a CPU chegar a 100\%, reduza o \texttt{FFT size}
-ou aumente o valor do \texttt{Throttle} (\textit{Ignore Ratio}).  Sempre
-salve o flowgraph (\texttt{.grc}) antes de fechar.
+\begin{atencao}[Execução]
+Se a interface ficar lenta ou a CPU saturar, reduza o \textit{FFT Size} ou
+aumente o \textit{Update Period} do \texttt{QT GUI Frequency Sink}. Aumentar
+o \textit{Sample Rate} do \texttt{Throttle} tem o efeito oposto e agrava o
+problema. Salve o \textit{flowgraph} antes de fechar.
 \end{atencao}
 
 \end{document}

@@ -1,8 +1,8 @@
-# Prática 06 — Phase-Locked Loop (PLL) (50 min)
+# Prática 07 — Phase-Locked Loop (PLL) (50 min)
 
 ## Alinhamento com cronograma
 
-- Semanas 13–14
+- Semanas 14–15
 - Tópicos: PLL e sincronismo
 
 ## Objetivo

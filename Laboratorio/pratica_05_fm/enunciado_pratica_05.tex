@@ -48,7 +48,7 @@
 \vspace{0.3cm}
 \textbf{Duração:} 50 minutos \hfill
 \textbf{Software:} GNU Radio Companion $\geq$ 3.10 \hfill
-\textbf{Semestre:} 2026/1
+\textbf{Semestre:} 2026/2
 
 \bigskip
 
@@ -81,11 +81,38 @@ A \textbf{Regra de Carson} fornece a largura de banda prática:
   \label{eq:carson}
 \end{equation}
 
-O espectro da FM é composto por linhas em $f_c \pm n f_m$ ponderadas pelas
-funções de Bessel de primeiro tipo $J_n(\beta)$.  Para $\beta \ll 1$
-(NBFM), predominam os termos $n = 0, \pm1$ e o espectro se assemelha ao AM.
-Para $\beta \gg 1$ (WBFM), muitos termos contribuem e a largura de banda
-cresce com $\beta$.
+O espectro da FM é composto por componentes de frequência em
+$f_c \pm n f_m$ ponderadas pelas funções de Bessel de primeiro tipo
+$J_n(\beta)$. Para $\beta \ll 1$, o caso NBFM, predominam os termos
+$n = 0, \pm1$ e o espectro se assemelha ao AM. Para $\beta \gg 1$, o caso
+WBFM, muitos termos contribuem e a largura de banda cresce com $\beta$.
+
+\subsection*{Fidelidade da demodulação}
+
+O bloco \texttt{WBFM Receive} aplica um ganho interno referenciado a um desvio
+fixo de $75$\,kHz, que é o padrão da radiodifusão FM comercial. Para uma
+mensagem senoidal, a amplitude pico-a-pico esperada na saída do demodulador é
+\begin{equation}
+  V_{pp} = \frac{2\,\Delta f}{75\,000},
+  \label{eq:vpp}
+\end{equation}
+e o período da mensagem é preservado pela cadeia de transmissão e recepção,
+\begin{equation}
+  T = \frac{1}{f_m}.
+  \label{eq:periodo}
+\end{equation}
+Note que $V_{pp}$ cresce com $\Delta f$ mas não depende de $f_m$, enquanto $T$
+depende apenas de $f_m$. Nesta prática a demodulação é considerada sem
+distorção quando as duas leituras do Time Sink ficam a menos de $10\%$ dos
+valores previstos:
+\begin{equation}
+  \left| \frac{T_{\mathrm{med}} - 1/f_m}{1/f_m} \right| \leq 0{,}10
+  \qquad\text{e}\qquad
+  \left| \frac{V_{pp,\mathrm{med}} - 2\Delta f/75\,000}
+              {2\Delta f/75\,000} \right| \leq 0{,}10 .
+  \label{eq:criterio_fid}
+\end{equation}
+Se pelo menos uma das duas desigualdades falhar, registre distorção visível.
 
 % ======================================================
 \section{Materiais e blocos GNU Radio}
@@ -205,9 +232,11 @@ decima para \texttt{audio\_rate}.  Use \texttt{samp\_rate = 480000} e
     onda deve ser praticamente idêntica.
   \item Mude $f_m$ e $\Delta f$ com os sliders e verifique que a recuperação
     continua fiel para diferentes valores de $\beta$.
-  \item Para $f_m = 2\,000$\,Hz, meça no Time Sink e preencha a
-    Tabela~\ref{tab:fidelidade} com os critérios objetivos para três valores
-    de $\Delta f$. 
+  \item Para $f_m = 2\,000$\,Hz, meça no Time Sink o período $T$ e a
+    amplitude pico-a-pico para os três valores de $\Delta f$ da
+    Tabela~\ref{tab:fidelidade}. Compare cada leitura com as
+    equações~\eqref{eq:vpp} e~\eqref{eq:periodo} e responda a última coluna
+    aplicando o critério da equação~\eqref{eq:criterio_fid}.
 \end{enumerate}
 \end{instrucao}
 
@@ -222,15 +251,16 @@ decima para \texttt{audio\_rate}.  Use \texttt{samp\_rate = 480000} e
     10\,000 & 5{,}0 & & & \\
     \bottomrule
   \end{tabular}
-  \caption{Medições da demodulação por \texttt{WBFM Receive} para $f_m = 2\,000$\,Hz.
-    Distorção visível responder com sim ou não.}
+  \caption{Medições da demodulação por \texttt{WBFM Receive} para
+    $f_m = 2\,000$\,Hz. A última coluna é respondida com sim ou não pelo
+    critério da equação~\eqref{eq:criterio_fid}, e não por impressão visual.}
   \label{tab:fidelidade}
 \end{table}
 
 \begin{atencao}[Atenção -- escopo desta prática]
 Esta prática se concentra nos aspectos sem ruído da modulação e demodulação FM.
-A análise quantitativa do efeito de ruído e a comparação experimental entre
-AM e FM serão tratadas na Prática 07.
+A demodulação por detector de inclinação e discriminador balanceado é tratada
+na Prática 06, que dá continuidade a este roteiro.
 \end{atencao}
 
 % ======================================================

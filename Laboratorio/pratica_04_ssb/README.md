@@ -2,7 +2,7 @@
 
 ## Alinhamento com cronograma
 
-- Semanas 9–10
+- Semanas 8–9
 - Tópicos: SSB e eficiência espectral
 
 ## Objetivo
