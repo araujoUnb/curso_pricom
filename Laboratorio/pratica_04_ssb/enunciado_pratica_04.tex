@@ -57,38 +57,59 @@
 
 \begin{itemize}
   \item Gerar o sinal DSB-SC e identificar as bandas laterais superior
-    (USB) e inferior (LSB) no espectro.
+    e inferior no espectro.
   \item Eliminar uma banda lateral usando filtro passa-banda, obtendo o
     sinal SSB.
   \item Comparar a largura de banda do DSB-SC com a do SSB no espectro.
-  \item Demodular o sinal SSB por detecção coerente e comparar com a mensagem
-    original.
-  \item Discutir vantagens, desvantagens e aplicações do SSB.
+  \item Demodular o sinal SSB por detecção coerente, medir o fator de escala
+    e compará-lo com a mensagem original.
+  \item Medir experimentalmente o efeito de um erro de frequência $\Delta f$
+    no oscilador local.
+  \item Gerar SSB pela transformada de Hilbert e comparar a supressão da banda
+    lateral indesejada obtida pelos dois métodos.
 \end{itemize}
 
 % ======================================================
-\section{Fundamentos teóricos (síntese)}
+\section{Fundamentos teóricos}
 
-O sinal DSB-SC ocupa largura de banda $B_\text{DSB} = 2 f_m$. O sinal
-\textbf{SSB} elimina uma das bandas laterais, reduzindo a largura de banda
-pela metade:
+O sinal DSB-SC ocupa largura de banda $B_\text{DSB} = 2 f_m$. O sinal SSB
+elimina uma das bandas laterais e reduz a largura de banda pela metade:
 \begin{equation}
-  B_\text{SSB} = f_m.
+  B_\text{SSB} = f_m = \frac{B_\text{DSB}}{2}.
 \end{equation}
 
-O sinal SSB pode ser escrito usando a \textbf{representação de Hilbert}:
+Para uma mensagem $m(t) = \cos(2\pi f_m t)$ e portadora $\cos(2\pi f_c t)$,
+o produto vale
+\begin{equation}
+  s_\text{DSB}(t) = \tfrac{1}{2}\cos\!\left[2\pi (f_c - f_m) t\right]
+                  + \tfrac{1}{2}\cos\!\left[2\pi (f_c + f_m) t\right],
+\end{equation}
+de modo que a componente em $f_c + f_m$ é a banda lateral superior, a
+componente em $f_c - f_m$ é a banda lateral inferior e não existe componente
+em $f_c$.
+
+O sinal SSB também pode ser escrito pela representação de Hilbert:
 \begin{align}
   s_\text{USB}(t) &= m(t)\cos(2\pi f_c t) - \hat{m}(t)\sin(2\pi f_c t), \\
   s_\text{LSB}(t) &= m(t)\cos(2\pi f_c t) + \hat{m}(t)\sin(2\pi f_c t),
 \end{align}
-onde $\hat{m}(t)$ é a \textbf{transformada de Hilbert} de $m(t)$ (defasagem
-de $-90^\circ$ em todas as frequências).
+onde $\hat{m}(t)$ é a transformada de Hilbert de $m(t)$, ou seja, uma
+defasagem de $-90^\circ$ em todas as frequências positivas.
 
-Na abordagem por \textbf{filtragem}, gera-se o DSB-SC e aplica-se um filtro
-passa-banda que seleciona apenas USB ou LSB.
+Na abordagem por filtragem, gera-se o DSB-SC e aplica-se um filtro passa-banda
+que seleciona apenas a banda lateral superior ou a inferior. Nas duas
+abordagens a demodulação é coerente: multiplica-se pelo oscilador local e
+aplica-se um filtro passa-baixas.
 
-A demodulação é idêntica à do DSB-SC: multiplicar pelo oscilador local +
-filtro passa-baixas.
+Demodulando o sinal SSB-USB com um oscilador local $2\cos[2\pi(f_c+\Delta f)t]$
+e filtrando as componentes em torno de $2f_c$, obtém-se
+\begin{equation}
+  y(t) = \mathrm{Re}\!\left\{ m_+(t)\, e^{-j 2\pi \Delta f t} \right\},
+  \qquad m_+(t) = m(t) + j\hat{m}(t),
+\end{equation}
+isto é, o espectro da mensagem sofre uma translação rígida de $-\Delta f$.
+Essa é a diferença essencial em relação ao DSB-SC, no qual o mesmo erro
+produz duas cópias deslocadas de $\pm\Delta f$.
 
 % ======================================================
 \section{Materiais e blocos GNU Radio}
@@ -99,130 +120,215 @@ filtro passa-baixas.
     \toprule
     \textbf{Bloco GRC} & \textbf{Localização} & \textbf{Função} \\
     \midrule
-    \texttt{Variable}           & Miscellaneous        & Parâmetros globais \\
-    \texttt{Signal Source} (3×) & Waveform Generators  & Msg, portadora, oscilador local \\
-    \texttt{Multiply}           & Math Operators       & DSB-SC e demodulação \\
-    \texttt{Band Pass Filter}   & Filters              & Selecionar USB ou LSB \\
-    \texttt{Low Pass Filter}    & Filters              & Recuperar mensagem \\
-    \texttt{Hilbert}            & Filters              & Transformada de Hilbert \\
-    \texttt{Throttle}           & Misc Operators       & Controle de CPU \\
-    \texttt{QT GUI Time Sink}   & Instrumentation      & Formas de onda \\
-    \texttt{QT GUI Freq Sink}   & Instrumentation      & Espectros \\
+    \texttt{Variable}            & Miscellaneous        & Parâmetros globais \\
+    \texttt{QT GUI Range} (2×)   & Instrumentation      & Sliders de $f_m$ e $\Delta f$ \\
+    \texttt{Signal Source} (4×)  & Waveform Generators  & Mensagem, portadoras e oscilador local \\
+    \texttt{Multiply}            & Math Operators       & Modulação e demodulação \\
+    \texttt{Band Pass Filter}    & Filters              & Selecionar USB ou LSB \\
+    \texttt{Low Pass Filter}     & Filters              & Recuperar a mensagem \\
+    \texttt{Hilbert}             & Filters              & Sinal analítico da mensagem \\
+    \texttt{Complex To Float}    & Type Converters      & Separar $m(t-\tau)$ e $\hat{m}(t-\tau)$ \\
+    \texttt{Add} / \texttt{Subtract} & Math Operators   & Combinar os ramos I e Q \\
+    \texttt{Delay}               & Misc Operators       & Alinhar mensagem e sinal demodulado \\
+    \texttt{Throttle}            & Misc Operators       & Controle de CPU \\
+    \texttt{QT GUI Time Sink}    & Instrumentation      & Formas de onda \\
+    \texttt{QT GUI Freq Sink}    & Instrumentation      & Espectros \\
     \bottomrule
   \end{tabular}
   \caption{Blocos utilizados na Prática 04.}
 \end{table}
 
 % ======================================================
-\section{Roteiro de montagem e execução (50 min)}
+\section{Roteiro de montagem e execução}
 
 \subsection*{Parâmetros iniciais}
 
 \begin{center}
 \begin{tabular}{l l}
-  \texttt{samp\_rate} = 48\,000\,Hz & $f_m$ = 2\,000\,Hz \\
-  $f_c$ = 12\,000\,Hz & Amplitudes = 1.0 \\
+  \toprule
+  \texttt{samp\_rate} = 64\,000\,Hz    & \texttt{fc} = 16\,000\,Hz \\
+  \texttt{fm} = 3\,000\,Hz (slider de 1\,500 a 6\,000\,Hz) & \texttt{delta\_f} = 0\,Hz (slider de $-500$ a $500$\,Hz) \\
+  \texttt{bw\_trans} = 800\,Hz (banda de transição dos BPF) & \texttt{bw\_trans\_lp} = 600\,Hz (banda de transição do LPF) \\
+  \texttt{n\_hilb} = 101 coeficientes  & \texttt{d\_align} = 224 amostras \\
+  \bottomrule
 \end{tabular}
 \end{center}
 
-\subsection*{Etapa 1 -- Gerar DSB-SC e identificar bandas laterais (0--12 min)}
+Com esses valores, as componentes esperadas do DSB-SC ficam em
+$f_c - f_m = 13\,000$\,Hz e $f_c + f_m = 19\,000$\,Hz.
+
+\subsection*{Etapa 1 -- Gerar DSB-SC e identificar as bandas laterais (0--10 min)}
 
 \begin{instrucao}[Geração e análise do DSB-SC]
 \begin{enumerate}[label=\arabic*.]
-  \item Crie variáveis \texttt{samp\_rate = 48000}, \texttt{fc = 12000},
-    \texttt{fm = 2000}.
-  \item Adicione \textbf{Signal Source 1} (mensagem): Cosine, freq = \texttt{fm}.
-  \item Adicione \textbf{Signal Source 2} (portadora): Cosine, freq = \texttt{fc}.
-  \item Adicione \texttt{Multiply} e conecte as duas fontes.
-  \item Adicione \texttt{Throttle} $\to$ \texttt{QT GUI Freq Sink}.
-  \item Execute. No espectro, localize:
+  \item Crie as variáveis \texttt{samp\_rate = 64000} e \texttt{fc = 16000},
+    e um \texttt{QT GUI Range} chamado \texttt{fm} com valor inicial 3\,000\,Hz,
+    mínimo 1\,500\,Hz, máximo 6\,000\,Hz e passo 500\,Hz.
+  \item Adicione o \texttt{Signal Source} da mensagem: Cosine, freq = \texttt{fm},
+    amplitude 1,0.
+  \item Adicione o \texttt{Signal Source} da portadora em fase: Cosine,
+    freq = \texttt{fc}, amplitude 1,0.
+  \item Adicione um \texttt{Multiply} e conecte as duas fontes.
+  \item Conecte a saída ao \texttt{Throttle} e em seguida ao
+    \texttt{QT GUI Freq Sink}, no canal 1.
+  \item Execute e localize no espectro:
     \begin{itemize}
-      \item USB: pico em $f_c + f_m = 14\,000$\,Hz.
-      \item LSB: pico em $f_c - f_m = 10\,000$\,Hz.
-      \item Verifique: não há pico em $f_c = 12\,000$\,Hz.
+      \item banda lateral superior: componente em $f_c + f_m = 19\,000$\,Hz;
+      \item banda lateral inferior: componente em $f_c - f_m = 13\,000$\,Hz;
+      \item ausência de componente em $f_c = 16\,000$\,Hz.
     \end{itemize}
-  \item Meça a largura de banda do DSB-SC (distância entre os picos).
+  \item Meça a largura de banda do DSB-SC como a distância entre as duas
+    componentes e registre o nível de pico em dB.
+  \item Mova o slider \texttt{fm} e confirme que as duas componentes se afastam
+    simetricamente de $f_c$.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 2 -- Filtragem para obter USB (12--22 min)}
+\subsection*{Etapa 2 -- Filtragem para obter a banda lateral superior (10--18 min)}
 
-\begin{instrucao}[Selecionar banda lateral superior (USB)]
+\begin{instrucao}[Selecionar a banda lateral superior]
 \begin{enumerate}[label=\arabic*.]
-  \item Adicione um \texttt{Band Pass Filter} após o \texttt{Throttle}:
+  \item Adicione um \texttt{Band Pass Filter} do tipo \texttt{Float$\to$Float}
+    após o \texttt{Throttle}:
     \begin{itemize}
-      \item Decimation = 1
-      \item Low Cutoff Freq = $f_c + f_m/2 = 13\,000$\,Hz
-      \item High Cutoff Freq = $f_c + f_m \times 2 = 16\,000$\,Hz
-      \item Transition Width = 500\,Hz
+      \item Decimation = 1, Gain = 1
+      \item Low Cutoff Freq = \texttt{fc+fm/2}, ou seja 17\,500\,Hz
+      \item High Cutoff Freq = \texttt{fc+2*fm}, ou seja 22\,000\,Hz
+      \item Transition Width = \texttt{bw\_trans} = 800\,Hz
       \item Window = Hamming
     \end{itemize}
-  \item Conecte a saída do BPF a um segundo \texttt{QT GUI Freq Sink}
-    (ou segundo canal do mesmo).
-  \item Execute. \textbf{Observe:}
-    \begin{itemize}
-      \item Apenas o pico em 14\,000\,Hz deve aparecer.
-      \item O pico em 10\,000\,Hz deve ter desaparecido.
-    \end{itemize}
-  \item Anote a largura de banda do SSB-USB e compare com o DSB-SC.
+  \item Conecte a saída do filtro ao canal 2 da mesma \texttt{QT GUI Freq Sink}.
+  \item Ajuste a escala vertical da Freq Sink para o intervalo de $-120$ a
+    $10$\,dB, de modo que o resíduo da banda suprimida fique visível.
+  \item Execute e verifique que resta apenas a componente em 19\,000\,Hz.
+  \item Registre em dB o nível do resíduo em 13\,000\,Hz. Esse valor é a
+    supressão da banda lateral indesejada obtida pelo método de filtragem.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 3 -- Filtragem para obter LSB (22--30 min)}
+\subsection*{Etapa 3 -- Filtragem para obter a banda lateral inferior (18--24 min)}
 
-\begin{instrucao}[Selecionar banda lateral inferior (LSB)]
+\begin{instrucao}[Selecionar a banda lateral inferior]
 \begin{enumerate}[label=\arabic*.]
-  \item Adicione um segundo \texttt{Band Pass Filter} (em paralelo com o
-    caminho USB):
+  \item Adicione um segundo \texttt{Band Pass Filter} em paralelo com o
+    primeiro, também ligado à saída do \texttt{Throttle}:
     \begin{itemize}
-      \item Low Cutoff Freq = $f_c - f_m \times 2 = 8\,000$\,Hz
-      \item High Cutoff Freq = $f_c - f_m/2 = 11\,000$\,Hz
+      \item Low Cutoff Freq = \texttt{fc-2*fm}, ou seja 10\,000\,Hz
+      \item High Cutoff Freq = \texttt{fc-fm/2}, ou seja 14\,500\,Hz
+      \item Transition Width = \texttt{bw\_trans} = 800\,Hz
     \end{itemize}
-  \item Conecte sua saída a um terceiro canal da Freq Sink.
-  \item Execute. Verifique que apenas o pico em 10\,000\,Hz aparece.
-  \item Compare visualmente DSB-SC, USB e LSB no espectro.
+  \item Conecte a saída ao canal 3 da \texttt{QT GUI Freq Sink}.
+  \item Execute e verifique que resta apenas a componente em 13\,000\,Hz.
+  \item Compare as três curvas e preencha as duas primeiras linhas da
+    Tabela~\ref{tab:comp}.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 4 -- Demodulação do SSB (30--44 min)}
+\begin{atencao}[Por que as frequências de corte são escritas em função de \texttt{fm}]
+As frequências de corte foram definidas como expressões e não como números
+fixos. Assim, ao mover o slider \texttt{fm}, o GNU Radio recalcula os
+coeficientes dos filtros e o experimento continua válido em toda a faixa do
+slider. A banda de transição de 800\,Hz é menor do que a menor separação entre
+as componentes, que é $2f_m = 3\,000$\,Hz para $f_m = 1\,500$\,Hz.
+\end{atencao}
 
-\begin{instrucao}[Demodulação coerente do SSB-USB]
+\subsection*{Etapa 4 -- Demodulação coerente do SSB (24--34 min)}
+
+\begin{instrucao}[Demodulação coerente da banda lateral superior]
 \begin{enumerate}[label=\arabic*.]
-  \item Adicione \textbf{Signal Source 3} (oscilador local): Cosine,
-    freq = \texttt{fc}, amplitude = 2.0.
-  \item Adicione \texttt{Multiply} (Multiply2): conecte saída do BPF
-    (USB) e o oscilador local.
-  \item Adicione \texttt{Low Pass Filter}:
+  \item Crie um \texttt{QT GUI Range} chamado \texttt{delta\_f}, com valor
+    inicial 0\,Hz, mínimo $-500$\,Hz, máximo $500$\,Hz e passo 25\,Hz.
+  \item Adicione o \texttt{Signal Source} do oscilador local: Cosine,
+    freq = \texttt{fc+delta\_f}, amplitude 2,0.
+  \item Adicione um \texttt{Multiply} e conecte a saída do filtro da banda
+    lateral superior e o oscilador local.
+  \item Adicione um \texttt{Low Pass Filter}:
     \begin{itemize}
-      \item Cutoff Freq = \texttt{fm * 1.5}
-      \item Transition Width = 400\,Hz
+      \item Cutoff Freq = \texttt{fm*1.5}
+      \item Transition Width = \texttt{bw\_trans\_lp} = 600\,Hz
+      \item Window = Hamming
     \end{itemize}
-  \item Conecte ao \texttt{QT GUI Time Sink}: canal 1 = mensagem original,
-    canal 2 = sinal demodulado.
-  \item Execute. Compare os dois canais. A mensagem deve ser recuperada com
-    um fator de escala.
+  \item Adicione um bloco \texttt{Delay} do tipo \texttt{float} com
+    \texttt{Delay = d\_align = 224} e ligue nele a saída da fonte da mensagem.
+  \item Conecte ao \texttt{QT GUI Time Sink}: canal 1 = saída do \texttt{Delay},
+    canal 2 = saída do \texttt{Low Pass Filter}. Configure a Time Sink com
+    \texttt{Autoscale = No}, \texttt{Y min} $=-1{,}2$, \texttt{Y max} $=1{,}2$ e
+    \texttt{Number of Points = 256}.
+  \item Execute com \texttt{delta\_f = 0} e verifique que as duas curvas ficam
+    em fase. Meça a amplitude do sinal demodulado e compare com a amplitude
+    unitária da mensagem.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 5 -- Método da transformada de Hilbert (44--50 min)}
+\begin{atencao}[O bloco \texttt{Delay} e o valor 224]
+O caminho de demodulação atravessa dois filtros FIR de fase linear. Com
+janela de Hamming, o GNU Radio usa 193 coeficientes no passa-banda e 257
+coeficientes no passa-baixas, o que corresponde a atrasos de grupo de 96 e 128
+amostras. O total de 224 amostras depende apenas das bandas de transição, e
+por isso permanece válido em toda a faixa do slider \texttt{fm}. Sem esse
+bloco, as duas curvas da Time Sink aparecem deslocadas horizontalmente e a
+comparação de amplitude fica prejudicada. Deixar \texttt{Autoscale} ligado
+também mascara o resultado, porque a escala vertical é reajustada a cada
+curva e o fator de escala deixa de ser visível.
+\end{atencao}
 
-\begin{instrucao}[Geração SSB via Hilbert (opcional / demonstração)]
+\subsection*{Etapa 4b -- Erro de frequência do oscilador local (34--40 min)}
+
+\begin{instrucao}[Medida do efeito de $\Delta f$]
 \begin{enumerate}[label=\arabic*.]
-  \item Adicione um bloco \texttt{Hilbert} (Number of Taps = 65) à saída da
-    mensagem.
-  \item Crie dois caminhos paralelos com portadoras:
-    \begin{itemize}
-      \item Caminho I: msg $\times$ cos(2$\pi f_c t$) (portadora em fase)
-      \item Caminho Q: Hilbert(msg) $\times$ sin(2$\pi f_c t$) (portadora em
-        quadratura)
-    \end{itemize}
-  \item Subtração dos caminhos $\to$ USB; soma $\to$ LSB.
-  \item Observe o espectro e compare com o método de filtragem.
+  \item Conecte a saída do \texttt{Low Pass Filter} a uma segunda
+    \texttt{QT GUI Freq Sink}.
+  \item Com \texttt{delta\_f = 0}, confirme que o pico do sinal demodulado
+    está em $f_m = 3\,000$\,Hz.
+  \item Ajuste \texttt{delta\_f} para 100\,Hz e depois para 300\,Hz. Registre
+    a frequência do pico em cada caso.
+  \item Repita com \texttt{delta\_f} negativo e observe o sentido do
+    deslocamento.
+  \item Registre os valores medidos na Tabela~\ref{tab:df}.
 \end{enumerate}
 \end{instrucao}
+
+\subsection*{Etapa 5 -- Geração SSB pela transformada de Hilbert (40--50 min)}
+
+\begin{instrucao}[Método do defasamento em quadratura]
+\begin{enumerate}[label=\arabic*.]
+  \item Adicione um terceiro \texttt{Signal Source} para a portadora em
+    quadratura: Sine, freq = \texttt{fc}, amplitude 1,0.
+  \item Ligue a saída da fonte da mensagem a um bloco \texttt{Hilbert} com
+    \texttt{Num Taps = n\_hilb = 101} e janela de Hamming.
+  \item Ligue a saída do \texttt{Hilbert} a um bloco
+    \texttt{Complex To Float}. A saída \texttt{re} é a mensagem atrasada,
+    $m(t-\tau)$, e a saída \texttt{im} é a transformada de Hilbert,
+    $\hat{m}(t-\tau)$, com $\tau = (\texttt{n\_hilb}-1)/2 = 50$ amostras.
+  \item Monte os dois ramos:
+    \begin{itemize}
+      \item ramo I: saída \texttt{re} multiplicada pela portadora em fase;
+      \item ramo Q: saída \texttt{im} multiplicada pela portadora em quadratura.
+    \end{itemize}
+  \item Combine os ramos: um bloco \texttt{Subtract} calculando
+    $\text{I} - \text{Q}$ produz a banda lateral superior e um bloco
+    \texttt{Add} calculando $\text{I} + \text{Q}$ produz a banda lateral
+    inferior.
+  \item Conecte as duas saídas a uma terceira \texttt{QT GUI Freq Sink}, com
+    escala vertical de $-120$ a $10$\,dB.
+  \item Execute e registre o nível do resíduo da banda suprimida, do mesmo modo
+    que na Etapa 2. Compare com o valor obtido pelo método de filtragem.
+\end{enumerate}
+\end{instrucao}
+
+\begin{atencao}[{O ramo em fase sai do bloco \texttt{Hilbert}, não da fonte}]
+O filtro de Hilbert é um FIR de fase linear e atrasa o sinal em
+$(\texttt{n\_hilb}-1)/2$ amostras. O bloco \texttt{Hilbert} do GNU Radio já
+devolve na parte real a mensagem atrasada desse mesmo valor, de forma que os
+dois ramos saem alinhados. Se o ramo I for ligado diretamente à fonte da
+mensagem, os dois ramos ficam desalinhados no tempo, o cancelamento falha e as
+duas bandas laterais continuam presentes na saída. Uma alternativa equivalente
+é usar a mensagem original no ramo I e inserir um bloco \texttt{Delay} de 50
+amostras antes do multiplicador.
+\end{atencao}
 
 % ======================================================
-\section{Tabela de registro}
+\section{Tabelas de registro}
 
 \begin{table}[H]
   \centering
@@ -230,13 +336,35 @@ filtro passa-baixas.
     \toprule
     \textbf{Parâmetro} & \textbf{DSB-SC} & \textbf{SSB-USB} & \textbf{SSB-LSB} \\
     \midrule
-    Largura de banda (Hz)        & & & \\
-    Número de picos espectrais   & & & \\
-    Frequência do(s) pico(s) (Hz) & & & \\
-    Amplitude do pico principal  & & & \\
+    Largura de banda (Hz)                    & & & \\
+    Número de componentes espectrais         & & & \\
+    Frequência das componentes (Hz)          & & & \\
+    Nível da componente principal (dB)       & & & \\
+    Resíduo da banda suprimida por filtragem (dB) & --- & & \\
+    Resíduo da banda suprimida por Hilbert (dB)   & --- & & \\
     \bottomrule
   \end{tabular}
-  \caption{Comparação entre DSB-SC, SSB-USB e SSB-LSB.}
+  \caption{Comparação entre DSB-SC, SSB-USB e SSB-LSB. Conte apenas as
+    componentes em frequências positivas, que são as exibidas pela
+    \texttt{QT GUI Freq Sink}.}
+  \label{tab:comp}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c}
+    \toprule
+    $\Delta f$ (Hz) & Frequência medida do pico (Hz) & Valor previsto $f_m - \Delta f$ (Hz) \\
+    \midrule
+    $0$    & & \\
+    $100$  & & \\
+    $300$  & & \\
+    $-200$ & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Efeito do erro de frequência do oscilador local sobre o sinal
+    demodulado.}
+  \label{tab:df}
 \end{table}
 
 % ======================================================
@@ -244,25 +372,31 @@ filtro passa-baixas.
 
 \begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
 
-  \item Como você identificou a banda lateral superior (USB) e a inferior
-    (LSB) no espectro do DSB-SC? Que característica do espectro permite
-    diferenciá-las?
+  \item Como você identificou a banda lateral superior e a inferior no
+    espectro do DSB-SC? Que característica do espectro permite diferenciá-las
+    e por que não há componente em $f_c$?
 
-  \item Qual foi a largura de banda medida do sinal SSB em comparação com
-    o DSB-SC? Confirme a relação $B_\text{SSB} = B_\text{DSB}/2$ com os
-    dados da Tabela~2.
+  \item Qual foi a largura de banda medida do sinal SSB em comparação com a do
+    DSB-SC? Confirme a relação $B_\text{SSB} = B_\text{DSB}/2$ com os dados da
+    Tabela~\ref{tab:comp} para pelo menos dois valores de $f_m$.
 
-  \item Quais são as vantagens e desvantagens práticas do SSB em relação ao
-    DSB-SC? Cite ao menos duas vantagens e uma desvantagem.
+  \item A amplitude do sinal demodulado medida na Etapa 4 é diferente da
+    amplitude da mensagem original. Deduza analiticamente o fator de escala e
+    compare com o valor medido. Em seguida, cite duas vantagens e uma
+    desvantagem práticas do SSB em relação ao DSB-SC.
 
-  \item Por que a demodulação do SSB é mais sensível ao erro de frequência
-    do oscilador local do que a do DSB-SC? O que acontece no domínio da
-    frequência quando há um pequeno desvio $\Delta f$ na portadora local?
+  \item Use a Tabela~\ref{tab:df} para responder: o que acontece com o
+    espectro da mensagem recuperada quando o oscilador local tem desvio
+    $\Delta f$? Mostre analiticamente que no SSB o espectro sofre uma
+    translação rígida de $-\Delta f$, enquanto no DSB-SC o mesmo erro produz
+    duas cópias deslocadas de $\pm\Delta f$. Explique por que a translação
+    rígida é mais danosa para um sinal de voz.
 
-  \item Compare o método de geração por \textbf{filtragem} com o método
-    da \textbf{transformada de Hilbert}: qual é mais simples de implementar
-    em hardware? Qual apresentou melhor supressão da banda lateral indesejada
-    neste experimento?
+  \item Compare os dois métodos de geração usando os resíduos medidos nas
+    Etapas 2 e 5. Qual apresentou melhor supressão da banda lateral
+    indesejada? Qual é mais simples de implementar em hardware analógico?
+    Discuta o que acontece com cada método quando a mensagem contém
+    componentes de frequência muito próximas de zero.
 
 \end{enumerate}
 
@@ -272,17 +406,25 @@ filtro passa-baixas.
 O entregável é o relatório no modelo definido no SIGAA contendo:
 
 \begin{itemize}
-  \item Captura do espectro mostrando DSB-SC, USB e LSB nos três cenários.
-  \item Captura da comparação temporal: mensagem original vs.\ demodulada.
-  \item Tabela de comparação preenchida.
+  \item Captura do espectro mostrando DSB-SC, banda lateral superior e banda
+    lateral inferior obtidas por filtragem.
+  \item Captura da comparação temporal entre a mensagem original e a
+    demodulada, com \texttt{Autoscale} desligado.
+  \item Captura do espectro demodulado para pelo menos dois valores de
+    \texttt{delta\_f}.
+  \item Captura do espectro das bandas laterais geradas pelo método de Hilbert.
+  \item Tabelas~\ref{tab:comp} e \ref{tab:df} preenchidas.
   \item Respostas às 5 questões.
 \end{itemize}
 
-\begin{atencao}[Sobre os parâmetros do Band Pass Filter]
-Ajuste as frequências de corte do BPF com cuidado: a banda de transição deve
-ser mais estreita do que a separação entre os picos (aqui $f_m = 2000$\,Hz).
-Se o BPF não atenuar suficientemente a banda indesejada, aumente o número de
-coeficientes do filtro (\textit{Num Taps}) ou use uma janela de Kaiser.
+\begin{atencao}[Sobre os parâmetros dos filtros]
+Ajuste as frequências de corte com cuidado: a banda de transição deve ser
+menor do que a separação entre as componentes espectrais, que vale $2f_m$.
+Se o filtro passa-banda não atenuar suficientemente a banda indesejada,
+reduza a banda de transição, o que aumenta automaticamente o número de
+coeficientes, ou troque a janela de Hamming pela de Kaiser. No método de
+Hilbert, aumentar \texttt{n\_hilb} melhora a supressão sobretudo nas
+frequências mais baixas da mensagem.
 \end{atencao}
 
 \end{document}

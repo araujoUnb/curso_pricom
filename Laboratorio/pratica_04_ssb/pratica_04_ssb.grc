@@ -23,7 +23,7 @@ options:
     sizing_mode: fixed
     thread_safe_setters: ''
     title: 'Prática 04 - Modulação SSB (Banda Lateral Única)'
-    window_size: (1280,900)
+    window_size: (1400,900)
   states:
     bus_sink: false
     bus_source: false
@@ -40,12 +40,12 @@ blocks:
   id: variable
   parameters:
     comment: 'Taxa de amostragem'
-    value: '48000'
+    value: '64000'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 160]
+    coordinate: [8, 140]
     rotation: 0
     state: enabled
 
@@ -53,37 +53,116 @@ blocks:
   id: variable
   parameters:
     comment: 'Frequência da portadora'
-    value: '12000'
+    value: '16000'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 260]
+    coordinate: [8, 212]
+    rotation: 0
+    state: enabled
+
+- name: bw_trans
+  id: variable
+  parameters:
+    comment: 'Banda de transição dos BPF'
+    value: '800'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [104, 140]
+    rotation: 0
+    state: enabled
+
+- name: bw_trans_lp
+  id: variable
+  parameters:
+    comment: 'Banda de transição do LPF'
+    value: '600'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [104, 212]
+    rotation: 0
+    state: enabled
+
+- name: n_hilb
+  id: variable
+  parameters:
+    comment: 'Coeficientes do filtro de Hilbert (ímpar)'
+    value: '101'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [216, 140]
+    rotation: 0
+    state: enabled
+
+# Atraso de grupo acumulado do caminho de demodulação:
+#   BPF (193 taps -> 96) + LPF (257 taps -> 128) = 224 amostras.
+# Depende apenas de bw_trans e bw_trans_lp, portanto é constante
+# para qualquer posição do slider fm.
+- name: d_align
+  id: variable
+  parameters:
+    comment: 'Atraso de grupo BPF + LPF (amostras)'
+    value: '224'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [216, 212]
     rotation: 0
     state: enabled
 
 # ============================================
-# SLIDERS (QT GUI Range)
+# CONTROLES (QT GUI Range)
 # ============================================
 - name: fm
   id: variable_qtgui_range
   parameters:
     comment: 'Frequência da mensagem'
-    gui_hint: 0,0,1,2
-    label: 'Frequência mensagem fm (Hz)'
+    gui_hint: 0,0,1,1
+    label: 'Frequência da mensagem fm (Hz)'
     min_len: '200'
     orient: QtCore.Qt.Horizontal
     rangeType: float
-    start: '500'
+    start: '1500'
     step: '500'
-    stop: '5000'
-    value: '2000'
+    stop: '6000'
+    value: '3000'
     widget: counter_slider
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [200, 12]
+    coordinate: [352, 12]
+    rotation: 0
+    state: enabled
+
+# Erro de frequência do oscilador local (Etapa 4b / Q4)
+- name: delta_f
+  id: variable_qtgui_range
+  parameters:
+    comment: 'Erro de frequência do oscilador local'
+    gui_hint: 0,1,1,1
+    label: 'Erro do oscilador local delta_f (Hz)'
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '-500'
+    step: '25'
+    stop: '500'
+    value: '0'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [552, 12]
     rotation: 0
     state: enabled
 
@@ -111,18 +190,18 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [80, 260]
+    coordinate: [56, 316]
     rotation: 0
     state: enabled
 
-# Portadora: cos(2*pi*fc*t)
-- name: src_portadora
+# Portadora em fase: cos(2*pi*fc*t)
+- name: src_portadora_cos
   id: analog_sig_source_x
   parameters:
     affinity: ''
     alias: ''
     amp: '1.0'
-    comment: 'Portadora c(t)'
+    comment: 'Portadora em fase cos(2 pi fc t)'
     freq: fc
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -136,19 +215,44 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [80, 420]
+    coordinate: [56, 436]
     rotation: 0
     state: enabled
 
-# Oscilador local para demodulação: cos(2*pi*fc*t), amplitude 2.0
+# Portadora em quadratura: sin(2*pi*fc*t) - usada só no método de Hilbert
+- name: src_portadora_sin
+  id: analog_sig_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: '1.0'
+    comment: 'Portadora em quadratura sin(2 pi fc t)'
+    freq: fc
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: float
+    waveform: analog.GR_SIN_WAVE
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [56, 852]
+    rotation: 0
+    state: enabled
+
+# Oscilador local da demodulação: 2*cos(2*pi*(fc + delta_f)*t)
 - name: src_local
   id: analog_sig_source_x
   parameters:
     affinity: ''
     alias: ''
     amp: '2.0'
-    comment: 'Oscilador local (demod) amp=2'
-    freq: fc
+    comment: 'Oscilador local: fc + delta_f, amplitude 2'
+    freq: fc+delta_f
     maxoutbuf: '0'
     minoutbuf: '0'
     offset: '0'
@@ -161,19 +265,19 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [480, 560]
+    coordinate: [432, 660]
     rotation: 0
     state: enabled
 
 # ============================================
-# MODULADOR: Multiply (mensagem × portadora) -> DSB-SC
+# ETAPA 1 - MODULADOR DSB-SC: m(t) x cos(2 pi fc t)
 # ============================================
 - name: mult_mod
   id: blocks_multiply_xx
   parameters:
     affinity: ''
     alias: ''
-    comment: 'Modulação DSB-SC: m(t) × c(t)'
+    comment: 'DSB-SC: m(t) x c(t)'
     maxoutbuf: '0'
     minoutbuf: '0'
     num_inputs: '2'
@@ -183,13 +287,10 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [360, 340]
+    coordinate: [312, 352]
     rotation: 0
     state: enabled
 
-# ============================================
-# THROTTLE
-# ============================================
 - name: throttle
   id: blocks_throttle2
   parameters:
@@ -207,12 +308,12 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [520, 340]
+    coordinate: [456, 360]
     rotation: 0
     state: enabled
 
 # ============================================
-# FILTRO PASSA-BANDA USB (Band Pass Filter)
+# ETAPA 2 - FILTRO PASSA-BANDA USB
 # ============================================
 - name: bpf_usb
   id: band_pass_filter
@@ -220,28 +321,28 @@ blocks:
     affinity: ''
     alias: ''
     beta: '6.76'
-    comment: 'Filtro USB: seleciona banda lateral superior'
+    comment: 'Etapa 2: seleciona a banda lateral superior'
     decim: '1'
     gain: '1'
-    high_cutoff_freq: fc+fm+1000
+    high_cutoff_freq: fc+2*fm
     interp: '1'
-    low_cutoff_freq: fc+100
+    low_cutoff_freq: fc+fm/2
     maxoutbuf: '0'
     minoutbuf: '0'
     samp_rate: samp_rate
     type: fir_filter_fff
-    width: '500'
+    width: bw_trans
     win: window.WIN_HAMMING
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [720, 260]
+    coordinate: [640, 252]
     rotation: 0
     state: enabled
 
 # ============================================
-# FILTRO PASSA-BANDA LSB (Band Pass Filter)
+# ETAPA 3 - FILTRO PASSA-BANDA LSB
 # ============================================
 - name: bpf_lsb
   id: band_pass_filter
@@ -249,35 +350,35 @@ blocks:
     affinity: ''
     alias: ''
     beta: '6.76'
-    comment: 'Filtro LSB: seleciona banda lateral inferior'
+    comment: 'Etapa 3: seleciona a banda lateral inferior'
     decim: '1'
     gain: '1'
-    high_cutoff_freq: fc-100
+    high_cutoff_freq: fc-fm/2
     interp: '1'
-    low_cutoff_freq: fc-fm-1000
+    low_cutoff_freq: fc-2*fm
     maxoutbuf: '0'
     minoutbuf: '0'
     samp_rate: samp_rate
     type: fir_filter_fff
-    width: '500'
+    width: bw_trans
     win: window.WIN_HAMMING
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [720, 440]
+    coordinate: [640, 452]
     rotation: 0
     state: enabled
 
 # ============================================
-# DEMODULADOR: Multiply (USB × oscilador local)
+# ETAPA 4 - DEMODULAÇÃO COERENTE DO SSB-USB
 # ============================================
 - name: mult_demod
   id: blocks_multiply_xx
   parameters:
     affinity: ''
     alias: ''
-    comment: 'Demodulação: USB × osc. local'
+    comment: 'Etapa 4: SSB-USB x oscilador local'
     maxoutbuf: '0'
     minoutbuf: '0'
     num_inputs: '2'
@@ -287,20 +388,17 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [720, 620]
+    coordinate: [664, 620]
     rotation: 0
     state: enabled
 
-# ============================================
-# FILTRO PASSA-BAIXAS (demodulação)
-# ============================================
 - name: lpf
   id: low_pass_filter
   parameters:
     affinity: ''
     alias: ''
     beta: '6.76'
-    comment: 'Filtro passa-baixas para recuperar m(t)'
+    comment: 'Etapa 4: recupera m(t) em banda base'
     cutoff_freq: fm*1.5
     decim: '1'
     gain: '1'
@@ -309,18 +407,161 @@ blocks:
     minoutbuf: '0'
     samp_rate: samp_rate
     type: fir_filter_fff
-    width: '400'
+    width: bw_trans_lp
     win: window.WIN_HAMMING
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [900, 600]
+    coordinate: [816, 604]
+    rotation: 0
+    state: enabled
+
+# Atrasa a mensagem de referência para compensar o atraso de grupo
+# de BPF + LPF; sem isso as duas curvas do Time Sink aparecem
+# deslocadas horizontalmente e a comparação fica prejudicada.
+- name: delay_ref
+  id: blocks_delay
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Alinha m(t) com o sinal demodulado'
+    delay: d_align
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_ports: '1'
+    showports: 'False'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [816, 700]
     rotation: 0
     state: enabled
 
 # ============================================
-# VISUALIZAÇÃO: Espectro modulado/filtrado (Freq Sink - 3 conexões)
+# ETAPA 5 - GERAÇÃO SSB PELA TRANSFORMADA DE HILBERT
+# ============================================
+# A saída complexa do bloco Hilbert é o sinal analítico
+#   m(t - tau) + j*m_chapeu(t - tau),  tau = (n_hilb-1)/2 amostras.
+# Os dois ramos saem do MESMO bloco e por isso já estão alinhados:
+# usar a mensagem original no ramo em fase destrói o cancelamento.
+- name: hilbert
+  id: hilbert_fc
+  parameters:
+    affinity: ''
+    alias: ''
+    beta: '6.76'
+    comment: 'Sinal analítico da mensagem'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_taps: n_hilb
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [288, 764]
+    rotation: 0
+    state: enabled
+
+- name: c2f
+  id: blocks_complex_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 're = m(t-tau)   |   im = m_chapeu(t-tau)'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [448, 764]
+    rotation: 0
+    state: enabled
+
+- name: mult_i
+  id: blocks_multiply_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Ramo I: m(t-tau) x cos'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [624, 756]
+    rotation: 0
+    state: enabled
+
+- name: mult_q
+  id: blocks_multiply_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Ramo Q: m_chapeu(t-tau) x sin'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [624, 852]
+    rotation: 0
+    state: enabled
+
+- name: sub_usb
+  id: blocks_sub_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'I - Q  ->  USB'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [792, 764]
+    rotation: 0
+    state: enabled
+
+- name: add_lsb
+  id: blocks_add_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'I + Q  ->  LSB'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [792, 872]
+    rotation: 0
+    state: enabled
+
+# ============================================
+# VISUALIZAÇÃO
 # ============================================
 - name: freq_sink_mod
   id: qtgui_freq_sink_x
@@ -338,7 +579,7 @@ blocks:
     alpha8: '1.0'
     alpha9: '1.0'
     autoscale: 'False'
-    average: '1.0'
+    average: '0.2'
     axislabels: 'True'
     bw: samp_rate
     color1: '"blue"'
@@ -351,18 +592,18 @@ blocks:
     color7: '"yellow"'
     color8: '"dark red"'
     color9: '"dark green"'
-    comment: ''
-    ctrlpanel: 'False'
+    comment: 'Etapas 1 a 3'
+    ctrlpanel: 'True'
     fc: '0'
     fftsize: '4096'
     freqhalf: 'True'
     grid: 'True'
-    gui_hint: 2,0,1,1
+    gui_hint: 1,0,1,1
     label: Relative Gain
     label1: 'DSB-SC'
     label10: ''''''
-    label2: 'USB'
-    label3: 'LSB'
+    label2: 'SSB-USB (filtragem)'
+    label3: 'SSB-LSB (filtragem)'
     label4: ''''''
     label5: ''''''
     label6: ''''''
@@ -372,7 +613,7 @@ blocks:
     legend: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
-    name: '"Espectro Modulado / Filtrado"'
+    name: '"Etapas 1-3: DSB-SC e bandas laterais por filtragem"'
     nconnections: '3'
     norm_window: 'False'
     showports: 'False'
@@ -390,18 +631,92 @@ blocks:
     width9: '1'
     wintype: window.WIN_HANN
     ymax: '10'
-    ymin: '-100'
+    ymin: '-120'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1100, 300]
+    coordinate: [1040, 300]
     rotation: 0
     state: enabled
 
-# ============================================
-# VISUALIZAÇÃO: Domínio do Tempo (Time Sink - 2 conexões)
-# ============================================
+- name: freq_sink_hilb
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '0.2'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"magenta"'
+    color10: '"dark blue"'
+    color2: '"dark green"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: 'Etapa 5'
+    ctrlpanel: 'True'
+    fc: '0'
+    fftsize: '4096'
+    freqhalf: 'True'
+    grid: 'True'
+    gui_hint: 1,1,1,1
+    label: Relative Gain
+    label1: 'SSB-USB (Hilbert)'
+    label10: ''''''
+    label2: 'SSB-LSB (Hilbert)'
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '"Etapa 5: bandas laterais pela transformada de Hilbert"'
+    nconnections: '2'
+    norm_window: 'False'
+    showports: 'False'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: window.WIN_HANN
+    ymax: '10'
+    ymin: '-120'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1040, 780]
+    rotation: 0
+    state: enabled
+
 - name: time_sink
   id: qtgui_time_sink_x
   parameters:
@@ -417,7 +732,7 @@ blocks:
     alpha7: '1.0'
     alpha8: '1.0'
     alpha9: '1.0'
-    autoscale: 'True'
+    autoscale: 'False'
     axislabels: 'True'
     color1: blue
     color10: dark blue
@@ -429,12 +744,12 @@ blocks:
     color7: yellow
     color8: dark red
     color9: dark green
-    comment: ''
-    ctrlpanel: 'False'
+    comment: 'Etapa 4: escala 0,5 visível porque autoscale está desligado'
+    ctrlpanel: 'True'
     entags: 'True'
     grid: 'True'
-    gui_hint: 2,1,1,1
-    label1: 'Mensagem original'
+    gui_hint: 2,0,1,1
+    label1: 'Mensagem original (atrasada de d_align)'
     label10: Signal 10
     label2: 'Sinal demodulado'
     label3: Signal 3
@@ -455,9 +770,9 @@ blocks:
     marker7: '-1'
     marker8: '-1'
     marker9: '-1'
-    name: '"Domínio do Tempo"'
+    name: '"Etapa 4: mensagem original x sinal demodulado"'
     nconnections: '2'
-    size: '1024'
+    size: '256'
     srate: samp_rate
     stemplot: 'False'
     style1: '1'
@@ -480,7 +795,7 @@ blocks:
     update_time: '0.10'
     width1: '1'
     width10: '1'
-    width2: '1'
+    width2: '2'
     width3: '1'
     width4: '1'
     width5: '1'
@@ -489,20 +804,17 @@ blocks:
     width8: '1'
     width9: '1'
     ylabel: Amplitude
-    ymax: '1.5'
-    ymin: '-1.5'
+    ymax: '1.2'
+    ymin: '-1.2'
     yunit: '""'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1100, 520]
+    coordinate: [1040, 540]
     rotation: 0
     state: enabled
 
-# ============================================
-# VISUALIZAÇÃO: Espectro do sinal demodulado (Freq Sink)
-# ============================================
 - name: freq_sink_demod
   id: qtgui_freq_sink_x
   parameters:
@@ -519,7 +831,7 @@ blocks:
     alpha8: '1.0'
     alpha9: '1.0'
     autoscale: 'False'
-    average: '1.0'
+    average: '0.2'
     axislabels: 'True'
     bw: samp_rate
     color1: '"blue"'
@@ -532,13 +844,13 @@ blocks:
     color7: '"yellow"'
     color8: '"dark red"'
     color9: '"dark green"'
-    comment: ''
-    ctrlpanel: 'False'
+    comment: 'Etapa 4b: use o slider delta_f'
+    ctrlpanel: 'True'
     fc: '0'
     fftsize: '4096'
     freqhalf: 'True'
     grid: 'True'
-    gui_hint: 3,0,1,2
+    gui_hint: 2,1,1,1
     label: Relative Gain
     label1: 'Sinal demodulado'
     label10: ''''''
@@ -553,7 +865,7 @@ blocks:
     legend: 'True'
     maxoutbuf: '0'
     minoutbuf: '0'
-    name: '"Espectro do Sinal Demodulado"'
+    name: '"Etapa 4b: espectro demodulado (varie delta_f)"'
     nconnections: '1'
     norm_window: 'False'
     showports: 'False'
@@ -571,37 +883,49 @@ blocks:
     width9: '1'
     wintype: window.WIN_HANN
     ymax: '10'
-    ymin: '-100'
+    ymin: '-120'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1100, 740]
+    coordinate: [1040, 1020]
     rotation: 0
     state: enabled
 
 connections:
-# Modulador: mensagem × portadora -> DSB-SC
+# Etapa 1: modulador DSB-SC
 - [src_mensagem, '0', mult_mod, '0']
-- [src_portadora, '0', mult_mod, '1']
-# Throttle
+- [src_portadora_cos, '0', mult_mod, '1']
 - [mult_mod, '0', throttle, '0']
-# Filtros passa-banda USB e LSB
+# Etapas 2 e 3: filtros passa-banda
 - [throttle, '0', bpf_usb, '0']
 - [throttle, '0', bpf_lsb, '0']
-# Demodulador: USB × oscilador local
+# Etapa 4: demodulação coerente do SSB-USB
 - [bpf_usb, '0', mult_demod, '0']
 - [src_local, '0', mult_demod, '1']
-# Filtro passa-baixas
 - [mult_demod, '0', lpf, '0']
-# Espectro modulado/filtrado: DSB-SC, USB, LSB (3 conexões)
+- [src_mensagem, '0', delay_ref, '0']
+# Etapa 5: método da transformada de Hilbert
+- [src_mensagem, '0', hilbert, '0']
+- [hilbert, '0', c2f, '0']
+- [c2f, '0', mult_i, '0']
+- [src_portadora_cos, '0', mult_i, '1']
+- [c2f, '1', mult_q, '0']
+- [src_portadora_sin, '0', mult_q, '1']
+- [mult_i, '0', sub_usb, '0']
+- [mult_q, '0', sub_usb, '1']
+- [mult_i, '0', add_lsb, '0']
+- [mult_q, '0', add_lsb, '1']
+# Espectro das etapas 1 a 3
 - [throttle, '0', freq_sink_mod, '0']
 - [bpf_usb, '0', freq_sink_mod, '1']
 - [bpf_lsb, '0', freq_sink_mod, '2']
-# Domínio do tempo: mensagem original e sinal demodulado
-- [src_mensagem, '0', time_sink, '0']
+# Espectro da etapa 5
+- [sub_usb, '0', freq_sink_hilb, '0']
+- [add_lsb, '0', freq_sink_hilb, '1']
+# Domínio do tempo e espectro demodulado
+- [delay_ref, '0', time_sink, '0']
 - [lpf, '0', time_sink, '1']
-# Espectro do sinal demodulado
 - [lpf, '0', freq_sink_demod, '0']
 
 metadata:
