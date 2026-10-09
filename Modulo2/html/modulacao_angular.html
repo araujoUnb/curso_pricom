@@ -310,7 +310,7 @@ svg.notelayer text.lk { font-size: 15px; fill: var(--unb-alert); paint-order: st
     <div class="toc">
       <a data-go="sec1"><b>1.</b>Representação de sinais FM e PM<span class="d">seção 4.1: frequência instantânea, PM, FM, índice de modulação e banda estreita</span></a>
       <a data-go="sec2"><b>2.</b>Características espectrais<span class="d">seção 4.2: série de Fourier, função de Bessel e regra de Carson</span></a>
-      <a data-go="sec3"><b>3.</b>Moduladores e demoduladores<span class="d">seção 4.3: método direto, VCO com varactor e PLL que trava a portadora</span></a>
+      <a data-go="sec3"><b>3.</b>Moduladores e demoduladores<span class="d">seção 4.3: método direto, VCO com varactor, PLL que trava a portadora e demoduladores</span></a>
       <a class="soon"><b>4.</b>Radiodifusão FM<span class="d">seção 4.4</span></a>
     </div>
     <div class="block" style="margin-top:auto"><span class="bt">Fonte e numeração</span>
@@ -675,7 +675,7 @@ svg.notelayer text.lk { font-size: 15px; fill: var(--unb-alert); paint-order: st
     <div class="dlayout" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
       <div class="deriv">
         <div class="step"><div class="why">Ponto de partida</div><div class="m">\[ u(t)=A_c\cos\big(2\pi f_c t+\phi(t)\big) \tag{4.1.1}\]</div></div>
-        <div class="step"><div class="why">Expande o cosseno da soma</div><div class="m">\[ \cssId{nb-u}{u(t)}=A_c\cos 2\pi f_c t\,\cssId{nb-c}{\cos\phi(t)}-A_c\sin 2\pi f_c t\,\cssId{nb-s}{\sin\phi(t)} \]</div></div>
+        <div class="step"><div class="why">Expande o cosseno da soma</div><div class="m">\[ \cssId{nb-ueq}{u(t)}=A_c\cos 2\pi f_c t\,\cssId{nb-c}{\cos\phi(t)}-A_c\sin 2\pi f_c t\,\cssId{nb-s}{\sin\phi(t)} \]</div></div>
         <div class="step"><div class="why">Série de Taylor em torno de \(\phi=0\)</div><div class="m">\[ \cos\phi=1-\cssId{nb-q}{\frac{\phi^2}{2}}+\cdots,\qquad \sin\phi=\phi-\frac{\phi^3}{6}+\cdots \]</div></div>
         <div class="step"><div class="why">Banda estreita: \(|\phi(t)|\ll 1\) para todo \(t\)</div><div class="m">\[ \cos\phi(t)\approx 1,\qquad \sin\phi(t)\approx\phi(t) \]</div></div>
         <div class="step"><div class="why">Leva no passo 2</div><div class="m">\[ u(t)\approx A_c\cos 2\pi f_c t-A_c\,\cssId{nb-phi}{\phi(t)\sin 2\pi f_c t} \tag{4.1.19}\]</div></div>
@@ -690,7 +690,7 @@ svg.notelayer text.lk { font-size: 15px; fill: var(--unb-alert); paint-order: st
       </div>
     </div>
   </div>
-  <div class="note" data-on="2" data-to="nb-u">\(\cos(A+B)=\cos A\cos B-\sin A\sin B\)</div>
+  <div class="note" data-on="2" data-to="nb-ueq">\(\cos(A+B)=\cos A\cos B-\sin A\sin B\)</div>
   <div class="note" data-on="2" data-to="nb-c nb-s">só estes dois fatores dependem da mensagem</div>
   <div class="note" data-on="3" data-to="nb-q">com \(\phi=0{,}2\) rad, este termo vale 0,02</div>
   <div class="note" data-on="5" data-to="nb-phi">a mensagem, via \(\phi(t)\), modula uma portadora em seno</div>
@@ -2012,23 +2012,23 @@ svg.notelayer text.lk { font-size: 15px; fill: var(--unb-alert); paint-order: st
   <div class="body">
     <div class="dlayout" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)">
       <div class="deriv">
-        <div class="step"><div class="why">Erro no detector</div><div class="m">\[ \cssId{pm-e1}{\Theta_e = \Phi_{\mathrm{ref}} - \frac{\Phi_{\mathrm{VCO}}}{N}} \]</div></div>
-        <div class="step"><div class="why">Ida pelos blocos 3, 4 e 5 até a fase do VCO</div><div class="m">\[ \Phi_{\mathrm{VCO}} = \cssId{pm-vco}{\frac{2\pi K_v}{s}}\,\cssId{pm-f}{F(s)}\,\cssId{pm-kd}{K_d}\,\Theta_e \]</div></div>
-        <div class="step"><div class="why">Ganho de malha aberta, já dividido por \(N\); usa \(F(s)\) do bloco 4</div><div class="m">\[ \begin{aligned}G(s) &= \frac{K_d\,F(s)\,2\pi K_v}{N\,s} = \frac{K\,(1+s\tau_2)}{s^2\tau_1}\\ \cssId{pm-k}{K} &= \frac{2\pi K_d K_v}{N}\end{aligned} \]</div></div>
+        <div class="step"><div class="why">Erro no detector</div><div class="m">\[ \cssId{pl-e1}{\Theta_e = \Phi_{\mathrm{ref}} - \frac{\Phi_{\mathrm{VCO}}}{N}} \]</div></div>
+        <div class="step"><div class="why">Ida pelos blocos 3, 4 e 5 até a fase do VCO</div><div class="m">\[ \Phi_{\mathrm{VCO}} = \cssId{pl-vco}{\frac{2\pi K_v}{s}}\,\cssId{pl-f}{F(s)}\,\cssId{pl-kd}{K_d}\,\Theta_e \]</div></div>
+        <div class="step"><div class="why">Ganho de malha aberta, já dividido por \(N\); usa \(F(s)\) do bloco 4</div><div class="m">\[ \begin{aligned}G(s) &= \frac{K_d\,F(s)\,2\pi K_v}{N\,s} = \frac{K\,(1+s\tau_2)}{s^2\tau_1}\\ \cssId{pl-k}{K} &= \frac{2\pi K_d K_v}{N}\end{aligned} \]</div></div>
         <div class="step"><div class="why">Leva o passo 2 no passo 1 e isola \(\Phi_{\mathrm{VCO}}/N\)</div><div class="m">\[ \begin{aligned}\frac{\Phi_{\mathrm{VCO}}}{N} &= G\,\big(\Phi_{\mathrm{ref}} - \tfrac{\Phi_{\mathrm{VCO}}}{N}\big)\\ H(s) &= \frac{\Phi_{\mathrm{VCO}}/N}{\Phi_{\mathrm{ref}}} = \frac{G}{1+G}\end{aligned} \]</div></div>
         <div class="step"><div class="why">Substitui \(G\) e multiplica em cima e embaixo por \(s^2\tau_1\)</div><div class="m">\[ H(s) = \frac{K(1+s\tau_2)}{\tau_1 s^2 + K\tau_2\,s + K} \]</div></div>
-        <div class="step"><div class="why">Divide por \(\tau_1\) e compara com a forma padrão de 2.ª ordem</div><div class="m">\[ \begin{aligned}H(s) &= \frac{2\zeta\omega_n s + \omega_n^2}{s^2 + 2\zeta\omega_n s + \omega_n^2}\\ \omega_n^2 &= \frac{K}{\tau_1},\qquad 2\zeta\omega_n = \frac{K\tau_2}{\tau_1}\;\Rightarrow\; \cssId{pm-z}{\zeta = \frac{\tau_2\,\omega_n}{2}}\end{aligned} \]</div></div>
+        <div class="step"><div class="why">Divide por \(\tau_1\) e compara com a forma padrão de 2.ª ordem</div><div class="m">\[ \begin{aligned}H(s) &= \frac{2\zeta\omega_n s + \omega_n^2}{s^2 + 2\zeta\omega_n s + \omega_n^2}\\ \omega_n^2 &= \frac{K}{\tau_1},\qquad 2\zeta\omega_n = \frac{K\tau_2}{\tau_1}\;\Rightarrow\; \cssId{pl-z}{\zeta = \frac{\tau_2\,\omega_n}{2}}\end{aligned} \]</div></div>
       </div>
       <div class="figcol">
         <div class="fig" style="height:330px">
           <svg viewBox="0 0 600 320" aria-label="Diagrama de blocos linear do PLL">
-            <defs><marker id="pm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#282828"/></marker></defs>
-            <g fill="none" stroke="#282828" stroke-width="2"><path d="M10,90 H62" marker-end="url(#pm-ah)"/><path d="M98,90 H130" marker-end="url(#pm-ah)"/><path d="M200,90 H230" marker-end="url(#pm-ah)"/><path d="M330,90 H360" marker-end="url(#pm-ah)"/><path d="M470,90 H590" marker-end="url(#pm-ah)"/><path d="M530,90 V220 H380" marker-end="url(#pm-ah)"/><path d="M300,220 H80 V110" marker-end="url(#pm-ah)"/></g>
+            <defs><marker id="pl-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#282828"/></marker></defs>
+            <g fill="none" stroke="#282828" stroke-width="2"><path d="M10,90 H62" marker-end="url(#pl-ah)"/><path d="M98,90 H130" marker-end="url(#pl-ah)"/><path d="M200,90 H230" marker-end="url(#pl-ah)"/><path d="M330,90 H360" marker-end="url(#pl-ah)"/><path d="M470,90 H590" marker-end="url(#pl-ah)"/><path d="M530,90 V220 H380" marker-end="url(#pl-ah)"/><path d="M300,220 H80 V110" marker-end="url(#pl-ah)"/></g>
             <circle cx="80" cy="90" r="18" fill="#fff" stroke="#282828" stroke-width="2"/><text x="80" y="96" text-anchor="middle" font-size="18">Σ</text><text x="52" y="80" font-size="15">+</text><text x="88" y="128" font-size="17">−</text>
-            <g id="pm-bkd"><rect x="130" y="65" width="70" height="50" fill="#fff" stroke="#B03A2E" stroke-width="2.2"/><text x="165" y="96" text-anchor="middle" font-size="17">K<tspan baseline-shift="sub" font-size="12">d</tspan></text></g>
-            <g id="pm-bf"><rect x="230" y="65" width="100" height="50" fill="#fff" stroke="#1F4E9C" stroke-width="2.2"/><text x="280" y="96" text-anchor="middle" font-size="17">F(s)</text></g>
-            <g id="pm-bvco"><rect x="360" y="65" width="110" height="50" fill="#fff" stroke="#282828" stroke-width="2.2"/><text x="415" y="96" text-anchor="middle" font-size="17">2πK<tspan baseline-shift="sub" font-size="12">v</tspan>/s</text></g>
-            <g id="pm-bn"><rect x="300" y="195" width="80" height="50" fill="#fff" stroke="#282828" stroke-width="2.2"/><text x="340" y="226" text-anchor="middle" font-size="17">1/N</text></g>
+            <g id="pl-bkd"><rect x="130" y="65" width="70" height="50" fill="#fff" stroke="#B03A2E" stroke-width="2.2"/><text x="165" y="96" text-anchor="middle" font-size="17">K<tspan baseline-shift="sub" font-size="12">d</tspan></text></g>
+            <g id="pl-bf"><rect x="230" y="65" width="100" height="50" fill="#fff" stroke="#1F4E9C" stroke-width="2.2"/><text x="280" y="96" text-anchor="middle" font-size="17">F(s)</text></g>
+            <g id="pl-bvco"><rect x="360" y="65" width="110" height="50" fill="#fff" stroke="#282828" stroke-width="2.2"/><text x="415" y="96" text-anchor="middle" font-size="17">2πK<tspan baseline-shift="sub" font-size="12">v</tspan>/s</text></g>
+            <g id="pl-bn"><rect x="300" y="195" width="80" height="50" fill="#fff" stroke="#282828" stroke-width="2.2"/><text x="340" y="226" text-anchor="middle" font-size="17">1/N</text></g>
             <text x="8" y="70" font-size="15" fill="#003B5C">Φ<tspan baseline-shift="sub" font-size="11">ref</tspan></text><text x="104" y="70" font-size="15" fill="#003B5C">Θ<tspan baseline-shift="sub" font-size="11">e</tspan></text><text x="590" y="70" text-anchor="end" font-size="15" fill="#003B5C">Φ<tspan baseline-shift="sub" font-size="11">VCO</tspan></text>
             <text x="165" y="140" text-anchor="middle" font-size="12" fill="#787878">blocos 2 e 3</text><text x="280" y="140" text-anchor="middle" font-size="12" fill="#787878">bloco 4</text><text x="415" y="140" text-anchor="middle" font-size="12" fill="#787878">bloco 5 e VCO</text><text x="340" y="268" text-anchor="middle" font-size="12" fill="#787878">divisor, bloco 1</text>
             <text x="300" y="306" text-anchor="middle" font-size="13" fill="#787878">pós-filtro e C<tspan baseline-shift="sub" font-size="10">A</tspan> omitidos: polos em kHz, malha em hertz</text>
@@ -2037,12 +2037,12 @@ svg.notelayer text.lk { font-size: 15px; fill: var(--unb-alert); paint-order: st
       </div>
     </div>
   </div>
-  <div class="link" data-on="2" data-from="pm-bkd" data-to="pm-kd">detector</div>
-  <div class="link" data-on="2" data-from="pm-bf" data-to="pm-f">filtro</div>
-  <div class="link" data-on="2" data-from="pm-bvco" data-to="pm-vco">VCO</div>
-  <div class="link" data-on="3" data-from="pm-bn" data-to="pm-k">÷ N</div>
-  <div class="note" data-on="3" data-to="pm-k">dois integradores, \(1/s\) do filtro e \(1/s\) do VCO: malha de tipo 2</div>
-  <div class="note" data-on="6" data-to="pm-z">\(\tau_2\) amortece: sem o resistor \(R_{22}\), \(\zeta = 0\) e a malha oscila</div>
+  <div class="link" data-on="2" data-from="pl-bkd" data-to="pl-kd">detector</div>
+  <div class="link" data-on="2" data-from="pl-bf" data-to="pl-f">filtro</div>
+  <div class="link" data-on="2" data-from="pl-bvco" data-to="pl-vco">VCO</div>
+  <div class="link" data-on="3" data-from="pl-bn" data-to="pl-k">÷ N</div>
+  <div class="note" data-on="3" data-to="pl-k">dois integradores, \(1/s\) do filtro e \(1/s\) do VCO: malha de tipo 2</div>
+  <div class="note" data-on="6" data-to="pl-z">\(\tau_2\) amortece: sem o resistor \(R_{22}\), \(\zeta = 0\) e a malha oscila</div>
 </section>
 
 <!-- ============ números da malha ============ -->
@@ -2131,6 +2131,29 @@ svg.notelayer text.lk { font-size: 15px; fill: var(--unb-alert); paint-order: st
   <div class="note" data-on="6" data-to="pk-107">o modelo linear supõe \(|\theta_e| < 2\pi\), que a troca de canal viola; o modo fastlock do ADF4002 aumenta \(I_{cp}\) durante a troca</div>
 </section>
 
+<!-- ============ ganho programado por canal ============ -->
+<section class="slide" id="pllcp" data-sec="3.2 PLL · a malha muda com o canal" data-fig="pllcp" data-window="3">
+  <img class="logo-head" alt="">
+  <div class="frametitle"><h2>A malha muda com o canal</h2><div class="sub">\(K = 2\pi K_d K_v/N\) depende do canal; o ADF4002 compensa com \(I_{cp}\) · pressione →</div><div class="bar"></div></div>
+  <div class="body">
+    <div class="dlayout" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
+      <div class="deriv">
+        <div class="step"><div class="why">Da base ao topo da faixa, \(K_v\) cai, a curva de sintonia achata, e \(N\) sobe</div><div class="m">\[ \begin{aligned}87{,}9\ \text{MHz}: &\quad \frac{5{,}33}{879} \to K = 617\ \text{s}^{-1}\\ 107{,}9\ \text{MHz}: &\quad \frac{2{,}48}{1079} \to K = 234\ \text{s}^{-1}\end{aligned} \]</div></div>
+        <div class="step"><div class="why">\(\omega_n = \sqrt{K/\tau_1}\) e \(\zeta = \tau_2\omega_n/2\): os dois caem com \(\sqrt{K}\)</div><div class="m">\[ \begin{aligned}\sqrt{\frac{617}{234}} &= 1{,}62\\ f_n:\ 5{,}77 \to 3{,}55\ \text{Hz},&\qquad \zeta:\ 0{,}85 \to \cssId{pg-z}{0{,}52}\end{aligned} \]</div></div>
+        <div class="step"><div class="why">A folha de dados do ADF4002 permite \(I_{cp} = m\cdot 0{,}678\) mA, \(m = 1\) a 8; \(K\) é proporcional a \(I_{cp}\). Com \(m = 2\) no topo</div><div class="m">\[ \begin{aligned}K &= 2\cdot 234 = 467\ \text{s}^{-1}\\ \omega_n &= \sqrt{\frac{467}{0{,}47}} = \sqrt{994} = 31{,}5\ \text{rad/s}\\ f_n &= \frac{31{,}5}{2\pi} = 5{,}02\ \text{Hz},\qquad \zeta = \frac{0{,}047\cdot 31{,}5}{2} = 0{,}74\end{aligned} \]</div></div>
+        <div class="step"><div class="why">O microcontrolador escolhe \(m\) junto com \(N\): \(m = 1\) até 101,9 MHz e \(m = 2\) de 103,9 MHz em diante</div><div class="m">\[ \begin{aligned}f_n &= 4{,}9\ \text{a}\ 6{,}4\ \text{Hz},\qquad \zeta = 0{,}72\ \text{a}\ 0{,}94\\ &\cssId{pg-mf}{\text{margem de fase de } 66^\circ\ \text{a}\ 74^\circ}\end{aligned} \]</div></div>
+        <div class="step"><div class="why">No circuito: troca de canal de +200 kHz em 107,9 MHz, assentamento a \(\pm 2\) kHz</div><div class="m">\[ \begin{aligned}m = 1&:\ 1{,}92\ \text{s},\quad \theta_e^{\text{pico}} = 187\ \text{rad}\\ m = 2&:\ \cssId{pg-t}{0{,}58\ \text{s}},\quad \theta_e^{\text{pico}} = 71\ \text{rad}\end{aligned} \]</div></div>
+      </div>
+      <div class="figcol">
+        <div class="fig"><canvas data-figcanvas height="380" aria-label="Frequência natural e amortecimento ao longo da faixa"></canvas><div class="figcap"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="note" data-on="2" data-to="pg-z">sem correção, no topo a margem de fase cai para 54°</div>
+  <div class="note" data-on="4" data-to="pg-mf">calculada com os polos de \(C_A\) e do pós-filtro</div>
+  <div class="note" data-on="5" data-to="pg-t">3,3 vezes mais rápido; os outros canais seguem em 0,40 e 0,42 s</div>
+</section>
+
 <!-- ============ medido: deriva lenta, tipo 2 contra tipo 1 ============ -->
 <section class="slide" id="pllderivamed" data-sec="3.2 PLL · deriva lenta, tipo 2 e tipo 1" data-fig="pllrampa" data-window="3">
   <img class="logo-head" alt="">
@@ -2182,6 +2205,245 @@ svg.notelayer text.lk { font-size: 15px; fill: var(--unb-alert); paint-order: st
   </div>
   <div class="note" data-on="4" data-to="pt-10">fora da faixa linear do detector: o modelo não vale, como previsto pelo limite de 12,2 Hz</div>
   <div class="note" data-on="5" data-to="pt-1k">de 50 Hz a 1 kHz o desvio de saída fica em 75 kHz com erro abaixo de 0,6 %</div>
+</section>
+
+
+<!-- ============ 3.3 demoduladores ============ -->
+<section class="slide" id="sec33" data-sec="3.3 Demoduladores de FM" data-nonum>
+  <div class="divider"><div class="num">3.3</div><div class="ttl">Demoduladores de FM</div><div class="gbar"></div>
+  <div class="what">Do lado do receptor: converter variação de frequência em variação de amplitude, ou seguir a fase com uma malha. Detector de inclinação, discriminador balanceado, FMFB e PLL.</div></div>
+</section>
+
+<!-- ============ FM para AM ============ -->
+<section class="slide" id="demfmam" data-sec="3.3 Demodulação · de FM para AM" data-fig="dmfmam" data-window="4">
+  <img class="logo-head" alt="">
+  <div class="frametitle"><h2>Demodular FM: primeiro, transformar em AM</h2><div class="sub">Seção 4.3 do livro, Fig. 4.10 · pressione →</div><div class="bar"></div></div>
+  <div class="body">
+    <div class="dlayout" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
+      <div class="deriv">
+        <div class="step"><div class="why">Um sistema LTI com módulo em linha reta na banda do sinal de FM</div><div class="m">\[ |H(f)| = \cssId{dm-v0}{V_0} + \cssId{dm-k}{k}\,(f - f_c),\qquad |f-f_c| < \frac{B_c}{2} \tag{4.3.9}\]</div></div>
+        <div class="step"><div class="why">Entrada: FM com frequência instantânea \(f_i(t) = f_c + k_f m(t)\)</div><div class="m">\[ \begin{aligned}u(t) &= A_c\cos\theta(t)\\ \theta(t) &= 2\pi f_c t + 2\pi k_f\!\int_{-\infty}^{t} m(\tau)\,d\tau\end{aligned} \tag{4.3.10}\]</div></div>
+        <div class="step"><div class="why">\(m(t)\) varia devagar perto de \(B_c\): a saída tem, a cada instante, o ganho \(|H|\) em \(f_i(t)\)</div><div class="m">\[ \begin{aligned}|H(f_i)| &= V_0 + k\,\big(f_i(t) - f_c\big) = V_0 + k k_f\,m(t)\\ v_o(t) &= \cssId{dm-env}{A_c\big(V_0 + k k_f\,m(t)\big)}\cos\theta(t)\end{aligned} \tag{4.3.11}\]</div></div>
+        <div class="step"><div class="why">Um detector de envoltória, como no AM convencional, e um capacitor de bloqueio tiram \(A_cV_0\)</div><div class="m">\[ A_c\big(V_0 + k k_f\,m(t)\big) \;\to\; A_c k k_f\,m(t) \]</div></div>
+        <div class="step"><div class="why">No nosso sinal \(k_f m\) chega a \(\pm 75\) kHz, com \(B_c = 180\) kHz; a envoltória não pode ficar negativa</div><div class="m">\[ \begin{aligned}V_0 - k\cdot 75\ \text{kHz} > 0 &\;\Rightarrow\; k < \frac{V_0}{75\ \text{kHz}}\\ k = \frac{V_0}{150\ \text{kHz}} &\;\to\; \text{índice de AM } 0{,}5\end{aligned} \]</div></div>
+      </div>
+      <div class="figcol">
+        <div class="fig"><canvas data-figcanvas height="400" aria-label="Conversão de FM em AM por um filtro de módulo linear"></canvas><div class="figcap"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="note" data-on="3" data-to="dm-env">a amplitude agora carrega a mensagem: é um sinal AM-FM</div>
+</section>
+
+<!-- ============ diferenciador ============ -->
+<section class="slide" id="demdif" data-sec="3.3 Demodulação · diferenciador" data-fig="dmdif">
+  <img class="logo-head" alt="">
+  <div class="frametitle"><h2>O conversor mais simples: um diferenciador</h2><div class="sub">\(|H(f)| = 2\pi f\), equação (4.3.12) · pressione →</div><div class="bar"></div></div>
+  <div class="body">
+    <div class="dlayout" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
+      <div class="deriv">
+        <div class="step"><div class="why">Derivar no tempo multiplica por \(j2\pi f\)</div><div class="m">\[ |H(f)| = 2\pi f \tag{4.3.12}\]</div></div>
+        <div class="step"><div class="why">Regra da cadeia em \(u(t) = A_c\cos\theta(t)\), com \(\theta'(t) = 2\pi f_c + 2\pi k_f m(t)\)</div><div class="m">\[ \begin{aligned}\frac{du}{dt} &= -A_c\,\theta'(t)\sin\theta(t)\\ &= -2\pi A_c\,\cssId{dd-env}{\big(f_c + k_f m(t)\big)}\sin\theta(t)\end{aligned} \]</div></div>
+        <div class="step"><div class="why">A envoltória é a frequência instantânea, a menos de \(2\pi A_c\)</div><div class="m">\[ 2\pi A_c\big(f_c + k_f m(t)\big) = 2\pi A_c f_c\Big(1 + \frac{k_f m(t)}{f_c}\Big) \]</div></div>
+        <div class="step"><div class="why">Índice de AM que sobra, direto em 97,9 MHz e na frequência intermediária de 10,7 MHz</div><div class="m">\[ \begin{aligned}\frac{75\ \text{kHz}}{97{,}9\ \text{MHz}} &= 7{,}7\cdot 10^{-4}\\ \frac{75\ \text{kHz}}{10{,}7\ \text{MHz}} &= \cssId{dd-fi}{7{,}0\cdot 10^{-3}}\end{aligned} \]</div></div>
+      </div>
+      <div class="figcol">
+        <div class="fig"><canvas data-figcanvas height="380" aria-label="Módulo do diferenciador e a banda do sinal de FM"></canvas><div class="figcap"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="note" data-on="2" data-to="dd-env">é a frequência instantânea \(f_i(t)\), agora como amplitude</div>
+  <div class="note" data-on="4" data-to="dd-fi">0,7 % de variação sobre uma envoltória enorme: falta inclinação</div>
+</section>
+
+<!-- ============ circuito sintonizado ============ -->
+<section class="slide" id="demsint" data-sec="3.3 Demodulação · detector de inclinação" data-fig="dmsint" data-window="4">
+  <img class="logo-head" alt="">
+  <div class="frametitle"><h2>Detector de inclinação</h2><div class="sub">a borda de um circuito sintonizado, Fig. 4.11 do livro, em 10,7 MHz · pressione →</div><div class="bar"></div></div>
+  <div class="body">
+    <div class="dlayout" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
+      <div class="deriv">
+        <div class="step"><div class="why">Circuito RLC paralelo sintonizado em \(f_0\), fator de qualidade \(Q\); perto de \(f_0\), \(\frac{f}{f_0}-\frac{f_0}{f} = \frac{(f-f_0)(f+f_0)}{f f_0} \approx \frac{2(f-f_0)}{f_0}\)</div><div class="m">\[ |H(f)| = \frac{1}{\sqrt{1 + Q^2\big(\frac{f}{f_0}-\frac{f_0}{f}\big)^2}} \approx \frac{1}{\sqrt{1+x^2}},\qquad x = \frac{2Q(f-f_0)}{f_0} \]</div></div>
+        <div class="step"><div class="why">Ponto de operação sem curvatura: a segunda derivada de \(g(x) = (1+x^2)^{-1/2}\) se anula</div><div class="m">\[ \begin{aligned}g''(x) &= \frac{2x^2 - 1}{(1+x^2)^{5/2}} = 0\\ \cssId{ds-x0}{x_0} &= -\frac{1}{\sqrt 2} = -0{,}707\end{aligned} \]</div></div>
+        <div class="step"><div class="why">Inclinação nesse ponto</div><div class="m">\[ g'(x_0) = \frac{-x_0}{(1+x_0^2)^{3/2}} = \frac{0{,}707}{1{,}5^{3/2}} = \frac{0{,}707}{1{,}837} = 0{,}385 \]</div></div>
+        <div class="step"><div class="why">Resta o termo cúbico. Com um tom de excursão \(\pm u\) em \(x\), a 3.ª harmônica chega a 1 % da fundamental em</div><div class="m">\[ \cssId{ds-u}{u = 0{,}29} \]</div></div>
+        <div class="step"><div class="why">Para \(\pm 75\) kHz, com \(B = f_0/Q\) a banda de 3 dB: \(\Delta f = u f_0/2Q = uB/2\)</div><div class="m">\[ \begin{aligned}B &= \frac{2\cdot 75\ \text{kHz}}{0{,}29} = 511\ \text{kHz}\\ Q &= \frac{10{,}7\ \text{MHz}}{511\ \text{kHz}} = 20{,}9\\ f_0 &= f_c - x_0\frac{B}{2} = 10{,}7 + 0{,}707\cdot 0{,}255 = 10{,}88\ \text{MHz}\end{aligned} \]</div></div>
+      </div>
+      <div class="figcol">
+        <div class="fig"><canvas data-figcanvas height="380" aria-label="Curva do circuito sintonizado e o ponto de inflexão"></canvas><div class="figcap"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="note" data-on="2" data-to="ds-x0">abaixo de \(f_0\): a portadora fica na subida da curva</div>
+  <div class="note" data-on="4" data-to="ds-u">calculado pela série de Fourier da saída, uma conta numérica</div>
+</section>
+
+<!-- ============ discriminador balanceado ============ -->
+<section class="slide" id="dembal" data-sec="3.3 Demodulação · discriminador balanceado" data-fig="dmbal" data-window="4">
+  <img class="logo-head" alt="">
+  <div class="frametitle"><h2>Discriminador balanceado</h2><div class="sub">Fig. 4.12 do livro: dois circuitos, em \(f_1 > f_c\) e \(f_2 < f_c\) · pressione →</div><div class="bar"></div></div>
+  <div class="body">
+    <div class="dlayout" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
+      <div class="deriv">
+        <div class="step"><div class="why">Dois detectores de envoltória em oposição; com \(u = 2Q(f - f_c)/f_0\) e os centros em \(u = \pm a\)</div><div class="m">\[ D(u) = |H_1| - |H_2| = g(u - a) - g(u + a) \]</div></div>
+        <div class="step"><div class="why">\(g\) é par: trocar \(u\) por \(-u\) troca os dois termos</div><div class="m">\[ D(-u) = g(u + a) - g(u - a) = \cssId{db-odd}{-D(u)} \]</div></div>
+        <div class="step"><div class="why">Série de Taylor em torno de \(u = 0\), usando \(g^{(n)}(-a) = (-1)^n g^{(n)}(a)\)</div><div class="m">\[ \begin{aligned}D(u) = -2\Big[&g'(a)\,u + \frac{g'''(a)}{6}\,u^3\\ &+ \frac{g^{(5)}(a)}{120}\,u^5 + \cdots\Big]\end{aligned} \]</div></div>
+        <div class="step"><div class="why">Escolhe \(a\) para anular o termo cúbico</div><div class="m">\[ g'''(x) = \frac{x\,(9 - 6x^2)}{(1+x^2)^{7/2}} = 0 \;\Rightarrow\; \cssId{db-a}{a = \sqrt{3/2} = 1{,}225} \]</div></div>
+        <div class="step"><div class="why">Inclinação no centro, contra 0,385 do detector simples</div><div class="m">\[ -2g'(a) = \frac{2a}{(1+a^2)^{3/2}} = \frac{2{,}449}{2{,}5^{3/2}} = \frac{2{,}449}{3{,}953} = 0{,}620 \]</div></div>
+        <div class="step"><div class="why">Sobra o termo de 5.ª ordem: 3.ª harmônica de 1 % só em \(u = 0{,}77\), contra 0,29</div><div class="m">\[ \begin{aligned}\frac{0{,}77}{0{,}29} &= \cssId{db-gan}{2{,}6}\ \text{vezes mais desvio}\\ Q &= \frac{10{,}7\ \text{MHz}}{2\cdot 75\ \text{kHz}/0{,}77} = \frac{10{,}7\ \text{MHz}}{195\ \text{kHz}} = 55\end{aligned} \]</div></div>
+      </div>
+      <div class="figcol">
+        <div class="fig"><canvas data-figcanvas height="380" aria-label="Respostas dos dois circuitos e a diferença"></canvas><div class="figcap"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="note" data-on="2" data-to="db-odd">função ímpar: sem nível CC e sem harmônicas pares</div>
+  <div class="note" data-on="4" data-to="db-a">cada circuito fica a 1,225 meia-banda da portadora</div>
+  <div class="note" data-on="6" data-to="db-gan">na Prática 06 a 2.ª harmônica caiu de −12,1 dB para abaixo do piso e a amplitude dobrou, ×1,99</div>
+</section>
+
+<!-- ============ instrumento ============ -->
+<section class="slide" id="deminst" data-sec="3.3 Demodulação · instrumento" data-draw="deminst">
+  <img class="logo-head" alt="">
+  <div class="frametitle"><h2>Inclinação contra balanceado</h2><div class="sub">Figura interativa · 10,7 MHz, tom senoidal, cálculo quase estático</div><div class="bar"></div></div>
+  <div class="body">
+    <div class="inst">
+      <div class="controls">
+        <div class="ctl"><label for="dm-modo">Detector</label><select id="dm-modo"><option value="0" selected>inclinação, um circuito</option><option value="1">balanceado, dois circuitos</option></select></div>
+        <div class="ctl"><div class="row"><label for="dm-df">desvio \(\Delta f\)</label><output id="dm-df-o"></output></div><input id="dm-df" type="range" min="10" max="200" step="5" value="75"></div>
+        <div class="ctl"><div class="row"><label for="dm-b">banda de 3 dB \(B\)</label><output id="dm-b-o"></output></div><input id="dm-b" type="range" min="100" max="1000" step="10" value="560"></div>
+        <div class="readouts" id="dm-read"></div>
+      </div>
+      <div class="plots two" style="gap:2px 26px">
+        <div class="plot"><canvas id="dm-h" height="420" aria-label="Resposta dos circuitos e a faixa varrida"></canvas><div class="cap">\(|H|\) em função de \(f - f_c\); em verde, a faixa varrida pelo desvio</div></div>
+        <div class="plot"><canvas id="dm-out" height="420" aria-label="Saída demodulada em um período"></canvas><div class="cap">saída sem o nível CC, em vermelho, e a senoide ideal de mesma amplitude, tracejada</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FMFB ============ -->
+<section class="slide" id="demfmfb" data-sec="3.3 Demodulação · FM com realimentação" data-window="4">
+  <img class="logo-head" alt="">
+  <div class="frametitle"><h2>FM com realimentação, FMFB</h2><div class="sub">Fig. 4.13 do livro: o discriminador dentro de uma malha · pressione →</div><div class="bar"></div></div>
+  <div class="body">
+    <div class="dlayout" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
+      <div class="deriv">
+        <div class="step"><div class="why">Os conversores FM-AM deixam passar todo o ruído de \(B_c\). No FMFB o misturador subtrai do sinal a frequência de um VCO que acompanha a mensagem</div><div class="m">\[ \cssId{fb-fif}{f_{\mathrm{FI}}(t) = f_i(t) - f_v(t)} \]</div></div>
+        <div class="step"><div class="why">A saída do discriminador comanda o VCO; \(K_0\) é o ganho da malha, em Hz de VCO por Hz de FI</div><div class="m">\[ \begin{aligned}\Delta f_v &= K_0\,\Delta f_{\mathrm{FI}}\\ \Delta f_{\mathrm{FI}} &= \Delta f - K_0\,\Delta f_{\mathrm{FI}} \;\Rightarrow\; \cssId{fb-df}{\Delta f_{\mathrm{FI}} = \frac{\Delta f}{1 + K_0}}\end{aligned} \]</div></div>
+        <div class="step"><div class="why">Exemplo com ganho de malha 4: o desvio que chega ao discriminador</div><div class="m">\[ \frac{75\ \text{kHz}}{1 + 4} = 15\ \text{kHz} \]</div></div>
+        <div class="step"><div class="why">Regra de Carson antes e depois, com \(W = 15\) kHz</div><div class="m">\[ \begin{aligned}2(75 + 15) &= 180\ \text{kHz}\\ 2(15 + 15) &= 60\ \text{kHz}\end{aligned} \]</div></div>
+        <div class="step"><div class="why">Ruído na banda do discriminador, mesma densidade espectral</div><div class="m">\[ \frac{180}{60} = 3 \;\to\; 10\log_{10}3 = \cssId{fb-db}{4{,}8\ \text{dB}} \]</div></div>
+      </div>
+      <div class="figcol">
+        <div class="fig" style="height:320px">
+          <svg viewBox="0 0 600 300" aria-label="Diagrama de blocos do demodulador FMFB">
+            <defs><marker id="fb-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#282828"/></marker></defs>
+            <g fill="none" stroke="#282828" stroke-width="2"><path d="M10,80 H52" marker-end="url(#fb-ah)"/><path d="M88,80 H120" marker-end="url(#fb-ah)"/><path d="M210,80 H240" marker-end="url(#fb-ah)"/><path d="M350,80 H380" marker-end="url(#fb-ah)"/><path d="M470,80 H590" marker-end="url(#fb-ah)"/><path d="M530,80 V200 H380" marker-end="url(#fb-ah)"/><path d="M290,200 H70 V100" marker-end="url(#fb-ah)"/></g>
+            <circle cx="70" cy="80" r="18" fill="#fff" stroke="#282828" stroke-width="2"/><text x="70" y="86" text-anchor="middle" font-size="18">×</text>
+            <g><rect x="120" y="55" width="90" height="50" fill="#fff" stroke="#282828" stroke-width="2"/><text x="165" y="78" text-anchor="middle" font-size="14">passa-</text><text x="165" y="95" text-anchor="middle" font-size="14">faixa</text></g>
+            <g id="fb-disc"><rect x="240" y="55" width="110" height="50" fill="#fff" stroke="#B03A2E" stroke-width="2.2"/><text x="295" y="86" text-anchor="middle" font-size="14">discriminador</text></g>
+            <g><rect x="380" y="55" width="90" height="50" fill="#fff" stroke="#282828" stroke-width="2"/><text x="425" y="78" text-anchor="middle" font-size="14">passa-</text><text x="425" y="95" text-anchor="middle" font-size="14">baixas</text></g>
+            <g id="fb-vco"><rect x="290" y="175" width="90" height="50" fill="#fff" stroke="#1F4E9C" stroke-width="2.2"/><text x="335" y="206" text-anchor="middle" font-size="16">VCO</text></g>
+            <text x="8" y="66" font-size="14" fill="#003B5C">FM, Δf</text><text x="590" y="66" text-anchor="end" font-size="14" fill="#003B5C">m(t)</text>
+            <text x="300" y="285" text-anchor="middle" font-size="13" fill="#787878">o VCO segue a mensagem e tira parte do desvio antes do discriminador</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="link" data-on="1" data-from="fb-vco" data-to="fb-fif">VCO</div>
+  <div class="link" data-on="2" data-from="fb-disc" data-to="fb-df">discriminador</div>
+  <div class="note" data-on="5" data-to="fb-db">menos ruído na entrada do discriminador adia o efeito de limiar, assunto do capítulo 6</div>
+</section>
+
+<!-- ============ PLL demodulador: comparador ============ -->
+<section class="slide" id="dempll" data-sec="3.3 Demodulação · PLL, comparador de fase" data-window="4">
+  <img class="logo-head" alt="">
+  <div class="frametitle"><h2>PLL como demodulador: o comparador de fase</h2><div class="sub">Fig. 4.14 do livro, equações (4.3.13) a (4.3.19) · pressione →</div><div class="bar"></div></div>
+  <div class="body">
+    <div class="dlayout" style="grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)">
+      <div class="deriv">
+        <div class="step"><div class="why">Entrada da malha, sem ruído</div><div class="m">\[ \begin{aligned}u(t) &= A_c\cos\big(2\pi f_c t + \phi(t)\big)\\ \phi(t) &= 2\pi k_f\!\int_{-\infty}^{t} m(\tau)\,d\tau\end{aligned} \tag{4.3.13–14}\]</div></div>
+        <div class="step"><div class="why">VCO em \(f_c\) sem controle; \(v(t)\) é a saída do filtro de malha</div><div class="m">\[ \cssId{dp-fv}{f_v(t) = f_c + k_v\,v(t)} \tag{4.3.15}\]</div></div>
+        <div class="step"><div class="why">Saída do VCO: fase é a integral da frequência</div><div class="m">\[ \begin{aligned}y_v(t) &= A_v\sin\big(2\pi f_c t + \phi_v(t)\big)\\ \phi_v(t) &= 2\pi k_v\!\int_0^t v(\tau)\,d\tau\end{aligned} \tag{4.3.16–17}\]</div></div>
+        <div class="step"><div class="why">Comparador: multiplicador e passa-baixas; \(\sin\alpha\cos\beta = \frac12[\sin(\alpha+\beta) + \sin(\alpha-\beta)]\)</div><div class="m">\[ u\,y_v = \frac{A_cA_v}{2}\Big[\cssId{dp-2fc}{\sin\big(4\pi f_c t + \phi + \phi_v\big)} + \sin(\phi_v - \phi)\Big] \]</div></div>
+        <div class="step"><div class="why">O passa-baixas tira \(2f_c\); com o sinal escolhido no comparador</div><div class="m">\[ e(t) = \frac{1}{2}A_vA_c\sin\big(\phi(t) - \phi_v(t)\big) \tag{4.3.18}\]</div></div>
+        <div class="step"><div class="why">Travada, o erro \(\phi_e = \phi - \phi_v\) é pequeno; \(\sin\phi_e \approx \phi_e\) com erro de 1 % quando \(\phi_e^2/6 = 0{,}01\)</div><div class="m">\[ \sin\phi_e \approx \phi_e,\qquad \cssId{dp-lin}{|\phi_e| \le 0{,}245\ \text{rad} = 14^\circ} \tag{4.3.19}\]</div></div>
+      </div>
+      <div class="figcol">
+        <div class="fig" style="height:300px">
+          <svg viewBox="0 0 600 280" aria-label="Diagrama de blocos do PLL demodulador de FM">
+            <defs><marker id="dp-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#282828"/></marker></defs>
+            <g fill="none" stroke="#282828" stroke-width="2"><path d="M10,90 H110" marker-end="url(#dp-ah)"/><path d="M250,90 H320" marker-end="url(#dp-ah)"/><path d="M450,90 H590" marker-end="url(#dp-ah)"/><path d="M500,90 V210 H400" marker-end="url(#dp-ah)"/><path d="M290,210 H180 V125" marker-end="url(#dp-ah)"/></g>
+            <g id="dp-cmp"><rect x="110" y="55" width="140" height="70" fill="#fff" stroke="#B03A2E" stroke-width="2.2"/><text x="180" y="86" text-anchor="middle" font-size="15">comparador</text><text x="180" y="106" text-anchor="middle" font-size="15">de fase</text></g>
+            <g id="dp-g"><rect x="320" y="60" width="130" height="60" fill="#fff" stroke="#282828" stroke-width="2"/><text x="385" y="88" text-anchor="middle" font-size="15">filtro de malha</text><text x="385" y="108" text-anchor="middle" font-size="15">G(f)</text></g>
+            <g id="dp-vco"><rect x="290" y="185" width="110" height="50" fill="#fff" stroke="#1F4E9C" stroke-width="2.2"/><text x="345" y="216" text-anchor="middle" font-size="16">VCO</text></g>
+            <text x="12" y="76" font-size="14" fill="#003B5C">u(t)</text><text x="275" y="76" font-size="14" fill="#003B5C">e(t)</text><text x="590" y="76" text-anchor="end" font-size="14" fill="#003B5C">v(t): saída</text><text x="190" y="160" font-size="14" fill="#003B5C">y<tspan baseline-shift="sub" font-size="10">v</tspan>(t)</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="link" data-on="2" data-from="dp-vco" data-to="dp-fv">VCO</div>
+  <div class="link" data-on="4" data-from="dp-cmp" data-to="dp-2fc">multiplicador</div>
+  <div class="note" data-on="6" data-to="dp-lin">o PFD do transmissor, seção 3.2, era linear até \(\pm 2\pi\): 25 vezes mais</div>
+</section>
+
+<!-- ============ PLL demodulador: modelo linear ============ -->
+<section class="slide" id="dempll2" data-sec="3.3 Demodulação · PLL linearizado" data-window="4">
+  <img class="logo-head" alt="">
+  <div class="frametitle"><h2>O PLL linearizado</h2><div class="sub">Fig. 4.15 do livro, equações (4.3.20) a (4.3.25) · pressione →</div><div class="bar"></div></div>
+  <div class="body">
+    <div class="dlayout" style="grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)">
+      <div class="deriv">
+        <div class="step"><div class="why">Erro de fase com a (4.3.17); o ganho \(\frac12 A_vA_c\) fica dentro de \(g(t)\)</div><div class="m">\[ \phi_e(t) = \phi(t) - \cssId{dl-int}{2\pi k_v\!\int_0^t v(\tau)\,d\tau} \tag{4.3.20}\]</div></div>
+        <div class="step"><div class="why">Deriva os dois lados</div><div class="m">\[ \frac{d\phi_e}{dt} + 2\pi k_v\,v(t) = \frac{d\phi}{dt} \tag{4.3.21}\]</div></div>
+        <div class="step"><div class="why">\(v\) é a saída do filtro de malha: convolução de \(\phi_e\) com \(g\)</div><div class="m">\[ \frac{d\phi_e}{dt} + 2\pi k_v\!\int_0^{\infty}\phi_e(\tau)\,\cssId{dl-g}{g(t-\tau)}\,d\tau = \frac{d\phi}{dt} \tag{4.3.22}\]</div></div>
+        <div class="step"><div class="why">Transformada de Fourier: derivada vira \(j2\pi f\), convolução vira produto</div><div class="m">\[ (j2\pi f)\,\Phi_e(f) + 2\pi k_v\,\Phi_e(f)\,G(f) = (j2\pi f)\,\Phi(f) \tag{4.3.23}\]</div></div>
+        <div class="step"><div class="why">Divide por \(j2\pi f\) e isola \(\Phi_e\)</div><div class="m">\[ \Phi_e(f) = \frac{1}{1 + \frac{k_v}{jf}\,G(f)}\,\Phi(f) \tag{4.3.24}\]</div></div>
+        <div class="step"><div class="why">A tensão de controle do VCO, \(V = G\,\Phi_e\)</div><div class="m">\[ V(f) = \frac{G(f)}{1 + \frac{k_v}{jf}\,G(f)}\,\Phi(f) \tag{4.3.25}\]</div></div>
+      </div>
+      <div class="figcol">
+        <div class="fig" style="height:300px">
+          <svg viewBox="0 0 600 280" aria-label="PLL linearizado">
+            <defs><marker id="dl-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#282828"/></marker></defs>
+            <g fill="none" stroke="#282828" stroke-width="2"><path d="M10,90 H92" marker-end="url(#dl-ah)"/><path d="M128,90 H220" marker-end="url(#dl-ah)"/><path d="M350,90 H590" marker-end="url(#dl-ah)"/><path d="M480,90 V210 H400" marker-end="url(#dl-ah)"/><path d="M250,210 H110 V110" marker-end="url(#dl-ah)"/></g>
+            <circle cx="110" cy="90" r="18" fill="#fff" stroke="#282828" stroke-width="2"/><text x="110" y="96" text-anchor="middle" font-size="18">Σ</text><text x="84" y="80" font-size="15">+</text><text x="118" y="132" font-size="17">−</text>
+            <g id="dl-bg"><rect x="220" y="62" width="130" height="56" fill="#fff" stroke="#282828" stroke-width="2"/><text x="285" y="88" text-anchor="middle" font-size="15">filtro de malha</text><text x="285" y="108" text-anchor="middle" font-size="15">g(t)</text></g>
+            <g id="dl-bint"><rect x="250" y="182" width="150" height="56" fill="#fff" stroke="#1F4E9C" stroke-width="2.2"/><text x="325" y="216" text-anchor="middle" font-size="15">2πk<tspan baseline-shift="sub" font-size="10">v</tspan> ∫ v dτ</text></g>
+            <text x="12" y="76" font-size="15" fill="#003B5C">φ(t)</text><text x="140" y="76" font-size="15" fill="#003B5C">φ<tspan baseline-shift="sub" font-size="10">e</tspan>(t)</text><text x="590" y="76" text-anchor="end" font-size="15" fill="#003B5C">v(t)</text><text x="120" y="190" font-size="15" fill="#003B5C">φ<tspan baseline-shift="sub" font-size="10">v</tspan>(t)</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="link" data-on="1" data-from="dl-bint" data-to="dl-int">VCO</div>
+  <div class="link" data-on="3" data-from="dl-bg" data-to="dl-g">filtro</div>
+</section>
+
+<!-- ============ PLL demodulador: a saída é a mensagem ============ -->
+<section class="slide" id="dempll3" data-sec="3.3 Demodulação · a saída do PLL é a mensagem" data-fig="dmpll" data-window="3">
+  <img class="logo-head" alt="">
+  <div class="frametitle"><h2>A tensão de controle é a mensagem</h2><div class="sub">Equações (4.3.26) a (4.3.28) · pressione →</div><div class="bar"></div></div>
+  <div class="body">
+    <div class="dlayout" style="grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)">
+      <div class="deriv">
+        <div class="step"><div class="why">Projeta \(G\) com ganho de malha grande em toda a banda da mensagem</div><div class="m">\[ \cssId{dq-cond}{\Big|\frac{k_v\,G(f)}{jf}\Big| \gg 1},\qquad |f| < W \tag{4.3.26}\]</div></div>
+        <div class="step"><div class="why">Na (4.3.25) o 1 do denominador some e \(G\) se cancela</div><div class="m">\[ V(f) \approx \frac{G(f)}{\frac{k_v}{jf}G(f)}\,\Phi(f) = \frac{jf}{k_v}\,\Phi(f) \tag{4.3.27}\]</div></div>
+        <div class="step"><div class="why">\(j2\pi f\) é derivada: divide e multiplica por \(2\pi\); \(d\phi/dt = 2\pi k_f m\) pela (4.3.14)</div><div class="m">\[ v(t) = \frac{1}{2\pi k_v}\frac{d\phi(t)}{dt} = \cssId{dq-v}{\frac{k_f}{k_v}\,m(t)} \tag{4.3.28}\]</div></div>
+        <div class="step"><div class="why">Com o nosso VCO no receptor, \(k_v = 5{,}21\) MHz/V, e desvio de pico de 75 kHz</div><div class="m">\[ v_{\mathrm{pico}} = \frac{75\cdot 10^{3}}{5{,}21\cdot 10^{6}} = 14{,}4\ \text{mV} \]</div></div>
+        <div class="step"><div class="why">Condição (4.3.26) com folga de 10 vezes no topo do áudio, \(W = 15\) kHz</div><div class="m">\[ \frac{k_v|G|}{W} \ge 10 \;\Rightarrow\; |G| \ge \frac{10\cdot 15\cdot 10^{3}}{5{,}21\cdot 10^{6}} = 0{,}029\ \text{V/rad} \]</div></div>
+        <div class="step"><div class="why">Mesma malha, objetivo oposto ao do transmissor: lá a mensagem ficava fora da banda da malha, aqui fica dentro. Razão entre as bandas, receptor sobre transmissor</div><div class="m">\[ \frac{150\ \text{kHz}}{5{,}4\ \text{Hz}} = \cssId{dq-r}{2{,}8\cdot 10^{4}} \]</div></div>
+      </div>
+      <div class="figcol">
+        <div class="fig"><canvas data-figcanvas height="380" aria-label="Mensagem e saída do PLL demodulador"></canvas><div class="figcap"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="note" data-on="1" data-to="dq-cond">ganho de malha aberta muito maior que 1 até \(W\)</div>
+  <div class="note" data-on="3" data-to="dq-v">o VCO do receptor imita a frequência do sinal recebido; a tensão que faz isso é \(m(t)\) escalada</div>
+  <div class="note" data-on="6" data-to="dq-r">transmissor: \(1-H\) deixa o áudio passar; receptor: \(H\) segue o áudio</div>
 </section>
 
 </div>
@@ -3541,12 +3803,17 @@ function figFig47(ctx, w, h, s, t) {
   return "Com |ε| pequeno a frequência segue m(t) em linha reta: FM com k_f = −f_c k_0/(2C_0).";
 }
 
+// títulos dos eixos: x centrado sob os rótulos, y na vertical à esquerda
+function axTitles(ctx, B, c, xl, yl) {
+  if (xl) txt(ctx, xl, B.x + B.w / 2, B.y + B.h + 42, { c: c.K, size: 18, align: "center" });
+  if (yl) { ctx.save(); ctx.translate(18, B.y + B.h / 2); ctx.rotate(-Math.PI / 2); txt(ctx, yl, 0, 0, { c: c.K, size: 18, align: "center" }); ctx.restore(); }
+}
 // eixo logarítmico simples para os gráficos dos blocos
 function logAxes(ctx, B, decs, c, xl, yl, yt) {
-  line(ctx, B.x, B.y + B.h, B.x + B.w, B.y + B.h, c.K, 1); line(ctx, B.x, B.y, B.x, B.y + B.h, c.K, 1);
-  decs.forEach((d) => { line(ctx, B.X(d), B.y, B.X(d), B.y + B.h, c.GR, 1); txt(ctx, d >= 6 ? `${10 ** (d - 6)} MHz` : d >= 3 ? `${10 ** (d - 3)} kHz` : `${10 ** d} Hz`, B.X(d), B.y + B.h + 14, { c: c.M, size: 12, align: "center" }); });
-  yt.forEach((v) => txt(ctx, String(v).replace("-", "−"), B.x - 6, B.Y(v), { c: c.M, size: 12, align: "right" }));
-  txt(ctx, xl, B.x + B.w, B.y + B.h + 30, { c: c.M, size: 13, align: "right" }); txt(ctx, yl, B.x + 4, B.y - 8, { c: c.M, size: 13 });
+  line(ctx, B.x, B.y + B.h, B.x + B.w, B.y + B.h, c.K, 1.2); line(ctx, B.x, B.y, B.x, B.y + B.h, c.K, 1.2);
+  decs.forEach((d) => { line(ctx, B.X(d), B.y, B.X(d), B.y + B.h, c.GR, 1); txt(ctx, d >= 6 ? `${10 ** (d - 6)} MHz` : d >= 3 ? `${10 ** (d - 3)} kHz` : `${fmtc(10 ** d, d < 0 ? -d : 0)} Hz`, B.X(d), B.y + B.h + 17, { c: c.M, size: 16, align: "center" }); });
+  yt.forEach((v) => { line(ctx, B.x, B.Y(v), B.x + B.w, B.Y(v), c.GR, 1); txt(ctx, String(v).replace("-", "−"), B.x - 7, B.Y(v), { c: c.M, size: 16, align: "right" }); });
+  axTitles(ctx, B, c, xl, yl);
 }
 
 function figB0(ctx, w, h, s, t) {
@@ -3738,11 +4005,11 @@ const pllWnZ = (ch) => { const K = TAU * PLL_KD * ch.kv / ch.N, wn = Math.sqrt(K
 const pllHmag = (f, wn, z) => { const w = TAU * f, re = wn * wn - w * w, im = 2 * z * wn * w; return Math.hypot(wn * wn, 2 * z * wn * w) / Math.hypot(re, im); };
 
 function figPllMc(ctx, w, h, s, t) {
-  const c = C(), B = tbox(66, 24, w - 86, h - 70, 94, 103.5, 0, 22);
+  const c = C(), B = tbox(86, 24, w - 106, h - 76, 94, 103.5, 0, 22);
   line(ctx, B.x, B.y + B.h, B.x + B.w, B.y + B.h, c.K, 1); line(ctx, B.x, B.y, B.x, B.y + B.h, c.K, 1);
-  [94, 96, 98, 100, 102].forEach((v) => txt(ctx, String(v), B.X(v), B.y + B.h + 14, { c: c.M, size: 12, align: "center" }));
-  [0, 5, 10, 15, 20].forEach((v) => txt(ctx, String(v), B.x - 6, B.Y(v), { c: c.M, size: 12, align: "right" }));
-  txt(ctx, "f (MHz)", B.x + B.w, B.y + B.h + 30, { c: c.M, size: 13, align: "right" }); txt(ctx, "placas por faixa de 0,5 MHz", B.x + 4, B.y - 10, { c: c.M, size: 13 });
+  [94, 96, 98, 100, 102].forEach((v) => txt(ctx, String(v), B.X(v), B.y + B.h + 17, { c: c.M, size: 16, align: "center" }));
+  [0, 5, 10, 15, 20].forEach((v) => txt(ctx, String(v), B.x - 6, B.Y(v), { c: c.M, size: 16, align: "right" }));
+  axTitles(ctx, B, c, "f (MHz)", "placas por faixa de 0,5 MHz");
   if (s >= 2) {
     const nShow = Math.max(1, Math.round(PLL_MC.length * Math.min(1, t / 3)));
     const b2 = new Array(19).fill(0); PLL_MC.slice(0, s === 2 ? nShow : PLL_MC.length).forEach((f) => { const k = Math.floor((f - 94) / 0.5); if (k >= 0 && k < 19) b2[k]++; });
@@ -3750,13 +4017,13 @@ function figPllMc(ctx, w, h, s, t) {
     b2.forEach((n, k) => { const x0 = B.X(94 + 0.5 * k), x1 = B.X(94.5 + 0.5 * k); ctx.fillRect(x0 + 1, B.Y(n), x1 - x0 - 2, B.Y(0) - B.Y(n)); });
     ctx.restore();
     const m = 98.065, sg = 1.934;
-    line(ctx, B.X(m), B.y, B.X(m), B.y + B.h, c.P, 1.6, [5, 4]); txt(ctx, "média 98,06", B.X(m) + 4, B.Y(15), { c: c.P, size: 13 });
-    if (s >= 3) { [m - sg, m + sg].forEach((v) => line(ctx, B.X(v), B.y + 30, B.X(v), B.y + B.h, c.Y, 1.6, [3, 3])); arrowTo(ctx, B.X(m), B.Y(17), B.X(m + sg), B.Y(17), c.Y, 2, 9); txt(ctx, "σ = 1,93 MHz", B.X(m + sg) + 4, B.Y(17), { c: c.Y, size: 13 }); }
-    if (s >= 4) { const y = B.Y(20.5); line(ctx, B.X(94.52), y, B.X(102.62), y, c.K, 2); [94.52, 102.62].forEach((v) => line(ctx, B.X(v), y - 6, B.X(v), y + 6, c.K, 2)); txt(ctx, "8,10 MHz", B.X(98.57), y - 10, { c: c.K, size: 13, align: "center" }); }
+    line(ctx, B.X(m), B.y, B.X(m), B.y + B.h, c.P, 1.6, [5, 4]); txt(ctx, "média 98,06", B.X(m) + 4, B.Y(15), { c: c.P, size: 15 });
+    if (s >= 3) { [m - sg, m + sg].forEach((v) => line(ctx, B.X(v), B.y + 30, B.X(v), B.y + B.h, c.Y, 1.6, [3, 3])); arrowTo(ctx, B.X(m), B.Y(17), B.X(m + sg), B.Y(17), c.Y, 2, 9); txt(ctx, "σ = 1,93 MHz", B.X(m + sg) + 4, B.Y(17), { c: c.Y, size: 15 }); }
+    if (s >= 4) { const y = B.Y(20.5); line(ctx, B.X(94.52), y, B.X(102.62), y, c.K, 2); [94.52, 102.62].forEach((v) => line(ctx, B.X(v), y - 6, B.X(v), y + 6, c.K, 2)); txt(ctx, "8,10 MHz", B.X(98.57), y - 10, { c: c.K, size: 15, align: "center" }); }
   }
   // o canal e a tolerância de ±2 kHz: na escala do gráfico, uma linha
   line(ctx, B.X(PLL_FNOM), B.y + 30, B.X(PLL_FNOM), B.y + B.h, c.R, 3);
-  txt(ctx, "canal 97,91 ± 0,002", B.X(PLL_FNOM) - 6, B.Y(13), { c: c.R, size: 13, align: "right" });
+  txt(ctx, "canal 97,91 ± 0,002", B.X(PLL_FNOM) - 6, B.Y(13), { c: c.R, size: 15, align: "right" });
   if (s === 1) return "Em vermelho, a janela de ±2 kHz em torno do canal: na escala de megahertz, uma linha.";
   if (s === 2) return "Histograma das 100 placas sorteadas, cada uma simulada no ngspice com V_T fixo.";
   if (s === 3) return "O desvio-padrão é quase mil vezes a janela permitida.";
@@ -3764,21 +4031,21 @@ function figPllMc(ctx, w, h, s, t) {
 }
 
 function figPllTemp(ctx, w, h, s, t) {
-  const c = C(), B = tbox(70, 24, w - 92, h - 70, 0, 70, -1200, 700);
+  const c = C(), B = tbox(86, 24, w - 106, h - 76, 0, 70, -1200, 700);
   line(ctx, B.x, B.Y(0), B.x + B.w, B.Y(0), c.RU, 1); line(ctx, B.x, B.y, B.x, B.y + B.h, c.K, 1); line(ctx, B.x, B.y + B.h, B.x + B.w, B.y + B.h, c.K, 1);
-  [0, 10, 25, 40, 55, 70].forEach((v) => txt(ctx, String(v), B.X(v), B.y + B.h + 14, { c: c.M, size: 12, align: "center" }));
-  [-1000, -500, 0, 500].forEach((v) => txt(ctx, String(v).replace("-", "−"), B.x - 6, B.Y(v), { c: c.M, size: 12, align: "right" }));
-  txt(ctx, "T (°C)", B.x + B.w, B.y + B.h + 30, { c: c.M, size: 13, align: "right" }); txt(ctx, "f − f_c (kHz)", B.x + 4, B.y - 10, { c: c.M, size: 13 });
+  [0, 10, 25, 40, 55, 70].forEach((v) => txt(ctx, String(v), B.X(v), B.y + B.h + 17, { c: c.M, size: 16, align: "center" }));
+  [-1000, -500, 0, 500].forEach((v) => txt(ctx, String(v).replace("-", "−"), B.x - 6, B.Y(v), { c: c.M, size: 16, align: "right" }));
+  axTitles(ctx, B, c, "T (°C)", "f − f_c (kHz)");
   ctx.save(); ctx.fillStyle = tint(c.R, 0.5); ctx.fillRect(B.x, B.Y(2), B.w, Math.max(2, B.Y(-2) - B.Y(2))); ctx.restore();
-  txt(ctx, "±2 kHz", B.X(3), B.Y(0) + 40, { c: c.R, size: 13 });
+  txt(ctx, "±2 kHz", B.X(3), B.Y(0) + 40, { c: c.R, size: 15 });
   const ser = [["100", c.G, "100 ppm/°C"], ["300", c.P, "300 ppm/°C"], ["1200", c.M, "1200 ppm/°C"]];
   ser.forEach(([k, col, lab], i) => {
     const hi = k === "300", lw = hi ? 2.8 : 1.6;
     curve(ctx, PLL_T.t, PLL_T[k], B.X, B.Y, col, lw, hi ? null : [5, 4]);
     PLL_T.t.forEach((x, j) => dot(ctx, B.X(x), B.Y(PLL_T[k][j]), hi ? 4 : 3, col));
-    txt(ctx, lab, B.X(70) - 4, B.Y(PLL_T[k][5]) + (k === "100" ? -14 : 14), { c: col, size: 13, align: "right" });
+    txt(ctx, lab, B.X(70) - 4, B.Y(PLL_T[k][5]) + (k === "100" ? -14 : 14), { c: col, size: 15, align: "right" });
   });
-  if (s >= 1) { const y0 = B.Y(PLL_T["300"][0]), y1 = B.Y(PLL_T["300"][5]); line(ctx, B.X(0), y0, B.X(35), y0, c.Y, 1.4, [4, 4]); line(ctx, B.X(35), y1, B.X(70), y1, c.Y, 1.4, [4, 4]); line(ctx, B.X(35), y0, B.X(35), y1, c.Y, 2.4); txt(ctx, "430 kHz", B.X(34), y1 - 4, { c: c.Y, size: 13, align: "right" }); }
+  if (s >= 1) { const y0 = B.Y(PLL_T["300"][0]), y1 = B.Y(PLL_T["300"][5]); line(ctx, B.X(0), y0, B.X(35), y0, c.Y, 1.4, [4, 4]); line(ctx, B.X(35), y1, B.X(70), y1, c.Y, 1.4, [4, 4]); line(ctx, B.X(35), y0, B.X(35), y1, c.Y, 2.4); txt(ctx, "430 kHz", B.X(34), y1 - 4, { c: c.Y, size: 15, align: "right" }); }
   if (s <= 2) return "ngspice de 0 a 70 °C; em vermelho a janela de ±2 kHz, mais fina que o traço.";
   if (s <= 4) return "Alimentação e V_T também empurram a portadora: 13,5 kHz/V e 5,21 kHz/mV.";
   return "Só um cristal fica dentro da janela: o PLL copia a estabilidade dele para o VCO.";
@@ -3788,23 +4055,23 @@ function figPllPfd(ctx, w, h, s, t) {
   const c = C(), te = s >= 5 ? 1 : 1.6 + 1.1 * Math.sin(TAU * 0.12 * t), d = te / TAU, nP = 3;
   const x0 = 70, x1 = w - 20, T = (x1 - x0) / nP, X = (u) => x0 + u * T;
   const lanes = [{ y: 60, lab: "ref ÷ R" }, { y: 165, lab: "VCO ÷ N" }, { y: 300, lab: "corrente" }];
-  lanes.forEach((L) => txt(ctx, L.lab, 8, L.y, { c: c.M, size: 13 }));
+  lanes.forEach((L) => txt(ctx, L.lab, 8, L.y, { c: c.M, size: 15 }));
   const sq = (y, off, col) => { ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 2.2; ctx.beginPath();
     for (let px = x0; px <= x1; px++) { const u = (px - x0) / T - off, hi = u >= 0 && u - Math.floor(u) < 0.5, py = hi ? y - 22 : y + 22; px === x0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); }
     ctx.stroke(); ctx.restore(); };
   sq(lanes[0].y, 0.1, c.K); sq(lanes[1].y, 0.1 + d, c.P);
   for (let k = 0; k < nP; k++) { const a = X(k + 0.1), b = X(k + 0.1 + d); line(ctx, a, lanes[0].y + 26, a, lanes[1].y - 26, c.GR, 1, [3, 3]); line(ctx, b, lanes[1].y - 26, b, lanes[1].y + 26, c.GR, 1, [3, 3]); }
-  if (s >= 1) { const a = X(0.1), b = X(0.1 + d); arrowTo(ctx, a, 112, b, 112, c.R, 2, 8); arrowTo(ctx, b, 112, a, 112, c.R, 2, 8); txt(ctx, `θ_e = ${fmtc(te, 2)} rad`, (a + b) / 2, 98, { c: c.R, size: 13, align: "center" }); }
+  if (s >= 1) { const a = X(0.1), b = X(0.1 + d); arrowTo(ctx, a, 112, b, 112, c.R, 2, 8); arrowTo(ctx, b, 112, a, 112, c.R, 2, 8); txt(ctx, `θ_e = ${fmtc(te, 2)} rad`, (a + b) / 2, 98, { c: c.R, size: 15, align: "center" }); }
   const yb = lanes[2].y, top = yb - 70;
   line(ctx, x0, yb, x1, yb, c.RU, 1);
   if (s >= 2) {
     ctx.save(); ctx.fillStyle = tint(c.G, 0.55);
     for (let k = 0; k < nP; k++) { const a = X(k + 0.1), b = X(k + 0.1 + d); ctx.fillRect(a, top, b - a, yb - top); }
-    ctx.restore(); txt(ctx, "I_{cp}", x0 - 6, top, { c: c.G, size: 13, align: "right" });
-    const a = X(1.1), b = X(1.1 + d); txt(ctx, "t_{on}", (a + b) / 2, top - 12, { c: c.G, size: 13, align: "center" });
-    line(ctx, X(1.1), yb + 26, X(2.1), yb + 26, c.M, 1.5); txt(ctx, "T = 10 µs", X(1.6), yb + 40, { c: c.M, size: 12, align: "center" });
+    ctx.restore(); txt(ctx, "I_{cp}", x0 - 6, top, { c: c.G, size: 15, align: "right" });
+    const a = X(1.1), b = X(1.1 + d); txt(ctx, "t_{on}", (a + b) / 2, top - 12, { c: c.G, size: 15, align: "center" });
+    line(ctx, X(1.1), yb + 26, X(2.1), yb + 26, c.M, 1.5); txt(ctx, "T = 10 µs", X(1.6), yb + 40, { c: c.M, size: 16, align: "center" });
   }
-  if (s >= 3) { const ym = yb - (yb - top) * d; line(ctx, x0, ym, x1, ym, c.R, 2.4, [6, 4]); txt(ctx, `média: ${fmtc(100 * d, 0)} % de I_{cp}`, x1, ym - 12, { c: c.R, size: 13, align: "right" }); }
+  if (s >= 3) { const ym = yb - (yb - top) * d; line(ctx, x0, ym, x1, ym, c.R, 2.4, [6, 4]); txt(ctx, `média: ${fmtc(100 * d, 0)} % de I_{cp}`, x1, ym - 12, { c: c.R, size: 15, align: "right" }); }
   if (s === 1) return "O divisor atrasa em relação à referência: o atraso, em fração do período, é θ_e/2π.";
   if (s === 2) return "A bomba injeta I_{cp} só entre as duas bordas.";
   if (s <= 4) return "A média acompanha θ_e linearmente enquanto o atraso cabe em um período.";
@@ -3812,7 +4079,7 @@ function figPllPfd(ctx, w, h, s, t) {
 }
 
 function figPllKv(ctx, w, h, s, t) {
-  const c = C(), B = tbox(66, 20, w - 86, h - 60, 2, 8, 80, 112), v0 = 4.882, f0 = interp(VCO.tune_v, VCO.tune_f, v0), k = 5.2136;
+  const c = C(), B = tbox(86, 20, w - 106, h - 76, 2, 8, 80, 112), v0 = 4.882, f0 = interp(VCO.tune_v, VCO.tune_f, v0), k = 5.2136;
   line(ctx, B.x, B.y + B.h, B.x + B.w, B.y + B.h, c.K, 1); line(ctx, B.x, B.y, B.x, B.y + B.h, c.K, 1);
   ctx.save(); ctx.fillStyle = tint(c.G, 0.1); ctx.fillRect(B.x, B.Y(107.9), B.w, B.Y(87.9) - B.Y(107.9)); ctx.restore();
   curve(ctx, VCO.tune_v, VCO.tune_f, B.X, B.Y, c.P, 2.2); VCO.tune_v.forEach((v, i) => { if (v >= 2 && v <= 8) dot(ctx, B.X(v), B.Y(VCO.tune_f[i]), 4, c.P); });
@@ -3820,39 +4087,39 @@ function figPllKv(ctx, w, h, s, t) {
   line(ctx, B.X(v0 - 1.4), B.Y(f0 - 1.4 * k), B.X(v0 + 1.4), B.Y(f0 + 1.4 * k), c.R, 2, [6, 4]);
   dot(ctx, B.X(v0), B.Y(f0), 6, c.R); dot(ctx, B.X(v0 + u), B.Y(f0 + u * k), 5, c.K);
   txt(ctx, "K_v = 5,21 MHz/V", B.X(5.3), B.Y(f0) + 6, { c: c.R, size: 14 });
-  [2, 4, 6, 8].forEach((v) => txt(ctx, String(v), B.X(v), B.y + B.h + 14, { c: c.M, size: 12, align: "center" }));
-  [80, 90, 100, 110].forEach((v) => txt(ctx, String(v), B.x - 6, B.Y(v), { c: c.M, size: 12, align: "right" }));
-  txt(ctx, "V_T (V)", B.x + B.w, B.y + B.h + 30, { c: c.M, size: 13, align: "right" }); txt(ctx, "f_{VCO} (MHz)", B.x + 4, B.y + 6, { c: c.M, size: 13 });
+  [2, 4, 6, 8].forEach((v) => txt(ctx, String(v), B.X(v), B.y + B.h + 17, { c: c.M, size: 16, align: "center" }));
+  [80, 90, 100, 110].forEach((v) => txt(ctx, String(v), B.x - 6, B.Y(v), { c: c.M, size: 16, align: "right" }));
+  axTitles(ctx, B, c, "V_T (V)", "f_{VCO} (MHz)");
   return "Sintonia do ngspice; tangente em V_T = 4,88 V, onde a malha opera.";
 }
 
 function figPllH(ctx, w, h, s, t) {
-  const c = C(), B = tbox(66, 24, w - 86, h - 70, -1, 3, -30, 8), cols = [c.G, c.P, c.R];
-  logAxes(ctx, B, [-1, 0, 1, 2, 3], c, "f", "|H| (dB)", [5, 0, -10, -20, -30]);
+  const c = C(), B = tbox(86, 24, w - 106, h - 76, -1, 3, -30, 8), cols = [c.G, c.P, c.R];
+  logAxes(ctx, B, [-1, 0, 1, 2, 3], c, "frequência", "|H| (dB)", [5, 0, -10, -20, -30]);
   line(ctx, B.x, B.Y(-3), B.x + B.w, B.Y(-3), c.GR, 1, [3, 3]); txt(ctx, "−3 dB", B.x + 4, B.Y(-3) + 10, { c: c.M, size: 12 });
   const show = s >= 4 ? [0, 1, 2] : [1];
   show.forEach((i) => {
     const { wn, z } = pllWnZ(PLL_CH[i]);
     trace(ctx, B, (lf) => 20 * Math.log10(pllHmag(10 ** lf, wn, z)), cols[i], i === 1 ? 2.8 : 2);
     if (s >= 2) { const fn = wn / TAU; dot(ctx, B.X(Math.log10(fn)), B.Y(20 * Math.log10(pllHmag(fn, wn, z))), 5, cols[i]); }
-    if (s >= 4) txt(ctx, `${fmtc(PLL_CH[i].f, 1)} MHz`, B.X(-0.8), B.Y(-12 - 5 * i), { c: cols[i], size: 13 });
+    if (s >= 4) txt(ctx, `${fmtc(PLL_CH[i].f, 1)} MHz`, B.X(-0.8), B.Y(-12 - 5 * i), { c: cols[i], size: 15 });
   });
-  if (s >= 2 && s < 4) txt(ctx, "f_n = 5,40 Hz", B.X(Math.log10(5.4)) + 8, B.Y(3.5), { c: c.P, size: 13 });
+  if (s >= 2 && s < 4) txt(ctx, "f_n = 5,40 Hz", B.X(Math.log10(5.4)) + 8, B.Y(3.5), { c: c.P, size: 15 });
   if (s <= 3) return "|H| de Φ_{ref} para Φ_{VCO}/N: passa o que é mais lento que alguns hertz; o pico pequeno vem de ζ = 0,8.";
   return "No topo da faixa o pico cresce, ζ = 0,52, e a banda encolhe: a malha fica mais lenta e oscila mais.";
 }
 
 function figPll1mH(ctx, w, h, s, t) {
-  const c = C(), B = tbox(66, 24, w - 86, h - 70, -1, 4, -80, 6), { wn, z } = pllWnZ(PLL_CH[1]);
+  const c = C(), B = tbox(86, 24, w - 106, h - 76, -1, 4, -80, 6), { wn, z } = pllWnZ(PLL_CH[1]);
   ctx.save(); ctx.fillStyle = tint(c.G, 0.12); ctx.fillRect(B.X(Math.log10(50)), B.y, B.X(4) - B.X(Math.log10(50)), B.h); ctx.restore();
-  txt(ctx, "áudio", B.X(Math.log10(50)) + 6, B.y + B.h - 12, { c: c.G, size: 13 });
-  logAxes(ctx, B, [-1, 0, 1, 2, 3, 4], c, "f", "|1 − H| (dB)", [0, -20, -40, -60, -80]);
+  txt(ctx, "áudio", B.X(Math.log10(50)) + 6, B.y + B.h - 12, { c: c.G, size: 15 });
+  logAxes(ctx, B, [-1, 0, 1, 2, 3, 4], c, "frequência", "|1 − H| (dB)", [0, -20, -40, -60, -80]);
   const one = (f) => { const ww = TAU * f; return ww * ww / Math.hypot(wn * wn - ww * ww, 2 * z * wn * ww); };
   trace(ctx, B, (lf) => 20 * Math.log10(one(10 ** lf)), c.P, 2.6);
-  if (s >= 3) { ctx.save(); ctx.fillStyle = tint(c.Y, 0.18); ctx.fillRect(B.x, B.y, B.X(0) - B.x, B.h); ctx.restore(); dot(ctx, B.X(-1), B.Y(20 * Math.log10(one(0.1))), 6, c.Y); txt(ctx, "0,1 Hz: −69 dB", B.X(-1) + 8, B.Y(-69) - 14, { c: c.Y, size: 13 }); txt(ctx, "deriva", B.X(-0.5), B.y + 14, { c: c.Y, size: 13, align: "center" }); }
+  if (s >= 3) { ctx.save(); ctx.fillStyle = tint(c.Y, 0.18); ctx.fillRect(B.x, B.y, B.X(0) - B.x, B.h); ctx.restore(); dot(ctx, B.X(-1), B.Y(20 * Math.log10(one(0.1))), 6, c.Y); txt(ctx, "0,1 Hz: −69 dB", B.X(-1) + 8, B.Y(-69) - 14, { c: c.Y, size: 15 }); txt(ctx, "deriva", B.X(-0.5), B.y + 14, { c: c.Y, size: 15, align: "center" }); }
   if (s >= 2) curve(ctx, PLL_1MH.f.map(Math.log10), PLL_1MH.ci, B.X, B.Y, c.R, 1.8, [5, 4]);
-  if (s >= 4) { const lf = Math.log10(50); dot(ctx, B.X(lf), B.Y(20 * Math.log10(one(50))), 6, c.K); txt(ctx, "50 Hz: −0,028 dB", B.X(lf) + 8, B.Y(-8), { c: c.K, size: 13 }); }
-  txt(ctx, "ideal", B.X(1.2), B.Y(-62), { c: c.P, size: 13 }); if (s >= 2) txt(ctx, "tracejado: com os polos de C_A e R_{23} C_{23}", B.X(1.2), B.Y(-52), { c: c.R, size: 13 });
+  if (s >= 4) { const lf = Math.log10(50); dot(ctx, B.X(lf), B.Y(20 * Math.log10(one(50))), 6, c.K); txt(ctx, "50 Hz: −0,028 dB", B.X(lf) + 8, B.Y(-8), { c: c.K, size: 15 }); }
+  txt(ctx, "ideal", B.X(1.2), B.Y(-62), { c: c.P, size: 15 }); if (s >= 2) txt(ctx, "tracejado: com os polos de C_A e R_{23} C_{23}", B.X(1.2), B.Y(-52), { c: c.R, size: 15 });
   if (s === 1) return "A fase livre do VCO, modulação e deriva, sai filtrada por um passa-altas de 2.ª ordem com corte perto de f_n.";
   if (s === 2) return "Tracejado: com os polos de C_A e do pós-filtro. Diferença menor que 0,1 dB no áudio.";
   if (s === 3) return "Deriva de temperatura e de tolerância muda em segundos ou minutos: fica à esquerda do gráfico e é cancelada.";
@@ -3866,21 +4133,21 @@ Object.assign(FIGS, { pllmc: figPllMc, plltemp: figPllTemp, pllpfd: figPllPfd, p
 const PLL_MED = {"canal_87p9": [-47.7266, -162.0992, -145.0542, -136.8584, -131.1885, -126.2237, -121.4617, -116.761, -112.0808, -107.4089, -102.7408, -98.0743, -93.4081, -88.7408, -84.0717, -79.4008, -74.7286, -70.0559, -65.3838, -60.7132, -56.0444, -51.3773, -46.7113, -42.0453, -37.3785, -32.7102, -28.0402, -23.3689, -18.697, -14.0255, -9.3552, -4.6866, -0.0195, 4.6466, 9.3124, 13.9788, 18.6465, 23.3157, 27.9861, 32.6572, 37.328, 41.9979, 46.6664, 51.3335, 55.9995, 60.6652, 65.3312, 69.9984, 74.6668, 79.3364, 84.0066, 88.6768, 93.3462, 98.0143, 102.6808, 107.3455, 112.0075, 116.6631, 121.2994, 125.8723, 130.2332, 133.8756, 135.1443, 129.7302, 112.7885, 89.4903, 69.8414, 55.9015, 45.851, 38.0512, 31.5384, 25.7842, 20.4973, 15.5141, 10.7418, 6.1292, 1.6514, -2.6979, -6.9097, -10.9609, -14.8122, -18.4059, -21.6623, -24.4765, -26.7198, -28.2501, -28.9364, -28.6992, -27.5529, -25.6272, -23.1464, -20.3714, -17.5384, -14.821, -12.3239, -10.0957, -8.1474, -6.4684, -5.0373, -3.8285, -2.8159, -1.9748, -1.2824, -0.7182, -0.2642, 0.0956, 0.375, 0.586, 0.7394, 0.8447, 0.9101, 0.9434, 0.9511, 0.9391, 0.9122, 0.8745, 0.8292, 0.7787, 0.725, 0.6693, 0.613, 0.557, 0.5023, 0.4499, 0.4004, 0.3545, 0.3125, 0.2744, 0.24, 0.2089, 0.1808, 0.1552, 0.1319, 0.1107, 0.0918, 0.0752, 0.0609, 0.049, 0.0392, 0.0313, 0.0249, 0.0194, 0.0146, 0.0102, 0.0061, 0.0024, -0.0006, -0.003, -0.0044, -0.0051, -0.0051, -0.0048, -0.0043, -0.004, -0.0041, -0.0044, -0.0049, -0.0054, -0.0057, -0.0056, -0.005, -0.0042, -0.0031, -0.0022, -0.0015, -0.0012, -0.0013, -0.0016, -0.0021, -0.0024, -0.0024, -0.0021, -0.0015, -0.0008, -0.0001, 0.0005, 0.0006, 0.0005, 0.0, -0.0005, -0.001, -0.0012, -0.0011, -0.0007, -0.0001, 0.0004, 0.0008, 0.001, 0.0008, 0.0004, -0.0001, -0.0006, -0.0009, -0.0009, -0.0006, -0.0001, 0.0004, 0.0007, 0.0009, 0.0008, 0.0004, -0.0, -0.0005, -0.0007, -0.0008, -0.0006, -0.0002, 0.0002, 0.0006, 0.0008, 0.0007, 0.0004, 0.0, -0.0004, -0.0006, -0.0007, -0.0006, -0.0003, 0.0001, 0.0005, 0.0007, 0.0007, 0.0004, 0.0001, -0.0003, -0.0005, -0.0006, -0.0006, -0.0003, 0.0001, 0.0004, 0.0006, 0.0006, 0.0004, 0.0001, -0.0002, -0.0004, -0.0006, -0.0005, -0.0003, -0.0, 0.0003, 0.0005, 0.0005, 0.0004, 0.0002, -0.0001, -0.0004, -0.0005, -0.0005, -0.0003, -0.0001, 0.0002, 0.0004, 0.0005, 0.0004, 0.0002, -0.0001, -0.0003, -0.0004, -0.0004, -0.0003, -0.0001, 0.0002, 0.0003, 0.0004, 0.0004, 0.0002, -0.0, -0.0002, -0.0004, -0.0004, -0.0003, -0.0001, 0.0001, 0.0003, 0.0004, 0.0003, 0.0002, 0.0, -0.0002, -0.0003, -0.0004, -0.0003, -0.0001, 0.0001, 0.0002, 0.0003, 0.0003, 0.0002, 0.0001, -0.0001, -0.0003, -0.0003, -0.0003, -0.0001, 0.0, 0.0002, 0.0003, 0.0003, 0.0002, 0.0001, -0.0001, -0.0002, -0.0003, -0.0003, -0.0002, -0.0, 0.0001, 0.0002, 0.0003, 0.0002, 0.0001, -0.0, -0.0002, -0.0002, -0.0002, -0.0002, -0.0, 0.0001, 0.0002, 0.0002, 0.0002, 0.0001, -0.0, -0.0001, -0.0002, -0.0002, -0.0002, -0.0, 0.0001, 0.0002, 0.0002, 0.0002, 0.0001, 0.0, -0.0001, -0.0002, -0.0002, -0.0002, -0.0001, 0.0, 0.0001, 0.0002, 0.0002, 0.0001, 0.0, -0.0001, -0.0001, -0.0002, -0.0001, -0.0001, 0.0, 0.0001, 0.0002, 0.0002, 0.0001, 0.0, -0.0001, -0.0001, -0.0002, -0.0001, -0.0001, 0.0, 0.0001, 0.0001, 0.0001, 0.0001, 0.0, -0.0, -0.0001, -0.0001, -0.0001, -0.0001, -0.0, 0.0001, 0.0001, 0.0001, 0.0001, 0.0, -0.0, -0.0001, -0.0001, -0.0001, -0.0001, -0.0, 0.0, 0.0001, 0.0001, 0.0001, 0.0001, -0.0, -0.0001, -0.0001, -0.0001, -0.0001, -0.0, 0.0, 0.0001, 0.0001, 0.0001, 0.0001, 0.0, -0.0, -0.0001, -0.0001, -0.0001, -0.0, 0.0, 0.0001, 0.0001, 0.0001, 0.0001, 0.0, -0.0, -0.0001, -0.0001, -0.0001, -0.0, 0.0, 0.0001, 0.0001, 0.0001, 0.0001, 0.0, -0.0, -0.0001, -0.0001, -0.0001, -0.0, 0.0, 0.0, 0.0001, 0.0001, 0.0001, 0.0, -0.0, -0.0, -0.0001, -0.0001, -0.0, -0.0, 0.0, 0.0001, 0.0001, 0.0001, 0.0, -0.0, -0.0, -0.0001, -0.0001, -0.0, -0.0, 0.0, 0.0, 0.0001, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0001, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0], "canal_97p9": [-19.9207, -165.4103, -148.0735, -139.3803, -133.5088, -128.5252, -123.8257, -119.2189, -114.6424, -110.0752, -105.5105, -100.9468, -96.384, -91.8229, -87.2638, -82.7067, -78.1508, -73.5952, -69.0389, -64.4811, -59.9216, -55.3605, -50.7986, -46.237, -41.6764, -37.1175, -32.5604, -28.0045, -23.449, -18.893, -14.3358, -9.777, -5.2168, -0.6558, 3.9051, 8.4653, 13.0239, 17.5811, 22.137, 26.6924, 31.2481, 35.8048, 40.3628, 44.9222, 49.4824, 54.0427, 58.6023, 63.1607, 67.7178, 72.2737, 76.8289, 81.3843, 85.9405, 90.4978, 95.0562, 99.6152, 104.1739, 108.7307, 113.283, 117.8245, 122.3385, 126.776, 130.9897, 134.5318, 136.0951, 132.5002, 119.5527, 99.0017, 79.0783, 63.8453, 52.6483, 44.0259, 36.9436, 30.7882, 25.2082, 20.0006, 15.0468, 10.2778, 5.6549, 1.1596, -3.2117, -7.4495, -11.532, -15.4228, -19.0696, -22.4009, -25.3237, -27.7247, -29.4773, -30.4596, -30.5837, -29.8313, -28.2783, -26.0914, -23.4919, -20.7048, -17.9173, -15.2603, -12.8105, -10.6031, -8.6459, -6.9309, -5.4421, -4.1604, -3.0655, -2.138, -1.3591, -0.7119, -0.1804, 0.2497, 0.5912, 0.8557, 1.0537, 1.1945, 1.2867, 1.3381, 1.3557, 1.3463, 1.3155, 1.2684, 1.2095, 1.1421, 1.0692, 0.9928, 0.9147, 0.8363, 0.7588, 0.6833, 0.6107, 0.5421, 0.4779, 0.4188, 0.3648, 0.3159, 0.2716, 0.2317, 0.1955, 0.1629, 0.1335, 0.1073, 0.0844, 0.0646, 0.0479, 0.0341, 0.023, 0.014, 0.0066, 0.0005, -0.0047, -0.0092, -0.0131, -0.0161, -0.0183, -0.0195, -0.0198, -0.0194, -0.0183, -0.0171, -0.0159, -0.0149, -0.0142, -0.0137, -0.0134, -0.0129, -0.0122, -0.011, -0.0096, -0.008, -0.0065, -0.0052, -0.0042, -0.0037, -0.0036, -0.0036, -0.0036, -0.0035, -0.0031, -0.0024, -0.0015, -0.0007, 0.0, 0.0005, 0.0005, 0.0002, -0.0002, -0.0006, -0.0009, -0.0009, -0.0006, -0.0001, 0.0005, 0.0009, 0.0012, 0.0011, 0.0008, 0.0003, -0.0002, -0.0005, -0.0007, -0.0005, -0.0001, 0.0003, 0.0007, 0.0009, 0.0009, 0.0006, 0.0002, -0.0002, -0.0006, -0.0007, -0.0006, -0.0003, 0.0001, 0.0005, 0.0007, 0.0007, 0.0005, 0.0002, -0.0002, -0.0005, -0.0007, -0.0006, -0.0004, -0.0, 0.0003, 0.0006, 0.0006, 0.0005, 0.0002, -0.0001, -0.0004, -0.0006, -0.0006, -0.0004, -0.0001, 0.0002, 0.0005, 0.0006, 0.0005, 0.0002, -0.0001, -0.0003, -0.0005, -0.0005, -0.0004, -0.0001, 0.0002, 0.0004, 0.0005, 0.0005, 0.0003, -0.0, -0.0003, -0.0004, -0.0005, -0.0004, -0.0001, 0.0001, 0.0003, 0.0004, 0.0004, 0.0003, 0.0, -0.0002, -0.0004, -0.0004, -0.0003, -0.0002, 0.0001, 0.0003, 0.0004, 0.0004, 0.0003, 0.0001, -0.0001, -0.0003, -0.0004, -0.0003, -0.0002, 0.0, 0.0002, 0.0003, 0.0003, 0.0003, 0.0001, -0.0001, -0.0003, -0.0003, -0.0003, -0.0002, -0.0, 0.0002, 0.0003, 0.0003, 0.0003, 0.0001, -0.0001, -0.0002, -0.0003, -0.0003, -0.0002, -0.0, 0.0001, 0.0002, 0.0003, 0.0002, 0.0001, -0.0, -0.0002, -0.0002, -0.0003, -0.0002, -0.0001, 0.0001, 0.0002, 0.0002, 0.0002, 0.0001, 0.0, -0.0001, -0.0002, -0.0002, -0.0002, -0.0001, 0.0, 0.0002, 0.0002, 0.0002, 0.0001, 0.0, -0.0001, -0.0002, -0.0002, -0.0002, -0.0001, 0.0, 0.0001, 0.0002, 0.0002, 0.0001, 0.0, -0.0001, -0.0001, -0.0002, -0.0002, -0.0001, 0.0, 0.0001, 0.0002, 0.0002, 0.0001, 0.0001, -0.0, -0.0001, -0.0002, -0.0002, -0.0001, -0.0, 0.0001, 0.0001, 0.0002, 0.0001, 0.0001, -0.0, -0.0001, -0.0001, -0.0001, -0.0001, -0.0, 0.0001, 0.0001, 0.0001, 0.0001, 0.0001, -0.0, -0.0001, -0.0001, -0.0001, -0.0001, -0.0, 0.0, 0.0001, 0.0001, 0.0001, 0.0001, 0.0, -0.0001, -0.0001, -0.0001, -0.0001, -0.0, 0.0, 0.0001, 0.0001, 0.0001, 0.0001, 0.0, -0.0, -0.0001, -0.0001, -0.0001, -0.0, 0.0, 0.0001, 0.0001, 0.0001, 0.0001, 0.0, -0.0, -0.0001, -0.0001, -0.0001, -0.0, -0.0, 0.0, 0.0001, 0.0001, 0.0001, 0.0, -0.0, -0.0001, -0.0001, -0.0001, -0.0, -0.0, 0.0, 0.0001, 0.0001, 0.0001, 0.0, -0.0, -0.0, -0.0001, -0.0001, -0.0, -0.0, 0.0, 0.0001, 0.0001, 0.0001, 0.0, -0.0, -0.0, -0.0001, -0.0001, -0.0, -0.0, 0.0, 0.0, 0.0001, 0.0001, 0.0, 0.0, -0.0, -0.0, -0.0001, -0.0, -0.0, 0.0, 0.0, 0.0001, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0], "canal_107p9": [-180.0815, -185.1539, -177.195, -173.3294, -170.8007, -168.6557, -166.6176, -164.6089, -162.6079, -160.6085, -158.6096, -156.6109, -154.6129, -152.6158, -150.6196, -148.624, -146.6286, -144.633, -142.6367, -140.6395, -138.6416, -136.6434, -134.6451, -132.6474, -130.6503, -128.6541, -126.6585, -124.6631, -122.6676, -120.6715, -118.6747, -116.6772, -114.6793, -112.6814, -110.6838, -108.6869, -106.6907, -104.695, -102.6997, -100.7042, -98.7084, -96.7119, -94.7148, -92.7173, -90.7197, -88.7223, -86.7255, -84.7293, -82.7337, -80.7384, -78.743, -76.7474, -74.7512, -72.7544, -70.7573, -68.76, -66.7628, -64.7662, -62.77, -60.7744, -58.7792, -56.7839, -54.7884, -52.7925, -50.7961, -48.7993, -46.8023, -44.8054, -42.8089, -40.8128, -38.8173, -36.8221, -34.8269, -32.8316, -30.8359, -28.8398, -26.8433, -24.8466, -22.8499, -20.8536, -18.8577, -16.8622, -14.867, -12.872, -10.8769, -8.8814, -6.8855, -4.8893, -2.8929, -0.8965, 1.0996, 3.0954, 5.0908, 7.0859, 9.0808, 11.0758, 13.0711, 15.0667, 17.0626, 19.0587, 21.0548, 23.0508, 25.0464, 27.0417, 29.0367, 31.0316, 33.0264, 35.0215, 37.0168, 39.0124, 41.0083, 43.0042, 44.9999, 46.9954, 48.9906, 50.9855, 52.9802, 54.9749, 56.9698, 58.9649, 60.9603, 62.9558, 64.9515, 66.947, 68.9423, 70.9374, 72.9322, 74.9268, 76.9213, 78.916, 80.9109, 82.906, 84.9013, 86.8967, 88.8921, 90.8872, 92.8821, 94.8768, 96.8713, 98.8657, 100.8602, 102.8549, 104.8498, 106.8448, 108.84, 110.8351, 112.83, 114.8248, 116.8193, 118.8137, 120.808, 122.8023, 124.7968, 126.7914, 128.7862, 130.7811, 132.776, 134.7708, 136.7654, 138.7598, 140.754, 142.7482, 144.7423, 146.7366, 148.731, 150.7256, 152.7203, 154.7149, 156.7095, 158.7038, 160.6977, 162.6906, 164.6804, 166.6601, 168.6043, 170.4228, 171.7972, 171.6783, 167.4077, 156.4538, 143.0461, 133.3249, 127.5131, 123.7998, 121.0018, 118.5782, 116.3056, 114.0942, 111.9079, 109.732, 107.5605, 105.3908, 103.2218, 101.053, 98.8843, 96.7158, 94.5473, 92.3789, 90.2108, 88.0427, 85.8747, 83.7067, 81.5387, 79.3705, 77.2023, 75.034, 72.8657, 70.6974, 68.5293, 66.3613, 64.1934, 62.0256, 59.8578, 57.69, 55.522, 53.354, 51.186, 49.0179, 46.8499, 44.6819, 42.5141, 40.3464, 38.1788, 36.0111, 33.8435, 31.6758, 29.508, 27.3402, 25.1723, 23.0045, 20.8368, 18.6691, 16.5016, 14.3342, 12.1667, 9.9993, 7.8318, 5.6642, 3.4966, 1.329, -0.8386, -3.0061, -5.1736, -7.3409, -9.5082, -11.6755, -13.8427, -16.01, -18.1773, -20.3447, -22.5121, -24.6795, -26.8468, -29.0141, -31.1812, -33.3483, -35.5154, -37.6824, -39.8495, -42.0166, -44.1838, -46.351, -48.5181, -50.6853, -52.8523, -55.0193, -57.1862, -59.3531, -61.5199, -63.6868, -65.8537, -68.0206, -70.1876, -72.3546, -74.5215, -76.6883, -78.8551, -81.0219, -83.1885, -85.3552, -87.5219, -89.6885, -91.8553, -94.022, -96.1887, -98.3553, -100.5219, -102.6882, -104.8541, -107.0191, -109.1823, -111.3414, -113.4907, -115.6165, -117.6855, -119.6161, -121.2095, -122.0034, -121.0557, -117.0247, -109.4386, -100.1844, -91.8822, -85.5446, -80.887, -77.3392, -74.4543, -71.9502, -69.662, -67.4963, -65.4007, -63.3454, -61.3136, -59.2957, -57.2861, -55.2816, -53.2802, -51.2808, -49.2825, -47.285, -45.288, -43.2913, -41.2948, -39.2984, -37.3021, -35.3059, -33.3099, -31.3139, -29.3179, -27.322, -25.3261, -23.3302, -21.3343, -19.3384, -17.3425, -15.3467, -13.3508, -11.355, -9.3593, -7.3636, -5.3679, -3.3722, -1.3765, 0.6191, 2.6148, 4.6105, 6.6062, 8.6018, 10.5974, 12.593, 14.5885, 16.584, 18.5794, 20.5749, 22.5703, 24.5658, 26.5612, 28.5566, 30.552, 32.5473, 34.5425, 36.5376, 38.5326, 40.5274, 42.522, 44.5164, 46.5104, 48.5037, 50.4961, 52.4869, 54.4754, 56.4603, 58.4392, 60.4085, 62.3622, 64.2898, 66.1735, 67.9831, 69.6664, 71.1355, 72.2456, 72.773, 72.4109, 70.8282, 67.8316, 63.5628, 58.5186, 53.3088, 48.3799, 43.9302, 39.9792, 36.4621, 33.292, 30.388, 27.6841, 25.1296, 22.6868, 20.3279, 18.0327, 15.7868, 13.5797, 11.4037, 9.2538, 7.1264, 5.0194, 2.9316, 0.8629, -1.1858, -3.213, -5.2163, -7.1921, -9.136, -11.042, -12.9027, -14.7086, -16.4483, -18.1074, -19.6686, -21.1112, -22.4112, -23.5413, -24.4723, -25.1744, -25.6206, -25.7897, -25.6703, -25.2647, -24.5893, -23.6749, -22.5625, -21.2983, -19.929, -18.4967, -17.0369, -15.5772, -14.1379, -12.7331, -11.3718, -10.0595, -8.7993, -7.5929, -6.4409, -5.3436, -4.3011, -3.3135, -2.3809, -1.5037, -0.6822, 0.0829, 0.7913, 1.4425, 2.036, 2.5717, 3.0496, 3.4701, 3.8339, 4.1418, 4.3953, 4.5961, 4.7463, 4.8484, 4.9052, 4.9196, 4.8949, 4.8344, 4.7416, 4.6201, 4.4733, 4.3046, 4.1173, 3.9147, 3.6997, 3.4752, 3.2438, 3.008, 2.77, 2.532, 2.2956, 2.0627, 1.8346, 1.6127, 1.3981, 1.1917, 0.9944, 0.8068, 0.6295, 0.463, 0.3074, 0.1631, 0.03, -0.0917, -0.2022, -0.3016, -0.3902, -0.4682, -0.536, -0.5939, -0.6425, -0.682, -0.7131, -0.7362, -0.7518, -0.7605, -0.7629, -0.7593, -0.7505, -0.7369, -0.719, -0.6974, -0.6725, -0.6448, -0.6147, -0.5826, -0.5491, -0.5144, -0.4789, -0.4429, -0.4068, -0.3708, -0.3352, -0.3002, -0.266, -0.2328, -0.2008, -0.17, -0.1406, -0.1128, -0.0865, -0.0619, -0.0389, -0.0177, 0.0019, 0.0197, 0.0359, 0.0504, 0.0633, 0.0746, 0.0843, 0.0926, 0.0995, 0.1051, 0.1094, 0.1125, 0.1145, 0.1155, 0.1156, 0.1148, 0.1132, 0.111, 0.1081, 0.1046, 0.1007, 0.0963, 0.0917, 0.0867, 0.0816, 0.0763, 0.0708, 0.0654, 0.0599, 0.0545, 0.0491, 0.0438, 0.0386, 0.0337, 0.0288, 0.0242, 0.0199, 0.0157, 0.0118, 0.0082, 0.0048, 0.0016, -0.0012, -0.0039, -0.0062, -0.0084, -0.0102, -0.0119, -0.0133, -0.0144, -0.0154, -0.0162, -0.0168, -0.0172, -0.0175, -0.0176, -0.0175, -0.0174, -0.0171, -0.0167, -0.0162, -0.0157, -0.0151, -0.0144, -0.0137, -0.0129, -0.0121, -0.0113, -0.0105], "tc": [0.0, 0.004, 0.008, 0.012, 0.016, 0.02, 0.024, 0.028, 0.0321, 0.0361, 0.0401, 0.0441, 0.0481, 0.0521, 0.0561, 0.0601, 0.0641, 0.0681, 0.0721, 0.0761, 0.0801, 0.0841, 0.0881, 0.0922, 0.0962, 0.1002, 0.1042, 0.1082, 0.1122, 0.1162, 0.1202, 0.1242, 0.1282, 0.1322, 0.1362, 0.1402, 0.1442, 0.1482, 0.1523, 0.1563, 0.1603, 0.1643, 0.1683, 0.1723, 0.1763, 0.1803, 0.1843, 0.1883, 0.1923, 0.1963, 0.2003, 0.2043, 0.2083, 0.2124, 0.2164, 0.2204, 0.2244, 0.2284, 0.2324, 0.2364, 0.2404, 0.2444, 0.2484, 0.2524, 0.2564, 0.2604, 0.2644, 0.2684, 0.2725, 0.2765, 0.2805, 0.2845, 0.2885, 0.2925, 0.2965, 0.3005, 0.3045, 0.3085, 0.3125, 0.3165, 0.3205, 0.3245, 0.3285, 0.3326, 0.3366, 0.3406, 0.3446, 0.3486, 0.3526, 0.3566, 0.3606, 0.3646, 0.3686, 0.3726, 0.3766, 0.3806, 0.3846, 0.3886, 0.3927, 0.3967, 0.4007, 0.4047, 0.4087, 0.4127, 0.4167, 0.4207, 0.4247, 0.4287, 0.4327, 0.4367, 0.4407, 0.4447, 0.4487, 0.4528, 0.4568, 0.4608, 0.4648, 0.4688, 0.4728, 0.4768, 0.4808, 0.4848, 0.4888, 0.4928, 0.4968, 0.5008, 0.5048, 0.5088, 0.5129, 0.5169, 0.5209, 0.5249, 0.5289, 0.5329, 0.5369, 0.5409, 0.5449, 0.5489, 0.5529, 0.5569, 0.5609, 0.5649, 0.5689, 0.573, 0.577, 0.581, 0.585, 0.589, 0.593, 0.597, 0.601, 0.605, 0.609, 0.613, 0.617, 0.621, 0.625, 0.629, 0.6331, 0.6371, 0.6411, 0.6451, 0.6491, 0.6531, 0.6571, 0.6611, 0.6651, 0.6691, 0.6731, 0.6771, 0.6811, 0.6851, 0.6891, 0.6932, 0.6972, 0.7012, 0.7052, 0.7092, 0.7132, 0.7172, 0.7212, 0.7252, 0.7292, 0.7332, 0.7372, 0.7412, 0.7452, 0.7492, 0.7533, 0.7573, 0.7613, 0.7653, 0.7693, 0.7733, 0.7773, 0.7813, 0.7853, 0.7893, 0.7933, 0.7973, 0.8013, 0.8053, 0.8093, 0.8134, 0.8174, 0.8214, 0.8254, 0.8294, 0.8334, 0.8374, 0.8414, 0.8454, 0.8494, 0.8534, 0.8574, 0.8614, 0.8654, 0.8694, 0.8735, 0.8775, 0.8815, 0.8855, 0.8895, 0.8935, 0.8975, 0.9015, 0.9055, 0.9095, 0.9135, 0.9175, 0.9215, 0.9255, 0.9295, 0.9336, 0.9376, 0.9416, 0.9456, 0.9496, 0.9536, 0.9576, 0.9616, 0.9656, 0.9696, 0.9736, 0.9776, 0.9816, 0.9856, 0.9896, 0.9937, 0.9977, 1.0017, 1.0057, 1.0097, 1.0137, 1.0177, 1.0217, 1.0257, 1.0297, 1.0337, 1.0377, 1.0417, 1.0457, 1.0497, 1.0538, 1.0578, 1.0618, 1.0658, 1.0698, 1.0738, 1.0778, 1.0818, 1.0858, 1.0898, 1.0938, 1.0978, 1.1018, 1.1058, 1.1098, 1.1139, 1.1179, 1.1219, 1.1259, 1.1299, 1.1339, 1.1379, 1.1419, 1.1459, 1.1499, 1.1539, 1.1579, 1.1619, 1.1659, 1.1699, 1.174, 1.178, 1.182, 1.186, 1.19, 1.194, 1.198, 1.202, 1.206, 1.21, 1.214, 1.218, 1.222, 1.226, 1.2301, 1.2341, 1.2381, 1.2421, 1.2461, 1.2501, 1.2541, 1.2581, 1.2621, 1.2661, 1.2701, 1.2741, 1.2781, 1.2821, 1.2861, 1.2902, 1.2942, 1.2982, 1.3022, 1.3062, 1.3102, 1.3142, 1.3182, 1.3222, 1.3262, 1.3302, 1.3342, 1.3382, 1.3422, 1.3462, 1.3503, 1.3543, 1.3583, 1.3623, 1.3663, 1.3703, 1.3743, 1.3783, 1.3823, 1.3863, 1.3903, 1.3943, 1.3983, 1.4023, 1.4063, 1.4104, 1.4144, 1.4184, 1.4224, 1.4264, 1.4304, 1.4344, 1.4384, 1.4424, 1.4464, 1.4504, 1.4544, 1.4584, 1.4624, 1.4664, 1.4705, 1.4745, 1.4785, 1.4825, 1.4865, 1.4905, 1.4945, 1.4985, 1.5025, 1.5065, 1.5105, 1.5145, 1.5185, 1.5225, 1.5265, 1.5306, 1.5346, 1.5386, 1.5426, 1.5466, 1.5506, 1.5546, 1.5586, 1.5626, 1.5666, 1.5706, 1.5746, 1.5786, 1.5826, 1.5866, 1.5907, 1.5947, 1.5987, 1.6027, 1.6067, 1.6107, 1.6147, 1.6187, 1.6227, 1.6267, 1.6307, 1.6347, 1.6387, 1.6427, 1.6467, 1.6508, 1.6548, 1.6588, 1.6628, 1.6668, 1.6708, 1.6748, 1.6788, 1.6828, 1.6868, 1.6908, 1.6948, 1.6988, 1.7028, 1.7068, 1.7109, 1.7149, 1.7189, 1.7229, 1.7269, 1.7309, 1.7349, 1.7389, 1.7429, 1.7469, 1.7509, 1.7549, 1.7589, 1.7629, 1.7669, 1.771, 1.775, 1.779, 1.783, 1.787, 1.791, 1.795, 1.799, 1.803, 1.807, 1.811, 1.815, 1.819, 1.823, 1.827, 1.8311, 1.8351, 1.8391, 1.8431, 1.8471, 1.8511, 1.8551, 1.8591, 1.8631, 1.8671, 1.8711, 1.8751, 1.8791, 1.8831, 1.8871, 1.8912, 1.8952, 1.8992, 1.9032, 1.9072, 1.9112, 1.9152, 1.9192, 1.9232, 1.9272, 1.9312, 1.9352, 1.9392, 1.9432, 1.9472, 1.9513, 1.9553, 1.9593, 1.9633, 1.9673, 1.9713, 1.9753, 1.9793, 1.9833, 1.9873, 1.9913, 1.9953, 1.9993, 2.0033, 2.0073, 2.0114, 2.0154, 2.0194, 2.0234, 2.0274, 2.0314, 2.0354, 2.0394, 2.0434, 2.0474, 2.0514, 2.0554, 2.0594, 2.0634, 2.0674, 2.0715, 2.0755, 2.0795, 2.0835, 2.0875, 2.0915, 2.0955, 2.0995, 2.1035, 2.1075, 2.1115, 2.1155, 2.1195, 2.1235, 2.1275, 2.1316, 2.1356, 2.1396, 2.1436, 2.1476, 2.1516, 2.1556, 2.1596, 2.1636, 2.1676, 2.1716, 2.1756, 2.1796, 2.1836, 2.1876, 2.1917, 2.1957, 2.1997, 2.2037, 2.2077, 2.2117, 2.2157, 2.2197, 2.2237, 2.2277, 2.2317, 2.2357, 2.2397, 2.2437, 2.2477, 2.2518, 2.2558, 2.2598, 2.2638, 2.2678, 2.2718, 2.2758, 2.2798, 2.2838, 2.2878, 2.2918, 2.2958, 2.2998, 2.3038, 2.3078, 2.3119, 2.3159, 2.3199, 2.3239, 2.3279, 2.3319, 2.3359, 2.3399, 2.3439, 2.3479, 2.3519, 2.3559, 2.3599, 2.3639, 2.3679, 2.372, 2.376, 2.38, 2.384, 2.388, 2.392, 2.396, 2.4], "tr": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.3, 0.31, 0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39, 0.4, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49, 0.5, 0.51, 0.52, 0.53, 0.54, 0.55, 0.56, 0.57, 0.58, 0.59, 0.6, 0.61, 0.62, 0.63, 0.64, 0.65, 0.66, 0.67, 0.68, 0.69, 0.7, 0.71, 0.72, 0.73, 0.74, 0.75, 0.76, 0.77, 0.78, 0.79, 0.8, 0.81, 0.82, 0.83, 0.84, 0.85, 0.86, 0.87, 0.88, 0.89, 0.9, 0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99, 1.0, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19, 1.2, 1.21, 1.22, 1.23, 1.24, 1.25, 1.26, 1.27, 1.28, 1.29, 1.3, 1.31, 1.32, 1.33, 1.34, 1.35, 1.36, 1.37, 1.38, 1.39, 1.4, 1.41, 1.42, 1.43, 1.44, 1.45, 1.46, 1.47, 1.48, 1.49, 1.5, 1.51, 1.52, 1.53, 1.54, 1.55, 1.56, 1.57, 1.58, 1.59, 1.6, 1.61, 1.62, 1.63, 1.64, 1.65, 1.66, 1.67, 1.68, 1.69, 1.7, 1.71, 1.72, 1.73, 1.74, 1.75, 1.76, 1.77, 1.78, 1.79, 1.8, 1.81, 1.82, 1.83, 1.84, 1.85, 1.86, 1.87, 1.88, 1.89, 1.9, 1.91, 1.92, 1.93, 1.94, 1.95, 1.96, 1.97, 1.98, 1.99, 2.0, 2.01, 2.02, 2.03, 2.04, 2.05, 2.06, 2.07, 2.08, 2.09, 2.1, 2.11, 2.12, 2.13, 2.14, 2.15, 2.16, 2.17, 2.18, 2.19, 2.2, 2.21, 2.22, 2.23, 2.24, 2.25, 2.26, 2.27, 2.28, 2.29, 2.3, 2.31, 2.32, 2.33, 2.34, 2.35, 2.36, 2.37, 2.38, 2.39, 2.4, 2.41, 2.42, 2.43, 2.44, 2.45, 2.46, 2.47, 2.48, 2.49, 2.5, 2.51, 2.52, 2.53, 2.54, 2.55, 2.56, 2.57, 2.58, 2.59, 2.6, 2.61, 2.62, 2.63, 2.64, 2.65, 2.66, 2.67, 2.68, 2.69, 2.7, 2.71, 2.72, 2.73, 2.74, 2.75, 2.76, 2.77, 2.78, 2.79], "ramp_med": [-0.0, -0.0054, -0.0178, -0.0331, -0.0487, -0.063, -0.0754, -0.0854, -0.0933, -0.0992, -0.1035, -0.1064, -0.1082, -0.1094, -0.1099, -0.1102, -0.1102, -0.11, -0.1099, -0.1096, -0.1094, -0.1093, -0.1091, -0.109, -0.1089, -0.1088, -0.1088, -0.1088, -0.1088, -0.1087, -0.1087, -0.1087, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1088, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.1089, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.109, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1091, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1092, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093, -0.1093], "ramp_tipo1": [-0.0, -0.0019, -0.0043, -0.0067, -0.009, -0.0114, -0.0138, -0.0161, -0.0185, -0.0209, -0.0233, -0.0256, -0.028, -0.0304, -0.0327, -0.0351, -0.0375, -0.0398, -0.0422, -0.0446, -0.0469, -0.0493, -0.0517, -0.0541, -0.0564, -0.0588, -0.0612, -0.0635, -0.0659, -0.0683, -0.0706, -0.073, -0.0754, -0.0777, -0.0801, -0.0825, -0.0849, -0.0872, -0.0896, -0.092, -0.0943, -0.0967, -0.0991, -0.1014, -0.1038, -0.1062, -0.1085, -0.1109, -0.1133, -0.1157, -0.118, -0.1204, -0.1228, -0.1251, -0.1275, -0.1299, -0.1322, -0.1346, -0.137, -0.1393, -0.1417, -0.1441, -0.1465, -0.1488, -0.1512, -0.1536, -0.1559, -0.1583, -0.1607, -0.163, -0.1654, -0.1678, -0.1701, -0.1725, -0.1749, -0.1773, -0.1796, -0.182, -0.1844, -0.1867, -0.1891, -0.1915, -0.1938, -0.1962, -0.1986, -0.201, -0.2033, -0.2057, -0.2081, -0.2104, -0.2128, -0.2152, -0.2175, -0.2199, -0.2223, -0.2246, -0.227, -0.2294, -0.2318, -0.2341, -0.2365, -0.2389, -0.2412, -0.2436, -0.246, -0.2483, -0.2507, -0.2531, -0.2554, -0.2578, -0.2602, -0.2626, -0.2649, -0.2673, -0.2697, -0.272, -0.2744, -0.2768, -0.2791, -0.2815, -0.2839, -0.2862, -0.2886, -0.291, -0.2934, -0.2957, -0.2981, -0.3005, -0.3028, -0.3052, -0.3076, -0.3099, -0.3123, -0.3147, -0.317, -0.3194, -0.3218, -0.3242, -0.3265, -0.3289, -0.3313, -0.3336, -0.336, -0.3384, -0.3407, -0.3431, -0.3455, -0.3478, -0.3502, -0.3526, -0.355, -0.3573, -0.3597, -0.3621, -0.3644, -0.3668, -0.3692, -0.3715, -0.3739, -0.3763, -0.3787, -0.381, -0.3834, -0.3858, -0.3881, -0.3905, -0.3929, -0.3952, -0.3976, -0.4, -0.4023, -0.4047, -0.4071, -0.4095, -0.4118, -0.4142, -0.4166, -0.4189, -0.4213, -0.4237, -0.426, -0.4284, -0.4308, -0.4331, -0.4355, -0.4379, -0.4403, -0.4426, -0.445, -0.4474, -0.4497, -0.4521, -0.4545, -0.4568, -0.4592, -0.4616, -0.4639, -0.4663, -0.4687, -0.4711, -0.4734, -0.4758, -0.4782, -0.4805, -0.4829, -0.4853, -0.4876, -0.49, -0.4924, -0.4947, -0.4971, -0.4995, -0.5019, -0.5042, -0.5066, -0.509, -0.5113, -0.5137, -0.5161, -0.5184, -0.5208, -0.5232, -0.5255, -0.5279, -0.5303, -0.5327, -0.535, -0.5374, -0.5398, -0.5421, -0.5445, -0.5469, -0.5492, -0.5516, -0.554, -0.5564, -0.5587, -0.5611, -0.5635, -0.5658, -0.5682, -0.5706, -0.5729, -0.5753, -0.5777, -0.58, -0.5824, -0.5848, -0.5872, -0.5895, -0.5919, -0.5943, -0.5966, -0.599, -0.6014, -0.6037, -0.6061, -0.6085, -0.6108, -0.6132, -0.6156, -0.618, -0.6203, -0.6227, -0.6251, -0.6274, -0.6298, -0.6322, -0.6345, -0.6369, -0.6393, -0.6416, -0.644, -0.6464, -0.6488, -0.6511, -0.6535, -0.6559, -0.6582, -0.6606], "ramp_tipo2": [-0.0, -0.0054, -0.0179, -0.0334, -0.0494, -0.0641, -0.0768, -0.0873, -0.0955, -0.1017, -0.1061, -0.1091, -0.1111, -0.1123, -0.1129, -0.1131, -0.113, -0.1129, -0.1126, -0.1124, -0.1122, -0.1119, -0.1118, -0.1116, -0.1115, -0.1115, -0.1114, -0.1114, -0.1113, -0.1113, -0.1113, -0.1113, -0.1113, -0.1113, -0.1113, -0.1113, -0.1113, -0.1113, -0.1113, -0.1113, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114, -0.1114], "ts": [0.0, 0.005, 0.01, 0.0149, 0.0199, 0.0249, 0.0299, 0.0349, 0.0398, 0.0448, 0.0498, 0.0548, 0.0598, 0.0647, 0.0697, 0.0747, 0.0797, 0.0847, 0.0897, 0.0946, 0.0996, 0.1046, 0.1096, 0.1146, 0.1195, 0.1245, 0.1295, 0.1345, 0.1395, 0.1444, 0.1494, 0.1544, 0.1594, 0.1644, 0.1693, 0.1743, 0.1793, 0.1843, 0.1893, 0.1942, 0.1992, 0.2042, 0.2092, 0.2142, 0.2192, 0.2241, 0.2291, 0.2341, 0.2391, 0.2441, 0.249, 0.254, 0.259, 0.264, 0.269, 0.2739, 0.2789, 0.2839, 0.2889, 0.2939, 0.2988, 0.3038, 0.3088, 0.3138, 0.3188, 0.3237, 0.3287, 0.3337, 0.3387, 0.3437, 0.3486, 0.3536, 0.3586, 0.3636, 0.3686, 0.3736, 0.3785, 0.3835, 0.3885, 0.3935, 0.3985, 0.4034, 0.4084, 0.4134, 0.4184, 0.4234, 0.4283, 0.4333, 0.4383, 0.4433, 0.4483, 0.4532, 0.4582, 0.4632, 0.4682, 0.4732, 0.4781, 0.4831, 0.4881, 0.4931, 0.4981, 0.5031, 0.508, 0.513, 0.518, 0.523, 0.528, 0.5329, 0.5379, 0.5429, 0.5479, 0.5529, 0.5578, 0.5628, 0.5678, 0.5728, 0.5778, 0.5827, 0.5877, 0.5927, 0.5977, 0.6027, 0.6076, 0.6126, 0.6176, 0.6226, 0.6276, 0.6325, 0.6375, 0.6425, 0.6475, 0.6525, 0.6575, 0.6624, 0.6674, 0.6724, 0.6774, 0.6824, 0.6873, 0.6923, 0.6973, 0.7023, 0.7073, 0.7122, 0.7172, 0.7222, 0.7272, 0.7322, 0.7371, 0.7421, 0.7471, 0.7521, 0.7571, 0.762, 0.767, 0.772, 0.777, 0.782, 0.7869, 0.7919, 0.7969, 0.8019, 0.8069, 0.8119, 0.8168, 0.8218, 0.8268, 0.8318, 0.8368, 0.8417, 0.8467, 0.8517, 0.8567, 0.8617, 0.8666, 0.8716, 0.8766, 0.8816, 0.8866, 0.8915, 0.8965, 0.9015, 0.9065, 0.9115, 0.9164, 0.9214, 0.9264, 0.9314, 0.9364, 0.9414, 0.9463, 0.9513, 0.9563, 0.9613, 0.9663, 0.9712, 0.9762, 0.9812, 0.9862, 0.9912, 0.9961, 1.0011, 1.0061, 1.0111, 1.0161, 1.021, 1.026, 1.031, 1.036, 1.041, 1.0459, 1.0509, 1.0559, 1.0609, 1.0659, 1.0708, 1.0758, 1.0808, 1.0858, 1.0908, 1.0958, 1.1007, 1.1057, 1.1107, 1.1157, 1.1207, 1.1256, 1.1306, 1.1356, 1.1406, 1.1456, 1.1505, 1.1555, 1.1605, 1.1655, 1.1705, 1.1754, 1.1804, 1.1854, 1.1904, 1.1954, 1.2003, 1.2053, 1.2103, 1.2153, 1.2203, 1.2253, 1.2302, 1.2352, 1.2402, 1.2452, 1.2502, 1.2551, 1.2601, 1.2651, 1.2701, 1.2751, 1.28, 1.285, 1.29], "step_med": [-0.0115, -0.5568, -0.9675, -1.2555, -1.4436, -1.5511, -1.5942, -1.5869, -1.5409, -1.4664, -1.3719, -1.2646, -1.1502, -1.0335, -0.9181, -0.8067, -0.7014, -0.6034, -0.5135, -0.4322, -0.3594, -0.295, -0.2387, -0.1898, -0.1479, -0.1124, -0.0826, -0.0579, -0.0378, -0.0215, -0.0086, 0.0013, 0.0088, 0.0143, 0.0181, 0.0204, 0.0217, 0.0221, 0.0219, 0.0211, 0.0199, 0.0186, 0.017, 0.0154, 0.0138, 0.0122, 0.0107, 0.0093, 0.008, 0.0067, 0.0056, 0.0047, 0.0038, 0.003, 0.0024, 0.0018, 0.0013, 0.0009, 0.0006, 0.0003, 0.0001, -0.0001, -0.0002, -0.0003, -0.0004, -0.0005, -0.0005, -0.0005, -0.0005, -0.0005, -0.0005, -0.0005, -0.0005, -0.0005, -0.0004, -0.0004, -0.0004, -0.0004, -0.0004, -0.0003, -0.0003, -0.0003, -0.0003, -0.0003, -0.0003, -0.0003, -0.0003, -0.0003, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002, -0.0002], "step_tipo1": [-0.0307, -0.2196, -0.2358, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369, -0.2369], "step_tipo2": [-0.0395, -0.5592, -0.9741, -1.2647, -1.4548, -1.5639, -1.6071, -1.5997, -1.5542, -1.4802, -1.3864, -1.2802, -1.1669, -1.0512, -0.9365, -0.8254, -0.72, -0.6215, -0.5306, -0.4481, -0.3739, -0.3077, -0.2497, -0.1991, -0.1555, -0.1183, -0.087, -0.0609, -0.0395, -0.0222, -0.0084, 0.0023, 0.0104, 0.0164, 0.0205, 0.0231, 0.0245, 0.025, 0.0247, 0.0239, 0.0226, 0.0211, 0.0195, 0.0177, 0.0159, 0.0141, 0.0124, 0.0108, 0.0093, 0.0079, 0.0067, 0.0055, 0.0045, 0.0037, 0.0029, 0.0023, 0.0017, 0.0012, 0.0009, 0.0005, 0.0003, 0.0001, -0.0001, -0.0002, -0.0003, -0.0003, -0.0004, -0.0004, -0.0004, -0.0004, -0.0004, -0.0003, -0.0003, -0.0003, -0.0003, -0.0002, -0.0002, -0.0002, -0.0002, -0.0001, -0.0001, -0.0001, -0.0001, -0.0001, -0.0001, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0], "tones": [[10.0, 7.52, 6.901, 0.9795, 0.9008], [20.0, 3.792, 3.769, 0.9899, 0.984], [50.0, 1.537, 1.537, 1.0029, 1.003], [100.0, 0.77, 0.77, 1.0055, 1.0054], [1000.0, 0.077, 0.077, 1.0046, 1.0045]]};   // ngspice, circuito/out/pll.json e drift_linear de pll_projeto.json; t em s após o evento. Canal: f − f_canal (kHz). Rampa e degrau de deriva: θ_e (rad). Tons: [f_m, θ_e medido, θ_e linear, |1−H| medido, |1−H| linear]
 
 function figPllCanal(ctx, w, h, s, t) {
-  const c = C(), M = PLL_MED, B = tbox(70, 24, w - 92, h - 70, 0, 2.4, -210, 60), cols = [c.G, c.P, c.R];
+  const c = C(), M = PLL_MED, B = tbox(86, 24, w - 106, h - 76, 0, 2.4, -210, 60), cols = [c.G, c.P, c.R];
   line(ctx, B.x, B.y + B.h, B.x + B.w, B.y + B.h, c.K, 1); line(ctx, B.x, B.y, B.x, B.y + B.h, c.K, 1);
   ctx.save(); ctx.fillStyle = tint(c.R, 0.35); ctx.fillRect(B.x, B.Y(2), B.w, Math.max(2, B.Y(-2) - B.Y(2))); ctx.restore();
-  [0, 0.5, 1, 1.5, 2].forEach((v) => txt(ctx, fmtc(v, 1), B.X(v), B.y + B.h + 14, { c: c.M, size: 12, align: "center" }));
-  [-200, -150, -100, -50, 0, 50].forEach((v) => txt(ctx, String(v).replace("-", "−"), B.x - 6, B.Y(v), { c: c.M, size: 12, align: "right" }));
-  txt(ctx, "t após a troca (s)", B.x + B.w, B.y + B.h + 30, { c: c.M, size: 13, align: "right" }); txt(ctx, "f − f_{canal} (kHz)", B.x + 4, B.y - 10, { c: c.M, size: 13 });
+  [0, 0.5, 1, 1.5, 2].forEach((v) => txt(ctx, fmtc(v, 1), B.X(v), B.y + B.h + 17, { c: c.M, size: 16, align: "center" }));
+  [-200, -150, -100, -50, 0, 50].forEach((v) => txt(ctx, String(v).replace("-", "−"), B.x - 6, B.Y(v), { c: c.M, size: 16, align: "right" }));
+  axTitles(ctx, B, c, "t após a troca (s)", "f − f_{canal} (kHz)");
   const keys = ["canal_87p9", "canal_97p9", "canal_107p9"], labs = ["87,9 MHz", "97,9 MHz", "107,9 MHz"];
   const show = s >= 6 ? [0, 1, 2] : [1];
   ctx.save(); ctx.beginPath(); ctx.rect(B.x, B.y, B.w, B.h); ctx.clip();
   show.forEach((i) => curve(ctx, M.tc, M[keys[i]], B.X, B.Y, cols[i], i === 1 ? 2.6 : 1.8));
-  if (s >= 3 && s < 6) { line(ctx, B.X(0.004), B.Y(-200), B.X(0.004), B.Y(-147), c.Y, 3); txt(ctx, "salto 53 kHz", B.X(0.03), B.Y(-175), { c: c.Y, size: 13 }); }
-  if (s >= 4 && s < 6) { line(ctx, B.X(0), B.Y(-147), B.X(0.2), B.Y(-147 + 1130 * 0.2), c.Y, 2, [6, 4]); txt(ctx, "1,13 MHz/s", B.X(0.16), B.Y(-90), { c: c.Y, size: 13 }); }
+  if (s >= 3 && s < 6) { line(ctx, B.X(0.004), B.Y(-200), B.X(0.004), B.Y(-147), c.Y, 3); txt(ctx, "salto 53 kHz", B.X(0.03), B.Y(-175), { c: c.Y, size: 15 }); }
+  if (s >= 4 && s < 6) { line(ctx, B.X(0), B.Y(-147), B.X(0.2), B.Y(-147 + 1130 * 0.2), c.Y, 2, [6, 4]); txt(ctx, "1,13 MHz/s", B.X(0.16), B.Y(-90), { c: c.Y, size: 15 }); }
   ctx.restore();
-  if (s >= 6) labs.forEach((l, i) => txt(ctx, l, B.X(1.6), B.Y(-120 - 22 * i), { c: cols[i], size: 13 }));
-  txt(ctx, "±2 kHz", B.X(2.35), B.Y(0) + 14, { c: c.R, size: 12, align: "right" });
+  if (s >= 6) labs.forEach((l, i) => txt(ctx, l, B.X(1.6), B.Y(-120 - 22 * i), { c: cols[i], size: 15 }));
+  txt(ctx, "±2 kHz", B.X(2.35), B.Y(0) + 14, { c: c.R, size: 16, align: "right" });
   if (s <= 2) return "f_VCO − f_{canal} medido no ngspice: começa 200 kHz abaixo do canal novo.";
   if (s <= 5) return "Em amarelo, as duas contas: o salto proporcional e a rampa do integrador.";
   return "No topo da faixa a aquisição demora quase 2 s: o detector escorrega ciclos várias vezes.";
@@ -3888,37 +4155,37 @@ function figPllCanal(ctx, w, h, s, t) {
 
 function figPllRampa(ctx, w, h, s, t) {
   const c = C(), M = PLL_MED, deg = s >= 5;
-  const B = deg ? tbox(70, 24, w - 92, h - 70, 0, 1.29, -1.8, 0.4) : tbox(70, 24, w - 92, h - 70, 0, 2.79, -0.75, 0.1);
+  const B = deg ? tbox(86, 24, w - 106, h - 76, 0, 1.29, -1.8, 0.4) : tbox(86, 24, w - 106, h - 76, 0, 2.79, -0.75, 0.1);
   line(ctx, B.x, B.Y(0), B.x + B.w, B.Y(0), c.RU, 1); line(ctx, B.x, B.y, B.x, B.y + B.h, c.K, 1); line(ctx, B.x, B.y + B.h, B.x + B.w, B.y + B.h, c.K, 1);
-  (deg ? [0, 0.25, 0.5, 0.75, 1, 1.25] : [0, 0.5, 1, 1.5, 2, 2.5]).forEach((v) => txt(ctx, fmtc(v, 2), B.X(v), B.y + B.h + 14, { c: c.M, size: 12, align: "center" }));
-  (deg ? [-1.5, -1, -0.5, 0] : [-0.6, -0.4, -0.2, 0]).forEach((v) => txt(ctx, fmtc(v, 1), B.x - 6, B.Y(v), { c: c.M, size: 12, align: "right" }));
-  txt(ctx, "t após o evento (s)", B.x + B.w, B.y + B.h + 30, { c: c.M, size: 13, align: "right" }); txt(ctx, "θ_e (rad)", B.x + 4, B.y - 10, { c: c.M, size: 13 });
+  (deg ? [0, 0.25, 0.5, 0.75, 1, 1.25] : [0, 0.5, 1, 1.5, 2, 2.5]).forEach((v) => txt(ctx, fmtc(v, 2), B.X(v), B.y + B.h + 17, { c: c.M, size: 16, align: "center" }));
+  (deg ? [-1.5, -1, -0.5, 0] : [-0.6, -0.4, -0.2, 0]).forEach((v) => txt(ctx, fmtc(v, 1), B.x - 6, B.Y(v), { c: c.M, size: 16, align: "right" }));
+  axTitles(ctx, B, c, "t após o evento (s)", "θ_e (rad)");
   const tt = deg ? M.ts : M.tr, k = deg ? "step_" : "ramp_";
   if (deg || s >= 3) curve(ctx, tt, M[k + "tipo1"], B.X, B.Y, c.M, 2.2, [6, 4]);
   if (deg || s >= 2) { curve(ctx, tt, M[k + "tipo2"], B.X, B.Y, c.P, 2.4); curve(ctx, tt, M[deg ? "step_med" : "ramp_med"], B.X, B.Y, c.R, 1.8, [2, 3]); }
-  if (deg) { txt(ctx, "tipo 1: −0,237 rad", B.X(0.7), B.Y(-0.32), { c: c.M, size: 13 }); txt(ctx, "tipo 2: pico 1,60 rad, volta a 0", B.X(0.3), B.Y(-1.5), { c: c.P, size: 13 }); }
+  if (deg) { txt(ctx, "tipo 1: −0,237 rad", B.X(0.7), B.Y(-0.32), { c: c.M, size: 15 }); txt(ctx, "tipo 2: pico 1,60 rad, volta a 0", B.X(0.3), B.Y(-1.5), { c: c.P, size: 15 }); }
   else {
-    if (s >= 2) txt(ctx, "tipo 2: −0,111 rad", B.X(1.6), B.Y(-0.16), { c: c.P, size: 13 });
-    if (s >= 3) txt(ctx, "tipo 1: −0,237 t", B.X(2.0), B.Y(-0.38), { c: c.M, size: 13 });
+    if (s >= 2) txt(ctx, "tipo 2: −0,111 rad", B.X(1.6), B.Y(-0.16), { c: c.P, size: 15 });
+    if (s >= 3) txt(ctx, "tipo 1: −0,237 t", B.X(2.0), B.Y(-0.38), { c: c.M, size: 15 });
   }
-  if (s >= 2) txt(ctx, "pontilhado: circuito no ngspice", B.X(deg ? 0.55 : 0.1), B.Y(deg ? 0.25 : -0.68), { c: c.R, size: 13 });
+  if (s >= 2) txt(ctx, "pontilhado: circuito no ngspice", B.X(deg ? 0.55 : 0.1), B.Y(deg ? 0.25 : -0.68), { c: c.R, size: 15 });
   if (s === 1) return "A rampa começa em t = 0.";
   if (s <= 4) return "Azul: tipo 2, modelo linear; pontilhado: o circuito. Cinza: o tipo 1 com o mesmo K.";
   return "Degrau de 20 kHz: o integrador do filtro PI absorve a diferença e θ_e volta a zero.";
 }
 
 function figPllTons(ctx, w, h, s, t) {
-  const c = C(), M = PLL_MED, B = tbox(70, 24, w - 92, h - 70, 0.7, 3.3, -1.5, 1.1), { wn, z } = pllWnZ(PLL_CH[1]);
-  logAxes(ctx, B, [1, 2, 3], c, "f_m", "θ_e de pico (rad)", []);
-  [0.1, 1, 10].forEach((v) => txt(ctx, String(v).replace(".", ","), B.x - 6, B.Y(Math.log10(v)), { c: c.M, size: 12, align: "right" }));
+  const c = C(), M = PLL_MED, B = tbox(86, 24, w - 106, h - 76, 0.7, 3.3, -1.5, 1.1), { wn, z } = pllWnZ(PLL_CH[1]);
+  logAxes(ctx, B, [1, 2, 3], c, "frequência do tom f_m", "θ_e de pico (rad)", []);
+  [0.1, 1, 10].forEach((v) => txt(ctx, String(v).replace(".", ","), B.x - 6, B.Y(Math.log10(v)), { c: c.M, size: 16, align: "right" }));
   ctx.save(); ctx.fillStyle = tint(c.R, 0.1); ctx.fillRect(B.x, B.y, B.w, B.Y(Math.log10(TAU)) - B.y); ctx.restore();
-  line(ctx, B.x, B.Y(Math.log10(TAU)), B.x + B.w, B.Y(Math.log10(TAU)), c.R, 1.6, [5, 4]); txt(ctx, "2π: fim da faixa linear", B.X(3.25), B.Y(Math.log10(TAU)) - 10, { c: c.R, size: 13, align: "right" });
+  line(ctx, B.x, B.Y(Math.log10(TAU)), B.x + B.w, B.Y(Math.log10(TAU)), c.R, 1.6, [5, 4]); txt(ctx, "2π: fim da faixa linear", B.X(3.25), B.Y(Math.log10(TAU)) - 10, { c: c.R, size: 15, align: "right" });
   const one = (f) => { const ww = TAU * f; return ww * ww / Math.hypot(wn * wn - ww * ww, 2 * z * wn * ww); };
   trace(ctx, B, (lf) => Math.log10(75000 / (10 ** lf * 979) * one(10 ** lf)), c.P, 2.4);
   ctx.save(); ctx.fillStyle = tint(c.G, 0.12); ctx.fillRect(B.X(Math.log10(50)), B.y, B.X(3.3) - B.X(Math.log10(50)), B.h); ctx.restore();
-  txt(ctx, "áudio", B.X(Math.log10(55)), B.y + B.h - 12, { c: c.G, size: 13 });
+  txt(ctx, "áudio", B.X(Math.log10(55)), B.y + B.h - 12, { c: c.G, size: 15 });
   const shown = { 1: [100], 2: [100, 1000], 3: [100, 1000, 20], 4: [100, 1000, 20, 10], 5: [10, 20, 50, 100, 1000] }[Math.min(s, 5)];
-  M.tones.forEach(([f, med]) => { if (!shown.includes(f)) return; const x = B.X(Math.log10(f)), y = B.Y(Math.log10(med)); dot(ctx, x, y, 6, c.K); txt(ctx, fmtc(med, med < 1 ? 3 : 2), x + 8, y - 12, { c: c.K, size: 13 }); });
+  M.tones.forEach(([f, med]) => { if (!shown.includes(f)) return; const x = B.X(Math.log10(f)), y = B.Y(Math.log10(med)); dot(ctx, x, y, 6, c.K); txt(ctx, fmtc(med, med < 1 ? 3 : 2), x + 8, y - 12, { c: c.K, size: 15 }); });
   if (s <= 3) return "Azul: Δf/(f_m N)·|1 − H|. Pontos: o circuito no ngspice.";
   if (s === 4) return "Em 10 Hz o erro passa de 2π: o detector sai da faixa linear e o ponto descola da curva.";
   return "De 50 Hz a 1 kHz circuito e modelo coincidem; acima de 50 Hz θ_e fica abaixo de 1,6 rad.";
@@ -3927,9 +4194,185 @@ function figPllTons(ctx, w, h, s, t) {
 Object.assign(FIGS, { pllcanal: figPllCanal, pllrampa: figPllRampa, plltons: figPllTons });
 
 
+
+// ===== 3.3 demoduladores =====
+const dmG = (x) => 1 / Math.sqrt(1 + x * x);               // |H| normalizado do circuito sintonizado
+const DM_X0 = -Math.SQRT1_2, DM_A = Math.sqrt(1.5);
+// harmônicas da saída quase estática para um tom: y(φ) = D(u cos φ)
+function dmHarm(D, U, n = 512) {
+  let a = [0, 0, 0, 0], b = [0, 0, 0, 0];
+  for (let i = 0; i < n; i++) { const p = TAU * i / n, y = D(U * Math.cos(p)); for (let k = 1; k <= 3; k++) { a[k] += y * Math.cos(k * p); b[k] += y * Math.sin(k * p); } }
+  return [0, 1, 2, 3].map((k) => k ? 2 * Math.hypot(a[k], b[k]) / n : 0);
+}
+
+function figDmFmAm(ctx, w, h, s, t) {
+  const c = C(), fi = 75 * Math.sin(TAU * 0.35 * t);
+  const B1 = tbox(86, 16, w - 106, h * 0.40, -120, 120, 0, 1.7);
+  line(ctx, B1.x, B1.y + B1.h, B1.x + B1.w, B1.y + B1.h, c.K, 1.2); line(ctx, B1.x, B1.y, B1.x, B1.y + B1.h, c.K, 1.2);
+  ctx.save(); ctx.fillStyle = tint(c.G, 0.12); ctx.fillRect(B1.X(-90), B1.y, B1.X(90) - B1.X(-90), B1.h); ctx.restore();
+  trace(ctx, B1, (f) => Math.abs(f) <= 90 ? 1 + f / 150 : NaN, c.P, 2.8);
+  [-90, 0, 90].forEach((v) => txt(ctx, String(v).replace("-", "−"), B1.X(v), B1.y + B1.h + 16, { c: c.M, size: 15, align: "center" }));
+  [0, 1].forEach((v) => txt(ctx, String(v), B1.x - 7, B1.Y(v), { c: c.M, size: 15, align: "right" }));
+  txt(ctx, "f − f_c (kHz)", B1.x + B1.w / 2, B1.y + B1.h + 36, { c: c.K, size: 16, align: "center" });
+  ctx.save(); ctx.translate(18, B1.y + B1.h / 2); ctx.rotate(-Math.PI / 2); txt(ctx, "|H(f)|/V_0", 0, 0, { c: c.K, size: 16, align: "center" }); ctx.restore();
+  txt(ctx, "B_c = 180 kHz", B1.X(-88), B1.y + 12, { c: c.G, size: 15 });
+  if (s >= 2) { dot(ctx, B1.X(fi), B1.Y(0) - 2, 6, c.R); txt(ctx, "f_i(t)", B1.X(fi), B1.Y(0) - 16, { c: c.R, size: 15, align: "center" }); }
+  if (s >= 3) { const g = 1 + fi / 150; line(ctx, B1.X(fi), B1.Y(0), B1.X(fi), B1.Y(g), c.R, 1.6, [4, 4]); dot(ctx, B1.X(fi), B1.Y(g), 6, c.R); line(ctx, B1.x, B1.Y(g), B1.X(fi), B1.Y(g), c.R, 1.4, [4, 4]); }
+  // painel do tempo: dois períodos do tom
+  const B2 = tbox(86, h * 0.60, w - 106, h * 0.30, 0, 2, -1.7, 1.7), beta = 5;
+  line(ctx, B2.x, B2.Y(0), B2.x + B2.w, B2.Y(0), c.RU, 1);
+  const am = s >= 3, env = (x) => am ? 1 + 0.5 * Math.sin(TAU * x) : 1;
+  trace(ctx, B2, (x) => env(x) * Math.cos(TAU * 14 * x - beta * Math.cos(TAU * x)), c.P, 1.4, null, 1400);
+  if (s >= 4) { trace(ctx, B2, env, c.R, 2.6); }
+  const xc = (0.35 * t) % 2; line(ctx, B2.X(xc), B2.y, B2.X(xc), B2.y + B2.h, tint(c.R, 0.6), 1.4, [3, 3]);
+  txt(ctx, "t · f_m", B2.x + B2.w / 2, B2.y + B2.h + 22, { c: c.K, size: 16, align: "center" });
+  if (s <= 2) return "Em cima, o filtro; o ponto vermelho é f_i(t). Embaixo, o FM: amplitude constante.";
+  if (s === 3) return "A amplitude passa a seguir |H(f_i)|: o FM virou AM-FM.";
+  if (s === 4) return "A envoltória, em vermelho, é V_0 + k k_f m(t).";
+  return "Com k = V_0/150 kHz a envoltória vai de 0,5 a 1,5: índice de AM 0,5.";
+}
+
+function figDmDif(ctx, w, h, s, t) {
+  const c = C(), B = tbox(86, 20, w - 106, h - 76, 0, 12, 0, 12);
+  line(ctx, B.x, B.y + B.h, B.x + B.w, B.y + B.h, c.K, 1.2); line(ctx, B.x, B.y, B.x, B.y + B.h, c.K, 1.2);
+  [0, 2, 4, 6, 8, 10, 12].forEach((v) => txt(ctx, String(v), B.X(v), B.y + B.h + 17, { c: c.M, size: 15, align: "center" }));
+  [0, 4, 8, 12].forEach((v) => txt(ctx, String(v), B.x - 7, B.Y(v), { c: c.M, size: 15, align: "right" }));
+  axTitles(ctx, B, c, "f (MHz)", "|H(f)|/2π (10⁶)");
+  trace(ctx, B, (f) => f, c.P, 2.8);
+  const lo = 10.7 - 0.09, hi = 10.7 + 0.09;
+  ctx.save(); ctx.fillStyle = tint(c.G, 0.35); ctx.fillRect(B.X(lo), B.y, Math.max(3, B.X(hi) - B.X(lo)), B.h); ctx.restore();
+  txt(ctx, "FI: 10,7 MHz ± 90 kHz", B.X(10.6), B.Y(2), { c: c.G, size: 15, align: "right" });
+  if (s >= 4) {
+    const fi = 10.7 + 0.075 * Math.sin(TAU * 0.35 * t);
+    dot(ctx, B.X(fi), B.Y(fi), 7, c.R);
+    txt(ctx, `|H| varia ${fmtc(100 * 0.075 / 10.7, 2)} % em torno de 10,7`, B.X(10.6), B.Y(9.4), { c: c.R, size: 15, align: "right" });
+  }
+  return s >= 4 ? "Na escala do diferenciador, a banda do FM é uma linha fina: pouca variação de amplitude." : "|H| cresce com f em toda a faixa; a banda de FM, em verde, ocupa uma fração pequena dela.";
+}
+
+function figDmSint(ctx, w, h, s, t) {
+  const c = C(), B = tbox(86, 20, w - 106, h - 76, -3.5, 3.5, 0, 1.1);
+  logless(ctx, B, c, [-3, -2, -1, 0, 1, 2, 3], [0, 0.5, 1], "x = 2Q(f − f_0)/f_0", "|H|");
+  trace(ctx, B, dmG, c.P, 2.8);
+  if (s >= 2) { dot(ctx, B.X(DM_X0), B.Y(dmG(DM_X0)), 7, c.R); txt(ctx, "x_0 = −0,707", B.X(DM_X0) - 10, B.Y(dmG(DM_X0)) + 6, { c: c.R, size: 15, align: "right" }); }
+  if (s >= 3) { const g0 = dmG(DM_X0), k = 0.3849; line(ctx, B.X(DM_X0 - 1.4), B.Y(g0 - 1.4 * k), B.X(DM_X0 + 1.2), B.Y(g0 + 1.2 * k), c.R, 2, [6, 4]); txt(ctx, "inclinação 0,385", B.X(DM_X0 - 0.2), B.Y(g0 - 0.42), { c: c.R, size: 15, align: "right" }); }
+  if (s >= 4) {
+    ctx.save(); ctx.fillStyle = tint(c.G, 0.2); ctx.fillRect(B.X(DM_X0 - 0.29), B.y, B.X(DM_X0 + 0.29) - B.X(DM_X0 - 0.29), B.h); ctx.restore();
+    const u = DM_X0 + 0.29 * Math.sin(TAU * 0.35 * t); dot(ctx, B.X(u), B.Y(dmG(u)), 5, c.K);
+    txt(ctx, "±0,29", B.X(DM_X0), B.y + B.h - 12, { c: c.G, size: 15, align: "center" });
+  }
+  if (s <= 1) return "Resposta do circuito sintonizado em torno de f_0, em x normalizado.";
+  if (s <= 3) return "No ponto de inflexão a curva é quase reta: sem termo quadrático.";
+  return "Em verde, a faixa varrida com 3.ª harmônica de 1 %.";
+}
+
+function figDmBal(ctx, w, h, s, t) {
+  const c = C(), B = tbox(86, 20, w - 106, h - 76, -3.5, 3.5, -1.1, 1.1);
+  logless(ctx, B, c, [-3, -2, -1, 0, 1, 2, 3], [-1, -0.5, 0, 0.5, 1], "u = 2Q(f − f_c)/f_0", "|H_1|, −|H_2| e D");
+  line(ctx, B.x, B.Y(0), B.x + B.w, B.Y(0), c.RU, 1);
+  trace(ctx, B, (u) => dmG(u - DM_A), c.G, 2, [6, 4]); trace(ctx, B, (u) => -dmG(u + DM_A), c.M, 2, [6, 4]);
+  txt(ctx, "|H_1|", B.X(DM_A), B.Y(1.02), { c: c.G, size: 15, align: "center" }); txt(ctx, "−|H_2|", B.X(-DM_A), B.Y(-1.02), { c: c.M, size: 15, align: "center" });
+  const D = (u) => dmG(u - DM_A) - dmG(u + DM_A);
+  trace(ctx, B, D, c.P, 3);
+  if (s >= 4) { [-DM_A, DM_A].forEach((a) => line(ctx, B.X(a), B.y, B.X(a), B.y + B.h, c.GR, 1.4, [3, 3])); txt(ctx, "a = 1,225", B.X(DM_A) + 6, B.Y(-0.9), { c: c.K, size: 15 }); }
+  if (s >= 5) { line(ctx, B.X(-1.5), B.Y(-1.5 * 0.6197), B.X(1.5), B.Y(1.5 * 0.6197), c.R, 2, [6, 4]); txt(ctx, "inclinação 0,620", B.X(0.2), B.Y(0.75), { c: c.R, size: 15 }); }
+  if (s >= 6) {
+    ctx.save(); ctx.fillStyle = tint(c.G, 0.2); ctx.fillRect(B.X(-0.77), B.y, B.X(0.77) - B.X(-0.77), B.h); ctx.restore();
+    const u = 0.77 * Math.sin(TAU * 0.35 * t); dot(ctx, B.X(u), B.Y(D(u)), 6, c.K);
+  }
+  if (s <= 3) return "Tracejados: os dois circuitos, um subtraído. Azul: a diferença D(u), ímpar.";
+  if (s <= 5) return "Com a = 1,225 o termo cúbico some e a reta vale numa faixa larga.";
+  return "Faixa com 3.ª harmônica de 1 %: ±0,77, contra ±0,29 do detector simples.";
+}
+
+function figDmPll(ctx, w, h, s, t) {
+  const c = C(), B = tbox(86, 20, w - 106, h - 76, 0, 2, -90, 90);
+  logless(ctx, B, c, [0, 0.5, 1, 1.5, 2], [-75, 0, 75], "t · f_m", "f_i − f_c (kHz)");
+  line(ctx, B.x, B.Y(0), B.x + B.w, B.Y(0), c.RU, 1);
+  const m = (x) => 75 * Math.sin(TAU * x);
+  trace(ctx, B, m, c.P, 2.6);
+  if (s >= 4) [-75, 75].forEach((v) => txt(ctx, `${fmtc(v / 5.21, 1)} mV`, B.x + 8, B.Y(v) + (v > 0 ? -14 : 14), { c: c.R, size: 15 }));
+  const xc = (0.35 * t) % 2; dot(ctx, B.X(xc), B.Y(m(xc)), 6, c.R);
+  if (s <= 3) return "A frequência instantânea do sinal recebido; o VCO do receptor reproduz essa curva.";
+  return "Dividindo por k_v = 5,21 MHz/V, a escala em vermelho dá a tensão de controle: 75 kHz viram 14,4 mV.";
+}
+
+// eixos lineares com grade, rótulos e títulos
+function logless(ctx, B, c, xt, yt, xl, yl) {
+  line(ctx, B.x, B.y + B.h, B.x + B.w, B.y + B.h, c.K, 1.2); line(ctx, B.x, B.y, B.x, B.y + B.h, c.K, 1.2);
+  xt.forEach((v) => { line(ctx, B.X(v), B.y, B.X(v), B.y + B.h, c.GR, 1); txt(ctx, fmtc(v, Number.isInteger(v) ? 0 : 1), B.X(v), B.y + B.h + 17, { c: c.M, size: 15, align: "center" }); });
+  yt.forEach((v) => { line(ctx, B.x, B.Y(v), B.x + B.w, B.Y(v), c.GR, 1); txt(ctx, fmtc(v, Number.isInteger(v) ? 0 : 1), B.x - 7, B.Y(v), { c: c.M, size: 15, align: "right" }); });
+  axTitles(ctx, B, c, xl, yl);
+}
+
+function drawDem() {
+  const modo = Number($("dm-modo").value), df = val("dm-df"), Bw = val("dm-b"), c = C();
+  const u = 2 * df / Bw;                                    // excursão em x: Δf/(B/2)
+  const D = modo ? (x) => dmG(x - DM_A) - dmG(x + DM_A) : (x) => dmG(DM_X0 + x);
+  const fr = Math.max(400, 1.6 * Bw), fx = (f) => 2 * f / Bw;
+  const ser = modo ? [{ x: range(-fr, fr, 400), y: range(-fr, fr, 400).map((f) => dmG(fx(f) - DM_A)), color: "--accent-2", dash: true, width: 2 },
+                      { x: range(-fr, fr, 400), y: range(-fr, fr, 400).map((f) => -dmG(fx(f) + DM_A)), color: "--muted", dash: true, width: 2 },
+                      { x: range(-fr, fr, 400), y: range(-fr, fr, 400).map((f) => D(fx(f))), color: "--accent", width: 2.8 }]
+                   : [{ x: range(-fr, fr, 400), y: range(-fr, fr, 400).map((f) => D(fx(f))), color: "--accent", width: 2.8 }];
+  plot($("dm-h"), { ml: 62, xmin: -fr, xmax: fr, ymin: modo ? -1.1 : 0, ymax: 1.1, xticks: niceTicks(fr).flatMap((v) => v ? [-v, v] : [0]).sort((a, b) => a - b), xfmt: (v) => fmtc(v, 0), xlabel: "f − f_c (kHz)",
+    yticks: modo ? [-1, 0, 1] : [0, 0.5, 1], yfmt: decFmt(1), ylabel: modo ? "D(f)" : "|H(f)|", bands: [{ x0: -df, x1: df, color: "rgba(40,140,80,0.16)" }], series: ser });
+  const N = 300, ph = range(0, 1, N), y = ph.map((p) => D(u * Math.cos(TAU * p))), mean = y.reduce((a, b) => a + b, 0) / N, yc = y.map((v) => v - mean);
+  const hm = dmHarm(D, u), A1 = hm[1], ideal = ph.map((p) => A1 * Math.cos(TAU * p) * Math.sign(D(1e-3) - D(-1e-3)));
+  const ym = Math.max(...yc.map(Math.abs), A1) * 1.2 || 1;
+  plot($("dm-out"), { ml: 62, xmin: 0, xmax: 1, ymin: -ym, ymax: ym, xticks: [0, 0.25, 0.5, 0.75, 1], xfmt: decFmt(2), xlabel: "t · f_m", yticks: [-ym / 1.2, 0, ym / 1.2], yfmt: decFmt(2), ylabel: "saída (normalizada)",
+    series: [{ x: ph, y: ideal, color: "--muted", dash: true, width: 2 }, { x: ph, y: yc, color: "--accent-3", width: 2.6 }] });
+  const db = (r) => r > 1e-9 ? fmtc(20 * Math.log10(r), 1) + " dB" : "abaixo de −180 dB";
+  const thd = 100 * Math.hypot(hm[2], hm[3]) / A1;
+  $("dm-read").innerHTML =
+    `<span>excursão em \\(x\\): <b>±${fmtc(u, 2)}</b></span>` +
+    `<span>sensibilidade: <b>${fmtc(A1 / u, 3)}</b> por unidade de \\(x\\)</span>` +
+    `<span>\\(H_2/H_1\\): <b>${db(hm[2] / A1)}</b></span>` +
+    `<span>\\(H_3/H_1\\): <b>${db(hm[3] / A1)}</b></span>` +
+    `<span>THD até a 3.ª: <b>${fmtc(thd, thd < 1 ? 2 : 1)} %</b></span>` +
+    (thd <= 1 ? `<span class="state ok">distorção até 1 %</span>` : `<span class="state warn">distorção acima de 1 %</span>`) +
+    `<span class="mono">Q = ${fmtc(10700 / Bw, 1)} em 10,7 MHz</span>`;
+  typeset($("dm-read"));
+}
+bind(["dm-modo", "dm-df", "dm-b"], { "dm-df": (v) => fmtc(v, 0) + " kHz", "dm-b": (v) => fmtc(v, 0) + " kHz" }, drawDem);
+
+Object.assign(FIGS, { dmfmam: figDmFmAm, dmdif: figDmDif, dmsint: figDmSint, dmbal: figDmBal, dmpll: figDmPll });
+
+
+
+const PLL_CP = [[87.9, 879, 5.332, 1, 71.4], [89.9, 899, 5.4182, 1, 71.3], [91.9, 919, 5.48, 1, 71.2], [93.9, 939, 5.4894, 1, 70.9], [95.9, 959, 5.4279, 1, 70.4], [97.9, 979, 5.2136, 1, 69.4], [99.9, 999, 4.8881, 1, 68.0], [101.9, 1019, 4.4465, 1, 66.0], [103.9, 1039, 3.8766, 2, 74.3], [105.9, 1059, 3.2151, 2, 71.4], [107.9, 1079, 2.4782, 2, 66.9]];   // [f_c (MHz), N, K_v (MHz/V), m escolhido, margem de fase (°) com m], pll_projeto.json "cp_schedule"
+const PLL_CP2 = [-117.399, -170.608, -154.733, -146.478, -140.979, -136.411, -132.16, -128.019, -123.918, -119.833, -115.752, -111.674, -107.596, -103.518, -99.439, -95.36, -91.28, -87.201, -83.122, -79.044, -74.968, -70.891, -66.815, -62.738, -58.66, -54.582, -50.503, -46.424, -42.345, -38.267, -34.19, -30.113, -26.037, -21.961, -17.884, -13.807, -9.729, -5.651, -1.572, 2.506, 6.584, 10.661, 14.738, 18.814, 22.889, 26.966, 31.042, 35.119, 39.197, 43.275, 47.353, 51.431, 55.507, 59.584, 63.66, 67.735, 71.811, 75.887, 79.964, 84.041, 88.119, 92.196, 96.273, 100.35, 104.425, 108.501, 112.575, 116.649, 120.72, 124.783, 128.828, 132.818, 136.656, 140.062, 142.249, 141.227, 133.474, 117.424, 98.305, 82.126, 70.068, 61.028, 53.861, 47.813, 42.437, 37.473, 32.765, 28.223, 23.79, 19.433, 15.129, 10.867, 6.639, 2.441, -1.729, -5.867, -9.97, -14.03, -18.034, -21.963, -25.791, -29.479, -32.972, -36.192, -39.031, -41.346, -42.959, -43.678, -43.336, -41.856, -39.312, -35.936, -32.058, -28.008, -24.043, -20.322, -16.922, -13.865, -11.142, -8.73, -6.605, -4.739, -3.109, -1.696, -0.481, 0.552, 1.418, 2.13, 2.701, 3.145, 3.473, 3.699, 3.836, 3.894, 3.887, 3.823, 3.715, 3.57, 3.397, 3.204, 2.995, 2.778, 2.557, 2.335, 2.116, 1.903, 1.699, 1.504, 1.32, 1.149, 0.989, 0.842, 0.707, 0.585, 0.474, 0.375, 0.287, 0.21, 0.142, 0.084, 0.035, -0.007, -0.041, -0.07, -0.092, -0.11, -0.124, -0.133, -0.139, -0.142, -0.142, -0.141, -0.137, -0.132, -0.126, -0.119, -0.112, -0.105, -0.097, -0.089, -0.081, -0.074, -0.066, -0.059, -0.052, -0.045, -0.039, -0.034, -0.029, -0.024, -0.02, -0.016, -0.013, -0.01, -0.007, -0.004, -0.002, -0.001, 0.001, 0.002, 0.003, 0.003, 0.004, 0.004, 0.004, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.004, 0.004, 0.004, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.002, 0.002, 0.002, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, 0.0, 0.0, 0.0];   // f − f_canal (kHz) na troca de canal em 107,9 MHz com I_cp = 2 × 0,678 mA, ngspice, mesma grade de PLL_MED.tc
+function figPllCp(ctx, w, h, s, t) {
+  const c = C();
+  if (s >= 5) {
+    const M = PLL_MED, B = tbox(86, 24, w - 106, h - 76, 0, 2.4, -210, 60);
+    logless(ctx, B, c, [0, 0.5, 1, 1.5, 2], [-200, -100, 0], "t após a troca (s)", "f − f_{canal} (kHz)");
+    ctx.save(); ctx.fillStyle = tint(c.R, 0.35); ctx.fillRect(B.x, B.Y(2), B.w, Math.max(2, B.Y(-2) - B.Y(2))); ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.rect(B.x, B.y, B.w, B.h); ctx.clip();
+    curve(ctx, M.tc, M.canal_107p9, B.X, B.Y, c.M, 2, [6, 4]); curve(ctx, M.tc, PLL_CP2, B.X, B.Y, c.R, 2.8); ctx.restore();
+    txt(ctx, "m = 1: 1,92 s", B.X(1.3), B.Y(-150), { c: c.M, size: 15 }); txt(ctx, "m = 2: 0,58 s", B.X(1.3), B.Y(-175), { c: c.R, size: 15 });
+    return "107,9 MHz no ngspice: com a corrente dobrada a aquisição cai de 1,92 s para 0,58 s.";
+  }
+  const B = tbox(86, 24, w - 106, h - 76, 87, 109, 0, 7.5), fn = [], z = [], fn2 = [], z2 = [], fx = [];
+  PLL_CP.forEach(([f, N, kv, m]) => { fx.push(f); for (const [mm, a, b] of [[1, fn, z], [m, fn2, z2]]) { const K = TAU * PLL_KD * mm * kv * 1e6 / N, wn = Math.sqrt(K / PLL_T1); a.push(wn / TAU); b.push(PLL_T2 * wn / 2); } });
+  logless(ctx, B, c, [88, 92, 96, 100, 104, 108], [0, 2, 4, 6], "canal (MHz)", "f_n (Hz)");
+  curve(ctx, fx, fn, B.X, B.Y, c.P, 2.6); fx.forEach((f, i) => dot(ctx, B.X(f), B.Y(fn[i]), 4, c.P));
+  const Z = (v) => B.Y(v * 6);
+  curve(ctx, fx, z.map((v) => v * 6), B.X, B.Y, c.G, 2.4, [6, 4]); fx.forEach((f, i) => dot(ctx, B.X(f), Z(z[i]), 4, c.G));
+  txt(ctx, "f_n, m = 1", B.X(88), B.Y(6.6), { c: c.P, size: 15 }); txt(ctx, "ζ × 6, m = 1", B.X(88), B.Y(4.6), { c: c.G, size: 15 });
+  if (s >= 4) {
+    curve(ctx, fx, fn2, B.X, B.Y, c.R, 2.6); curve(ctx, fx, z2.map((v) => v * 6), B.X, B.Y, c.R, 2, [2, 3]);
+    line(ctx, B.X(102.9), B.y, B.X(102.9), B.y + B.h, c.Y, 1.6, [4, 4]); txt(ctx, "m = 2", B.X(103.2), B.Y(1), { c: c.Y, size: 15 });
+    txt(ctx, "com ganho programado", B.X(100), B.Y(7.1), { c: c.R, size: 15 });
+  }
+  if (s <= 2) return "Sem correção, f_n e ζ caem no topo da faixa porque K_v cai e N sobe.";
+  if (s === 3) return "Dobrar I_cp dobra K: no topo, f_n volta a 5 Hz e ζ a 0,74.";
+  return "Vermelho: m = 1 até 101,9 MHz e m = 2 acima; f_n entre 4,9 e 6,4 Hz e ζ entre 0,72 e 0,94.";
+}
+Object.assign(FIGS, { pllcp: figPllCp });
+
 // ---------- deck: footer, numbering, overlays, navigation, scaling ----------
 // Registre cada instrumento: chave do data-draw -> função de desenho.
-const DRAW = { fig42: drawFig42, indice: drawIndice, nbinst: drawNB, besselinst: drawBessel, carsoninst: drawCarsonInst, vcoinst: drawVco };
+const DRAW = { fig42: drawFig42, indice: drawIndice, nbinst: drawNB, besselinst: drawBessel, carsoninst: drawCarsonInst, vcoinst: drawVco, deminst: drawDem };
 const deck = $("deck"), stage = $("stage"), slides = [...document.querySelectorAll(".slide")];
 const narrow = () => window.matchMedia("(max-width: 760px)").matches;
 const numbered = slides.filter((sl) => !sl.hasAttribute("data-nonum"));
