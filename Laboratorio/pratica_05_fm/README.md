@@ -1,36 +1,37 @@
-# Prática 05 — Modulação FM (50 min)
+# Prática 05 — Modulação FM: desvio, funções de Bessel e regra de Carson (50 min)
 
 ## Alinhamento com cronograma
 
 - Semanas 10–11
-- Tópicos: FM, índice de modulação e largura de banda
+- Tópicos: FM com tom, espectro de Bessel, nulos de J0, regra de Carson, discriminador
 
-## Objetivo
+## Arquivos
 
-Implementar modulação FM e observar efeito do índice de modulação na largura de banda do sinal.
+- `enunciado_pratica_05.tex` / `.pdf`: enunciado
+- `pratica_05_fm.grc`: flowgraph de referência
+- `figuras/`: flowgraph e janelas de parâmetros capturados do GNU Radio Companion
 
-## Pré-requisitos
+## Cadeia
 
-- Conceito de desvio de frequência
-- Relação qualitativa de Carson
+Signal Source (cos, samp_rate = 96 kHz) → Frequency Mod (2π·max_dev/samp_rate) → Throttle →
+QT GUI Frequency Sink (FFT 8192, flat-top) e Quadrature Demod (samp_rate/2π, saída em Hz) → QT GUI Time Sink
+
+`Frequency Mod` substitui o `WBFM Transmit`: a pré-ênfase do WBFM Transmit aumenta o desvio real
+(cerca de +50 % em f_m = 2 kHz com τ = 75 µs) e o desvio dele não muda com o slider durante a execução.
 
 ## Roteiro (50 min)
 
-1. **(0–10 min)** Montar modulador FM com mensagem senoidal.
-2. **(10–20 min)** Definir três cenários de desvio de frequência (baixo, médio, alto).
-3. **(20–30 min)** Medir/estimar banda ocupada em cada cenário no `Frequency Sink`.
-4. **(30–40 min)** Implementar demodulação FM (discriminador/`Quadrature Demod`).
-5. **(40–47 min)** Comparar fidelidade do sinal recuperado nos diferentes cenários.
-6. **(47–50 min)** Síntese dos resultados.
+1. **(0–12 min)** Montagem e níveis das componentes para β = 2,5, relativos à portadora sem modulação.
+2. **(12–20 min)** Nulos da portadora: Δf = 2,405 f_m e 5,520 f_m.
+3. **(20–36 min)** Banda medida pelo critério de −20 dB e erro da regra de Carson, 7 casos.
+4. **(36–46 min)** Pico e período de f_i(t) − f_c na saída do discriminador.
+5. **(46–50 min)** Síntese.
 
 ## Entregáveis
 
-- Tabela com parâmetros: $f_m$, $\Delta f$, índice estimado e banda observada.
-- Print da saída do demodulador FM.
-- Conclusão sobre compromisso entre desvio e banda.
+Relatório em PDF com as Tabelas 2 a 5 preenchidas, capturas do espectro e do Time Sink e respostas
+numéricas às perguntas Q1 a Q6.
 
-## Critérios de avaliação
+## Gabarito
 
-- Funcionamento do modulador/demodulador
-- Coerência dos resultados com teoria
-- Organização dos dados
+`Laboratorio/Codigos/pratica_05_gabarito/codigos/pratica_05_gabarito.py`, validado no GNU Radio 3.10.12.
