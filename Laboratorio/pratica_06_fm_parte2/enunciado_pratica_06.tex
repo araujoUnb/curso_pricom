@@ -14,6 +14,8 @@
 \usepackage{setspace}
 \usepackage{hyperref}
 \usepackage{tcolorbox}
+\usepackage{subcaption}
+\usepackage{pdflscape}
 
 \geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
 \setlength{\parindent}{0pt}
@@ -50,7 +52,8 @@
 \textbf{Software:} GNU Radio Companion $\geq$ 3.10 \hfill
 \textbf{Semestre:} 2026/2
 
-\textbf{Pré-requisito:} Prática 05.
+\textbf{Pré-requisito:} Prática 05, com o transmissor \texttt{Signal Source} $\to$
+\texttt{Frequency Mod} e o discriminador \texttt{Quadrature Demod}.
 
 \bigskip
 
@@ -58,271 +61,299 @@
 \section{Objetivos}
 
 \begin{itemize}
-  \item Implementar um detector de inclinação simples convertendo FM em AM
-    pela borda de um filtro passa-faixa, seguido de detecção de envelope.
-  \item Implementar um discriminador balanceado com dois filtros passa-faixa
-    sintonizados em $\pm \Delta f$ e dois detectores de envelope subtraídos.
-  \item Comparar a saída dos dois demoduladores construídos com a saída do
-    bloco \texttt{WBFM Receive} usado como referência.
-  \item Avaliar a robustez ao ruído de cada arquitetura e relacionar com a
-    teoria de demodulação FM.
+  \item Construir um detector de inclinação e um discriminador balanceado a
+    partir de filtros passa-faixa e detectores de envoltória.
+  \item Medir a amplitude e as harmônicas da saída de cada demodulador e
+    comparar com o discriminador de quadratura da Prática 05.
+  \item Medir a relação entre o tom e o piso de ruído na saída de cada
+    demodulador em função da relação portadora-ruído na entrada.
 \end{itemize}
 
 % ======================================================
-\section{Fundamentos teóricos (síntese)}
+\section{Fundamentos teóricos}
 
-A demodulação FM consiste em recuperar a mensagem $m(t)$ a partir da
-frequência instantânea $f_i(t) = f_c + k_f m(t)$ do sinal recebido. Uma
-classe importante de demoduladores converte FM em AM de modo que a amplitude
-do sinal resultante seja proporcional a $f_i(t)$, e em seguida usa um
-detector de envelope para recuperar a mensagem.
+O sinal FM em banda base complexa tem frequência instantânea
+$f_i(t) = \Delta f\,m(t)$, com $m(t)=\cos(2\pi f_m t)$; ela percorre o
+intervalo $[-\Delta f, \Delta f]$.
 
-\textbf{Detector de inclinação simples.} Um filtro passa-faixa cuja borda
-de passagem coincida aproximadamente com $f_c$ atua como conversor FM-AM:
-quando $f_i(t)$ varia em torno de $f_c$, a amplitude na saída do filtro
-varia ao longo da inclinação da resposta em frequência. A envoltória é
-então proporcional à mensagem mais um nível CC residual:
+\textbf{Detector de inclinação.} O filtro \texttt{bpf\_pos} deixa passar de
+$\Delta f$ a $5\Delta f$ com transição de largura $4\Delta f$ em torno de cada
+borda. A borda inferior é uma rampa que sobe de $f=-\Delta f$ até
+$f=3\Delta f$, e $f_i(t)$ percorre a metade de baixo dessa rampa, onde ela é
+curva. A envoltória na saída do filtro segue $|H_+(f_i)|$:
 \begin{equation}
-  v_\text{slope}(t) \approx K_0 + K_1 m(t) + \text{distorções de ordem superior}.
+  v_+(t) = |H_+(f_i(t))| = K_0 + K_1 m(t) + K_2 m^2(t) + K_3 m^3(t) + \cdots
+  \label{eq:vpos}
 \end{equation}
-O nível CC e a curvatura do filtro causam distorção, exigindo bloqueio CC e
-filtragem passa-baixas.
+Como $m^2 = \tfrac12 + \tfrac12\cos 2\omega_m t$ e
+$m^3 = \tfrac34\cos\omega_m t + \tfrac14\cos 3\omega_m t$, a saída tem nível CC,
+removido pelo \texttt{DC Blocker}, e harmônicas em $2f_m$ e $3f_m$.
 
-\textbf{Discriminador balanceado.} Usa dois filtros passa-faixa
-sintonizados em $f_c + \Delta f$ e $f_c - \Delta f$, cada um seguido de um
-detector de envelope. As duas envoltórias têm polaridade oposta com respeito
-à mensagem. Subtraindo-as,
+\textbf{Discriminador balanceado.} O filtro \texttt{bpf\_neg} é o espelho de
+\texttt{bpf\_pos} em torno de $0$\,Hz, de modo que $|H_-(f)| = |H_+(-f)|$ e
 \begin{equation}
-  v_\text{bal}(t) = v_+(t) - v_-(t) \approx 2 K_1 m(t),
+  v_-(t) = K_0 - K_1 m(t) + K_2 m^2(t) - K_3 m^3(t) + \cdots
+\end{equation}
+A diferença cancela os termos de ordem par e dobra os de ordem ímpar:
+\begin{equation}
+  v_+(t) - v_-(t) = 2K_1 m(t) + 2K_3 m^3(t) + \cdots
   \label{eq:balanced}
 \end{equation}
-o termo CC se cancela e a região central da característica torna-se mais
-linear, reduzindo distorção harmônica.
+Portanto a amplitude da fundamental dobra, $+6{,}02$\,dB, a harmônica em $2f_m$
+desaparece e a harmônica em $3f_m$ mantém o mesmo nível relativo.
 
-\textbf{Comparação com \texttt{WBFM Receive}.} O bloco \texttt{WBFM Receive}
-do GNU Radio implementa um discriminador de quadratura seguido de filtragem
-e decimação, com desempenho próximo do ideal. Ele serve como referência
-para validar a fidelidade dos demoduladores construídos manualmente.
+\textbf{Distorção harmônica.} Com $H_k$ o nível em dB da harmônica $k$ lido no
+espectro,
+\begin{equation}
+  \mathrm{THD} = 10\log_{10}\!\Big(10^{(H_2-H_1)/10} + 10^{(H_3-H_1)/10}\Big)\ \text{dB},
+  \qquad
+  \mathrm{THD}_{\%} = 100\cdot 10^{\mathrm{THD}/20}.
+  \label{eq:thd}
+\end{equation}
+
+\textbf{Ruído.} O \texttt{Noise Source} complexo com amplitude $\sigma$ tem
+potência $\sigma^2$ espalhada em \texttt{samp\_rate}. Dentro da banda de Carson
+$B_C = 2(\Delta f + f_m)$, a relação portadora-ruído do sinal de amplitude 1 é
+\begin{equation}
+  \frac{C}{N} = 10\log_{10}\frac{1}{\sigma^2\,B_C/\texttt{samp\_rate}}\ \text{dB}.
+  \label{eq:cn}
+\end{equation}
+Na saída, a qualidade é medida pela relação tom-piso
+\begin{equation}
+  R = L(f_m) - L(2{,}5\ \text{kHz})\ \text{dB},
+  \label{eq:r}
+\end{equation}
+diferença entre o nível do tom e o nível do piso de ruído em $2{,}5$\,kHz, entre
+a 2.ª e a 3.ª harmônicas.
 
 % ======================================================
 \section{Materiais e blocos GNU Radio}
 
 \begin{table}[H]
-  \centering
+  \centering\small
   \begin{tabular}{l l l}
     \toprule
     \textbf{Bloco GRC} & \textbf{Localização} & \textbf{Função} \\
     \midrule
-    \texttt{Variable}          & Miscellaneous        & Parâmetros globais \\
-    \texttt{QT GUI Range}      & GUI Widgets          & Sliders \\
+    \texttt{Variable}, \texttt{QT GUI Range} & Variables, GUI Widgets & Parâmetros e sliders \\
+    \texttt{Import}            & Misc                 & \texttt{import math} \\
     \texttt{Signal Source}     & Waveform Generators  & Mensagem $m(t)$ \\
-    \texttt{Noise Source}      & Waveform Generators  & Ruído gaussiano \\
-    \texttt{WBFM Transmit}     & Modulators           & Modulador FM \\
-    \texttt{WBFM Receive}      & Modulators           & Demodulador de referência \\
-    \texttt{Throttle}          & Misc Operators       & Controle de CPU \\
-    \texttt{Add}               & Math Operators       & Inserção de ruído \\
+    \texttt{Frequency Mod}     & Modulators           & Modulador FM \\
+    \texttt{Noise Source}, \texttt{Add} & Waveform Generators, Math & Ruído gaussiano \\
     \texttt{Band Pass Filter}  & Filters              & Filtros de inclinação \\
-    \texttt{Complex to Mag}    & Type Converters      & Detector de envelope \\
+    \texttt{Complex to Mag}    & Type Converters      & Detector de envoltória \\
     \texttt{Subtract}          & Math Operators       & Subtração balanceada \\
-    \texttt{DC Blocker}        & Filters              & Remoção de nível CC \\
-    \texttt{Low Pass Filter}   & Filters              & Filtragem de áudio e decimação \\
-    \texttt{QT GUI Freq Sink}  & Instrumentation      & Espectro \\
-    \texttt{QT GUI Time Sink}  & Instrumentation      & Comparação no tempo \\
+    \texttt{DC Blocker}        & Filters              & Remoção do nível CC \\
+    \texttt{Low Pass Filter}   & Filters              & Filtro de áudio e decimação \\
+    \texttt{Quadrature Demod}  & Modulators           & Referência da Prática 05 \\
+    \texttt{Keep 1 in N}       & Stream Operators     & Mensagem na taxa de áudio \\
+    \texttt{QT GUI Frequency Sink}, \texttt{Time Sink} & Instrumentation & Medições \\
     \bottomrule
   \end{tabular}
   \caption{Blocos utilizados na Prática 06.}
 \end{table}
 
+\begin{landscape}
+\begin{figure}[p]
+  \centering
+  \includegraphics[width=\linewidth]{figuras/flowgraph.png}
+  \caption{Flowgraph completo da Prática 06, como aparece no GNU Radio Companion.}
+  \label{fig:flowgraph}
+\end{figure}
+\end{landscape}
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.49\textwidth}\includegraphics[width=\textwidth]{figuras/bloco_bpf_pos.png}\caption{\texttt{bpf\_pos}}\end{subfigure}
+  \begin{subfigure}{0.49\textwidth}\includegraphics[width=\textwidth]{figuras/bloco_bpf_neg.png}\caption{\texttt{bpf\_neg}}\end{subfigure}\\[4pt]
+  \begin{subfigure}{0.49\textwidth}\includegraphics[width=\textwidth]{figuras/bloco_fm_mod.png}\caption{Frequency Mod}\end{subfigure}
+  \begin{subfigure}{0.49\textwidth}\includegraphics[width=\textwidth]{figuras/bloco_quad_demod.png}\caption{Quadrature Demod, referência}\end{subfigure}\\[4pt]
+  \begin{subfigure}{0.49\textwidth}\includegraphics[width=\textwidth]{figuras/bloco_src_noise.png}\caption{Noise Source}\end{subfigure}
+  \begin{subfigure}{0.49\textwidth}\includegraphics[width=\textwidth]{figuras/bloco_freq_sink_demod.png}\caption{Frequency Sink das saídas}\end{subfigure}
+  \caption{Parâmetros dos blocos principais, capturados do GNU Radio Companion.
+    Os dois \texttt{Band Pass Filter} usam o tipo \textit{Complex$\to$Complex (Complex Taps)}.}
+  \label{fig:blocos}
+\end{figure}
+
 % ======================================================
 \section{Roteiro de montagem e execução (50 min)}
 
-\subsection*{Parâmetros iniciais}
+\subsection*{Parâmetros}
 
-\begin{center}
+\begin{center}\small
 \begin{tabular}{l l}
-  \texttt{samp\_rate} = 480\,000\,Hz & \texttt{audio\_rate} = 48\,000\,Hz \\
-  $f_m$ = 1\,000\,Hz, variável        & $\Delta f$ = 25\,000\,Hz, variável \\
-  Amplitude mensagem = 1.0 & \texttt{noise\_amp} = 0, variável \\
+  \toprule
+  \texttt{samp\_rate}, \texttt{audio\_rate} & $480\,000$\,Hz, $48\,000$\,Hz \\
+  \texttt{fm\_freq} & $200$ a $5\,000$\,Hz, passo $100$, padrão $1\,000$ \\
+  \texttt{max\_dev} & $5\,000$ a $40\,000$\,Hz, passo $1\,000$, padrão $25\,000$ \\
+  \texttt{noise\_amp} & $0$ a $2$, passo $0{,}05$, padrão $0$ \\
+  Frequency Mod, \textit{Sensitivity} & \texttt{2*math.pi*max\_dev/samp\_rate} \\
+  \texttt{bpf\_pos} & corte \texttt{max\_dev} a \texttt{5*max\_dev}, transição \texttt{4*max\_dev}, Hamming \\
+  \texttt{bpf\_neg} & corte \texttt{-5*max\_dev} a \texttt{-max\_dev}, transição \texttt{4*max\_dev}, Hamming \\
+  DC Blocker & comprimento $128$, forma longa \\
+  Low Pass Filter & corte $5$\,kHz, transição $2$\,kHz, decimação $10$ \\
+  Quadrature Demod, \textit{Gain} & \texttt{samp\_rate/(2*math.pi*max\_dev)} \\
+  Frequency Sink das saídas & float, $3$ entradas, FFT $4\,096$, \textit{Flat-top}, média $0{,}2$ \\
+  Time Sink & float, $4$ entradas, $480$ pontos, $10$\,ms, eixo $\pm 1{,}2$ \\
+  \bottomrule
 \end{tabular}
 \end{center}
 
-\begin{atencao}[Atenção -- escolha de $\Delta f$]
-A operação dos detectores de inclinação exige $\Delta f$ suficientemente
-grande para que a frequência instantânea do sinal modulado percorra a
-região de inclinação dos filtros. Para esta prática, use $\Delta f$
-inicial de 25\,000\,Hz, valor típico de WBFM.
+\begin{atencao}[Atenção -- limite de \texttt{max\_dev}]
+A borda superior de \texttt{bpf\_pos} fica em $5\,\Delta f$ e precisa estar
+abaixo de $\texttt{samp\_rate}/2 = 240$\,kHz. Por isso o slider vai só até
+$40$\,kHz, que leva a borda a $200$\,kHz.
 \end{atencao}
 
-\begin{atencao}[Atenção -- escolha do tipo do filtro passa-faixa]
-Os filtros \texttt{bpf\_pos} e \texttt{bpf\_neg} devem usar taps complexos
-para distinguir frequências positivas e negativas em torno de zero. Em GRC,
-isso corresponde ao FIR Type \texttt{Complex->Complex (Complex Taps)}.
-Taps reais produzem resposta simétrica em torno de DC e impedem o
-funcionamento do discriminador balanceado em banda base.
-\end{atencao}
+\begin{instrucao}[Leitura dos instrumentos]
+No Frequency Sink das saídas, passe o mouse sobre o topo de cada componente para
+ler o nível em dB. Use só diferenças entre níveis: elas não dependem da escala
+do instrumento. No Time Sink, a amplitude é metade do valor pico a pico.
+\end{instrucao}
 
-\subsection*{Etapa 1 -- Reaproveitar o transmissor FM (0--6 min)}
+\subsection*{Etapa 1 -- Transmissor (0--6 min)}
 
-\begin{instrucao}[Construção do sinal FM em banda base]
+\begin{instrucao}[Reaproveitar o transmissor da Prática 05]
 \begin{enumerate}[label=\arabic*.]
-  \item Crie as variáveis \texttt{samp\_rate = 480000} e
-    \texttt{audio\_rate = 48000}.
-  \item Crie sliders \texttt{QT GUI Range}:
-    \begin{itemize}
-      \item \texttt{fm\_freq}: min 200, max 5000, passo 100, padrão 1000.
-      \item \texttt{max\_dev}: min 5000, max 50000, passo 1000, padrão 25000.
-      \item \texttt{noise\_amp}: min 0, max 2.0, passo 0.05, padrão 0.
-        O limiar de FM ocorre em torno de \texttt{noise\_amp} $\approx 1{,}0$
-        (SNR$_i \approx 0$\,dB), portanto o slider precisa atingir esse valor.
-    \end{itemize}
-  \item Adicione \texttt{Signal Source} float, cosseno, freq = \texttt{fm\_freq},
-    amplitude = 1.0, samp\_rate = \texttt{audio\_rate}.
-  \item Adicione \texttt{WBFM Transmit}:
-    audio\_rate = \texttt{audio\_rate},
-    quad\_rate = \texttt{samp\_rate},
-    max\_dev = \texttt{max\_dev}.
-  \item Adicione \texttt{Throttle} (samp\_rate = \texttt{samp\_rate}) e um
-    \texttt{QT GUI Freq Sink} para inspecionar o espectro do sinal modulado.
+  \item Monte \texttt{Signal Source} $\to$ \texttt{Frequency Mod} $\to$
+    \texttt{Throttle} $\to$ \texttt{Add} com o \texttt{Noise Source} na segunda
+    entrada, com os parâmetros acima.
+  \item Ligue a saída do \texttt{Add} ao Frequency Sink do sinal FM e confira
+    que o espectro ocupa cerca de $\pm 26$\,kHz, metade de
+    $B_C = 2(25 + 1) = 52$\,kHz.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 2 -- Detector de inclinação simples (6--22 min)}
+\subsection*{Etapa 2 -- Detector de inclinação (6--18 min)}
 
-\begin{instrucao}[Conversão FM-AM por filtro de inclinação]
+\begin{instrucao}[Ramo \texttt{bpf\_pos}]
 \begin{enumerate}[label=\arabic*.]
-  \item Adicione \texttt{Band Pass Filter} com FIR Type
-    \texttt{Complex->Complex (Complex Taps) (Decim)}, chamado \texttt{bpf\_pos}:
-    \begin{itemize}
-      \item low\_cutoff\_freq = \texttt{max\_dev/2}
-      \item high\_cutoff\_freq = \texttt{3*max\_dev/2}
-      \item width = \texttt{max\_dev/4}
-      \item samp\_rate = \texttt{samp\_rate}
-      \item decim = 1
-    \end{itemize}
-  \item Adicione \texttt{Complex to Mag} para extrair a envoltória
-    da saída do filtro.
-  \item Adicione \texttt{DC Blocker} ff, length = 128, para remover o
-    nível médio.
-  \item Adicione \texttt{Low Pass Filter} fff:
-    \begin{itemize}
-      \item cutoff\_freq = 5000
-      \item width = 2000
-      \item decim = \texttt{int(samp\_rate/audio\_rate)} = 10
-      \item samp\_rate = \texttt{samp\_rate}
-    \end{itemize}
-  \item Configure o \texttt{QT GUI Time Sink} com 4 canais. Conecte
-    \texttt{src\_mensagem} ao canal 0 (mensagem original de referência).
-  \item Conecte: \texttt{Throttle} $\to$ \texttt{bpf\_pos} $\to$
-    \texttt{Complex to Mag} $\to$ \texttt{DC Blocker} $\to$
-    \texttt{Low Pass Filter} $\to$ \texttt{QT GUI Time Sink} canal 1.
-  \item Execute. Observe a forma de onda recuperada e identifique:
-    \begin{itemize}
-      \item presença de distorção harmônica;
-      \item nível CC residual antes do \texttt{DC Blocker};
-      \item dependência da fidelidade com $\Delta f$ e $f_m$.
-    \end{itemize}
+  \item Monte \texttt{Add} $\to$ \texttt{bpf\_pos} $\to$ \texttt{Complex to Mag}
+    $\to$ \texttt{DC Blocker} $\to$ \texttt{Low Pass Filter} e ligue a saída ao
+    canal 1 do Time Sink e à entrada 0 do Frequency Sink das saídas.
+  \item Ligue \texttt{Signal Source} $\to$ \texttt{Keep 1 in N} ao canal 0 do
+    Time Sink, para comparar com a mensagem.
+  \item Com $f_m = 1$\,kHz, $\Delta f = 25$\,kHz e sem ruído, meça a amplitude
+    da saída no Time Sink e os níveis $H_1$, $H_2$ e $H_3$ em $1$, $2$ e
+    $3$\,kHz. Preencha a linha \textit{inclinação} da Tabela~\ref{tab:harm}.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 3 -- Discriminador balanceado (22--36 min)}
+\subsection*{Etapa 3 -- Discriminador balanceado (18--28 min)}
 
-\begin{instrucao}[Construção do par balanceado de detectores]
+\begin{instrucao}[Ramo \texttt{bpf\_neg} e subtração]
 \begin{enumerate}[label=\arabic*.]
-  \item Adicione \texttt{Band Pass Filter} com FIR Type
-    \texttt{Complex->Complex (Complex Taps) (Decim)}, chamado \texttt{bpf\_neg}:
-    \begin{itemize}
-      \item low\_cutoff\_freq = \texttt{-3*max\_dev/2}
-      \item high\_cutoff\_freq = \texttt{-max\_dev/2}
-      \item width = \texttt{max\_dev/4}
-      \item samp\_rate = \texttt{samp\_rate}
-      \item decim = 1
-    \end{itemize}
-  \item Adicione um segundo \texttt{Complex to Mag} na saída de
-    \texttt{bpf\_neg}.
-  \item Adicione \texttt{Subtract} float, 2 entradas. Conecte a saída de
-    \texttt{Complex to Mag} de \texttt{bpf\_pos} na entrada 0 e a saída
-    de \texttt{Complex to Mag} de \texttt{bpf\_neg} na entrada 1.
-  \item Reaproveite a configuração da Etapa 2: \texttt{Subtract} $\to$
-    \texttt{DC Blocker} $\to$ \texttt{Low Pass Filter} $\to$
-    \texttt{QT GUI Time Sink} canal 2.
-  \item Execute. Compare a saída balanceada com a saída do detector simples
-    e com a mensagem original no mesmo Time Sink.
+  \item Monte \texttt{Add} $\to$ \texttt{bpf\_neg} $\to$ \texttt{Complex to Mag}.
+  \item Subtraia: envoltória de \texttt{bpf\_pos} na entrada 0 do \texttt{Subtract}
+    e envoltória de \texttt{bpf\_neg} na entrada 1. Depois
+    \texttt{DC Blocker} $\to$ \texttt{Low Pass Filter} $\to$ canal 2 do Time Sink
+    e entrada 1 do Frequency Sink das saídas.
+  \item Meça amplitude, $H_1$, $H_2$ e $H_3$ e preencha a linha
+    \textit{balanceado}.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 4 -- Comparação com \texttt{WBFM Receive} (36--44 min)}
+\subsection*{Etapa 4 -- Referência de quadratura (28--34 min)}
 
-\begin{instrucao}[Validação contra o demodulador de referência]
+\begin{instrucao}[Discriminador da Prática 05]
 \begin{enumerate}[label=\arabic*.]
-  \item Adicione \texttt{WBFM Receive}: quad\_rate = \texttt{samp\_rate},
-    audio\_decimation = \texttt{int(samp\_rate/audio\_rate)} = 10.
-  \item Conecte a saída do \texttt{Throttle} também à entrada de
-    \texttt{WBFM Receive}.
-  \item Conecte a saída de \texttt{WBFM Receive} ao canal 3 do Time Sink.
-  \item Execute. Verifique no Time Sink as quatro formas de onda lado a lado:
-    mensagem original, slope detector, discriminador balanceado e WBFM Receive.
-  \item Faça uma medição visual qualitativa da fidelidade de cada um.
+  \item Monte \texttt{Add} $\to$ \texttt{Quadrature Demod} $\to$
+    \texttt{Low Pass Filter} $\to$ canal 3 do Time Sink e entrada 2 do Frequency
+    Sink das saídas. Com o ganho da tabela de parâmetros, a saída é $m(t)$.
+  \item Meça amplitude e níveis e preencha a linha \textit{quadratura}. Se uma
+    harmônica não aparecer acima do piso, registre ``abaixo do piso''.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 5 -- Robustez ao ruído (44--50 min)}
+\begin{table}[H]
+  \centering
+  \begin{tabular}{l c c c c c}
+    \toprule
+    Saída & Amplitude & $H_2-H_1$ (dB) & $H_3-H_1$ (dB) & THD (dB) & THD (\%) \\
+    \midrule
+    Inclinação & & & & & \\
+    Balanceado & & & & & \\
+    Quadratura & & & & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Saídas sem ruído, $f_m = 1$\,kHz, $\Delta f = 25$\,kHz. THD pela
+    equação~\eqref{eq:thd}.}
+  \label{tab:harm}
+\end{table}
 
-\begin{instrucao}[Inserção de ruído e comparação]
+\subsection*{Etapa 5 -- Ruído (34--48 min)}
+
+\begin{instrucao}[Relação tom-piso em função de \texttt{noise\_amp}]
 \begin{enumerate}[label=\arabic*.]
-  \item Adicione \texttt{Noise Source} gaussiano complexo com amplitude
-    \texttt{noise\_amp}.
-  \item Adicione \texttt{Add} complexo, 2 entradas, entre o \texttt{Throttle}
-    e a entrada dos demoduladores.
-  \item Conecte o \texttt{Noise Source} à segunda entrada do \texttt{Add}.
-  \item Aumente \texttt{noise\_amp} progressivamente. Para cada valor,
-    observe qual demodulador degrada primeiro: detector simples,
-    discriminador balanceado ou \texttt{WBFM Receive}.
-  \item Registre os limiares de \texttt{noise\_amp} em que cada arquitetura
-    se torna inutilizável.
+  \item Para cada valor de \texttt{noise\_amp} da Tabela~\ref{tab:ruido},
+    espere a média do Frequency Sink estabilizar, cerca de $3$\,s.
+  \item Em cada uma das três saídas, leia o nível do tom em $1$\,kHz e o nível
+    do piso em $2{,}5$\,kHz e calcule $R$ pela equação~\eqref{eq:r}.
+  \item Calcule $C/N$ pela equação~\eqref{eq:cn}.
 \end{enumerate}
 \end{instrucao}
+
+\begin{table}[H]
+  \centering\small
+  \begin{tabular}{c c c c c}
+    \toprule
+    \texttt{noise\_amp} & $C/N$ em $B_C$ (dB) & $R$ inclinação (dB) & $R$ balanceado (dB) & $R$ quadratura (dB) \\
+    \midrule
+    0,1 & & & & \\
+    0,3 & & & & \\
+    0,5 & & & & \\
+    0,7 & & & & \\
+    1,0 & & & & \\
+    1,5 & & & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Relação tom-piso nas três saídas, $f_m = 1$\,kHz, $\Delta f = 25$\,kHz.}
+  \label{tab:ruido}
+\end{table}
+
+\subsection*{Síntese (48--50 min)}
+
+Confira se as duas tabelas estão completas, com unidades.
 
 % ======================================================
 \section{Perguntas para o relatório}
 
+Todas as respostas devem ser numéricas, com as contas mostradas.
+
 \begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
 
-  \item Explique fisicamente como o filtro passa-faixa do detector de
-    inclinação converte variação de frequência em variação de amplitude.
-    Por que esse princípio falha quando $\Delta f$ é muito pequeno em relação
-    à largura de banda do filtro?
+  \item Calcule a razão entre as amplitudes do balanceado e da inclinação, em
+    vezes e em dB, e compare com o fator $2$, ou $6{,}02$\,dB, da
+    equação~\eqref{eq:balanced}.
 
-  \item Compare a forma de onda recuperada pelo detector de inclinação simples
-    com a mensagem original. Que tipo de distorção é observada e qual a
-    origem teórica dessa distorção?
+  \item Quantos dB o discriminador balanceado reduziu a harmônica em $2f_m$ em
+    relação ao detector de inclinação? E quanto mudou $H_3 - H_1$?
 
-  \item Qual é a vantagem do discriminador balanceado sobre o detector simples
-    em termos de cancelamento CC e linearidade? Justifique a partir da
-    Equação~\eqref{eq:balanced} e do que foi observado no Time Sink.
+  \item Calcule a THD de cada saída em dB e em porcentagem. Por que fator a THD
+    do balanceado é menor que a do detector de inclinação?
 
-  \item Compare a fidelidade dos três demoduladores: slope, balanceado e
-    \texttt{WBFM Receive}. Qual deles oferece melhor recuperação da mensagem
-    e por que o \texttt{WBFM Receive} costuma superar os detectores baseados
-    em envoltória?
+  \item Preencha a coluna $C/N$ da Tabela~\ref{tab:ruido}. Entre
+    \texttt{noise\_amp} $= 0{,}3$ e $0{,}7$, quantos dB caiu $C/N$ e quantos dB
+    caiu $R$ em cada uma das três saídas?
 
-  \item Para qual valor aproximado de \texttt{noise\_amp} cada arquitetura
-    deixou de recuperar a mensagem? Discuta a ordenação observada e relacione
-    com o efeito de limiar do FM.
+  \item Para cada saída, calcule a queda de $R$ por dB de queda de $C/N$ em
+    cada intervalo da Tabela~\ref{tab:ruido}. Em que faixa de $C/N$ a saída de
+    quadratura passa a cair mais de $3$\,dB por dB? Esse é o limiar do FM.
+
+  \item Quanto a quadratura supera o balanceado em $R$ com
+    \texttt{noise\_amp} $= 0{,}1$ e com \texttt{noise\_amp} $= 1{,}5$?
 
 \end{enumerate}
 
 % ======================================================
-\section{Entregáveis}
+\section*{Entregáveis}
 
-O entregável é o relatório no modelo definido no SIGAA contendo:
-
+Relatório em PDF contendo:
 \begin{itemize}
-  \item Captura do Time Sink mostrando a mensagem original, a saída do
-    detector de inclinação e a saída do discriminador balanceado.
-  \item Captura do Time Sink mostrando as quatro formas de onda incluindo
-    \texttt{WBFM Receive}.
-  \item Tabela com os limiares de \texttt{noise\_amp} para cada demodulador.
-  \item Respostas às 5 questões.
+  \item As Tabelas~\ref{tab:harm} e~\ref{tab:ruido} preenchidas.
+  \item Captura do Time Sink e do Frequency Sink das saídas sem ruído e com
+    \texttt{noise\_amp} $= 1{,}0$.
+  \item Respostas às perguntas Q1 a Q6.
 \end{itemize}
 
 \end{document}

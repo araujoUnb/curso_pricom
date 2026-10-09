@@ -1,43 +1,40 @@
-# Prática 06 — Demodulação FM: Detector de Inclinação e Discriminador (50 min)
+# Prática 06 — Demodulação FM: detector de inclinação e discriminador balanceado (50 min)
 
 ## Alinhamento com cronograma
 
 - Semanas 12–13
-- Tópicos: demodulação FM, conversão FM-AM, robustez ao ruído
+- Tópicos: conversão FM-AM, cancelamento de harmônicas pares, limiar do FM
 
-## Objetivo
+## Arquivos
 
-Construir dois demoduladores FM baseados em conversão FM-AM, o detector de
-inclinação simples e o discriminador balanceado, e comparar ambos com o bloco
-`WBFM Receive` usado como referência.
+- `enunciado_pratica_06.tex` / `.pdf`: enunciado
+- `pratica_06_fm_parte2.grc`: flowgraph de referência
+- `figuras/`: flowgraph e janelas de parâmetros capturados do GNU Radio Companion
 
-## Pré-requisitos
+## Cadeia
 
-- Prática 05 — modulador FM montado e funcionando
-- Frequência instantânea e desvio de frequência
-- Resposta em frequência de filtros passa-faixa
+Signal Source (480 kHz) → Frequency Mod (2π·max_dev/samp_rate) → Throttle → Add (+ Noise Source) →
+- `bpf_pos` [Δf, 5Δf], transição 4Δf → Complex to Mag → DC Blocker → Low Pass (decimação 10): detector de inclinação
+- `bpf_pos` − `bpf_neg` [−5Δf, −Δf] → DC Blocker → Low Pass: discriminador balanceado
+- Quadrature Demod (samp_rate/(2π·max_dev)) → Low Pass: referência da Prática 05
+
+Os filtros foram reprojetados: f_i ∈ [−Δf, Δf] percorre a parte curva da rampa de `bpf_pos`,
+de modo que o detector simples gera 2.ª harmônica (−12 dB) e o balanceado a cancela (abaixo de −100 dB),
+mantendo a 3.ª em −30 dB e dobrando a amplitude (+6 dB).
 
 ## Roteiro (50 min)
 
-1. **(0–6 min)** Reaproveitar o transmissor FM da Prática 05.
-2. **(6–22 min)** Montar o detector de inclinação simples com filtro passa-faixa
-   deslocado seguido de detector de envelope e bloqueio CC.
-3. **(22–36 min)** Montar o discriminador balanceado com dois filtros sintonizados
-   em $f_c \pm \Delta f$ e subtração das envoltórias.
-4. **(36–44 min)** Comparar as duas saídas com o `WBFM Receive` no `Time Sink`.
-5. **(44–50 min)** Avaliar a robustez ao ruído variando `noise_amp` e registrar
-   o limiar de cada demodulador.
+1. **(0–6 min)** Transmissor da Prática 05 com ruído.
+2. **(6–18 min)** Detector de inclinação: amplitude, H2 − H1, H3 − H1.
+3. **(18–28 min)** Discriminador balanceado: mesmas medidas.
+4. **(28–34 min)** Referência de quadratura.
+5. **(34–48 min)** Relação tom-piso R em função de noise_amp e C/N na banda de Carson.
+6. **(48–50 min)** Síntese.
 
 ## Entregáveis
 
-- Captura do `Time Sink` com mensagem original, detector de inclinação e
-  discriminador balanceado.
-- Captura do `Time Sink` com as quatro formas de onda, incluindo `WBFM Receive`.
-- Tabela com os limiares de `noise_amp` para cada demodulador.
-- Relatório em PDF.
+Relatório em PDF com as Tabelas 2 e 3, capturas sem ruído e com noise_amp = 1,0 e respostas numéricas Q1 a Q6.
 
-## Critérios de avaliação
+## Gabarito
 
-- Funcionamento dos dois demoduladores construídos
-- Coerência da comparação com o demodulador de referência
-- Organização dos dados e das capturas
+`Laboratorio/Codigos/pratica_06_gabarito/codigos/pratica_06_gabarito.py`, validado no GNU Radio 3.10.12.
