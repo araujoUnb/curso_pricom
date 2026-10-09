@@ -1,28 +1,557 @@
 % ============================================
 % SEÇÃO 3.1: TRANSFORMADA DE FOURIER DE SINAIS
+% Percurso: série de Fourier -> transformada de Fourier,
+% construído passo a passo com overlays e setas de anotação.
 % ============================================
 
-\subsection{Motivação}
+\subsection{A ideia de Fourier}
 
-\begin{frame}{Por que a Transformada de Fourier?}
+% --------------------------------------------
+\begin{frame}{A transformada separa o sinal em senoides}
 
-A análise de sistemas de comunicação requer ferramentas para:
+\begin{center}
+\begin{tikzpicture}[scale=0.78, every node/.style={font=\scriptsize}]
 
-\begin{itemize}
-\item Entender como os sinais se comportam em diferentes frequências
-\item Projetar filtros e sistemas de transmissão
-\item Calcular larguras de banda necessárias
-\item Analisar distorção e interferência
-\end{itemize}
+% --- sinal composto no tempo
+\begin{scope}[shift={(-5.9,0)}]
+  \draw[->, gray!70] (0,-1.0) -- (0,1.1);
+  \draw[->, gray!70] (-0.15,0) -- (2.7,0) node[right, black, font=\tiny] {$t$};
+  \draw[cBlue, very thick, domain=0:2.6, samples=140, smooth]
+    plot (\x, {0.5*sin(360*\x/2.2)+0.32*sin(360*\x/0.9)+0.2*sin(360*\x/0.45)});
+  \node[cBlue] at (1.3,-1.5) {sinal medido $f(t)$};
+\end{scope}
 
-\vspace{0.5cm}
+% --- seta de entrada e operador
+\only<2->{
+  \draw[setinha, gray!80] (-3.0,0) -- (-2.4,0);
+  \node[unbprimary, font=\Huge] at (-1.3,0) {$\mathcal{F}\{\;\}$};
+}
 
-A \textbf{Transformada de Fourier} é a ferramenta fundamental que permite:
-\begin{itemize}
-\item Passar do domínio do tempo para o domínio da frequência
-\item Analisar o conteúdo espectral de sinais
-\item Simplificar a análise de sistemas lineares
-\end{itemize}
+% --- componentes puras
+\only<3->{
+  \draw[setinha, cGreen!80] (-0.35,0.45) -- (0.25,1.7);
+  \begin{scope}[shift={(0.4,1.7)}]
+    \draw[cGreen, very thick, domain=0:2.6, samples=110, smooth]
+      plot (\x, {0.45*sin(360*\x/2.2)});
+    \node[cGreen, anchor=west] at (2.75,0) {$\omega_1$};
+  \end{scope}
+}
+\only<4->{
+  \draw[setinha, cOrange] (-0.2,0.0) -- (0.25,0.0);
+  \begin{scope}[shift={(0.4,0)}]
+    \draw[cOrange, very thick, domain=0:2.6, samples=140, smooth]
+      plot (\x, {0.32*sin(360*\x/0.9)});
+    \node[cOrange, anchor=west] at (2.75,0) {$\omega_2$};
+  \end{scope}
+}
+\only<5->{
+  \draw[setinha, cPurple] (-0.35,-0.45) -- (0.25,-1.7);
+  \begin{scope}[shift={(0.4,-1.7)}]
+    \draw[cPurple, very thick, domain=0:2.6, samples=160, smooth]
+      plot (\x, {0.22*sin(360*\x/0.45)});
+    \node[cPurple, anchor=west] at (2.75,0) {$\omega_3$};
+  \end{scope}
+}
+
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.2cm}
+
+\onslide<6->{Assim como um prisma separa a luz branca em cores, a análise de
+Fourier separa um sinal em senoides puras.}
+
+\onslide<7->{\alert{A pergunta desta seção: quanto de cada frequência existe
+dentro de $f(t)$?}}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{Somando harmônicas nasce a onda quadrada}
+
+\vspace{-0.15cm}
+\begin{columns}[T]
+\column{0.56\textwidth}
+\begin{tikzpicture}
+\begin{axis}[width=6.0cm, height=4.1cm, axis lines=middle, ticks=none,
+             xmin=0, xmax=2.05, ymin=-1.7, ymax=1.7,
+             xlabel={$t$}, xlabel style={at={(1,0.5)}, anchor=west},
+             clip=false]
+  \only<1>{\addplot[unbprimary, very thick] coordinates
+    {(0,1)(0.5,1)(0.5,-1)(1,-1)(1,1)(1.5,1)(1.5,-1)(2,-1)};}
+  \only<2->{\addplot[gray!60, dashed, thick] coordinates
+    {(0,1)(0.5,1)(0.5,-1)(1,-1)(1,1)(1.5,1)(1.5,-1)(2,-1)};}
+  \only<2>{\addplot[cBlue, very thick, domain=0:2, samples=180]
+    {4/pi*(sin(deg(2*pi*x)))};}
+  \only<3>{\addplot[cBlue, very thick, domain=0:2, samples=200]
+    {4/pi*(sin(deg(2*pi*x))+sin(deg(6*pi*x))/3)};}
+  \only<4>{\addplot[cBlue, very thick, domain=0:2, samples=240]
+    {4/pi*(sin(deg(2*pi*x))+sin(deg(6*pi*x))/3+sin(deg(10*pi*x))/5)};}
+  \only<5>{\addplot[cBlue, very thick, domain=0:2, samples=280]
+    {4/pi*(sin(deg(2*pi*x))+sin(deg(6*pi*x))/3+sin(deg(10*pi*x))/5
+          +sin(deg(14*pi*x))/7+sin(deg(18*pi*x))/9)};}
+  \only<6->{\addplot[cBlue, very thick, domain=0:2, samples=400]
+    {4/pi*(sin(deg(2*pi*x))+sin(deg(6*pi*x))/3+sin(deg(10*pi*x))/5
+          +sin(deg(14*pi*x))/7+sin(deg(18*pi*x))/9+sin(deg(22*pi*x))/11
+          +sin(deg(26*pi*x))/13+sin(deg(30*pi*x))/15)};}
+\end{axis}
+\end{tikzpicture}
+
+\begin{center}\scriptsize
+\only<1>{\textcolor{gray!60!black}{o alvo: uma onda quadrada}}%
+\only<2>{\textcolor{cBlue}{apenas a fundamental $\omega_0$}}%
+\only<3>{\textcolor{cBlue}{fundamental $+$ 3\textsuperscript{a} harmônica}}%
+\only<4>{\textcolor{cBlue}{até a 5\textsuperscript{a} harmônica}}%
+\only<5>{\textcolor{cBlue}{até a 9\textsuperscript{a} harmônica}}%
+\only<6->{\textcolor{cBlue}{até a 15\textsuperscript{a} harmônica}}
+\end{center}
+
+\column{0.42\textwidth}
+\begin{tikzpicture}
+\begin{axis}[width=4.6cm, height=4.1cm, axis lines=middle, ticks=none,
+             xmin=0, xmax=17, ymin=0, ymax=1.55,
+             xlabel={$\omega/\omega_0$}, xlabel style={at={(1,0)}, anchor=north east}]
+  \only<2->{\addplot[cRed, ycomb, very thick, mark=*, mark size=1.1pt]
+    coordinates {(1,1.273)};}
+  \only<3->{\addplot[cRed, ycomb, very thick, mark=*, mark size=1.1pt]
+    coordinates {(3,0.424)};}
+  \only<4->{\addplot[cRed, ycomb, very thick, mark=*, mark size=1.1pt]
+    coordinates {(5,0.255)};}
+  \only<5->{\addplot[cRed, ycomb, very thick, mark=*, mark size=1.1pt]
+    coordinates {(7,0.182)(9,0.141)};}
+  \only<6->{\addplot[cRed, ycomb, very thick, mark=*, mark size=1.1pt]
+    coordinates {(11,0.116)(13,0.098)(15,0.085)};}
+\end{axis}
+\end{tikzpicture}
+
+\begin{center}\scriptsize
+\textcolor{cRed}{componentes de frequência}
+\end{center}
+\end{columns}
+
+\vspace{0.1cm}
+\onslide<7->{\small Cada componente de frequência carrega o peso de uma
+harmônica. Somar harmônicas no tempo equivale a acrescentar componentes de
+frequência.}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{Série de Fourier: a forma trigonométrica}
+
+Se $f(t)$ é periódico com período $T_0$ e frequência fundamental
+$\omega_0 = 2\pi/T_0$:
+
+\vspace{0.35cm}
+\[
+f(t) \;=\; \tikzmarknode{sfA}{a_0}
+\;+\; \sum_{n=1}^{\infty}\Big[\,
+\tikzmarknode{sfB}{a_n}\cos\big(\tikzmarknode{sfC}{n\omega_0}\, t\big)
+\;+\; b_n \sin\big(n\omega_0\, t\big)\Big]
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cGreen, text width=1.6cm] (sfNA) at ($(sfA)+(-2.0,-1.15)$)
+      {valor médio de $f(t)$};
+    \draw[setinha, cGreen] (sfNA.east) -- (sfA.south);}
+  \only<3->{
+    \node[nota=cOrange, text width=2.3cm] (sfNC) at ($(sfC)+(2.9,-1.15)$)
+      {só múltiplos inteiros de $\omega_0$};
+    \draw[setinha, cOrange] (sfNC.west) -- (sfC.south east);}
+  \only<4->{
+    \node[nota=cBlue, text width=1.9cm] (sfNB) at ($(sfB)+(0,-2.4)$)
+      {peso de cada harmônica};
+    \draw[setinha, cBlue] (sfNB.north) -- (sfB.south);}
+}%
+
+\vspace{2.7cm}
+
+\onslide<5->{\alert{Um sinal periódico só contém frequências discretas.}}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{Euler entra na série}
+
+Duas identidades transformam senos e cossenos em exponenciais:
+
+\vspace{-0.15cm}
+\[
+\tikzmarknode{euC}{\cos\theta = \frac{e^{j\theta}+e^{-j\theta}}{2}}
+\qquad
+\tikzmarknode{euS}{\sin\theta = \frac{e^{j\theta}-e^{-j\theta}}{2j}}
+\]
+
+\onslide<2->{Aplicamos as duas ao termo de ordem $n$ da série:}
+
+\vspace{-0.1cm}
+\onslide<2->{
+\[
+\tikzmarknode{trA}{a_n\cos(n\omega_0 t)} \;+\; \tikzmarknode{trB}{b_n\sin(n\omega_0 t)}
+\]}
+
+\anotacoes{%
+  \only<3->{\draw[setinha, cGreen] (euC.south) to[out=-90, in=100] (trA.north);}
+  \only<4->{\draw[setinha, cOrange] (euS.south) to[out=-90, in=80] (trB.north);}
+}%
+
+\vspace{0.1cm}
+\onslide<5->{
+\[
+=\; \hl[cGreen]{\frac{a_n}{2}}\big(e^{jn\omega_0 t}+e^{-jn\omega_0 t}\big)
+\;+\; \hl[cOrange]{\frac{b_n}{2j}}\big(e^{jn\omega_0 t}-e^{-jn\omega_0 t}\big)
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{Agrupando as exponenciais}
+
+Lembrando que $1/j = -j$ e juntando os termos de mesma exponencial:
+
+\vspace{0.1cm}
+\[
+\tikzmarknode{agA}{\frac{a_n - j b_n}{2}}\, e^{jn\omega_0 t}
+\;+\;
+\tikzmarknode{agB}{\frac{a_n + j b_n}{2}}\, e^{-jn\omega_0 t}
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cRed, text width=1.5cm] (agNA) at ($(agA)+(-2.2,-1.25)$) {chame de $c_n$};
+    \draw[setinha, cRed] (agNA.east) -- (agA.south);}
+  \only<3->{
+    \node[nota=cPurple, text width=2.4cm] (agNB) at ($(agB)+(2.5,-1.25)$)
+      {é o conjugado, $c_{-n} = c_n^{*}$};
+    \draw[setinha, cPurple] (agNB.west) -- (agB.south);}
+}%
+
+\vspace{1.5cm}
+
+\onslide<4->{Somando sobre todos os $n$, positivos e negativos:}
+
+\vspace{-0.1cm}
+\onslide<5->{
+\[
+\boxed{\;f(t) \;=\; \sum_{n=-\infty}^{\infty} c_n\, e^{jn\omega_0 t}\;}
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{Da exponencial para a forma polar}
+
+Escrevendo o coeficiente complexo em módulo e fase:
+
+\vspace{-0.1cm}
+\[
+c_n = |c_n|\, e^{j\theta_n},
+\qquad
+c_{-n} = |c_n|\, e^{-j\theta_n}
+\]
+
+\onslide<2->{O par conjugado se recombina em um único cosseno real:}
+
+\vspace{-0.1cm}
+\onslide<3->{
+\[
+c_n e^{jn\omega_0 t} + c_{-n} e^{-jn\omega_0 t}
+\;=\; 2|c_n|\cos\big(n\omega_0 t + \theta_n\big)
+\]}
+
+\vspace{0.1cm}
+\onslide<4->{\alert{A soma de um par conjugado de exponenciais é sempre um
+cosseno real.}}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{A forma polar da série}
+
+Somando os pares conjugados de $n=1$ até o infinito:
+
+\vspace{0.2cm}
+\[
+\boxed{\;f(t) \;=\; C_0 \;+\; \sum_{n=1}^{\infty}
+\tikzmarknode{poA}{C_n}\cos\big(n\omega_0 t + \tikzmarknode{poB}{\theta_n}\big)\;}
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cRed, text width=2.0cm] (poNA) at ($(poA)+(-2.6,-1.3)$)
+      {amplitude $C_n = 2|c_n|$};
+    \draw[setinha, cRed] (poNA.east) -- (poA.south);}
+  \only<3->{
+    \node[nota=cBlue, text width=2.0cm] (poNB) at ($(poB)+(2.6,-1.3)$)
+      {fase $\theta_n = \arg c_n$};
+    \draw[setinha, cBlue] (poNB.west) -- (poB.south);}
+}%
+
+\vspace{1.6cm}
+
+\onslide<4->{\alert{Cada harmônica fica descrita por uma amplitude e uma fase.}}
+
+\onslide<5->{São exatamente as duas informações que o espectro de magnitude e o
+espectro de fase carregam.}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{Isolando um coeficiente: multiplicar}
+
+Partimos da série:
+
+\vspace{-0.1cm}
+\[
+f(t) \;=\; \sum_{n=-\infty}^{\infty} c_n\, e^{jn\omega_0 t}
+\]
+
+\onslide<2->{Multiplicamos os dois lados por $e^{-jk\omega_0 t}$, com $k$ inteiro:
+
+\vspace{-0.15cm}
+\[
+f(t)\,e^{-jk\omega_0 t} \;=\; \sum_{n=-\infty}^{\infty} c_n\,
+\tikzmarknode{muA}{e^{jn\omega_0 t}\, e^{-jk\omega_0 t}}
+\]}
+
+\anotacoes{%
+  \only<3->{
+    \node[nota=cOrange, text width=3.0cm] (muN) at ($(muA)+(0.2,-1.3)$)
+      {mesma base: os expoentes se somam};
+    \draw[setinha, cOrange] (muN.north) -- (muA.south);}
+}%
+
+\vspace{1.5cm}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{Isolando um coeficiente: integrar}
+
+Somando os expoentes:
+
+\vspace{-0.1cm}
+\[
+f(t)\,e^{-jk\omega_0 t} \;=\; \sum_{n=-\infty}^{\infty} c_n\, e^{j(n-k)\omega_0 t}
+\]
+
+\onslide<2->{Integrando os dois lados ao longo de um período:
+
+\vspace{-0.15cm}
+\[
+\int_{-T_0/2}^{T_0/2} f(t)\, e^{-jk\omega_0 t}\, dt
+\;=\; \sum_{n=-\infty}^{\infty} c_n
+\tikzmarknode{orA}{\int_{-T_0/2}^{T_0/2} e^{j(n-k)\omega_0 t}\, dt}
+\]}
+
+\anotacoes{%
+  \only<3->{
+    \node[nota=cRed, text width=3.6cm] (orNA) at ($(orA)+(-0.7,-1.4)$)
+      {tudo depende desta integral. Quanto ela vale?};
+    \draw[setinha, cRed] (orNA.north) -- (orA.south);}
+}%
+
+\vspace{1.5cm}
+
+\onslide<4->{Chame $m = n-k$ e resolva nos dois casos possíveis.}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{Resolvendo a integral: caso $m = n-k \neq 0$}
+
+\[
+I_m \;=\; \int_{-T_0/2}^{T_0/2} e^{jm\omega_0 t}\, dt
+\]
+
+\onslide<2->{
+\[
+=\; \left[\frac{e^{jm\omega_0 t}}{jm\omega_0}\right]_{-T_0/2}^{T_0/2}
+\]}
+
+\onslide<3->{
+\[
+=\; \frac{1}{jm\omega_0}\Big(e^{\,jm\,\tikzmarknode{inB}{\omega_0 T_0/2}}
+- e^{-jm\,\omega_0 T_0/2}\Big)
+\]}
+
+\anotacoes{%
+  \only<4->{
+    \node[nota=cGreen, text width=2.6cm] (inNB) at ($(inB)+(2.7,-1.1)$)
+      {$\omega_0 T_0/2 = \pi$, pois $\omega_0 = 2\pi/T_0$};
+    \draw[setinha, cGreen] (inNB.west) -- (inB.south east);}
+}%
+
+\vspace{1.5cm}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{Resolvendo a integral: o resultado é zero}
+
+Pela identidade de Euler, a diferença no numerador é um seno:
+
+\vspace{-0.1cm}
+\[
+I_m \;=\; \frac{e^{jm\pi} - e^{-jm\pi}}{jm\omega_0}
+\;=\; \frac{2j\,\tikzmarknode{znA}{\sin(m\pi)}}{jm\omega_0}
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cRed, text width=3.4cm] (znNA) at ($(znA)+(0.3,-1.35)$)
+      {$m$ é inteiro, logo $\sin(m\pi) = 0$};
+    \draw[setinha, cRed] (znNA.north) -- (znA.south);}
+}%
+
+\vspace{1.6cm}
+
+\onslide<3->{
+\[
+\boxed{\;I_m = 0 \quad \text{para todo } m \neq 0\;}
+\]}
+
+\onslide<4->{\alert{Exponenciais de harmônicas diferentes se cancelam ao longo
+de um período.}}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{Resolvendo a integral: caso $m = 0$}
+
+Quando $n = k$ o expoente desaparece:
+
+\vspace{-0.1cm}
+\[
+I_0 \;=\; \int_{-T_0/2}^{T_0/2} \tikzmarknode{i0A}{e^{\,j\cdot 0\cdot \omega_0 t}}\, dt
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cGreen, text width=2.0cm] (i0NA) at ($(i0A)+(2.6,-1.1)$)
+      {vale $1$ para todo $t$};
+    \draw[setinha, cGreen] (i0NA.west) -- (i0A.south east);}
+}%
+
+\vspace{1.4cm}
+
+\onslide<3->{
+\[
+=\; \int_{-T_0/2}^{T_0/2} dt \;=\; \frac{T_0}{2} - \left(-\frac{T_0}{2}\right)
+\;=\; T_0
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{A soma colapsa}
+
+\vspace{-0.15cm}
+\[
+\boxed{\;I_{n-k} = \int_{-T_0/2}^{T_0/2} e^{j(n-k)\omega_0 t}\, dt =
+\begin{cases} T_0, & n = k \\[2pt] 0, & n \neq k \end{cases}\;}
+\]
+
+\onslide<2->{Voltando à soma:}
+
+\vspace{-0.1cm}
+\[
+\int_{-T_0/2}^{T_0/2} f(t)\, e^{-jk\omega_0 t}\, dt
+\;=\; \sum_{n=-\infty}^{\infty} c_n\,
+\underbrace{\tikzmarknode{cpA}{I_{n-k}}}_{\text{zero, exceto } n=k}
+\]
+
+\anotacoes{%
+  \only<3->{
+    \node[nota=cRed, text width=3.0cm] (cpNA) at ($(cpA)+(-0.2,-1.5)$)
+      {sobra apenas $c_k\,T_0$};
+    \draw[setinha, cRed] (cpNA.north) -- (cpA.south);}
+}%
+
+\vspace{1.7cm}
+
+\onslide<4->{\alert{A ortogonalidade permite isolar um coeficiente por vez.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Os coeficientes da série}
+
+Sobrando apenas o termo $n=k$:
+
+\[
+\int_{-T_0/2}^{T_0/2} f(t)\, e^{-jk\omega_0 t}\, dt \;=\; c_k\, T_0
+\]
+
+\onslide<2->{Isolando o coeficiente:
+
+\[
+\boxed{\;c_k = \frac{1}{T_0}\int_{-T_0/2}^{T_0/2} f(t)\, e^{-jk\omega_0 t}\, dt\;}
+\]}
+
+\vspace{0.3cm}
+
+\onslide<3->{\alert{Analisar é projetar o sinal sobre cada exponencial.}}
+
+\onslide<4->{Sintetizar é somar essas projeções de volta, com pesos $c_k$.}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{Alongando o período: as componentes se aproximam}
+
+\vspace{-0.2cm}
+\begin{columns}[T]
+\column{0.46\textwidth}
+\begin{center}
+\begin{tikzpicture}[scale=0.62]
+  \draw[->, gray!70] (-3.4,0) -- (3.6,0) node[right, font=\tiny, black] {$t$};
+  \draw[->, gray!70] (0,-0.2) -- (0,1.9);
+  \only<1>{\foreach \c in {-3,-2,-1,0,1,2,3}
+     {\fill[cBlue!75] (\c-0.125,0) rectangle (\c+0.125,1.5);}}
+  \only<2>{\foreach \c in {-2,0,2}
+     {\fill[cBlue!75] (\c-0.125,0) rectangle (\c+0.125,1.5);}}
+  \only<3->{\foreach \c in {0}
+     {\fill[cBlue!75] (\c-0.125,0) rectangle (\c+0.125,1.5);}}
+  \only<1>{\draw[<->, cOrange, thick] (0.14,1.75) -- (0.86,1.75)
+     node[midway, above, font=\tiny, cOrange] {$T_0$};}
+  \only<2>{\draw[<->, cOrange, thick] (0.14,1.75) -- (1.86,1.75)
+     node[midway, above, font=\tiny, cOrange] {$2T_0$};}
+  \only<3->{\draw[<->, cOrange, thick] (0.14,1.75) -- (3.5,1.75)
+     node[midway, above, font=\tiny, cOrange] {$T_0 \to \infty$};}
+\end{tikzpicture}
+\end{center}
+\vspace{-0.1cm}
+\begin{center}\scriptsize\textcolor{cBlue}{trem de pulsos no tempo}\end{center}
+
+\column{0.52\textwidth}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=5.0cm, height=3.7cm, axis lines=middle, ticks=none,
+             xmin=-2.7, xmax=2.7, ymin=-0.35, ymax=1.3,
+             xlabel={$\omega$}, xlabel style={at={(1,0.25)}, anchor=west}]
+  \addplot[gray!65, dashed, thick, domain=-2.6:2.6, samples=200] {\sincE};
+  \only<1>{\addplot[cRed, ycomb, thick, mark=*, mark size=0.9pt,
+     domain=-2.5:2.5, samples=21] {\sincE};}
+  \only<2>{\addplot[cRed, ycomb, thick, mark=*, mark size=0.8pt,
+     domain=-2.5:2.5, samples=41] {\sincE};}
+  \only<3->{\addplot[cRed, ycomb, thick, mark=*, mark size=0.6pt,
+     domain=-2.5:2.5, samples=81] {\sincE};}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\vspace{-0.1cm}
+\begin{center}\scriptsize\textcolor{cRed}{componentes de frequência}\end{center}
+\end{columns}
+
+\vspace{0.1cm}
+\onslide<4->{\small O envelope tracejado não muda com $T_0$: ele depende
+apenas do formato do pulso.}
+
+\onslide<5->{\alert{\small Quando $T_0\to\infty$ sobra um único pulso e as
+componentes de frequência se fundem no envelope contínuo.}}
 
 \end{frame}
 
@@ -30,167 +559,354 @@ A \textbf{Transformada de Fourier} é a ferramenta fundamental que permite:
 
 \subsection{Derivação da Transformada de Fourier}
 
-\begin{frame}{Série de Fourier para Sinais Periódicos}
+% --------------------------------------------
+\begin{frame}{Passo 1: colocar $c_n$ dentro da série}
 
-Para um sinal periódico $f(t)$ com período $T_0$ e frequência fundamental $\omega_0 = 2\pi/T_0$:
+Partimos das duas equações da série de Fourier:
 
+\vspace{-0.15cm}
 \[
-f(t) = \sum_{n=-\infty}^{\infty} c_n e^{jn\omega_0 t}
+f(t) = \sum_{n=-\infty}^{\infty} c_n e^{jn\omega_0 t},
+\qquad
+c_n = \frac{1}{T_0}\int_{-T_0/2}^{T_0/2} f(\tau)\, e^{-jn\omega_0 \tau}\, d\tau
 \]
 
-onde os coeficientes são:
+\onslide<2->{Substituindo a segunda na primeira:}
 
+\vspace{-0.1cm}
+\onslide<3->{
 \[
-c_n = \frac{1}{T_0} \int_{-T_0/2}^{T_0/2} f(t) e^{-jn\omega_0 t} dt
-\]
+f(t) = \sum_{n=-\infty}^{\infty}
+\hl[cGreen]{\frac{1}{T_0}}
+\left[\;\tikzmarknode{p1A}{\int_{-T_0/2}^{T_0/2} f(\tau)\, e^{-jn\omega_0 \tau}\, d\tau}\;\right]
+e^{jn\omega_0 t}
+\]}
 
-\vspace{0.3cm}
+\anotacoes{%
+  \only<4->{
+    \node[nota=cRed, text width=3.0cm] (p1NA) at ($(p1A)+(0,-1.3)$)
+      {depende de $n$ só através de $n\omega_0$};
+    \draw[setinha, cRed] (p1NA.north) -- (p1A.south);}
+}%
 
-\textbf{Ideia:} Representar qualquer sinal periódico como soma de exponenciais complexas.
+\vspace{1.4cm}
 
-\vspace{0.3cm}
-
-\textbf{E sinais não-periódicos?} Podemos pensar neles como sinais periódicos com $T_0 \to \infty$.
+\onslide<5->{\alert{O colchete é o candidato natural a espectro contínuo.}}
 
 \end{frame}
 
-% ============================================
+% --------------------------------------------
+\begin{frame}{Passo 2: batizar o envelope $F(n\omega_0)$}
 
-\begin{frame}{De Série para Transformada: Passo 1a}
+\onslide<1->{Damos nome ao colchete do passo anterior:}
 
-Substituindo $c_n$ na série de Fourier:
-
+\vspace{-0.1cm}
+\onslide<2->{
 \[
-f(t) = \sum_{n=-\infty}^{\infty} \left[ \frac{1}{T_0} \int_{-T_0/2}^{T_0/2} f(\tau) e^{-jn\omega_0 \tau} d\tau \right] e^{jn\omega_0 t}
-\]
+\boxed{\;F(n\omega_0) \;\triangleq\; \int_{-T_0/2}^{T_0/2} f(\tau)\, e^{-jn\omega_0 \tau}\, d\tau
+\;=\; \tikzmarknode{p2A}{T_0\, c_n}\;}
+\]}
 
-Reorganizando (separando $1/T_0$ do coeficiente):
+\anotacoes{%
+  \only<3->{
+    \node[nota=cOrange, text width=3.4cm] (p2NA) at ($(p2A)+(-0.3,-1.5)$)
+      {é o envelope tracejado do slide anterior};
+    \draw[setinha, cOrange] (p2NA.north) -- (p2A.south);}
+}%
 
+\vspace{1.4cm}
+
+\onslide<4->{Com isso $c_n = F(n\omega_0)/T_0$, e a série de síntese fica:}
+
+\onslide<5->{
 \[
-f(t) = \sum_{n=-\infty}^{\infty} \left[ \int_{-T_0/2}^{T_0/2} f(\tau) e^{-jn\omega_0 \tau} d\tau \right] \frac{e^{jn\omega_0 t}}{T_0}
-\]
+f(t) = \sum_{n=-\infty}^{\infty} \frac{F(n\omega_0)}{T_0}\, e^{jn\omega_0 t}
+\]}
 
 \end{frame}
 
-% ============================================
+% --------------------------------------------
+\begin{frame}{Passo 2b: fazer o espaçamento aparecer}
 
-\begin{frame}{De Série para Transformada: Passo 1b}
-
-Como $\omega_0 = 2\pi/T_0$, temos $1/T_0 = \omega_0/(2\pi)$. Substituindo:
+O fator $1/T_0$ esconde o espaçamento entre harmônicas. Como
+$\omega_0 = 2\pi/T_0$:
 
 \[
-f(t) = \sum_{n=-\infty}^{\infty} \left[ \int_{-T_0/2}^{T_0/2} f(\tau) e^{-jn\omega_0 \tau} d\tau \right] \frac{\omega_0}{2\pi} e^{jn\omega_0 t}
+\frac{1}{T_0} \;=\; \frac{\omega_0}{2\pi}
 \]
 
-\vspace{0.3cm}
+\onslide<2->{Substituindo na série:
 
-\textbf{Observação:} o termo entre colchetes é uma função de $n\omega_0$ --- é o ``espectro'' do sinal periódico avaliado na frequência $n\omega_0$.
+\[
+f(t) = \frac{1}{2\pi}\sum_{n=-\infty}^{\infty} F(n\omega_0)\, e^{jn\omega_0 t}\;
+\hl[cPurple]{\omega_0}
+\]}
 
-\vspace{0.3cm}
+\vspace{0.2cm}
 
-\alert{Próximo passo:} o que acontece quando $T_0 \to \infty$?
+\onslide<3->{\alert{O termo destacado é a distância entre duas componentes
+de frequência vizinhas.
+Guarde essa observação para o próximo passo.}}
 
 \end{frame}
 
-% ============================================
+% --------------------------------------------
+\begin{frame}{Passo 3: reconhecer uma soma de Riemann}
 
-\begin{frame}{De Série para Transformada: Passo 2}
+\vspace{-0.1cm}
+\begin{columns}[T]
+\column{0.50\textwidth}
+\vspace{0.4cm}
+\onslide<1->{Chame o espaçamento entre harmônicas de $\Delta\omega = \omega_0$:}
 
-Quando $T_0 \to \infty$:
-
-\begin{itemize}
-\item O espaçamento entre harmônicas $\omega_0 \to 0$ (espectro contínuo)
-\item A variável discreta $n\omega_0$ torna-se contínua: $\omega$
-\item O intervalo de integração $[-T_0/2, T_0/2] \to [-\infty, \infty]$
-\item A soma $\sum (\cdots) \omega_0$ torna-se integral $\int (\cdots) d\omega$
-\end{itemize}
-
-\vspace{0.5cm}
-
-Definindo a \textbf{Transformada de Fourier}:
-
+\vspace{0.2cm}
+\onslide<2->{
 \[
-F(\omega) = \lim_{T_0 \to \infty} \int_{-T_0/2}^{T_0/2} f(t) e^{-j\omega t} dt = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt
-\]
+f(t) = \frac{1}{2\pi}\sum_{n} \underbrace{F(n\omega_0)e^{jn\omega_0 t}}_{\text{altura}}
+\;\underbrace{\Delta\omega}_{\text{base}}
+\]}
+
+\vspace{0.2cm}
+\onslide<4->{\small Cada termo da soma é a área de um retângulo sob a curva
+$F(\omega)e^{j\omega t}$.}
+
+\column{0.46\textwidth}
+\begin{center}
+\begin{tikzpicture}[scale=0.72]
+  \draw[->, gray!70] (-0.2,0) -- (5.2,0) node[right, font=\tiny, black] {$\omega$};
+  \draw[->, gray!70] (0,-0.2) -- (0,2.6);
+  \only<3>{\foreach \i in {0,1,...,4}
+    {\fill[cBlue!25, draw=cBlue] ({\i},0) rectangle
+       ({\i+1},{2.2*exp(-(\i+0.5-2.5)*(\i+0.5-2.5)/2.2)});}}
+  \only<4>{\foreach \i in {0,1,...,9}
+    {\fill[cBlue!25, draw=cBlue] ({\i*0.5},0) rectangle
+       ({\i*0.5+0.5},{2.2*exp(-(\i*0.5+0.25-2.5)*(\i*0.5+0.25-2.5)/2.2)});}}
+  \only<5->{\foreach \i in {0,1,...,19}
+    {\fill[cBlue!25, draw=cBlue, line width=0.2pt] ({\i*0.25},0) rectangle
+       ({\i*0.25+0.25},{2.2*exp(-(\i*0.25+0.125-2.5)*(\i*0.25+0.125-2.5)/2.2)});}}
+  \draw[cRed, very thick, domain=0:5, samples=120, smooth]
+    plot (\x, {2.2*exp(-(\x-2.5)*(\x-2.5)/2.2)});
+  \only<3>{\draw[<->, cPurple, thick] (2,-0.35) -- (3,-0.35)
+     node[midway, below, font=\tiny, cPurple] {$\Delta\omega$};}
+  \only<4>{\draw[<->, cPurple, thick] (2,-0.35) -- (2.5,-0.35)
+     node[midway, below, font=\tiny, cPurple] {$\Delta\omega$};}
+  \only<5->{\node[font=\tiny, cPurple] at (2.5,-0.55) {$\Delta\omega \to 0$};}
+\end{tikzpicture}
+\end{center}
+\end{columns}
+
+\vspace{0.2cm}
+\onslide<5->{\alert{Retângulos cada vez mais finos convergem para a integral.}}
 
 \end{frame}
 
-% ============================================
+% --------------------------------------------
+\begin{frame}{Passo 4: o limite $T_0 \to \infty$}
 
-\begin{frame}{Par de Transformadas de Fourier}
+\onslide<1->{Como $\omega_0 = 2\pi/T_0$, alongar o período aperta o espaçamento.
+Três substituições simultâneas:}
 
-\begin{block}{Transformada de Fourier (direta)}
-\[
-F(\omega) = \FT{f(t)} = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt
-\]
-\end{block}
-
-\begin{block}{Transformada Inversa de Fourier}
-\[
-f(t) = \IFT{F(\omega)} = \frac{1}{2\pi} \int_{-\infty}^{\infty} F(\omega) e^{j\omega t} d\omega
-\]
-\end{block}
-
-Notação: $f(t) \xleftrightarrow{\ft} F(\omega)$
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Interpretação da Transformada de Fourier}
-
-$F(\omega)$ representa a ``quantidade'' de cada frequência $\omega$ presente no sinal $f(t)$.
-
-\vspace{0.3cm}
-
-\begin{itemize}
-\item $F(\omega)$ é em geral \textbf{complexa}: $F(\omega) = |F(\omega)|\,e^{j\phi(\omega)}$
-\item $|F(\omega)|$ --- \textbf{espectro de magnitude} (amplitude de cada frequência)
-\item $\phi(\omega)$ --- \textbf{espectro de fase} (fase relativa de cada frequência)
-\end{itemize}
-
-\vspace{0.3cm}
+\vspace{0.25cm}
 
 \begin{center}
-\begin{tikzpicture}[scale=0.8]
-  \draw[->, thick] (-3,0) -- (3,0) node[right, font=\small] {$\omega$};
-  \draw[->, thick] (0,-0.3) -- (0,2.2) node[above, font=\small] {$|F(\omega)|$};
-  \draw[unbprimary, very thick, smooth, domain=-2.8:2.8, samples=100]
-    plot (\x, {1.8*exp(-\x*\x/1.5)});
-  \node[font=\small, unbprimary] at (2,1.5) {espectro};
+\begin{tikzpicture}[node distance=0.35cm, every node/.style={font=\small}]
+  \node[nota=cBlue, minimum width=2.4cm] (l1) {$n\omega_0$};
+  \node[nota=cBlue, minimum width=2.4cm, below=of l1] (l2) {$\omega_0 = \Delta\omega$};
+  \node[nota=cBlue, minimum width=2.4cm, below=of l2] (l3)
+    {$\displaystyle\sum_{n=-\infty}^{\infty}$};
+
+  \node[nota=cGreen, minimum width=2.4cm, right=2.6cm of l1] (r1) {$\omega$};
+  \node[nota=cGreen, minimum width=2.4cm, right=2.6cm of l2] (r2) {$d\omega$};
+  \node[nota=cGreen, minimum width=2.4cm, right=2.6cm of l3] (r3)
+    {$\displaystyle\int_{-\infty}^{\infty}$};
+
+  \only<2->{\draw[setinha, cRed] (l1) -- (r1)
+     node[midway, above, font=\tiny, cRed] {contínua};}
+  \only<3->{\draw[setinha, cRed] (l2) -- (r2)
+     node[midway, above, font=\tiny, cRed] {infinitesimal};}
+  \only<4->{\draw[setinha, cRed] (l3) -- (r3)
+     node[midway, above, font=\tiny, cRed] {Riemann};}
 \end{tikzpicture}
 \end{center}
 
+\vspace{0.25cm}
+\onslide<5->{Os limites de integração $[-T_0/2,\,T_0/2]$ também se abrem para
+toda a reta.}
+
 \end{frame}
 
-% ============================================
+% --------------------------------------------
+\begin{frame}{Par de transformadas de Fourier}
 
-\begin{frame}{Condições de Existência}
+\vspace{-0.1cm}
+\begin{center}
+\begin{tikzpicture}[every node/.style={font=\small}]
+  \node[draw=cBlue, very thick, rounded corners=3pt, fill=cBlue!8,
+        minimum width=2.7cm, minimum height=0.85cm, align=center] (tempo) at (-2.9,0)
+        {$f(t)$\\[-3pt]{\scriptsize domínio do tempo}};
+  \node[draw=cRed, very thick, rounded corners=3pt, fill=cRed!8,
+        minimum width=2.7cm, minimum height=0.85cm, align=center] (freq) at (2.9,0)
+        {$F(\omega)$\\[-3pt]{\scriptsize domínio da frequência}};
+  \only<2->{\draw[setinha, cGreen, line width=1.1pt]
+      (tempo.north east) to[bend left=20]
+      node[midway, above, font=\small, cGreen] {análise $\;\mathcal{F}$} (freq.north west);}
+  \only<4->{\draw[setinha, cPurple, line width=1.1pt]
+      (freq.south west) to[bend left=20]
+      node[midway, below, font=\small, cPurple] {síntese $\;\mathcal{F}^{-1}$} (tempo.south east);}
+\end{tikzpicture}
+\end{center}
 
-A transformada de Fourier $F(\omega)$ existe se $f(t)$ satisfaz as \textbf{condições de Dirichlet}:
-
-\begin{enumerate}
-\item $f(t)$ é absolutamente integrável:
+\vspace{-0.15cm}
+\onslide<3->{
 \[
-\int_{-\infty}^{\infty} |f(t)| dt < \infty
+\textcolor{cGreen}{F(\omega)} = \int_{-\infty}^{\infty} f(t)\, e^{-j\omega t}\, dt
+\]}
+
+\onslide<5->{
+\[
+\textcolor{cPurple}{f(t)} = \frac{1}{2\pi}\int_{-\infty}^{\infty} F(\omega)\, e^{j\omega t}\, d\omega
+\]}
+
+\vspace{-0.1cm}
+\onslide<6->{Notação compacta: $f(t) \xleftrightarrow{\ft} F(\omega)$.}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{As duas diferenças entre ida e volta}
+
+\vspace{0.1cm}
+\[
+F(\omega) = \int_{-\infty}^{\infty} f(t)\, e^{\tikzmarknode{ptA}{-j\omega t}}\, dt
 \]
 
-\item $f(t)$ tem número finito de máximos e mínimos em qualquer intervalo finito
+\vspace{0.15cm}
 
-\item $f(t)$ tem número finito de descontinuidades finitas em qualquer intervalo finito
-\end{enumerate}
+\[
+f(t) = \tikzmarknode{ptC}{\frac{1}{2\pi}}\int_{-\infty}^{\infty}
+F(\omega)\, e^{\tikzmarknode{ptB}{+j\omega t}}\, d\omega
+\]
 
-\vspace{0.3cm}
+\anotacoes{%
+  \only<2->{
+    \node[nota=cRed, text width=2.1cm] (ptNA) at ($(ptA)+(3.1,-0.95)$)
+      {expoentes com sinais opostos};
+    \draw[setinha, cRed, shorten >=5pt] (ptNA.north west) to[bend left=32] (ptA.north);
+    \draw[setinha, cRed, shorten >=5pt] (ptNA.south west) to[bend right=32] (ptB.south);}
+  \only<3->{
+    \node[nota=cPurple, text width=2.6cm] (ptNC) at ($(ptC)+(-3.0,-0.9)$)
+      {$1/2\pi$ só na volta, porque $\omega$ está em rad/s};
+    \draw[setinha, cPurple] (ptNC.east) -- (ptC.west);}
+}%
 
-\textbf{Observação:} Sinais de energia finita sempre têm transformada de Fourier. Para sinais de potência (como senoidais), usa-se a função delta de Dirac.
+\vspace{1.2cm}
+
+\onslide<4->{\alert{A série soma componentes de frequência discretas; a
+transformada integra um contínuo de frequências.}}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{Série e transformada lado a lado}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.55}
+\begin{tabular}{@{}p{0.14\textwidth}p{0.38\textwidth}p{0.38\textwidth}@{}}
+\hline
+ & \textcolor{cBlue}{Série de Fourier} & \textcolor{cGreen}{Transformada de Fourier} \\
+\hline
+Sinal & periódico, $T_0$ finito & aperiódico, $T_0 \to \infty$ \\
+\onslide<2->{Espectro} & \onslide<2->{componentes em $n\omega_0$} & \onslide<2->{função contínua de $\omega$} \\
+\onslide<3->{Análise} & \onslide<3->{$c_n = \frac{1}{T_0}\int_{T_0} f\, e^{-jn\omega_0 t} dt$}
+ & \onslide<3->{$F(\omega) = \int_{-\infty}^{\infty} f\, e^{-j\omega t} dt$} \\
+\onslide<4->{Síntese} & \onslide<4->{$f = \sum_n c_n e^{jn\omega_0 t}$}
+ & \onslide<4->{$f = \frac{1}{2\pi}\int F e^{j\omega t} d\omega$} \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.2cm}
+\onslide<5->{\alert{Ponte entre as duas: $F(n\omega_0) = T_0\, c_n$.}}
 
 \end{frame}
 
 % ============================================
 
-\subsection{Espectro de Magnitude e Fase}
+\begin{frame}{Interpretação da transformada de Fourier}
 
-\begin{frame}{Representação Espectral}
+Para cada frequência $\omega$, o valor $F(\omega)$ é um número complexo:
+
+\vspace{0.5cm}
+\[
+F(\omega) \;=\; \tikzmarknode{itA}{|F(\omega)|}\;
+e^{\,j\,\tikzmarknode{itB}{\phi(\omega)}}
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cRed, text width=2.6cm] (itNA) at ($(itA)+(-2.6,-1.6)$)
+      {espectro de magnitude: o tamanho da componente};
+    \draw[setinha, cRed] (itNA.north) to[bend right=15] (itA.south west);}
+  \only<3->{
+    \node[nota=cBlue, text width=2.6cm] (itNB) at ($(itB)+(2.6,-1.6)$)
+      {espectro de fase: o deslocamento da componente};
+    \draw[setinha, cBlue] (itNB.north) to[bend left=15] (itB.south east);}
+}%
+
+\vspace{2.7cm}
+
+\onslide<4->{\alert{Magnitude e fase juntas descrevem $f(t)$ por completo.}}
+
+\end{frame}
+
+% --------------------------------------------
+\begin{frame}{Magnitude e fase, lado a lado}
+
+\vspace{-0.1cm}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\begin{center}
+\begin{tikzpicture}[scale=0.62]
+  \draw[->, thick] (-3,0) -- (3,0) node[right, font=\scriptsize] {$\omega$};
+  \draw[->, thick] (0,-0.3) -- (0,2.4);
+  \draw[unbprimary, very thick, smooth, domain=-2.8:2.8, samples=80]
+    plot (\x, {1.8*exp(-\x*\x/1.5)});
+\end{tikzpicture}
+\end{center}
+\vspace{-0.2cm}
+\begin{center}\scriptsize\textcolor{unbprimary}{$|F(\omega)|$, par}\end{center}
+
+\column{0.48\textwidth}
+\onslide<3->{
+\begin{center}
+\begin{tikzpicture}[scale=0.62]
+  \draw[->, thick] (-3,-1.2) -- (3,-1.2) node[right, font=\scriptsize] {$\omega$};
+  \draw[->, thick] (0,-2.4) -- (0,1.2);
+  \draw[cPurple, very thick, smooth, domain=-2.8:2.8, samples=80]
+    plot (\x, {-1.2+1.1*\x/sqrt(1+\x*\x)});
+\end{tikzpicture}
+\end{center}
+\vspace{-0.2cm}
+\begin{center}\scriptsize\textcolor{cPurple}{$\phi(\omega)$, ímpar}\end{center}}
+\end{columns}
+
+\vspace{0.2cm}
+
+\onslide<2->{\textcolor{unbprimary}{A magnitude diz quanto de cada frequência
+existe em $f(t)$.}}
+
+\onslide<4->{\textcolor{cPurple}{A fase diz onde cada componente começa, ou seja,
+quanto ela está deslocada no tempo.}}
+
+\onslide<5->{\alert{Descartar a fase e ficar só com a magnitude destrói o sinal.}}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Espectro de magnitude e fase}
+
+\begin{frame}{Representação espectral}
 
 A transformada $F(\omega)$ é geralmente complexa:
 
@@ -201,19 +917,19 @@ F(\omega) = |F(\omega)| e^{j\phi(\omega)} = \Real\{F(\omega)\} + j\Imag\{F(\omeg
 onde:
 
 \begin{itemize}
-\item \textbf{Espectro de magnitude:} $|F(\omega)| = \sqrt{\Real^2\{F(\omega)\} + \Imag^2\{F(\omega)\}}$
-\item \textbf{Espectro de fase:} $\phi(\omega) = \arctan\left(\frac{\Imag\{F(\omega)\}}{\Real\{F(\omega)\}}\right)$
+\item<2-> Espectro de magnitude: $|F(\omega)| = \sqrt{\Real^2\{F(\omega)\} + \Imag^2\{F(\omega)\}}$
+\item<3-> Espectro de fase: $\phi(\omega) = \arctan\left(\frac{\Imag\{F(\omega)\}}{\Real\{F(\omega)\}}\right)$
 \end{itemize}
 
-\vspace{0.5cm}
+\vspace{0.4cm}
 
-O espectro completo requer ambas informações: magnitude \textbf{e} fase.
+\onslide<4->{O espectro completo exige as duas informações, magnitude e fase.}
 
-Para sinais reais, temos simetrias úteis:
+\onslide<5->{Para sinais reais valem simetrias úteis:
 \begin{itemize}
-\item $|F(-\omega)| = |F(\omega)|$ (magnitude par)
-\item $\phi(-\omega) = -\phi(\omega)$ (fase ímpar)
-\end{itemize}
+\item $|F(-\omega)| = |F(\omega)|$, magnitude par
+\item $\phi(-\omega) = -\phi(\omega)$, fase ímpar
+\end{itemize}}
 
 \end{frame}
 
@@ -221,88 +937,7 @@ Para sinais reais, temos simetrias úteis:
 
 \subsection{Exemplos}
 
-\begin{frame}{Exemplo 1: Pulso Retangular}
-
-Considere um pulso retangular de duração $\tau$ e amplitude $A$:
-
-\[
-f(t) = \begin{cases}
-A & |t| \leq \tau/2 \\
-0 & |t| > \tau/2
-\end{cases} = A \cdot \rect(t/\tau)
-\]
-
-\textbf{Cálculo da transformada:}
-
-\[
-F(\omega) = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt = \int_{-\tau/2}^{\tau/2} A e^{-j\omega t} dt
-\]
-
-\[
-= A \left[ \frac{e^{-j\omega t}}{-j\omega} \right]_{-\tau/2}^{\tau/2} = A \frac{e^{-j\omega\tau/2} - e^{j\omega\tau/2}}{-j\omega}
-\]
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo 1: Pulso Retangular (continuação)}
-
-Usando a identidade de Euler: $\sin(\theta) = \frac{e^{j\theta} - e^{-j\theta}}{2j}$
-
-\[
-F(\omega) = A \frac{e^{j\omega\tau/2} - e^{-j\omega\tau/2}}{j\omega} = A \frac{2\sin(\omega\tau/2)}{\omega}
-\]
-
-\[
-= A\tau \frac{\sin(\omega\tau/2)}{\omega\tau/2}
-\]
-
-Definindo a \textbf{função sinc}: $\sinc(x) = \frac{\sin(\pi x)}{\pi x}$
-
-Obtemos:
-
-\[
-F(\omega) = A\tau \sinc\left(\frac{\omega\tau}{2\pi}\right)
-\]
-
-\textbf{Conclusão:} Pulso retangular no tempo $\leftrightarrow$ função sinc na frequência.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo 1: Análise do Resultado}
-
-\begin{block}{Par de Transformadas: Pulso Retangular}
-\[
-A\,\rect\!\left(\frac{t}{\tau}\right) \xleftrightarrow{\ft} A\tau\,\sinc\!\left(\frac{\omega\tau}{2\pi}\right)
-\]
-\end{block}
-
-\begin{columns}[T]
-\column{0.42\textwidth}
-\textbf{Observações:}
-\begin{itemize}
-\item Primeiro zero: $\omega = \pm 2\pi/\tau$
-\item Largura de banda: $B \approx 1/\tau$
-\item Pulso \textbf{estreito} $\Rightarrow$ espectro \textbf{largo}
-\item $F(0) = A\tau$ (área total do pulso)
-\item Espectro real pois $f(t)$ é par
-\end{itemize}
-
-\column{0.58\textwidth}
-\vspace{-0.3cm}
-\begin{center}
-\includegraphics[width=\linewidth, height=0.55\textheight, keepaspectratio]{figures/cap3/rect_fourier}
-\end{center}
-\end{columns}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo 2: Exponencial Decrescente}
+\begin{frame}{Exemplo 1: exponencial decrescente}
 
 Considere um sinal exponencial causal:
 
@@ -315,21 +950,22 @@ e^{-at} & t \geq 0 \\
 
 onde $u(t)$ é a função degrau unitário.
 
-\textbf{Cálculo da transformada:}
+\onslide<2->{Cálculo da transformada:
 
 \[
 F(\omega) = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt = \int_{0}^{\infty} e^{-at} e^{-j\omega t} dt
-\]
+\]}
 
+\onslide<3->{
 \[
 = \int_{0}^{\infty} e^{-(a+j\omega)t} dt = \left[ \frac{e^{-(a+j\omega)t}}{-(a+j\omega)} \right]_{0}^{\infty}
-\]
+\]}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Exemplo 2: Exponencial Decrescente (continuação)}
+\begin{frame}{Exemplo 1: exponencial decrescente, continuação}
 
 Como $a > 0$, temos $e^{-(a+j\omega)t} \to 0$ quando $t \to \infty$:
 
@@ -337,17 +973,17 @@ Como $a > 0$, temos $e^{-(a+j\omega)t} \to 0$ quando $t \to \infty$:
 F(\omega) = 0 - \frac{1}{-(a+j\omega)} = \frac{1}{a+j\omega}
 \]
 
-Racionalizando (multiplicando por conjugado):
+\onslide<2->{Racionalizando pelo conjugado:
 
 \[
 F(\omega) = \frac{1}{a+j\omega} \cdot \frac{a-j\omega}{a-j\omega} = \frac{a-j\omega}{a^2+\omega^2}
-\]
+\]}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Exemplo 2: Resultado Final}
+\begin{frame}{Exemplo 1: resultado final}
 
 Separando parte real e imaginária:
 
@@ -357,45 +993,45 @@ Separando parte real e imaginária:
 
 \vspace{0.3cm}
 
-\textbf{Espectro de magnitude:}
+\onslide<2->{Espectro de magnitude:
 \[
 |F(\omega)| = \frac{1}{\sqrt{a^2+\omega^2}}
-\]
+\]}
 
-\textbf{Espectro de fase:}
+\onslide<3->{Espectro de fase:
 \[
 \phi(\omega) = -\arctan\!\left(\frac{\omega}{a}\right)
-\]
+\]}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Exemplo 2: Análise do Resultado}
+\begin{frame}{Exemplo 1: análise do resultado}
 
 \[
 \boxed{f(t) = e^{-at}u(t) \quad \xleftrightarrow{\ft} \quad F(\omega) = \frac{1}{a+j\omega}}
 \]
 
-\textbf{Características do espectro:}
+Características do espectro:
 
 \begin{itemize}
-\item Magnitude: $|F(\omega)| = 1/\sqrt{a^2+\omega^2}$ (forma Lorentziana)
-\item Fase: $\phi(\omega) = -\arctan(\omega/a)$
-\item Em $\omega = 0$: $|F(0)| = 1/a$ (valor máximo)
-\item Em $\omega = \pm a$: $|F(\omega)| = 1/(a\sqrt{2})$ (redução de 3 dB)
-\item Largura de banda: $B \approx a$ (relacionada à constante de decaimento)
+\item<2-> Magnitude $|F(\omega)| = 1/\sqrt{a^2+\omega^2}$, de forma Lorentziana
+\item<3-> Fase $\phi(\omega) = -\arctan(\omega/a)$
+\item<4-> Em $\omega = 0$ o valor é máximo, $|F(0)| = 1/a$
+\item<5-> Em $\omega = \pm a$ há redução de 3\,dB, $|F(\omega)| = 1/(a\sqrt{2})$
+\item<6-> Largura de banda $B \approx a$, ligada à constante de decaimento
 \end{itemize}
 
 \vspace{0.3cm}
 
-\textbf{Interpretação física:} Decaimento rápido no tempo ($a$ grande) $\rightarrow$ espectro largo na frequência.
+\onslide<7->{\alert{Decaimento rápido no tempo produz espectro largo em frequência.}}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Exemplo 2: Visualização do Espectro}
+\begin{frame}{Exemplo 1: visualização do espectro}
 
 \begin{center}
 \includegraphics[width=\figFull, height=0.72\textheight, keepaspectratio]{figures/cap3/exponential_fourier}
@@ -403,36 +1039,36 @@ Separando parte real e imaginária:
 
 \vspace{-0.3cm}
 \begin{itemize}
-\item Decaimento mais rápido no tempo ($a$ maior) $\Rightarrow$ espectro mais \textbf{largo}
-\item Frequência de corte de 3\,dB ocorre em $\omega = a$
+\item<2-> Decaimento mais rápido no tempo, com $a$ maior, alarga o espectro
+\item<3-> A frequência de corte de 3\,dB ocorre em $\omega = a$
 \end{itemize}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Exemplo 3: Pulso Exponencial Bilateral}
+\begin{frame}{Exemplo 2: pulso exponencial bilateral}
 
-Considere um pulso exponencial bilateral (simétrico):
+Considere um pulso exponencial bilateral simétrico:
 
 \[
 f(t) = e^{-a|t|}, \quad a > 0
 \]
 
-Este sinal pode ser decomposto em:
+\onslide<2->{Este sinal pode ser decomposto em:
 \[
 f(t) = e^{-at}u(t) + e^{at}u(-t)
-\]
+\]}
 
-Cada parcela já tem transformada conhecida (Exemplo 2)!
+\onslide<3->{\alert{Cada parcela já tem transformada conhecida do Exemplo 1.}}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Exemplo 3: Cálculo da Transformada}
+\begin{frame}{Exemplo 2: cálculo da transformada}
 
-\textbf{Separando a integral em dois intervalos:}
+Separando a integral em dois intervalos:
 
 \[
 F(\omega) = \underbrace{\int_{-\infty}^{0} e^{at} e^{-j\omega t} dt}_{t < 0} + \underbrace{\int_{0}^{\infty} e^{-at} e^{-j\omega t} dt}_{t > 0}
@@ -445,176 +1081,150 @@ Resolvendo cada integral:
 \vspace{0.2cm}
 
 \begin{itemize}
-\item Para $t < 0$: \; $\displaystyle\int_{-\infty}^{0} e^{(a-j\omega)t} dt = \frac{1}{a-j\omega}$
+\item<2-> Para $t < 0$: \; $\displaystyle\int_{-\infty}^{0} e^{(a-j\omega)t} dt = \frac{1}{a-j\omega}$
 
 \vspace{0.2cm}
 
-\item Para $t > 0$: \; $\displaystyle\int_{0}^{\infty} e^{-(a+j\omega)t} dt = \frac{1}{a+j\omega}$
+\item<3-> Para $t > 0$: \; $\displaystyle\int_{0}^{\infty} e^{-(a+j\omega)t} dt = \frac{1}{a+j\omega}$
 \end{itemize}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Exemplo 3: Resultado}
+\begin{frame}{Exemplo 2: resultado}
 
 \[
 F(\omega) = \frac{1}{a-j\omega} + \frac{1}{a+j\omega} = \frac{(a+j\omega) + (a-j\omega)}{(a-j\omega)(a+j\omega)}
 \]
 
+\onslide<2->{
 \[
 \boxed{F(\omega) = \frac{2a}{a^2+\omega^2}}
-\]
+\]}
 
 \vspace{0.3cm}
 
-\textbf{Observações:}
+Observações:
 
 \begin{itemize}
-\item $F(\omega)$ é \textbf{real} (fase zero) porque $f(t)$ é par
-\item Espectro Lorentziano centrado em $\omega = 0$
-\item $F(0) = 2/a$, \; $F(\pm a) = 1/a$
+\item<3-> $F(\omega)$ é real, de fase zero, porque $f(t)$ é par
+\item<4-> Espectro Lorentziano centrado em $\omega = 0$
+\item<5-> $F(0) = 2/a$ \; e \; $F(\pm a) = 1/a$
 \end{itemize}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Exemplo 3: Visualização do Espectro}
+\begin{frame}{Exemplo 2: visualização do espectro}
 
 \begin{center}
 \includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/bilateral_exponential}
 \end{center}
 
-Decaimento rápido ($a$ grande) $\Rightarrow$ espectro mais largo. Espectro é real e par pois $f(t)$ é par.
+Decaimento rápido, com $a$ grande, alarga o espectro. O espectro é real e par
+porque $f(t)$ é par.
 
 \end{frame}
 
 % ============================================
 
-\subsection{Interpretação Física}
-
-\begin{frame}{Interpretação Física da Transformada de Fourier}
-
-A transformada pode ser vista como uma \textbf{correlação} do sinal com exponenciais complexas:
-
-\[
-F(\omega) = \int_{-\infty}^{\infty} f(t) e^{-j\omega t} dt
-\]
-
-\begin{itemize}
-\item $e^{-j\omega t} = \cos(\omega t) - j\sin(\omega t)$ é uma oscilação na frequência $\omega$
-\item O produto $f(t) e^{-j\omega t}$ mede quanto de $f(t)$ "combina" com essa frequência
-\item A integral acumula essa correlação sobre todo o tempo
-\item $|F(\omega)|$ grande $\rightarrow$ forte presença da frequência $\omega$ em $f(t)$
-\item $|F(\omega)|$ pequeno $\rightarrow$ pouca presença da frequência $\omega$
-\end{itemize}
-
-\vspace{0.3cm}
-
-\textbf{Analogia:} A transformada de Fourier "decompõe" o sinal em componentes de frequência, assim como um prisma decompõe luz branca em cores.
-
-\end{frame}
+\subsection{Incerteza tempo-frequência}
 
 % ============================================
 
-\begin{frame}{Princípio da Incerteza Tempo-Frequência}
+\begin{frame}{Princípio da incerteza tempo-frequência}
 
-Dos exemplos, observamos uma relação fundamental:
+Aperte o sinal no tempo e veja o que acontece com o espectro:
 
+\vspace{-0.1cm}
+\begin{columns}[T]
+\column{0.48\textwidth}
 \begin{center}
-\textbf{Duração no tempo} $\times$ \textbf{Largura de banda} $\approx$ constante
+\begin{tikzpicture}
+\begin{axis}[width=4.9cm, height=3.4cm, axis lines=middle, ticks=none,
+             xmin=-3.2, xmax=3.2, ymin=0, ymax=1.3,
+             xlabel={$t$}, xlabel style={at={(1,0)}, anchor=north east}]
+  \only<1>{\addplot[cBlue, very thick, domain=-3.2:3.2, samples=140]
+     {exp(-x^2/(2*0.90^2))};
+     \draw[<->, cOrange, thick] (axis cs:-0.90,0.607) -- (axis cs:0.90,0.607)
+       node[midway, above, font=\tiny, cOrange] {$\Delta t$};}
+  \only<2>{\addplot[gray!45, dashed, domain=-3.2:3.2, samples=140]
+     {exp(-x^2/(2*0.90^2))};
+     \addplot[cBlue, very thick, domain=-3.2:3.2, samples=140]
+     {exp(-x^2/(2*0.50^2))};
+     \draw[<->, cOrange, thick] (axis cs:-0.50,0.607) -- (axis cs:0.50,0.607)
+       node[midway, above, font=\tiny, cOrange] {$\Delta t$};}
+  \only<3->{\addplot[gray!45, dashed, domain=-3.2:3.2, samples=140]
+     {exp(-x^2/(2*0.90^2))};
+     \addplot[cBlue, very thick, domain=-3.2:3.2, samples=220]
+     {exp(-x^2/(2*0.26^2))};
+     \draw[<->, cOrange, thick] (axis cs:-0.26,0.607) -- (axis cs:0.26,0.607)
+       node[midway, above, font=\tiny, cOrange] {$\Delta t$};}
+\end{axis}
+\end{tikzpicture}
 \end{center}
+\vspace{-0.25cm}
+\begin{center}\scriptsize\textcolor{cBlue}{sinal no tempo}\end{center}
 
-\vspace{0.3cm}
+\column{0.48\textwidth}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=4.9cm, height=3.4cm, axis lines=middle, ticks=none,
+             xmin=-6.5, xmax=6.5, ymin=0, ymax=1.3,
+             xlabel={$\omega$}, xlabel style={at={(1,0)}, anchor=north east}]
+  \only<1>{\addplot[cRed, very thick, domain=-6.5:6.5, samples=140]
+     {exp(-x^2*0.90^2/2)};
+     \draw[<->, cPurple, thick] (axis cs:-1.11,0.607) -- (axis cs:1.11,0.607)
+       node[midway, above, font=\tiny, cPurple] {$\Delta\omega$};}
+  \only<2>{\addplot[gray!45, dashed, domain=-6.5:6.5, samples=140]
+     {exp(-x^2*0.90^2/2)};
+     \addplot[cRed, very thick, domain=-6.5:6.5, samples=140]
+     {exp(-x^2*0.50^2/2)};
+     \draw[<->, cPurple, thick] (axis cs:-2.0,0.607) -- (axis cs:2.0,0.607)
+       node[midway, above, font=\tiny, cPurple] {$\Delta\omega$};}
+  \only<3->{\addplot[gray!45, dashed, domain=-6.5:6.5, samples=140]
+     {exp(-x^2*0.90^2/2)};
+     \addplot[cRed, very thick, domain=-6.5:6.5, samples=160]
+     {exp(-x^2*0.26^2/2)};
+     \draw[<->, cPurple, thick] (axis cs:-3.85,0.607) -- (axis cs:3.85,0.607)
+       node[midway, above, font=\tiny, cPurple] {$\Delta\omega$};}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\vspace{-0.25cm}
+\begin{center}\scriptsize\textcolor{cRed}{espectro correspondente}\end{center}
+\end{columns}
 
-Matematicamente (Desigualdade de Heisenberg-Gabor):
-
-\[
-\Delta t \cdot \Delta \omega \geq \frac{1}{2}
-\]
-
-onde $\Delta t$ é a duração efetiva e $\Delta \omega$ é a largura de banda efetiva.
-
-\vspace{0.3cm}
+\vspace{0.1cm}
+\onslide<4->{\alert{O produto das duas larguras nunca diminui:}
+$\;\Delta t \cdot \Delta \omega \geq \tfrac{1}{2}$, a desigualdade de
+Heisenberg-Gabor.}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Incerteza Tempo-Frequência: Consequências}
+\begin{frame}{Incerteza tempo-frequência: consequências}
 
 \begin{columns}
 \begin{column}{0.55\textwidth}
 \includegraphics[width=\linewidth, keepaspectratio]{figures/cap3/gaussian_fourier}
 \end{column}
 \begin{column}{0.42\textwidth}
-\textbf{Consequências práticas:}
+Consequências práticas:
 \begin{itemize}
-\item Pulsos curtos requerem grande largura de banda
-\item Sinais de banda estreita devem ter longa duração
-\item Compromisso fundamental em sistemas de comunicação
+\item<2-> Pulsos curtos exigem grande largura de banda
+\item<3-> Sinais de banda estreita precisam de longa duração
+\item<4-> Compromisso fundamental em sistemas de comunicação
 \end{itemize}
 
 \vspace{0.3cm}
 
-A \textbf{Gaussiana} atinge o limite mínimo $\Delta t \cdot \Delta\omega = \frac{1}{2}$.
+\onslide<5->{A gaussiana atinge o limite mínimo $\Delta t \cdot \Delta\omega = \frac{1}{2}$.}
 \end{column}
 \end{columns}
 
 \end{frame}
 
-% ============================================
-
-\begin{frame}{Exemplo Prático: Largura de Banda em Comunicações}
-
-\textbf{Problema:} Um sistema transmite pulsos retangulares de duração $\tau = 1\,\mu$s para enviar dados binários (1 bit por pulso).
-
-\textbf{Taxa de dados:} $R_b = 1/\tau = 1$ Mbps
-
-\textbf{Largura de banda necessária:}
-
-O primeiro zero do espectro $\sinc$ está em $f = 1/\tau = 1$ MHz.
-
-$\Rightarrow$ Banda mínima $B \approx 1/\tau = 1$ MHz
-
-\textbf{Para aumentar a taxa para 10 Mbps:}
-
-$\tau = 0.1\,\mu$s $\Rightarrow$ $B \approx 10$ MHz (10$\times$ mais banda!)
-
-\vspace{0.2cm}
-
-\textbf{Conclusão:} Taxa de dados e largura de banda são diretamente proporcionais --- compromisso fundamental em telecomunicações.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Resumo da Seção 3.1}
-
-\textbf{Conceitos fundamentais:}
-
-\begin{itemize}
-\item Transformada de Fourier: generalização da série de Fourier para sinais não-periódicos
-\item Par de transformadas: $f(t) \xleftrightarrow{\ft} F(\omega)$
-\item Espectro: magnitude e fase descrevem conteúdo em frequência
-\end{itemize}
-
-\vspace{0.1cm}
-
-\textbf{Pares importantes derivados:}
-
-\begin{itemize}
-\item $\rect(t/\tau) \xleftrightarrow{\ft} \tau\sinc(\omega\tau/2\pi)$
-\item $e^{-at}u(t) \xleftrightarrow{\ft} 1/(a+j\omega)$
-\item $e^{-a|t|} \xleftrightarrow{\ft} 2a/(a^2+\omega^2)$
-\end{itemize}
-
-\vspace{0.1cm}
-
-\textbf{Princípio fundamental:}
-\begin{center}
-Sinal concentrado no tempo $\leftrightarrow$ Espectro disperso em frequência
-\end{center}
-
-\end{frame}

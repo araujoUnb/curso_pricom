@@ -17,8 +17,44 @@
 \usepackage{array}
 \usepackage{cancel}
 \usepackage{tikz}
-\usetikzlibrary{decorations.pathmorphing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{decorations.pathmorphing, decorations.pathreplacing, arrows.meta,
+                positioning, calc, fit, backgrounds, shapes.geometric, tikzmark}
 \usepackage{circuitikz}
+
+
+% ============================================
+% RECURSOS PARA DERIVACAO ESTILO QUADRO
+% (setas de anotacao + destaques + overlays)
+% ============================================
+\colorlet{cRed}{red!65!black}
+\colorlet{cBlue}{blue!65!black}
+\colorlet{cGreen}{green!45!black}
+\colorlet{cOrange}{orange!85!black}
+\colorlet{cPurple}{purple!70!black}
+
+\tikzset{
+  nota/.style={draw=#1, text=#1, fill=white, rounded corners=2pt, inner sep=3pt,
+               font=\scriptsize, align=center, line width=0.6pt},
+  nota/.default=cRed,
+  setinha/.style={-{Stealth[length=2.2mm,width=1.6mm]}, line width=0.8pt,
+                  shorten >=2pt, shorten <=2pt},
+}
+
+% Destaque de um trecho de equacao. Depende da baseline, entao fica inline.
+\newcommand{\hl}[2][cRed]{%
+  \tikz[baseline=(HLX.base)]{%
+    \node[inner sep=1.5pt, outer sep=0pt, fill=#1!18,
+          rounded corners=1.5pt] (HLX) {$\displaystyle #2$};}}
+% Setas de anotacao sobre as equacoes, no estilo quadro.
+% Uso: \anotacoes{ \only<2->{ \node[nota=cRed] ... ; \draw[setinha,cRed] ... ; } }
+\newcommand{\anotacoes}[1]{%
+  \begin{tikzpicture}[remember picture, overlay]#1\end{tikzpicture}}
+
+
+% sinc usado nos graficos (deslocamento minusculo evita 0/0)
+\newcommand{\sincE}{sin(deg(pi*(x+0.0007)))/(pi*(x+0.0007))}
 
 % ============================================
 % VARIÁVEIS DE CONFIGURAÇÃO

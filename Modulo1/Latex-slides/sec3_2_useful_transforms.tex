@@ -1,821 +1,1403 @@
 % ============================================
 % SEÇÃO 3.2: TRANSFORMADAS DE FUNÇÕES ÚTEIS
+% Derivações construídas passo a passo, no estilo quadro,
+% com setas de anotação e overlays.
 % ============================================
 
 \subsection{Introdução}
 
-\begin{frame}{Funções Fundamentais em Sistemas de Comunicação}
+\begin{frame}{Funções de interesse para este curso}
 
-Certas funções aparecem frequentemente na análise de sinais e sistemas:
-
-\begin{itemize}
-\item \textbf{Função delta:} impulsos, amostragem
-\item \textbf{Constantes e senoidais:} portadoras, osciladores
-\item \textbf{Função degrau:} ligar/desligar, causalidade
-\item \textbf{Pulsos:} transmissão de dados digitais
-\item \textbf{Gaussiana:} ruído, pulsos em fibras ópticas
-\end{itemize}
-
-\vspace{0.2cm}
-
-Conhecer as transformadas dessas funções permite:
-\begin{itemize}
-\item Análise rápida de sistemas complexos
-\item Uso de propriedades para derivar novas transformadas
-\item Compreensão do comportamento espectral
-\end{itemize}
-
-\end{frame}
-
-% ============================================
-
-\subsection{Função Delta de Dirac}
-
-\begin{frame}{Função Delta de Dirac: Definição}
-
-A \textbf{função delta de Dirac} $\delta(t)$ não é uma função no sentido clássico, mas uma \textit{distribuição} definida por suas propriedades:
-
-\begin{enumerate}
-\item $\delta(t) = 0$ para todo $t \neq 0$
-\item $\int_{-\infty}^{\infty} \delta(t) dt = 1$
-\item \textbf{Propriedade de amostragem:}
-\[
-\int_{-\infty}^{\infty} f(t) \delta(t - t_0) dt = f(t_0)
-\]
-\end{enumerate}
-
-\vspace{0.3cm}
-
-\textbf{Interpretação física:} Impulso infinitamente estreito com área unitária.
-
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Transformada da Delta de Dirac}
-
-\textbf{Cálculo:}
-\vspace{-2mm}
-\[
-\FT{\delta(t)} = \int_{-\infty}^{\infty} \delta(t) e^{-j\omega t} dt
-\]
-\vspace{-4mm}
-
-Usando a propriedade de amostragem com $f(t) = e^{-j\omega t}$ e $t_0 = 0$:
-\vspace{-2mm}
-\[
-\FT{\delta(t)} = e^{-j\omega \cdot 0} = 1
-\]
-\vspace{-4mm}
-
-\begin{block}{Par de Transformadas}
-\vspace{-2mm}
-\[
-\boxed{\delta(t) \xleftrightarrow{\ft} 1}
-\]
-\vspace{-2mm}
-\end{block}
-
-\textbf{Interpretação:} Um impulso no tempo contém \textbf{todas as frequências} com amplitude igual.
-
-\textbf{Delta deslocada:} $\delta(t - t_0) \xleftrightarrow{\ft} e^{-j\omega t_0}$
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo: Resposta ao Impulso de um Canal}
-
-\textbf{Cenário:} Um canal de comunicação tem resposta ao impulso
-\[
-h(t) = \alpha_1\,\delta(t - \tau_1) + \alpha_2\,\delta(t - \tau_2)
-\]
-(dois caminhos com atrasos $\tau_1$, $\tau_2$ e ganhos $\alpha_1$, $\alpha_2$)
-
-\vspace{0.2cm}
-
-\textbf{Resposta em frequência:}
-\[
-H(\omega) = \alpha_1 e^{-j\omega\tau_1} + \alpha_2 e^{-j\omega\tau_2}
-\]
-
-\textbf{Consequência prática:}
-\begin{itemize}
-\item $|H(\omega)|$ varia com $\omega$ $\Rightarrow$ \textbf{desvanecimento seletivo em frequência}
-\item Certas frequências são atenuadas (interferência destrutiva entre caminhos)
-\item Este é o modelo básico de \textbf{multipercurso} em canais sem fio
-\end{itemize}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Visualização: Dualidade Delta e Constante}
-
+\vspace{-0.1cm}
 \begin{center}
-\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/delta_and_constant}
+\begin{tikzpicture}[scale=0.9, every node/.style={font=\scriptsize}]
+
+% --- delta
+\begin{scope}[shift={(-4.4,1.3)}]
+  \draw[gray!70] (-0.7,0) -- (0.9,0);
+  \draw[cBlue, very thick, -{Stealth[length=1.6mm]}] (0,0) -- (0,0.85);
+  \node[cBlue] at (0.1,-0.45) {impulso};
+\end{scope}
+% --- constante
+\only<2->{
+\begin{scope}[shift={(-1.5,1.3)}]
+  \draw[gray!70] (-0.8,0) -- (0.9,0);
+  \draw[cGreen, very thick] (-0.75,0.6) -- (0.85,0.6);
+  \node[cGreen] at (0.05,-0.45) {constante};
+\end{scope}}
+% --- senoide
+\only<3->{
+\begin{scope}[shift={(1.5,1.3)}]
+  \draw[gray!70] (-0.85,0) -- (0.95,0);
+  \draw[cOrange, very thick, domain=-0.8:0.9, samples=60, smooth]
+    plot (\x, {0.55*sin(360*\x/0.85)});
+  \node[cOrange] at (0.05,-0.45) {senoide};
+\end{scope}}
+% --- degrau
+\only<4->{
+\begin{scope}[shift={(4.4,1.3)}]
+  \draw[gray!70] (-0.85,0) -- (0.95,0);
+  \draw[cPurple, very thick] (-0.8,0) -- (0,0) -- (0,0.7) -- (0.9,0.7);
+  \node[cPurple] at (0.05,-0.45) {degrau};
+\end{scope}}
+% --- pulso
+\only<5->{
+\begin{scope}[shift={(-2.9,-1.1)}]
+  \draw[gray!70] (-0.9,0) -- (1.0,0);
+  \draw[cRed, very thick] (-0.85,0) -- (-0.4,0) -- (-0.4,0.7) -- (0.4,0.7)
+                          -- (0.4,0) -- (0.95,0);
+  \node[cRed] at (0.05,-0.45) {pulso};
+\end{scope}}
+% --- gaussiana
+\only<6->{
+\begin{scope}[shift={(0,-1.1)}]
+  \draw[gray!70] (-0.9,0) -- (1.0,0);
+  \draw[unbprimary, very thick, domain=-0.85:0.95, samples=60, smooth]
+    plot (\x, {0.75*exp(-\x*\x/0.18)});
+  \node[unbprimary] at (0.05,-0.45) {gaussiana};
+\end{scope}}
+% --- trem de impulsos
+\only<7->{
+\begin{scope}[shift={(3.1,-1.1)}]
+  \draw[gray!70] (-0.9,0) -- (1.1,0);
+  \foreach \c in {-0.7,-0.2,0.3,0.8}
+    {\draw[unbsecondary, very thick, -{Stealth[length=1.4mm]}] (\c,0) -- (\c,0.7);}
+  \node[unbsecondary] at (0.1,-0.45) {trem de impulsos};
+\end{scope}}
+\end{tikzpicture}
 \end{center}
 
-Impulso no tempo $\leftrightarrow$ constante na frequência (e vice-versa).
+\vspace{0.2cm}
+
+\onslide<8->{Sete formas cobrem quase tudo em comunicações. Saber a
+transformada de cada uma dispensa refazer integrais.}
 
 \end{frame}
 
 % ============================================
 
-\subsection{Constante}
+\subsection{Delta de Dirac}
 
-\begin{frame}{Transformada de uma Constante}
+\begin{frame}{Delta de Dirac: o pulso ideal}
 
-Queremos a transformada de $f(t) = A$ (constante para todo $t$).
+Aperte um retângulo de área $1$ até ele ficar infinitamente estreito:
 
-\textbf{Problema:} A integral $\int_{-\infty}^{\infty} A e^{-j\omega t}\,dt$ não converge classicamente.
-
-\textbf{Solução via dualidade:} Como $\delta(t) \xleftrightarrow{\ft} 1$, a propriedade de
-dualidade ($F(t) \xleftrightarrow{\ft} 2\pi f(-\omega)$) implica diretamente:
-\[
-1 \xleftrightarrow{\ft} 2\pi\,\delta(-\omega) = 2\pi\,\delta(\omega)
-\]
-
-\begin{block}{Par de Transformadas}
-\[
-\boxed{A \xleftrightarrow{\ft} 2\pi A\,\delta(\omega)}
-\]
-\end{block}
-
-\textbf{Interpretação:} Um sinal constante tem toda a sua energia em $\omega = 0$ (componente DC puro).
-
-\end{frame}
-
-% ============================================
-
-\subsection{Exponencial Complexa}
-
-\begin{frame}{Transformada da Exponencial Complexa}
-
-Considere $f(t) = e^{j\omega_0 t}$ (senoidal complexa na frequência $\omega_0$).
-
-\[
-F(\omega) = \int_{-\infty}^{\infty} e^{j\omega_0 t} e^{-j\omega t} dt = \int_{-\infty}^{\infty} e^{-j(\omega - \omega_0) t} dt
-\]
-
-Esta integral é $2\pi\delta(\omega - \omega_0)$:
-
-\begin{block}{Par de Transformadas}
-\[
-\boxed{e^{j\omega_0 t} \xleftrightarrow{\ft} 2\pi \delta(\omega - \omega_0)}
-\]
-\end{block}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Interpretação: Exponencial Complexa no Espectro}
-
-\textbf{Significado:} Uma senoidal complexa de frequência $\omega_0$ tem espectro com um \textbf{único impulso} em $\omega = \omega_0$. É um sinal \textbf{monocromático} puro.
-
-\vspace{0.3cm}
-
+\vspace{0.15cm}
 \begin{center}
-\begin{tikzpicture}[scale=0.9]
-  % Eixo do tempo
-  \begin{scope}[xshift=-4.5cm]
-    \draw[->, thick] (-0.3,0) -- (3.5,0) node[right, font=\small] {$t$};
-    \draw[->, thick] (0,-1.3) -- (0,1.5) node[above, font=\small] {$f(t)$};
-    \draw[unbprimary, thick, domain=0:3.2, samples=80] plot (\x, {cos(deg(3*\x))});
-    \draw[unbprimary!50, thick, dashed, domain=0:3.2, samples=80] plot (\x, {sin(deg(3*\x))});
-    \node[font=\small, below] at (1.75,-1.5) {$e^{j\omega_0 t} = \cos\omega_0 t + j\sin\omega_0 t$};
+\begin{tikzpicture}[scale=0.95, every node/.style={font=\scriptsize}]
+  \draw[->, gray!70] (-2.4,0) -- (2.6,0) node[right, black, font=\tiny] {$t$};
+  \draw[->, gray!70] (0,-0.2) -- (0,2.5);
+  \only<1>{\fill[cBlue!35, draw=cBlue, very thick] (-1.0,0) rectangle (1.0,0.5);
+           \node[cBlue] at (1.9,0.5) {largura $2$, altura $\tfrac12$};}
+  \only<2>{\fill[cBlue!35, draw=cBlue, very thick] (-0.5,0) rectangle (0.5,1.0);
+           \node[cBlue] at (1.9,1.0) {largura $1$, altura $1$};}
+  \only<3>{\fill[cBlue!35, draw=cBlue, very thick] (-0.2,0) rectangle (0.2,2.0);
+           \node[cBlue] at (1.9,1.7) {largura $0{,}4$, altura $2{,}5$};}
+  \only<4->{\draw[cBlue, very thick, -{Stealth[length=2.4mm]}] (0,0) -- (0,2.2);
+            \node[cBlue] at (1.9,2.0) {$\delta(t)$};}
+  \only<1-3>{\node[cGreen, font=\scriptsize] at (-1.7,2.1) {área $=1$};}
+  \only<4->{\node[cGreen, font=\scriptsize] at (-1.7,2.1) {área ainda $=1$};}
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.1cm}
+
+\onslide<5->{\alert{A altura vai ao infinito, a largura vai a zero, e a área
+não se mexe.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{As três propriedades que definem $\delta(t)$}
+
+\vspace{0.1cm}
+\[
+\tikzmarknode{dpA}{\delta(t) = 0 \;\;\text{para } t \neq 0}
+\qquad
+\tikzmarknode{dpB}{\int_{-\infty}^{\infty}\delta(t)\,dt = 1}
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cBlue, text width=2.2cm] (dpNA) at ($(dpA)+(-0.6,-1.3)$)
+      {fora da origem não existe nada};
+    \draw[setinha, cBlue] (dpNA.north) -- (dpA.south);}
+  \only<3->{
+    \node[nota=cGreen, text width=2.2cm] (dpNB) at ($(dpB)+(0.6,-1.3)$)
+      {toda a massa está concentrada em $t=0$};
+    \draw[setinha, cGreen] (dpNB.north) -- (dpB.south);}
+}%
+
+\vspace{1.9cm}
+
+\onslide<4->{Das duas sai a terceira, que é a que realmente usamos:}
+
+\vspace{-0.1cm}
+\onslide<5->{
+\[
+\boxed{\;\int_{-\infty}^{\infty} f(t)\,\delta(t-t_0)\,dt \;=\; f(t_0)\;}
+\]}
+
+\onslide<6->{\alert{A delta não integra o sinal: ela colhe um único valor.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{A propriedade de amostragem, vista de perto}
+
+\vspace{-0.1cm}
+\begin{center}
+\begin{tikzpicture}[scale=0.95, every node/.style={font=\scriptsize}]
+  \draw[->, gray!70] (-2.6,0) -- (2.8,0) node[right, black, font=\tiny] {$t$};
+  \draw[->, gray!70] (0,-0.3) -- (0,2.3);
+  \draw[cBlue, very thick, domain=-2.4:2.6, samples=110, smooth]
+    plot (\x, {1.5*exp(-(\x-0.3)*(\x-0.3)/2.4)+0.35*sin(360*\x/1.7)});
+  \node[cBlue] at (-1.9,1.9) {$f(t)$};
+  \only<2->{\draw[cRed, very thick, -{Stealth[length=2.2mm]}] (1.2,0) -- (1.2,1.9);
+            \node[cRed] at (1.75,2.05) {$\delta(t-t_0)$};
+            \node[black, font=\tiny] at (1.2,-0.32) {$t_0$};}
+  \only<3->{\fill[cGreen] (1.2,{1.5*exp(-0.9*0.9/2.4)+0.35*sin(360*1.2/1.7)}) circle (2.6pt);
+            \draw[dashed, cGreen, thick]
+              (0,{1.5*exp(-0.9*0.9/2.4)+0.35*sin(360*1.2/1.7)})
+              -- (1.2,{1.5*exp(-0.9*0.9/2.4)+0.35*sin(360*1.2/1.7)});
+            \node[cGreen, anchor=east] at (-0.1,{1.5*exp(-0.9*0.9/2.4)+0.35*sin(360*1.2/1.7)}) {$f(t_0)$};}
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.1cm}
+
+\onslide<4->{O produto $f(t)\,\delta(t-t_0)$ zera em toda parte, menos em
+$t=t_0$. A integral devolve exatamente a altura da curva ali.}
+
+\onslide<5->{\alert{É uma peneira que deixa passar um ponto só.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Transformada da delta}
+
+Aplicamos a definição:
+
+\vspace{-0.1cm}
+\[
+\FT{\delta(t)} = \int_{-\infty}^{\infty}
+\tikzmarknode{tdA}{\delta(t)}\;
+\tikzmarknode{tdB}{e^{-j\omega t}}\, dt
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cRed, text width=2.0cm] (tdNA) at ($(tdA)+(-2.3,-1.3)$)
+      {a amostragem em $t_0=0$};
+    \draw[setinha, cRed] (tdNA.east) -- (tdA.south);}
+  \only<3->{
+    \node[nota=cGreen, text width=2.2cm] (tdNB) at ($(tdB)+(2.5,-1.3)$)
+      {este é o $f(t)$ que será colhido};
+    \draw[setinha, cGreen] (tdNB.west) -- (tdB.south);}
+}%
+
+\vspace{1.25cm}
+
+\onslide<4->{
+\[
+= \; e^{-j\omega \cdot 0} \; = \; 1
+\]}
+
+\vspace{0.1cm}
+\onslide<5->{
+\[
+\boxed{\;\delta(t) \xleftrightarrow{\ft} 1\;}
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Um impulso contém todas as frequências}
+
+\vspace{-0.1cm}
+\begin{center}
+\begin{tikzpicture}[scale=0.9, every node/.style={font=\scriptsize}]
+  % tempo
+  \begin{scope}[shift={(-3.4,0)}]
+    \draw[->, gray!70] (-1.6,0) -- (1.8,0) node[right, black, font=\tiny] {$t$};
+    \draw[->, gray!70] (0,-0.25) -- (0,1.9);
+    \draw[cBlue, very thick, -{Stealth[length=2.2mm]}] (0,0) -- (0,1.5);
+    \node[cBlue] at (0.55,1.7) {$\delta(t)$};
   \end{scope}
-  % Seta
-  \draw[->, very thick, gray] (0,0.3) -- (1.2,0.3) node[midway, above, font=\small] {$\mathcal{F}$};
-  % Eixo da frequência
-  \begin{scope}[xshift=2cm]
-    \draw[->, thick] (-1.5,0) -- (3.5,0) node[right, font=\small] {$\omega$};
-    \draw[->, thick] (0,-0.3) -- (0,1.8) node[above, font=\small] {$F(\omega)$};
-    \draw[red!70!black, very thick, ->] (2,0) -- (2,1.5);
-    \node[font=\small, red!70!black, above] at (2,1.5) {$2\pi$};
-    \node[font=\small, below] at (2,-0.2) {$\omega_0$};
-    \node[font=\small, below] at (0,-0.2) {$0$};
+  \only<2->{\draw[setinha, gray!80, line width=1pt] (-1.2,0.7) -- (0.2,0.7)
+     node[midway, above, black] {$\mathcal{F}$};}
+  % frequencia
+  \only<3->{
+  \begin{scope}[shift={(3.0,0)}]
+    \draw[->, gray!70] (-1.9,0) -- (1.9,0) node[right, black, font=\tiny] {$\omega$};
+    \draw[->, gray!70] (0,-0.25) -- (0,1.9);
+    \draw[cRed, very thick] (-1.8,1.0) -- (1.8,1.0);
+    \node[cRed, anchor=south] at (0,1.05) {$F(\omega)=1$};
+  \end{scope}}
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.15cm}
+
+\onslide<4->{O espectro é plano: toda frequência entra com o mesmo peso.}
+
+\onslide<5->{\alert{E se o impulso não estiver na origem?}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Transformada do impulso atrasado}
+
+Um impulso que chega em $t = t_0$:
+
+\vspace{-0.1cm}
+\[
+\FT{\delta(t-t_0)} = \int_{-\infty}^{\infty}
+\tikzmarknode{iaA}{\delta(t-t_0)}\;
+\tikzmarknode{iaB}{e^{-j\omega t}}\, dt
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cRed, text width=2.2cm] (iaNA) at ($(iaA)+(-2.4,-1.3)$)
+      {a amostragem, agora em $t_0$};
+    \draw[setinha, cRed] (iaNA.east) -- (iaA.south);}
+  \only<3->{
+    \node[nota=cGreen, text width=2.4cm] (iaNB) at ($(iaB)+(2.5,-1.3)$)
+      {colhido no instante $t = t_0$};
+    \draw[setinha, cGreen] (iaNB.west) -- (iaB.south);}
+}%
+
+\vspace{1.0cm}
+
+\onslide<4->{
+\[
+=\; \tikzmarknode{iaC}{e^{-j\omega t_0}}
+\]}
+
+\anotacoes{%
+  \only<5->{
+    \node[nota=cPurple, text width=3.4cm] (iaNC) at ($(iaC)+(0.5,-1.25)$)
+      {módulo $1$: o atraso mexe só na fase};
+    \draw[setinha, cPurple] (iaNC.north) -- (iaC.south);}
+}%
+
+\vspace{1.0cm}
+
+\onslide<6->{\alert{Portanto
+$\delta(t-t_0) \xleftrightarrow{\ft} e^{-j\omega t_0}$.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Onde isso aparece: canal com dois caminhos}
+
+Um sinal chega por dois percursos, com atrasos e ganhos diferentes:
+
+\vspace{-0.1cm}
+\[
+h(t) = \alpha_1\,\delta(t-\tau_1) + \alpha_2\,\delta(t-\tau_2)
+\]
+
+\onslide<2->{Aplicando o par recém-deduzido a cada impulso:
+
+\vspace{-0.1cm}
+\[
+H(\omega) = \alpha_1 e^{-j\omega \tikzmarknode{mcA}{\tau_1}}
+          + \alpha_2 e^{-j\omega \tikzmarknode{mcB}{\tau_2}}
+\]}
+
+\anotacoes{%
+  \only<3->{
+    \node[nota=cOrange, text width=3.8cm] (mcN) at ($(mcA)+(1.0,-1.35)$)
+      {dois fasores girando em velocidades diferentes com $\omega$};
+    \draw[setinha, cOrange] (mcN.north west) to[bend left=18] (mcA.south);
+    \draw[setinha, cOrange] (mcN.north east) to[bend right=18] (mcB.south);}
+}%
+
+\vspace{1.25cm}
+
+\onslide<4->{Em certas frequências eles se somam, em outras se cancelam.}
+
+\onslide<5->{\alert{É o desvanecimento seletivo em frequência, o modelo básico
+de multipercurso.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Dualidade entre impulso e constante}
+
+\begin{center}
+\includegraphics[width=\figFull, height=0.68\textheight, keepaspectratio]{figures/cap3/delta_and_constant}
+\end{center}
+
+\onslide<2->{Impulso no tempo corresponde a constante na frequência.}
+
+\onslide<3->{\alert{E o caminho inverso também vale, como veremos agora.}}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Constante e senoides}
+
+\begin{frame}{Transformada de uma constante}
+
+Queremos $\mathcal{F}\{A\}$, com $A$ valendo o mesmo para todo $t$.
+
+\vspace{0.1cm}
+\onslide<2->{
+\[
+\tikzmarknode{ctA}{\int_{-\infty}^{\infty} A\, e^{-j\omega t}\, dt}
+\]}
+
+\anotacoes{%
+  \only<3->{
+    \node[nota=cRed, text width=3.4cm] (ctN) at ($(ctA)+(0,-1.35)$)
+      {não converge: a área de $|A|$ é infinita};
+    \draw[setinha, cRed] (ctN.north) -- (ctA.south);}
+}%
+
+\vspace{1.2cm}
+
+\onslide<4->{\alert{Vamos pelo caminho inverso: propor o espectro e verificar
+que ele reconstrói a constante.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Constante: verificando pela transformada inversa}
+
+Proponha $F(\omega) = 2\pi A\,\delta(\omega)$ e aplique a transformada inversa:
+
+\vspace{-0.1cm}
+\[
+f(t) = \frac{1}{2\pi}\int_{-\infty}^{\infty}
+2\pi A\, \tikzmarknode{ciA}{\delta(\omega)}\, e^{j\omega t}\, d\omega
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cGreen, text width=3.2cm] (ciN) at ($(ciA)+(0.3,-1.35)$)
+      {a amostragem de novo, agora colhendo em $\omega = 0$};
+    \draw[setinha, cGreen] (ciN.north) -- (ciA.south);}
+}%
+
+\vspace{1.3cm}
+
+\onslide<3->{
+\[
+f(t) = A\, e^{\,j\cdot 0\cdot t} = A
+\]}
+
+\onslide<4->{
+\[
+\boxed{\;A \xleftrightarrow{\ft} 2\pi A\,\delta(\omega)\;}
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Exponencial complexa}
+
+\[
+f(t) = e^{j\omega_0 t}
+\]
+
+\onslide<2->{Juntando as exponenciais:
+
+\vspace{-0.1cm}
+\[
+F(\omega) = \int_{-\infty}^{\infty} e^{j\omega_0 t}\, e^{-j\omega t}\, dt
+= \int_{-\infty}^{\infty} \tikzmarknode{ecA}{e^{-j(\omega-\omega_0)t}}\, dt
+\]}
+
+\anotacoes{%
+  \only<3->{
+    \node[nota=cGreen, text width=3.8cm] (ecN) at ($(ecA)+(0.2,-1.35)$)
+      {é a integral da constante, com $\omega$ deslocado de $\omega_0$};
+    \draw[setinha, cGreen] (ecN.north) -- (ecA.south);}
+}%
+
+\vspace{0.85cm}
+
+\onslide<4->{
+\[
+\boxed{\;e^{j\omega_0 t} \xleftrightarrow{\ft} 2\pi\,\delta(\omega-\omega_0)\;}
+\]}
+
+\onslide<5->{\alert{Multiplicar por $e^{j\omega_0 t}$ desloca o espectro.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Uma senoide complexa é monocromática}
+
+\vspace{-0.1cm}
+\begin{center}
+\begin{tikzpicture}[scale=0.85, every node/.style={font=\scriptsize}]
+  \begin{scope}[shift={(-3.9,0)}]
+    \draw[->, gray!70] (-0.3,0) -- (2.9,0) node[right, black, font=\tiny] {$t$};
+    \draw[->, gray!70] (0,-1.3) -- (0,1.5);
+    \draw[unbprimary, very thick, domain=0:2.7, samples=110]
+      plot (\x, {cos(deg(3*\x))});
+    \only<2->{\draw[unbprimary!45, thick, dashed, domain=0:2.7, samples=110]
+      plot (\x, {sin(deg(3*\x))});}
+    \node[below, font=\tiny] at (1.35,-1.5) {$e^{j\omega_0 t} = \cos\omega_0 t + j\sin\omega_0 t$};
   \end{scope}
+  \only<3->{\draw[setinha, gray!80, line width=1pt] (-0.5,0.4) -- (0.7,0.4)
+     node[midway, above, black] {$\mathcal{F}$};}
+  \only<4->{
+  \begin{scope}[shift={(1.6,0)}]
+    \draw[->, gray!70] (-1.2,0) -- (3.2,0) node[right, black, font=\tiny] {$\omega$};
+    \draw[->, gray!70] (0,-0.3) -- (0,1.9);
+    \draw[cRed, very thick, -{Stealth[length=2.2mm]}] (1.9,0) -- (1.9,1.5);
+    \node[cRed, above] at (1.9,1.5) {$2\pi$};
+    \node[below, font=\tiny] at (1.9,-0.15) {$\omega_0$};
+    \node[below, font=\tiny] at (0,-0.15) {$0$};
+  \end{scope}}
 \end{tikzpicture}
 \end{center}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Transformadas de Cosseno e Seno}
-
-Usando Euler ($\cos\omega_0 t = \tfrac{e^{j\omega_0 t}+e^{-j\omega_0 t}}{2}$) e a linearidade:
-
-\[
-\FT{\cos(\omega_0 t)}
-  = \tfrac{1}{2}\cdot 2\pi\delta(\omega-\omega_0) + \tfrac{1}{2}\cdot 2\pi\delta(\omega+\omega_0)
-  = \pi\bigl[\delta(\omega-\omega_0)+\delta(\omega+\omega_0)\bigr]
-\]
-
-Analogamente, com $\sin\omega_0 t = \tfrac{e^{j\omega_0 t}-e^{-j\omega_0 t}}{2j}$:
-
-\begin{block}{Pares de Transformadas}
-\[
-\cos(\omega_0 t) \xleftrightarrow{\ft} \pi\bigl[\delta(\omega - \omega_0) + \delta(\omega + \omega_0)\bigr]
-\]
-\[
-\sin(\omega_0 t) \xleftrightarrow{\ft} j\pi\bigl[\delta(\omega + \omega_0) - \delta(\omega - \omega_0)\bigr]
-\]
-\end{block}
-
-\textbf{Interpretação:} Cada sinal gera \textbf{dois impulsos} espectrais: em $+\omega_0$ e $-\omega_0$.
-
-\end{frame}
-
-% ============================================
-
-\subsection{Função Degrau}
-
-\begin{frame}{Função Degrau Unitário}
-
-A \textbf{função degrau unitário} (Heaviside):
-
-\[
-u(t) = \begin{cases}
-1 & t > 0 \\
-1/2 & t = 0 \\
-0 & t < 0
-\end{cases}
-\]
-
-\textbf{Relação com a função sinal:} $\;\sgn(t) = 2u(t) - 1$, ou seja $u(t) = \frac{1 + \sgn(t)}{2}$
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Função Sinal (sgn)}
-
-\begin{columns}
-\begin{column}{0.45\textwidth}
-\[
-\sgn(t) = \begin{cases}
-1 & t > 0 \\
-0 & t = 0 \\
--1 & t < 0
-\end{cases}
-\]
-
-\vspace{0.3cm}
-
-Usaremos $\sgn(t)$ como passo intermediário para obter $\mathcal{F}\{u(t)\}$.
-\end{column}
-\begin{column}{0.50\textwidth}
-\begin{center}
-\begin{tikzpicture}[scale=0.85]
-  \draw[->, thick] (-2.5,0) -- (2.8,0) node[right] {$t$};
-  \draw[->, thick] (0,-1.5) -- (0,1.8) node[above] {$\sgn(t)$};
-  \draw[unbprimary, very thick] (-2.2,-1) -- (0,-1);
-  \draw[unbprimary, very thick] (0,1) -- (2.2,1);
-  \filldraw[unbprimary] (0,0) circle (2pt);
-  \draw[unbprimary, fill=white] (0,1) circle (2pt);
-  \draw[unbprimary, fill=white] (0,-1) circle (2pt);
-  \node[right, font=\small] at (0.2,1) {$1$};
-  \node[right, font=\small] at (0.2,-1) {$-1$};
-\end{tikzpicture}
-\end{center}
-\end{column}
-\end{columns}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Transformada da Função Sinal: Método}
-
-Usamos um \textbf{limite regulador}. Sabemos que:
-
-\[
-e^{-at}u(t)\xleftrightarrow{\ft}\frac{1}{a+j\omega} \qquad e^{at}u(-t)\xleftrightarrow{\ft}\frac{1}{a-j\omega}
-\]
-
-Escrevemos $\sgn(t)$ como limite:
-
-\[
-\sgn(t) = \lim_{a\to 0^+}\!\bigl[e^{-at}u(t)-e^{at}u(-t)\bigr]
-\]
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Transformada da Função Sinal: Resultado}
-
-\[
-\FT{\sgn(t)}
-  = \lim_{a\to 0^+}\!\left[\frac{1}{a+j\omega}-\frac{1}{a-j\omega}\right]
-   = \lim_{a\to 0^+}\frac{-2j\omega}{a^2+\omega^2}
-  = \frac{2}{j\omega} \quad (\omega\neq 0)
-\]
-
-\begin{block}{Transformada da Função Sinal}
-\[
-\boxed{\sgn(t) \xleftrightarrow{\ft} \frac{2}{j\omega}}
-\]
-\end{block}
-
-\textbf{Observação:} $\frac{2}{j\omega} = \frac{-2j}{\omega}$ — espectro puramente imaginário (sinal ímpar $\Rightarrow$ transformada imaginária).
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Transformada do Degrau Unitário}
-
-Usando $u(t) = \frac{1 + \sgn(t)}{2}$ com os pares conhecidos
-($1 \xleftrightarrow{\ft} 2\pi\delta(\omega)$ e $\sgn(t) \xleftrightarrow{\ft} \frac{2}{j\omega}$):
-
-\[
-\FT{u(t)}
-  = \tfrac{1}{2}\cdot 2\pi\delta(\omega) + \tfrac{1}{2}\cdot\frac{2}{j\omega}
-  = \pi\delta(\omega) + \frac{1}{j\omega}
-\]
-
-\begin{block}{Transformada do Degrau}
-\[
-u(t) \xleftrightarrow{\ft} \pi\delta(\omega) + \frac{1}{j\omega}
-\]
-\end{block}
-
-\textbf{Interpretação:}
-\begin{itemize}
-\item Componente DC: $\pi\delta(\omega)$ — valor médio de $1/2$
-\item Componente variável: $1/(j\omega)$ — conteúdo espectral contínuo
-\end{itemize}
-
-\end{frame}
-
-% ============================================
-
-\subsection{Funções de Pulso}
-
-\begin{frame}{Pulso Retangular}
-
-\[
-\rect(t/\tau) = \begin{cases}
-1 & |t| \leq \tau/2 \\
-0 & |t| > \tau/2
-\end{cases}
-\]
-
-\begin{block}{Transformada}
-\[
-\boxed{\rect(t/\tau) \xleftrightarrow{\ft} \tau \sinc\left(\frac{\omega\tau}{2\pi}\right)}
-\]
-\end{block}
-
-onde $\sinc(x) = \frac{\sin(\pi x)}{\pi x}$.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Propriedades do Espectro do Pulso Retangular}
-
-\begin{itemize}
-\item Lóbulo principal: $-2\pi/\tau < \omega < 2\pi/\tau$ (largura $= 4\pi/\tau$)
-\item Zeros em $\omega = \pm 2\pi n/\tau$, $n = 1, 2, 3, \ldots$
-\item Amplitude decresce como $1/\omega$
-\item Pulso mais estreito ($\tau$ menor) $\Rightarrow$ espectro mais largo
-\end{itemize}
-
-\vspace{0.3cm}
-
-\begin{center}
-\begin{tikzpicture}[scale=0.75]
-  \draw[->, thick] (-4,0) -- (4,0) node[right, font=\small] {$\omega$};
-  \draw[->, thick] (0,-0.5) -- (0,2.5) node[above, font=\small] {$F(\omega)$};
-  % sinc function
-  \draw[unbprimary, very thick, domain=-3.8:3.8, samples=200]
-    plot (\x, {2*abs(sin(deg(pi*\x))/(pi*\x + 0.001))});
-  \node[font=\small, above, unbprimary] at (0,2.2) {$\tau$};
-  \node[font=\tiny, below] at (1,-0.15) {$\frac{2\pi}{\tau}$};
-  \node[font=\tiny, below] at (-1,-0.15) {$-\frac{2\pi}{\tau}$};
-  \node[font=\tiny, below] at (2,-0.15) {$\frac{4\pi}{\tau}$};
-  \node[font=\tiny, below] at (-2,-0.15) {$-\frac{4\pi}{\tau}$};
-\end{tikzpicture}
-\end{center}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo: Transmissão de Bits com Pulsos Retangulares}
-
-\textbf{Cenário:} Em transmissão digital NRZ (Non-Return-to-Zero), cada bit é representado por um pulso retangular de duração $T_b$:
-
-\[
-s(t) = \sum_k a_k \, \rect\!\left(\frac{t - kT_b}{T_b}\right), \quad a_k \in \{+1, -1\}
-\]
-
-\textbf{Espectro de cada pulso:}
-$\rect(t/T_b) \xleftrightarrow{\ft} T_b \sinc(\omega T_b / 2\pi)$
 
 \vspace{0.2cm}
 
-\textbf{Consequências:}
-\begin{itemize}
-\item A largura de banda ocupada é $\approx 1/T_b$ Hz (lóbulo principal da sinc)
-\item Taxa de bits mais alta ($T_b$ menor) $\Rightarrow$ maior largura de banda
-\item Lóbulos laterais causam \textbf{interferência em canais adjacentes}
-\item Por isso, na prática usa-se formatação de pulso (ex: cosseno levantado)
-\end{itemize}
+\onslide<5->{Uma única raia, em $\omega_0$. Nada de componente em frequência
+negativa, porque o sinal é complexo.}
 
 \end{frame}
 
-% ============================================
+% --------------------------------------------
 
-\begin{frame}{Visualização: Dualidade Rect-Sinc}
+\begin{frame}{Cosseno: Euler mais linearidade}
 
-\begin{center}
-\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/sinc_rect_duality}
-\end{center}
+Escrevemos o cosseno como par de exponenciais:
 
-Pulso mais estreito no tempo $\Rightarrow$ espectro mais largo na frequência.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Função Triangular}
-
-A \textbf{função triangular}:
-
+\vspace{-0.1cm}
 \[
-\tri(t/\tau) = \begin{cases}
-1 - |t|/\tau & |t| \leq \tau \\
-0 & |t| > \tau
-\end{cases}
+\cos(\omega_0 t) = \tfrac{1}{2}\,\tikzmarknode{csA}{e^{j\omega_0 t}}
+                 + \tfrac{1}{2}\,\tikzmarknode{csB}{e^{-j\omega_0 t}}
 \]
 
-\textbf{Observação:} $\tri(t/\tau) = \rect(t/\tau) \conv \rect(t/\tau)$ (convolução de retângulo consigo mesmo).
+\anotacoes{%
+  \only<2->{
+    \node[nota=cGreen, text width=2.0cm] (csNA) at ($(csA)+(-2.4,-1.25)$)
+      {vira $2\pi\delta(\omega-\omega_0)$};
+    \draw[setinha, cGreen] (csNA.east) -- (csA.south);}
+  \only<3->{
+    \node[nota=cPurple, text width=2.0cm] (csNB) at ($(csB)+(2.4,-1.25)$)
+      {vira $2\pi\delta(\omega+\omega_0)$};
+    \draw[setinha, cPurple] (csNB.west) -- (csB.south);}
+}%
 
-\begin{block}{Transformada}
+\vspace{1.6cm}
+
+\onslide<4->{Somando com os pesos $1/2$:
+
+\vspace{-0.15cm}
 \[
-\boxed{\tri(t/\tau) \xleftrightarrow{\ft} \tau \sinc^2\!\left(\frac{\omega\tau}{2\pi}\right)}
+\boxed{\;\cos(\omega_0 t) \xleftrightarrow{\ft}
+\pi\big[\delta(\omega-\omega_0)+\delta(\omega+\omega_0)\big]\;}
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Seno e a assinatura da fase}
+
+Com $\sin(\omega_0 t) = \dfrac{e^{j\omega_0 t}-e^{-j\omega_0 t}}{2j}$, o mesmo
+caminho leva a:
+
+\vspace{-0.1cm}
+\[
+\boxed{\;\sin(\omega_0 t) \xleftrightarrow{\ft}
+\tikzmarknode{snA}{j}\,\pi\big[\delta(\omega+\omega_0)-\delta(\omega-\omega_0)\big]\;}
 \]
-\end{block}
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cRed, text width=3.4cm] (snN) at ($(snA)+(0.6,-1.35)$)
+      {o $j$ e o sinal trocado vêm do $1/2j$: é a fase que separa seno de cosseno};
+    \draw[setinha, cRed] (snN.north west) to[bend right=15] (snA.south);}
+}%
+
+\vspace{2.0cm}
+
+\onslide<3->{Cada senoide real gera duas raias, em $+\omega_0$ e $-\omega_0$.}
+
+\onslide<4->{\alert{Magnitude idêntica nas duas; o que distingue seno de
+cosseno é só a fase.}}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Função Triangular: Justificativa}
+\subsection{Degrau e função sinal}
 
-Pela propriedade de convolução (que veremos na próxima seção):
+\begin{frame}{Degrau e função sinal}
 
-\[
-\FT{\tri(t/\tau)} = \FT{\rect(t/\tau)} \cdot \FT{\rect(t/\tau)} = \left[\tau \sinc\!\left(\frac{\omega\tau}{2\pi}\right)\right]^2
-\]
-
-\vspace{0.3cm}
-
-\textbf{Comparação com o pulso retangular:}
-\begin{itemize}
-\item Retângulo: espectro $\propto \sinc$ --- decai como $1/\omega$
-\item Triângulo: espectro $\propto \sinc^2$ --- decai como $1/\omega^2$ (mais rápido)
-\item Sinal mais ``suave'' no tempo $\Rightarrow$ espectro decai mais rápido
-\end{itemize}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo: Rect vs.\ Tri na Formatação de Pulso}
-
-\textbf{Cenário:} Comparando pulsos retangulares e triangulares para transmissão digital.
-
-\vspace{0.2cm}
-
+\vspace{-0.1cm}
 \begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\textbf{Pulso retangular:}
-\begin{itemize}
-\item Espectro: $\sinc(\omega)$
-\item Decai como $1/\omega$
-\item Lóbulos laterais significativos
-\item Mais interferência entre canais
-\end{itemize}
-\end{column}
-\begin{column}{0.48\textwidth}
-\textbf{Pulso triangular:}
-\begin{itemize}
-\item Espectro: $\sinc^2(\omega)$
-\item Decai como $1/\omega^2$
-\item Lóbulos laterais menores
-\item Menos interferência entre canais
-\end{itemize}
-\end{column}
+\column{0.46\textwidth}
+\begin{center}
+\begin{tikzpicture}[scale=0.72, every node/.style={font=\scriptsize}]
+  \draw[->, gray!70] (-2.2,0) -- (2.5,0) node[right, black, font=\tiny] {$t$};
+  \draw[->, gray!70] (0,-1.5) -- (0,1.7);
+  \draw[cPurple, very thick] (-2.0,-1) -- (0,-1);
+  \draw[cPurple, very thick] (0,1) -- (2.2,1);
+  \draw[cPurple, fill=white, thick] (0,1) circle (2.2pt);
+  \draw[cPurple, fill=white, thick] (0,-1) circle (2.2pt);
+  \node[right, cPurple] at (0.15,1.35) {$1$};
+  \node[right, cPurple] at (0.15,-1.35) {$-1$};
+\end{tikzpicture}
+\end{center}
+\vspace{-0.15cm}
+\begin{center}\scriptsize\textcolor{cPurple}{$\sgn(t)$}\end{center}
+
+\column{0.46\textwidth}
+\onslide<2->{
+\begin{center}
+\begin{tikzpicture}[scale=0.72, every node/.style={font=\scriptsize}]
+  \draw[->, gray!70] (-2.2,0) -- (2.5,0) node[right, black, font=\tiny] {$t$};
+  \draw[->, gray!70] (0,-1.5) -- (0,1.7);
+  \draw[cGreen, very thick] (-2.0,0) -- (0,0);
+  \draw[cGreen, very thick] (0,1) -- (2.2,1);
+  \draw[cGreen, fill=white, thick] (0,1) circle (2.2pt);
+  \node[right, cGreen] at (0.15,1.35) {$1$};
+\end{tikzpicture}
+\end{center}
+\vspace{-0.15cm}
+\begin{center}\scriptsize\textcolor{cGreen}{$u(t)$}\end{center}}
 \end{columns}
 
-\vspace{0.3cm}
+\vspace{0.1cm}
 
-\textbf{Trade-off:} O pulso triangular tem lóbulos laterais menores (menos interferência fora da banda), porém seu lóbulo principal é mais largo --- ou seja, ocupa mais largura de banda para transmitir na mesma taxa.
+\onslide<3->{Os dois estão ligados por uma conta simples:}
+
+\vspace{-0.1cm}
+\onslide<4->{
+\[
+\sgn(t) = 2u(t)-1
+\qquad\Longleftrightarrow\qquad
+u(t) = \frac{1+\sgn(t)}{2}
+\]}
+
+\onslide<5->{\alert{Vamos pelo $\sgn(t)$, que é ímpar e mais fácil de tratar.}}
 
 \end{frame}
 
-% ============================================
+% --------------------------------------------
 
-\begin{frame}{Visualização: Rect vs.\ Tri na Frequência}
+\begin{frame}{Por que não dá para integrar direto}
 
+\[
+\FT{\sgn(t)} = \int_{-\infty}^{\infty}
+\tikzmarknode{sgA}{\sgn(t)}\, e^{-j\omega t}\, dt
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cRed, text width=3.6cm] (sgN) at ($(sgA)+(0,-1.35)$)
+      {$|\sgn(t)| = 1$ em toda a reta: a área é infinita};
+    \draw[setinha, cRed] (sgN.north) -- (sgA.south);}
+}%
+
+\vspace{1.8cm}
+
+\onslide<3->{A saída é aproximar $\sgn(t)$ por algo integrável e depois
+apertar a aproximação:}
+
+\vspace{-0.1cm}
+\onslide<4->{
+\[
+\sgn(t) = \lim_{a\to 0^{+}}\Big[e^{-at}u(t) - e^{at}u(-t)\Big]
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{O regulador em ação}
+
+\vspace{-0.15cm}
 \begin{center}
-\includegraphics[width=\figFull, height=0.75\textheight, keepaspectratio]{figures/cap3/rect_vs_tri_comparison}
-\end{center}
-
-Para a mesma duração $T$: o triangular tem lóbulo principal $2\times$ mais largo, porém lóbulos laterais muito menores (decaem como $1/\omega^2$ vs $1/\omega$).
-
-\end{frame}
-
-% ============================================
-
-\subsection{Função Gaussiana}
-
-\begin{frame}{Pulso Gaussiano}
-
-A \textbf{função Gaussiana}:
-
-\[
-f(t) = e^{-\alpha t^2}, \quad \alpha > 0
-\]
-
-\textbf{Cálculo da transformada:}
-
-\[
-F(\omega) = \int_{-\infty}^{\infty} e^{-\alpha t^2} e^{-j\omega t} dt
-\]
-
-Completando o quadrado no expoente:
-\[
--\alpha t^2 - j\omega t = -\alpha\left(t + \frac{j\omega}{2\alpha}\right)^2 - \frac{\omega^2}{4\alpha}
-\]
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Pulso Gaussiano (continuação)}
-
-Fatorando a exponencial:
-\[
-F(\omega) = e^{-\omega^2/(4\alpha)} \int_{-\infty}^{\infty} e^{-\alpha\left(t + \frac{j\omega}{2\alpha}\right)^2} dt
-\]
-
-Com $u = t + j\omega/(2\alpha)$ e a integral gaussiana $\int e^{-\alpha u^2}du = \sqrt{\pi/\alpha}$:
-
-\[
-F(\omega) = e^{-\omega^2/(4\alpha)}\cdot\sqrt{\tfrac{\pi}{\alpha}}
-\]
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Pulso Gaussiano: Resultado}
-
-\begin{block}{Transformada da Gaussiana}
-\[
-e^{-\alpha t^2} \xleftrightarrow{\ft} \sqrt{\frac{\pi}{\alpha}}\,e^{-\omega^2/(4\alpha)}
-\]
-\end{block}
-
-\vspace{0.3cm}
-
-\begin{itemize}
-\item \textbf{Propriedade notável:} Uma Gaussiana transforma-se em outra Gaussiana!
-\item \textbf{Princípio de incerteza:} A Gaussiana é o sinal com mínimo produto $\Delta t \cdot \Delta\omega = 1/2$.
-\item $\alpha$ grande $\Rightarrow$ pulso estreito no tempo, espectro largo na frequência
-\end{itemize}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo: Pulsos Gaussianos em Fibra Óptica}
-
-\textbf{Cenário:} Em sistemas de comunicação por fibra óptica, os pulsos de luz são bem aproximados por gaussianas.
-
-\vspace{0.2cm}
-
-Um pulso óptico $p(t) = e^{-t^2/(2\sigma^2)}$ ao se propagar sofre \textbf{dispersão cromática}, que alarga o pulso no tempo.
-
-\vspace{0.2cm}
-
-\textbf{Por que gaussianas?}
-\begin{itemize}
-\item Transformada de uma gaussiana é outra gaussiana --- a \textbf{forma se preserva} durante a propagação
-\item O princípio de incerteza garante: $\Delta t \cdot \Delta \omega \geq 1/2$, com igualdade para gaussianas
-\item Pulsos gaussianos são os mais ``eficientes'' em ocupação tempo-frequência
-\end{itemize}
-
-\vspace{0.2cm}
-
-\textbf{Na prática:} A taxa máxima de transmissão em fibra depende diretamente da largura $\sigma$ dos pulsos --- pulsos que se alargam demais causam \textbf{interferência intersimbólica} (ISI).
-
-\end{frame}
-
-% ============================================
-
-\subsection{Trem de Impulsos}
-
-\begin{frame}{Trem de Impulsos Periódico}
-
-Um \textbf{trem de impulsos} (impulse train) com período $T$:
-
-\[
-f(t) = \sum_{n=-\infty}^{\infty} \delta(t - nT)
-\]
-
-Este sinal é periódico ($\omega_0 = 2\pi/T$). Os coeficientes de Fourier valem:
-\[
-c_n = \frac{1}{T}\!\int_{-T/2}^{T/2}\!\delta(t)\,e^{-jn\omega_0 t}\,dt = \frac{1}{T}
-\]
-
-\textbf{Interpretação:} Todos os harmônicos têm a mesma amplitude $1/T$ — espectro plano!
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Trem de Impulsos: Expansão em Série de Fourier}
-
-Como $c_n = 1/T$ para todo $n$, a \textbf{série de Fourier} do trem de impulsos é:
-
-\[
-f(t) = \sum_{n=-\infty}^{\infty} c_n\, e^{jn\omega_0 t}
-     = \frac{1}{T}\sum_{n=-\infty}^{\infty} e^{jn\omega_0 t}
-\]
-
-Ou seja, o trem de impulsos é uma soma de exponenciais complexas de todas as frequências harmônicas $n\omega_0$, cada uma com peso $1/T$.
-
-\vspace{0.3cm}
-
-Agora basta aplicar a transformada de Fourier a cada exponencial separadamente (linearidade).
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Transformada do Trem de Impulsos}
-
-Aplicando $\mathcal{F}$ termo a termo na série, e usando
-$e^{jn\omega_0 t} \xleftrightarrow{\ft} 2\pi\delta(\omega - n\omega_0)$:
-
-\[
-F(\omega)
-  = \FT{\frac{1}{T}\sum_{n=-\infty}^{\infty} e^{jn\omega_0 t}}
-  = \frac{1}{T}\sum_{n=-\infty}^{\infty} 2\pi\delta(\omega - n\omega_0)
-\]
-
-\[
-F(\omega) = \frac{2\pi}{T}\sum_{n=-\infty}^{\infty}\delta(\omega - n\omega_0)
-\]
-
-\begin{block}{Par de Transformadas: Trem de Impulsos}
-\[
-\sum_{n=-\infty}^{\infty} \delta(t - nT)
-\;\xleftrightarrow{\ft}\;
-\frac{2\pi}{T} \sum_{n=-\infty}^{\infty} \delta\!\left(\omega - \frac{2\pi n}{T}\right)
-\]
-\end{block}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Trem de Impulsos: Interpretação}
-
-\begin{itemize}
-\item \textbf{Simetria perfeita:} impulsos periódicos no tempo $\leftrightarrow$ impulsos periódicos na frequência
-\item \textbf{Separação espectral:} $\Delta\omega = 2\pi/T$ (inversamente proporcional a $T$)
-\item \textbf{Aplicação fundamental:} base matemática do teorema de amostragem
-\end{itemize}
-
-\vspace{0.3cm}
-
-\begin{center}
-\begin{tikzpicture}[scale=0.75]
-  % Tempo
-  \begin{scope}[xshift=-4.5cm]
-    \draw[->, thick] (-2.5,0) -- (2.8,0) node[right, font=\small] {$t$};
-    \draw[->, thick] (0,-0.3) -- (0,2) node[above, font=\small] {};
-    \foreach \n in {-2,-1,0,1,2}
-      \draw[unbprimary, very thick, ->] (\n,0) -- (\n,1.5);
-    \node[font=\small, below] at (1,-0.15) {$T$};
-    \node[font=\small, below] at (-1,-0.15) {$-T$};
-    \node[font=\small, above] at (0,1.6) {$\delta(t\!-\!nT)$};
-  \end{scope}
-  % Seta
-  \draw[->, very thick, gray] (-0.8,0.8) -- (0.8,0.8) node[midway, above, font=\small] {$\mathcal{F}$};
-  % Frequência
-  \begin{scope}[xshift=4.5cm]
-    \draw[->, thick] (-2.5,0) -- (2.8,0) node[right, font=\small] {$\omega$};
-    \draw[->, thick] (0,-0.3) -- (0,2) node[above, font=\small] {};
-    \foreach \n in {-2,-1,0,1,2}
-      \draw[red!70!black, very thick, ->] (\n,0) -- (\n,1.5);
-    \node[font=\small, below] at (1,-0.15) {$\omega_0$};
-    \node[font=\small, below] at (-1,-0.15) {$-\omega_0$};
-    \node[font=\small, above, red!70!black] at (0,1.6) {$\frac{2\pi}{T}\delta(\omega\!-\!n\omega_0)$};
-  \end{scope}
+\begin{tikzpicture}[scale=0.95, every node/.style={font=\scriptsize}]
+  \draw[->, gray!70] (-2.6,0) -- (2.8,0) node[right, black, font=\tiny] {$t$};
+  \draw[->, gray!70] (0,-1.4) -- (0,1.6);
+  \draw[gray!45, dashed, thick] (-2.4,-1) -- (0,-1);
+  \draw[gray!45, dashed, thick] (0,1) -- (2.6,1);
+  \only<1>{\draw[cBlue, very thick, domain=0:2.6, samples=90] plot (\x, {exp(-1.4*\x)});
+           \draw[cBlue, very thick, domain=-2.4:0, samples=90] plot (\x, {-exp(1.4*\x)});
+           \node[cBlue] at (1.9,-0.6) {$a$ grande};}
+  \only<2>{\draw[cBlue, very thick, domain=0:2.6, samples=90] plot (\x, {exp(-0.6*\x)});
+           \draw[cBlue, very thick, domain=-2.4:0, samples=90] plot (\x, {-exp(0.6*\x)});
+           \node[cBlue] at (1.9,-0.6) {$a$ menor};}
+  \only<3->{\draw[cBlue, very thick, domain=0:2.6, samples=90] plot (\x, {exp(-0.15*\x)});
+            \draw[cBlue, very thick, domain=-2.4:0, samples=90] plot (\x, {-exp(0.15*\x)});
+            \node[cBlue] at (1.9,-0.6) {$a \to 0^{+}$};}
 \end{tikzpicture}
 \end{center}
 
+\vspace{0.1cm}
+
+\onslide<4->{Para qualquer $a>0$ a curva é integrável, e as duas transformadas
+já são conhecidas:}
+
+\vspace{-0.1cm}
+\onslide<5->{
+\[
+e^{-at}u(t)\xleftrightarrow{\ft}\frac{1}{a+j\omega},
+\qquad
+e^{at}u(-t)\xleftrightarrow{\ft}\frac{1}{a-j\omega}
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Resolvendo o limite}
+
+\[
+\FT{\sgn(t)} = \lim_{a\to 0^{+}}\left[\frac{1}{a+j\omega}-\frac{1}{a-j\omega}\right]
+\]
+
+\onslide<2->{Somando as frações:
+
+\vspace{-0.15cm}
+\[
+= \lim_{a\to 0^{+}}\frac{(a-j\omega)-(a+j\omega)}{\tikzmarknode{lmA}{a^2+\omega^2}}
+= \lim_{a\to 0^{+}}\frac{-2j\omega}{a^2+\omega^2}
+\]}
+
+\anotacoes{%
+  \only<3->{
+    \node[nota=cGreen, text width=2.8cm] (lmN) at ($(lmA)+(1.4,-1.3)$)
+      {com $a\to 0$ sobra $\omega^2$};
+    \draw[setinha, cGreen] (lmN.north west) to[bend right=15] (lmA.south);}
+}%
+
+\vspace{1.15cm}
+
+\onslide<4->{
+\[
+= \frac{-2j\omega}{\omega^2} = \frac{-2j}{\omega} = \frac{2}{j\omega},
+\qquad \omega \neq 0
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Resultado para a função sinal}
+
+\[
+\boxed{\;\sgn(t) \xleftrightarrow{\ft} \tikzmarknode{rsA}{\frac{2}{j\omega}}\;}
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cPurple, text width=3.6cm] (rsN) at ($(rsA)+(0.4,-1.4)$)
+      {puramente imaginário, porque $\sgn(t)$ é uma função ímpar};
+    \draw[setinha, cPurple] (rsN.north) -- (rsA.south);}
+}%
+
+\vspace{2.0cm}
+
+\onslide<3->{Perto de $\omega = 0$ o espectro explode, e longe dele decai como
+$1/\omega$.}
+
+\onslide<4->{\alert{Esse decaimento lento é a marca do salto brusco em $t=0$.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Do sinal para o degrau}
+
+Basta somar os dois pares que já temos:
+
+\vspace{0.1cm}
+\[
+u(t) = \tfrac{1}{2}\cdot \tikzmarknode{dgA}{1}
+     \;+\; \tfrac{1}{2}\cdot \tikzmarknode{dgB}{\sgn(t)}
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cGreen, text width=2.0cm] (dgNA) at ($(dgA)+(-2.2,-1.3)$)
+      {$\to 2\pi\delta(\omega)$};
+    \draw[setinha, cGreen] (dgNA.east) -- (dgA.south);}
+  \only<3->{
+    \node[nota=cPurple, text width=2.0cm] (dgNB) at ($(dgB)+(2.4,-1.3)$)
+      {$\to 2/(j\omega)$};
+    \draw[setinha, cPurple] (dgNB.west) -- (dgB.south);}
+}%
+
+\vspace{1.7cm}
+
+\onslide<4->{
+\[
+\boxed{\;u(t) \xleftrightarrow{\ft}
+\pi\delta(\omega) + \frac{1}{j\omega}\;}
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Lendo o espectro do degrau}
+
+\[
+U(\omega) = \tikzmarknode{ldA}{\pi\delta(\omega)}
+\;+\; \tikzmarknode{ldB}{\frac{1}{j\omega}}
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cGreen, text width=2.4cm] (ldNA) at ($(ldA)+(-2.5,-1.4)$)
+      {o valor médio do degrau, que é $1/2$};
+    \draw[setinha, cGreen] (ldNA.east) -- (ldA.south);}
+  \only<3->{
+    \node[nota=cBlue, text width=2.4cm] (ldNB) at ($(ldB)+(2.6,-1.4)$)
+      {a parte que varia, herdada do salto};
+    \draw[setinha, cBlue] (ldNB.west) -- (ldB.south);}
+}%
+
+\vspace{2.1cm}
+
+\onslide<4->{\alert{Ligar uma fonte no instante zero espalha energia por todo
+o espectro.}}
+
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Tabela Resumo: Transformadas de Funções Úteis}
+\subsection{Pulsos}
 
-\begin{table}
-\small
-\begin{tabular}{|c|c|}
-\hline
-\textbf{Sinal} $f(t)$ & \textbf{Transformada} $F(\omega)$ \\
-\hline
-$\delta(t)$ & $1$ \\
-\hline
-$1$ & $2\pi\delta(\omega)$ \\
-\hline
-$e^{j\omega_0 t}$ & $2\pi\delta(\omega - \omega_0)$ \\
-\hline
-$\cos(\omega_0 t)$ & $\pi[\delta(\omega - \omega_0) + \delta(\omega + \omega_0)]$ \\
-\hline
-$\sin(\omega_0 t)$ & $j\pi[\delta(\omega + \omega_0) - \delta(\omega - \omega_0)]$ \\
-\hline
-$u(t)$ & $\pi\delta(\omega) + \frac{1}{j\omega}$ \\
-\hline
-$\sgn(t)$ & $\frac{2}{j\omega}$ \\
-\hline
-$e^{-at}u(t)$, $a > 0$ & $\frac{1}{a+j\omega}$ \\
-\hline
-$e^{-a|t|}$, $a > 0$ & $\frac{2a}{a^2+\omega^2}$ \\
-\hline
-\end{tabular}
-\end{table}
+\begin{frame}{Pulso retangular: montando a integral}
+
+\[
+\rect(t/\tau) = \begin{cases} 1, & |t| \leq \tau/2 \\[2pt] 0, & |t| > \tau/2\end{cases}
+\]
+
+\onslide<2->{Fora do pulso o integrando é zero:
+
+\vspace{-0.1cm}
+\[
+F(\omega) = \int_{-\infty}^{\infty} \rect(t/\tau)\, e^{-j\omega t}\, dt
+= \int_{\tikzmarknode{prA}{-\tau/2}}^{\tikzmarknode{prB}{\tau/2}} e^{-j\omega t}\, dt
+\]}
+
+\anotacoes{%
+  \only<3->{
+    \node[nota=cGreen, text width=3.4cm] (prN) at ($(prA)+(1.2,-1.35)$)
+      {os limites infinitos viram a largura do pulso};
+    \draw[setinha, cGreen] (prN.north west) to[bend left=18] (prA.south);
+    \draw[setinha, cGreen] (prN.north east) to[bend right=18] (prB.south);}
+}%
+
+\vspace{0.55cm}
+
+\onslide<4->{
+\[
+= \left[\frac{e^{-j\omega t}}{-j\omega}\right]_{-\tau/2}^{\tau/2}
+= \frac{e^{-j\omega\tau/2}-e^{\,j\omega\tau/2}}{-j\omega}
+\]}
 
 \end{frame}
 
-% ============================================
+% --------------------------------------------
 
-\begin{frame}{Tabela Resumo (continuação)}
+\begin{frame}{Pulso retangular: aparece a sinc}
 
-\begin{table}
-\small
-\begin{tabular}{|c|c|}
-\hline
-\textbf{Sinal} $f(t)$ & \textbf{Transformada} $F(\omega)$ \\
-\hline
-$\rect(t/\tau)$ & $\tau \sinc(\omega\tau/2\pi)$ \\
-\hline
-$\tri(t/\tau)$ & $\tau \sinc^2(\omega\tau/2\pi)$ \\
-\hline
-$e^{-\alpha t^2}$ & $\sqrt{\pi/\alpha} \, e^{-\omega^2/(4\alpha)}$ \\
-\hline
-$\sum_{n=-\infty}^{\infty} \delta(t - nT)$ & $\frac{2\pi}{T} \sum_{n=-\infty}^{\infty} \delta(\omega - 2\pi n/T)$ \\
-\hline
-\end{tabular}
-\end{table}
+Reconhecendo um seno no numerador:
+
+\vspace{-0.1cm}
+\[
+F(\omega) = \frac{\tikzmarknode{scA}{e^{\,j\omega\tau/2}-e^{-j\omega\tau/2}}}{j\omega}
+= \frac{2\sin(\omega\tau/2)}{\omega}
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cOrange, text width=3.0cm] (scN) at ($(scA)+(0.2,-1.35)$)
+      {Euler: vale $2j\sin(\omega\tau/2)$};
+    \draw[setinha, cOrange] (scN.north) -- (scA.south);}
+}%
+
+\vspace{0.85cm}
+
+\onslide<3->{Formando a sinc:
+
+\vspace{-0.15cm}
+\[
+= \tau\,\frac{\sin(\omega\tau/2)}{\omega\tau/2}
+\]}
+
+\onslide<4->{
+\[
+\boxed{\;\rect(t/\tau) \xleftrightarrow{\ft}
+\tau\,\sinc\!\left(\frac{\omega\tau}{2\pi}\right)\;}
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Lendo a sinc}
+
+\vspace{-0.1cm}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=8.6cm, height=5.2cm, axis lines=middle, ticks=none,
+             xmin=-3.5, xmax=3.5, ymin=-0.55, ymax=1.7,
+             clip=false,
+             xlabel={$\omega$}, xlabel style={at={(1,0.26)}, anchor=west}]
+
+  \addplot[unbprimary, very thick, domain=-3.4:3.4, samples=300] {\sincE};
+
+  % --- primeiro zero
+  \only<2->{
+    \draw[cRed, thick, dashed] (axis cs:1,-0.15) -- (axis cs:1,1.28);
+    \node[cRed, font=\scriptsize, anchor=south east] at (axis cs:0.92,1.34)
+      {primeiro zero: $\omega = 2\pi/\tau$};}
+
+  % --- lobulo principal
+  \only<3->{
+    \draw[<->, cGreen, very thick] (axis cs:-1,-0.30) -- (axis cs:1,-0.30);
+    \node[cGreen, font=\scriptsize, anchor=north] at (axis cs:0,-0.34)
+      {lóbulo principal, largura $4\pi/\tau$};}
+
+  % --- caudas
+  \only<4->{
+    \draw[-{Stealth[length=2mm]}, cOrange, very thick]
+      (axis cs:2.75,0.80) -- (axis cs:2.5,0.20);
+    \node[cOrange, font=\scriptsize, anchor=south east] at (axis cs:3.5,0.82)
+      {cai com $1/\omega$};}
+\end{axis}
+\end{tikzpicture}
+\end{center}
 
 \vspace{0.5cm}
 
-\textbf{Essas transformadas são fundamentais!}
+\onslide<5->{\alert{A queda lenta das caudas vem das bordas verticais do pulso.}}
 
-Memorize os pares mais importantes e use propriedades (próxima seção) para derivar outros.
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Estreitar o pulso alarga o espectro}
+
+\vspace{-0.2cm}
+\begin{columns}[T]
+\column{0.46\textwidth}
+\begin{center}
+\begin{tikzpicture}[scale=0.72, every node/.style={font=\scriptsize}]
+  \draw[->, gray!70] (-2.4,0) -- (2.6,0) node[right, black, font=\tiny] {$t$};
+  \draw[->, gray!70] (0,-0.2) -- (0,1.8);
+  \only<1>{\fill[cBlue!30, draw=cBlue, very thick] (-1.6,0) rectangle (1.6,1.2);}
+  \only<2>{\fill[cBlue!30, draw=cBlue, very thick] (-0.8,0) rectangle (0.8,1.2);}
+  \only<3->{\fill[cBlue!30, draw=cBlue, very thick] (-0.35,0) rectangle (0.35,1.2);}
+\end{tikzpicture}
+\end{center}
+\vspace{-0.2cm}
+\begin{center}\scriptsize\textcolor{cBlue}{pulso de largura $\tau$}\end{center}
+
+\column{0.5\textwidth}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=5.2cm, height=3.2cm, axis lines=middle, ticks=none,
+             xmin=-6.5, xmax=6.5, ymin=-0.35, ymax=1.25,
+             xlabel={$\omega$}, xlabel style={at={(1,0.26)}, anchor=west}]
+  \only<1>{\addplot[cRed, very thick, domain=-6.4:6.4, samples=340]
+     {sin(deg(pi*(x+0.0007)*2))/(pi*(x+0.0007)*2)};}
+  \only<2>{\addplot[cRed, very thick, domain=-6.4:6.4, samples=340]
+     {sin(deg(pi*(x+0.0007)))/(pi*(x+0.0007))};}
+  \only<3->{\addplot[cRed, very thick, domain=-6.4:6.4, samples=340]
+     {sin(deg(pi*(x+0.0007)*0.45))/(pi*(x+0.0007)*0.45)};}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\vspace{-0.2cm}
+\begin{center}\scriptsize\textcolor{cRed}{$\tau\,\sinc(\omega\tau/2\pi)$}\end{center}
+\end{columns}
+
+\vspace{0.15cm}
+
+\onslide<4->{Cortar a duração pela metade dobra a banda ocupada.}
+
+\onslide<5->{\alert{Em NRZ, cada bit é um desses pulsos: dobrar a taxa dobra a
+largura de banda.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Consequências em transmissão digital}
+
+Numa transmissão NRZ, cada bit ocupa $T_b$ segundos:
+
+\vspace{-0.1cm}
+\[
+s(t) = \sum_k a_k\,\rect\!\left(\frac{t-kT_b}{T_b}\right),
+\qquad a_k \in \{+1,-1\}
+\]
+
+\onslide<2->{
+\[
+\rect(t/T_b) \xleftrightarrow{\ft}
+T_b\,\sinc\!\left(\frac{\omega T_b}{2\pi}\right)
+\]}
+
+\vspace{0.15cm}
+
+\onslide<3->{A banda ocupada fica em torno de $1/T_b$ hertz, a largura do
+lóbulo principal.}
+
+\onslide<4->{Os lóbulos laterais caem devagar e vazam para os canais vizinhos.}
+
+\onslide<5->{\alert{Por isso a prática troca o retângulo por pulsos de bordas
+suaves, como o cosseno levantado.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Função triangular vem de uma convolução}
+
+\vspace{-0.15cm}
+\begin{center}
+\begin{tikzpicture}[scale=0.8, every node/.style={font=\scriptsize}]
+  \draw[->, gray!70] (-2.6,0) -- (2.8,0) node[right, black, font=\tiny] {$t$};
+  \draw[->, gray!70] (0,-0.2) -- (0,1.7);
+  \fill[cBlue!25, draw=cBlue, very thick] (-1.0,0) rectangle (1.0,1.0);
+  \only<2>{\fill[cOrange!25, draw=cOrange, very thick] (-0.2,0) rectangle (1.8,1.0);
+           \fill[cGreen!45] (-0.2,0) rectangle (1.0,1.0);}
+  \only<3>{\fill[cOrange!25, draw=cOrange, very thick] (0.4,0) rectangle (2.4,1.0);
+           \fill[cGreen!45] (0.4,0) rectangle (1.0,1.0);}
+  \only<4->{\fill[cOrange!25, draw=cOrange, very thick] (1.0,0) rectangle (3.0,1.0);}
+  \only<2->{\node[cGreen] at (-1.8,1.4) {área da sobreposição};}
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.1cm}
+
+\onslide<5->{Deslizando um retângulo sobre o outro, a área comum cresce e
+depois decresce de forma linear:}
+
+\vspace{-0.1cm}
+\onslide<6->{
+\[
+\tri(t/\tau) = \rect(t/\tau) \conv \rect(t/\tau)
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Da convolução para a $\sinc^2$}
+
+Convolução no tempo vira produto na frequência:
+
+\vspace{0.1cm}
+\[
+\FT{\tri(t/\tau)}
+= \tikzmarknode{tvA}{\FT{\rect}\cdot\FT{\rect}}
+= \left[\tau\,\sinc\!\left(\frac{\omega\tau}{2\pi}\right)\right]^{2}
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cGreen, text width=3.4cm] (tvN) at ($(tvA)+(0,-1.35)$)
+      {propriedade da convolução, deduzida na próxima seção};
+    \draw[setinha, cGreen] (tvN.north) -- (tvA.south);}
+}%
+
+\vspace{1.8cm}
+
+\onslide<3->{
+\[
+\boxed{\;\tri(t/\tau) \xleftrightarrow{\ft}
+\tau\,\sinc^{2}\!\left(\frac{\omega\tau}{2\pi}\right)\;}
+\]}
+
+\onslide<4->{\alert{Elevar ao quadrado mata os lóbulos laterais.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Retângulo contra triângulo}
+
+\vspace{-0.1cm}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[width=8.6cm, height=5.0cm, axis lines=middle, ticks=none,
+             xmin=-3.5, xmax=3.5, ymin=-0.5, ymax=1.75,
+             clip=false,
+             xlabel={$\omega$}, xlabel style={at={(1,0.22)}, anchor=west}]
+
+  \addplot[cRed, very thick, domain=-3.4:3.4, samples=300] {\sincE};
+  \only<2->{\addplot[cGreen, very thick, domain=-3.4:3.4, samples=300]
+     {(\sincE)^2};}
+
+  \only<3->{
+    \draw[-{Stealth[length=2mm]}, cRed, very thick]
+      (axis cs:2.6,1.18) -- (axis cs:2.45,0.22);
+    \node[cRed, font=\scriptsize, anchor=south east] at (axis cs:3.5,1.20)
+      {$\sinc$: cai com $1/\omega$};}
+
+  \only<4->{
+    \draw[-{Stealth[length=2mm]}, cGreen, very thick]
+      (axis cs:-2.6,1.18) -- (axis cs:-2.45,0.06);
+    \node[cGreen, font=\scriptsize, anchor=south west] at (axis cs:-3.5,1.20)
+      {$\sinc^{2}$: cai com $1/\omega^{2}$};}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.35cm}
+
+\onslide<5->{O triângulo tem lóbulo principal mais largo, e portanto ocupa mais
+banda para a mesma taxa.}
+
+\onslide<6->{\alert{Em compensação, vaza muito menos para os canais vizinhos.}}
 
 \end{frame}
 
 % ============================================
 
-\begin{frame}{Observações e Padrões}
+\subsection{Gaussiana}
 
-\textbf{Padrões observados:}
+\begin{frame}{Pulso gaussiano: o expoente}
 
-\begin{enumerate}
-\item \textbf{Dualidade tempo-frequência:}
-   \begin{itemize}
-   \item Impulso no tempo $\leftrightarrow$ constante na frequência
-   \item Constante no tempo $\leftrightarrow$ impulso na frequência
-   \item Impulsos periódicos $\leftrightarrow$ impulsos periódicos
-   \end{itemize}
+\[
+f(t) = e^{-\alpha t^2}, \qquad \alpha > 0
+\]
 
-\item \textbf{Decaimento:}
-   \begin{itemize}
-   \item Decaimento exponencial $\leftrightarrow$ Lorentziana
-   \item Gaussiana $\leftrightarrow$ Gaussiana
-   \end{itemize}
+\onslide<2->{
+\[
+F(\omega) = \int_{-\infty}^{\infty} e^{\tikzmarknode{gaA}{-\alpha t^2 - j\omega t}}\, dt
+\]}
 
-\item \textbf{Suavidade:}
-   \begin{itemize}
-   \item Descontinuidades $\rightarrow$ decaimento lento do espectro ($1/\omega$)
-   \item Continuidade $\rightarrow$ decaimento mais rápido ($1/\omega^2$ ou exponencial)
-   \end{itemize}
-\end{enumerate}
+\anotacoes{%
+  \only<3->{
+    \node[nota=cOrange, text width=3.6cm] (gaN) at ($(gaA)+(0.3,-1.35)$)
+      {um polinômio de segundo grau em $t$: dá para completar o quadrado};
+    \draw[setinha, cOrange] (gaN.north) -- (gaA.south);}
+}%
+
+\vspace{1.6cm}
+
+\onslide<4->{
+\[
+-\alpha t^2 - j\omega t
+= -\alpha\left(t + \frac{j\omega}{2\alpha}\right)^{2} - \frac{\omega^2}{4\alpha}
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Pulso gaussiano: separando os fatores}
+
+O termo sem $t$ sai da integral:
+
+\vspace{0.1cm}
+\[
+F(\omega) = \tikzmarknode{gbA}{e^{-\omega^2/(4\alpha)}}
+\int_{-\infty}^{\infty}
+\tikzmarknode{gbB}{e^{-\alpha\left(t+\frac{j\omega}{2\alpha}\right)^{2}}}\, dt
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cGreen, text width=2.2cm] (gbNA) at ($(gbA)+(-2.4,-1.35)$)
+      {não depende de $t$};
+    \draw[setinha, cGreen] (gbNA.east) -- (gbA.south);}
+  \only<3->{
+    \node[nota=cBlue, text width=2.6cm] (gbNB) at ($(gbB)+(1.4,-1.35)$)
+      {integral gaussiana: vale $\sqrt{\pi/\alpha}$};
+    \draw[setinha, cBlue] (gbNB.north) -- (gbB.south);}
+}%
+
+\vspace{1.9cm}
+
+\onslide<4->{
+\[
+F(\omega) = \sqrt{\frac{\pi}{\alpha}}\; e^{-\omega^2/(4\alpha)}
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Gaussiana vira gaussiana}
+
+\[
+\boxed{\;e^{-\alpha t^2} \xleftrightarrow{\ft}
+\sqrt{\frac{\pi}{\alpha}}\; e^{-\omega^2/(4\tikzmarknode{grA}{\alpha})}\;}
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cRed, text width=3.8cm] (grN) at ($(grA)+(0.2,-1.4)$)
+      {$\alpha$ aparece invertido: pulso estreito no tempo, espectro largo};
+    \draw[setinha, cRed] (grN.north) -- (grA.south);}
+}%
+
+\vspace{2.1cm}
+
+\onslide<3->{É a única forma que se reproduz nos dois domínios.}
+
+\onslide<4->{\alert{E é também a que atinge o mínimo do princípio da incerteza,
+com $\Delta t\,\Delta\omega = 1/2$.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Por que fibra óptica usa pulsos gaussianos}
+
+Um pulso de luz $p(t) = e^{-t^2/(2\sigma^2)}$ atravessa a fibra e sofre
+dispersão cromática, que o alarga no tempo.
+
+\vspace{0.2cm}
+
+\onslide<2->{Como a transformada de uma gaussiana é outra gaussiana, a forma do
+pulso se preserva ao longo da propagação; só a largura muda.}
+
+\onslide<3->{Sendo o mínimo do produto $\Delta t\,\Delta\omega$, nenhum outro
+formato ocupa menos tempo e banda ao mesmo tempo.}
+
+\onslide<4->{\alert{Se o alargamento fizer pulsos vizinhos se tocarem, aparece
+interferência intersimbólica, e é isso que limita a taxa da fibra.}}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Trem de impulsos}
+
+\begin{frame}{Trem de impulsos}
+
+\vspace{-0.1cm}
+\begin{center}
+\begin{tikzpicture}[scale=0.9, every node/.style={font=\scriptsize}]
+  \draw[->, gray!70] (-3.0,0) -- (3.2,0) node[right, black, font=\tiny] {$t$};
+  \draw[->, gray!70] (0,-0.25) -- (0,1.9);
+  \foreach \n in {-2,-1,0,1,2}
+    {\draw[cBlue, very thick, -{Stealth[length=2mm]}] (\n,0) -- (\n,1.5);}
+  \only<2->{\draw[<->, cOrange, thick] (0,1.75) -- (1,1.75)
+     node[midway, above, cOrange] {$T$};}
+  \node[below, font=\tiny] at (1,-0.15) {$T$};
+  \node[below, font=\tiny] at (-1,-0.15) {$-T$};
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.1cm}
+
+\[
+f(t) = \sum_{n=-\infty}^{\infty} \delta(t-nT)
+\]
+
+\onslide<3->{É periódico, então tem série de Fourier, com
+$\omega_0 = 2\pi/T$.}
+
+\onslide<4->{\alert{Vamos pela série, porque a transformada direta não sai.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Os coeficientes são todos iguais}
+
+Dentro de um período só existe o impulso em $t=0$:
+
+\vspace{0.1cm}
+\[
+c_n = \frac{1}{T}\int_{-T/2}^{T/2}
+\tikzmarknode{tiA}{\delta(t)}\, e^{-jn\omega_0 t}\, dt
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cRed, text width=3.2cm] (tiN) at ($(tiA)+(0.4,-1.35)$)
+      {a peneira de novo, agora colhendo em $t=0$};
+    \draw[setinha, cRed] (tiN.north) -- (tiA.south);}
+}%
+
+\vspace{1.8cm}
+
+\onslide<3->{
+\[
+c_n = \frac{1}{T}\, e^{0} = \frac{1}{T}
+\qquad \text{para todo } n
+\]}
+
+\onslide<4->{\alert{Todos os harmônicos entram com o mesmo peso.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Transformando termo a termo}
+
+Com $c_n = 1/T$, a série fica:
+
+\vspace{-0.1cm}
+\[
+f(t) = \frac{1}{T}\sum_{n=-\infty}^{\infty}
+\tikzmarknode{ttA}{e^{jn\omega_0 t}}
+\]
+
+\anotacoes{%
+  \only<2->{
+    \node[nota=cGreen, text width=3.4cm] (ttN) at ($(ttA)+(0.4,-1.35)$)
+      {cada uma vira $2\pi\delta(\omega-n\omega_0)$};
+    \draw[setinha, cGreen] (ttN.north) -- (ttA.south);}
+}%
+
+\vspace{1.7cm}
+
+\onslide<3->{Pela linearidade, transformamos parcela por parcela:
+
+\vspace{-0.15cm}
+\[
+F(\omega) = \frac{2\pi}{T}\sum_{n=-\infty}^{\infty}
+\delta\!\left(\omega - \frac{2\pi n}{T}\right)
+\]}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Impulsos de um lado, impulsos do outro}
+
+\vspace{-0.15cm}
+\begin{center}
+\begin{tikzpicture}[scale=0.72, every node/.style={font=\scriptsize}]
+  \begin{scope}[shift={(-4.6,0)}]
+    \draw[->, gray!70] (-2.6,0) -- (2.9,0) node[right, black, font=\tiny] {$t$};
+    \draw[->, gray!70] (0,-0.25) -- (0,2.0);
+    \foreach \n in {-2,-1,0,1,2}
+      {\draw[cBlue, very thick, -{Stealth[length=1.8mm]}] (\n,0) -- (\n,1.5);}
+    \node[below, font=\tiny] at (1,-0.15) {$T$};
+  \end{scope}
+  \only<2->{\draw[setinha, gray!80, line width=1pt] (-1.1,0.8) -- (0.5,0.8)
+     node[midway, above, black] {$\mathcal{F}$};}
+  \only<3->{
+  \begin{scope}[shift={(4.6,0)}]
+    \draw[->, gray!70] (-2.9,0) -- (2.9,0) node[right, black, font=\tiny] {$\omega$};
+    \draw[->, gray!70] (0,-0.25) -- (0,2.0);
+    \foreach \n in {-2,-1,0,1,2}
+      {\draw[cRed, very thick, -{Stealth[length=1.8mm]}] (\n,0) -- (\n,1.5);}
+    \node[below, font=\tiny] at (1,-0.15) {$\omega_0$};
+    \only<4->{\draw[<->, cOrange, thick] (0,1.75) -- (1,1.75)
+       node[midway, above, cOrange] {$2\pi/T$};}
+  \end{scope}}
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.15cm}
+
+\onslide<5->{Espaçar mais os impulsos no tempo aproxima os impulsos na
+frequência, e o contrário também vale.}
+
+\onslide<6->{\alert{É essa dupla periodicidade que sustenta o teorema da
+amostragem.}}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Resumo}
+
+\begin{frame}{Tabela de pares: parte 1}
+
+\begin{center}
+\small\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}p{0.42\textwidth}p{0.52\textwidth}@{}}
+\hline
+$f(t)$ & $F(\omega)$ \\
+\hline
+$\delta(t)$ & $1$ \\
+$1$ & $2\pi\delta(\omega)$ \\
+\onslide<2->{$e^{j\omega_0 t}$} & \onslide<2->{$2\pi\delta(\omega-\omega_0)$} \\
+\onslide<2->{$\cos(\omega_0 t)$} & \onslide<2->{$\pi[\delta(\omega-\omega_0)+\delta(\omega+\omega_0)]$} \\
+\onslide<2->{$\sin(\omega_0 t)$} & \onslide<2->{$j\pi[\delta(\omega+\omega_0)-\delta(\omega-\omega_0)]$} \\
+\onslide<3->{$\sgn(t)$} & \onslide<3->{$2/(j\omega)$} \\
+\onslide<3->{$u(t)$} & \onslide<3->{$\pi\delta(\omega)+1/(j\omega)$} \\
+\hline
+\end{tabular}
+\end{center}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Tabela de pares: parte 2}
+
+\begin{center}
+\small\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}p{0.42\textwidth}p{0.52\textwidth}@{}}
+\hline
+$f(t)$ & $F(\omega)$ \\
+\hline
+$e^{-at}u(t)$, $a>0$ & $1/(a+j\omega)$ \\
+$e^{-a|t|}$, $a>0$ & $2a/(a^2+\omega^2)$ \\
+\onslide<2->{$\rect(t/\tau)$} & \onslide<2->{$\tau\,\sinc(\omega\tau/2\pi)$} \\
+\onslide<2->{$\tri(t/\tau)$} & \onslide<2->{$\tau\,\sinc^2(\omega\tau/2\pi)$} \\
+\onslide<3->{$e^{-\alpha t^2}$} & \onslide<3->{$\sqrt{\pi/\alpha}\;e^{-\omega^2/(4\alpha)}$} \\
+\onslide<3->{$\sum_n \delta(t-nT)$} & \onslide<3->{$\frac{2\pi}{T}\sum_n \delta(\omega-2\pi n/T)$} \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.2cm}
+
+\onslide<4->{\alert{Com esses pares e as propriedades da próxima seção,
+quase nenhuma integral precisa ser refeita.}}
+
+\end{frame}
+
+% --------------------------------------------
+
+\begin{frame}{Três padrões que se repetem}
+
+\vspace{-0.1cm}
+\begin{center}
+\begin{tikzpicture}[every node/.style={font=\small}]
+  \tikzset{cx/.style={very thick, rounded corners=3pt, text width=7.2cm,
+           inner xsep=9pt, inner ysep=5pt, font=\small, align=left}}
+
+  \node[cx, draw=cBlue, fill=cBlue!7] (p1) at (0,0)
+    {concentrar em um domínio espalha no outro};
+  \onslide<2->{
+  \node[cx, draw=cOrange, fill=cOrange!7, below=0.32cm of p1] (p2)
+    {quanto mais suave o sinal, mais rápido o espectro decai};}
+  \onslide<3->{
+  \node[cx, draw=cGreen, fill=cGreen!7, below=0.32cm of p2] (p3)
+    {simetria no tempo aparece como simetria na frequência};}
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.25cm}
+
+\onslide<4->{Impulso contra constante, e trem contra trem, são os casos
+extremos do primeiro padrão.}
+
+\onslide<5->{O degrau decai com $1/\omega$, o triângulo com $1/\omega^2$ e a
+gaussiana mais rápido que qualquer potência: é o segundo padrão em ação.}
 
 \end{frame}

@@ -1,0 +1,647 @@
+\documentclass[11pt,a4paper]{article}
+
+% ============================================
+% PACOTES
+% ============================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usepackage{caption}
+\usepackage{cancel}
+
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+% --- Caixas de derivação e exemplo ---
+\tcbuselibrary{skins,breakable}
+
+\newtcolorbox{quadro}[1][]{
+  colback=blue!4,
+  colframe=blue!55!black,
+  fonttitle=\bfseries,
+  title=#1,
+  breakable,
+  enhanced,
+  arc=2mm,
+  boxrule=0.6pt
+}
+
+\newtcolorbox{exemplo}[1][]{
+  colback=green!5,
+  colframe=green!45!black,
+  fonttitle=\bfseries,
+  title=#1,
+  breakable,
+  enhanced,
+  arc=2mm,
+  boxrule=0.6pt
+}
+
+\newtcolorbox{observacao}[1][]{
+  colback=orange!5,
+  colframe=orange!70!black,
+  fonttitle=\bfseries,
+  title=#1,
+  breakable,
+  enhanced,
+  arc=2mm,
+  boxrule=0.6pt
+}
+
+\newtcolorbox{exercicio}[1][]{
+  colback=red!4,
+  colframe=red!55!black,
+  fonttitle=\bfseries,
+  title=#1,
+  breakable,
+  enhanced,
+  arc=2mm,
+  boxrule=0.6pt
+}
+
+% --- Cabeçalho ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092}
+\fancyhead[R]{\small Notas de Aula -- Banda Base e Banda Passante}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% --- Comandos ---
+\newcommand{\AM}{\text{AM}}
+\newcommand{\DSB}{\text{DSB}}
+\newcommand{\BP}{\text{bp}}
+\newcommand{\dd}{\,\mathrm{d}}
+
+% --- Cores de destaque ---
+\definecolor{azul}{RGB}{0,70,160}
+\definecolor{vermelho}{RGB}{175,25,25}
+\definecolor{verde}{RGB}{0,110,60}
+
+\DeclareMathOperator{\sgn}{sgn}
+
+\begin{document}
+
+% ============================================
+% CAPA
+% ============================================
+\begin{titlepage}
+\thispagestyle{empty}
+\centering
+
+\vspace*{1.5cm}
+
+{\large\textbf{Universidade de Brasília}}\\[0.15cm]
+{\large\textbf{Faculdade de Ciências e Tecnologias em Engenharia -- FCTE}}\\[0.15cm]
+{\normalsize Curso de Engenharia Eletrônica}\\[1.8cm]
+
+\rule{\textwidth}{1pt}\\[0.5cm]
+{\Huge\textbf{Notas de Aula}}\\[0.5cm]
+{\LARGE\textbf{Banda Base e Banda Passante}}\\[0.4cm]
+{\large Sinal Analítico, Envoltória Complexa e as Conversões entre as Duas Representações}\\[0.5cm]
+\rule{\textwidth}{1pt}
+
+\vspace{2.5cm}
+
+{\large FGA0092 -- Princípios de Comunicação para Engenharia}
+
+\vfill
+
+\begin{flushleft}
+\large
+\textbf{Professor:} Daniel Costa Araújo\\[0.3cm]
+\textbf{Semestre:} 2026/1
+\end{flushleft}
+
+\vspace{1cm}
+
+{\large Brasília -- DF}
+
+\end{titlepage}
+
+% ============================================
+% SUMÁRIO
+% ============================================
+\newpage
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{Sinais em banda passante}
+% ============================================================
+
+\subsection{Definição e hipótese de banda estreita}
+
+Um sinal real $s(t)$ é dito de banda passante quando seu espectro se concentra em torno de uma frequência $f_c$:
+\begin{equation}
+  S(f) \;=\; 0 \qquad \text{para} \qquad \bigl|\,|f| - f_c\,\bigr| > W,
+  \qquad\text{com}\qquad f_c > W .
+  \label{eq:def_banda_passante}
+\end{equation}
+O suporte de $S(f)$ é, portanto, a união de dois intervalos disjuntos:
+\begin{equation}
+  \underbrace{\bigl[\,\textcolor{azul}{f_c-W},\ \textcolor{azul}{f_c+W}\,\bigr]}_{\text{frequências positivas}}
+  \;\cup\;
+  \underbrace{\bigl[\,\textcolor{vermelho}{-f_c-W},\ \textcolor{vermelho}{-f_c+W}\,\bigr]}_{\text{frequências negativas}} .
+  \label{eq:suporte_bp}
+\end{equation}
+
+Como $s(t)$ é real, vale a simetria hermitiana
+\begin{equation}
+  S(-f) \;=\; S^{*}(f),
+  \label{eq:hermitiana}
+\end{equation}
+de modo que a parcela em $-f_c$ é redundante: ela não carrega informação alguma que já não esteja na parcela em $+f_c$. Toda a teoria a seguir explora essa redundância para descrever $s(t)$ por um sinal de banda base, centrado na origem e ocupando apenas $|f| \le W$.
+
+\begin{observacao}[Por que trocar de representação]
+Um sinal de banda passante exige uma taxa de amostragem proporcional a $f_c + W$, enquanto sua representação em banda base exige uma taxa proporcional a $W$. Como $f_c \gg W$ nos sistemas de comunicação, a economia é de várias ordens de grandeza. Além disso, a representação em banda base separa a informação do processo de deslocamento em frequência, o que permite tratar modulação e demodulação com a mesma álgebra.
+\end{observacao}
+
+% ============================================================
+\section{Da banda passante para a banda base}
+% ============================================================
+
+\subsection{O corte das frequências negativas}
+
+A simetria \eqref{eq:hermitiana} mostra que a parcela em $\textcolor{vermelho}{-f_c}$ é a réplica conjugada da parcela em $\textcolor{azul}{+f_c}$. Nada se perde ao descartá-la. Esse é o ponto de partida: multiplica-se $S(f)$ pelo degrau unitário, eliminando o semieixo negativo, e compensa-se a metade removida com um fator $2$.
+
+\begin{quadro}[Sinal analítico]
+\[
+  \boxed{\;S_a(f) \;=\; 2\,S(f)\,u(f)\;}
+  \qquad\text{com}\qquad
+  u(f) =
+  \begin{cases}
+    1, & f > 0,\\
+    \tfrac{1}{2}, & f = 0,\\
+    0, & f < 0 .
+  \end{cases}
+\]
+\end{quadro}
+
+O resultado é o sinal analítico. Ele ocupa apenas o intervalo $\bigl[\,\textcolor{azul}{f_c-W},\ \textcolor{azul}{f_c+W}\,\bigr]$ e, por não ter simetria hermitiana, corresponde a um sinal complexo no tempo. O passo seguinte é transladá-lo para a origem, o que produz um sinal de banda base. A Figura~\ref{fig:corte_desloca} resume as duas operações.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  >={Latex[length=2.2mm]},
+  eixo/.style={->,thick},
+  font=\small
+]
+\def\fc{3.2}
+\def\W{0.9}
+\def\ha{1.0}
+\def\hb{2.0}
+
+% ---------------- (a) espectro de banda passante ----------------
+\begin{scope}[yshift=0cm]
+  \node[anchor=west,font=\small] at (-5.4,2.75) {(a)\quad $S(f)$};
+  \draw[eixo] (-5.4,0) -- (5.4,0) node[below right,font=\small]{$f$};
+  \draw[eixo] (0,-0.15) -- (0,2.3);
+
+  \fill[vermelho!20] (-\fc+\W,0) -- (-\fc-\W,\ha) -- (-\fc-\W,0) -- cycle;
+  \draw[vermelho,thick] (-\fc+\W,0) -- (-\fc-\W,\ha) -- (-\fc-\W,0);
+  \fill[azul!20] (\fc-\W,0) -- (\fc+\W,\ha) -- (\fc+\W,0) -- cycle;
+  \draw[azul,thick] (\fc-\W,0) -- (\fc+\W,\ha) -- (\fc+\W,0);
+
+  \draw (\fc,0.09) -- (\fc,-0.09) node[below,font=\scriptsize]{$f_c$};
+  \draw (-\fc,0.09) -- (-\fc,-0.09) node[below,font=\scriptsize]{$-f_c$};
+  \draw[<->,azul] (\fc-\W,1.5) -- node[above,font=\scriptsize,text=azul]{$2W$} (\fc+\W,1.5);
+  \node[font=\scriptsize,text=vermelho,align=center] at (-\fc,1.75) {réplica\\ conjugada};
+\end{scope}
+
+% ---------------- seta: corte ----------------
+\draw[eixo,black!70] (0,-1.1) -- (0,-2.0)
+      node[midway,right=3pt,font=\small]{$\times\, 2\,u(f)$: descarta o semieixo $f<0$};
+
+% ---------------- (b) sinal analitico ----------------
+\begin{scope}[yshift=-5.0cm]
+  \node[anchor=west,font=\small] at (-5.4,2.75) {(b)\quad $S_a(f) \;=\; 2\,S(f)\,u(f)$};
+  \draw[eixo] (-5.4,0) -- (5.4,0) node[below right,font=\small]{$f$};
+  \draw[eixo] (0,-0.15) -- (0,2.3);
+
+  \draw[black!40,dashed] (-\fc+\W,0) -- (-\fc-\W,\ha) -- (-\fc-\W,0);
+  \node[font=\scriptsize,text=black!55] at (-\fc,1.35) {descartado};
+
+  \fill[azul!20] (\fc-\W,0) -- (\fc+\W,\hb) -- (\fc+\W,0) -- cycle;
+  \draw[azul,thick] (\fc-\W,0) -- (\fc+\W,\hb) -- (\fc+\W,0);
+  \draw (\fc,0.09) -- (\fc,-0.09) node[below,font=\scriptsize]{$f_c$};
+  \node[font=\scriptsize,text=azul,anchor=west] at (\fc+\W+0.15,\hb-0.15) {amplitude dobrada};
+\end{scope}
+
+% ---------------- seta: deslocamento ----------------
+\draw[eixo,black!70] (0,-6.1) -- (0,-7.0)
+      node[midway,right=3pt,font=\small]{$f \to f+f_c$, ou seja, $\times\, e^{-j2\pi f_c t}$ no tempo};
+
+% ---------------- (c) envoltoria complexa ----------------
+\begin{scope}[yshift=-10.0cm]
+  \node[anchor=west,font=\small] at (-5.4,2.75) {(c)\quad $\tilde{S}(f) \;=\; S_a(f+f_c)$};
+  \draw[eixo] (-5.4,0) -- (5.4,0) node[below right,font=\small]{$f$};
+  \draw[eixo] (0,-0.15) -- (0,2.3);
+
+  \fill[azul!20] (-\W,0) -- (\W,\hb) -- (\W,0) -- cycle;
+  \draw[azul,thick] (-\W,0) -- (\W,\hb) -- (\W,0);
+  \draw (-\W,0.09) -- (-\W,-0.09) node[below,font=\scriptsize]{$-W$};
+  \draw (\W,0.09) -- (\W,-0.09) node[below,font=\scriptsize]{$W$};
+  \draw[black!40,dashed] (\fc,0) -- (\fc,1.0)
+        node[above,font=\scriptsize,text=black!55]{posição original};
+\end{scope}
+
+\end{tikzpicture}
+\caption{Construção da representação em banda base. O degrau $u(f)$ corta o semieixo negativo e o fator $2$ compensa a metade removida; em seguida o espectro restante é transladado de $f_c$ para a origem. Nenhuma informação é perdida, pois a parcela descartada era a réplica conjugada da que permaneceu.}
+\label{fig:corte_desloca}
+\end{figure}
+
+\subsection{O que o corte significa no domínio do tempo}
+
+O degrau unitário admite a decomposição
+\begin{equation}
+  u(f) \;=\; \frac{1}{2}\bigl[\,1 + \sgn(f)\,\bigr],
+  \label{eq:degrau_sgn}
+\end{equation}
+que permite ler a operação de corte como uma soma de duas parcelas:
+\begin{align}
+  S_a(f) &\;=\; 2\,S(f)\,u(f)
+  \label{eq:analitico_passo1}\\[0.5em]
+         &\;=\; \cancel{2}\,S(f)\,\frac{1}{\cancel{2}}\bigl[\,1+\sgn(f)\,\bigr]
+  \label{eq:analitico_passo2}\\[0.5em]
+         &\;=\; S(f) \;+\; \sgn(f)\,S(f)
+  \label{eq:analitico_passo3}\\[0.5em]
+         &\;=\; S(f) \;+\; j\,\underbrace{\bigl[\,-j\,\sgn(f)\,S(f)\,\bigr]}_{\hat{S}(f)} .
+  \label{eq:analitico_passo4}
+\end{align}
+
+A primeira parcela é o próprio sinal. A segunda, multiplicada por $j$, é a saída de um filtro cuja resposta em frequência vale $-j\,\sgn(f)$. Esse filtro é a transformada de Hilbert, e ela não foi postulada: apareceu como consequência direta do corte das frequências negativas.
+
+\begin{quadro}[Transformada de Hilbert]
+\[
+  \boxed{\;\hat{S}(f) \;=\; \underbrace{-j\,\sgn(f)}_{H(f)}\,S(f)
+   \qquad\Longleftrightarrow\qquad
+   \hat{s}(t) \;=\; \frac{1}{\pi}\int_{-\infty}^{\infty}\frac{s(\tau)}{t-\tau}\dd\tau\;}
+\]
+\end{quadro}
+
+O módulo de $H(f)$ é unitário em toda parte e a fase vale $-90^{\circ}$ para $f>0$ e $+90^{\circ}$ para $f<0$. A transformada de Hilbert é, portanto, um defasador de quadratura: não altera o conteúdo de amplitude do sinal, apenas gira cada componente de frequência.
+
+Voltando \eqref{eq:analitico_passo4} para o domínio do tempo:
+\begin{equation}
+  s_a(t) \;=\; s(t) \;+\; j\,\hat{s}(t),
+  \label{eq:analitico_tempo}
+\end{equation}
+de onde se lê o papel de cada parte:
+\begin{equation}
+  \operatorname{Re}\bigl\{s_a(t)\bigr\} \;=\; s(t),
+  \qquad
+  \operatorname{Im}\bigl\{s_a(t)\bigr\} \;=\; \hat{s}(t).
+  \label{eq:re_im_analitico}
+\end{equation}
+A primeira igualdade justifica o fator $2$ adotado na definição: sem ele, o corte devolveria $s(t)/2$ na parte real.
+
+\subsection{Deslocamento para a origem}
+
+O sinal analítico ainda está centrado em $f_c$. A translação para a origem completa a conversão:
+\begin{equation}
+  \tilde{S}(f) \;=\; S_a(f+f_c)
+  \qquad\Longleftrightarrow\qquad
+  \tilde{s}(t) \;=\; s_a(t)\, e^{-j2\pi f_c t}.
+  \label{eq:envoltoria_def}
+\end{equation}
+Pela hipótese \eqref{eq:def_banda_passante}, o resultado ocupa apenas $|f| \le W$. O sinal $\tilde{s}(t)$ é a envoltória complexa: um sinal de banda base, em geral complexo, que carrega toda a informação de $s(t)$.
+
+\subsection{Componentes em fase e em quadratura}
+
+Escrevendo $\tilde{s}(t)$ em partes real e imaginária, definem-se os componentes em fase e em quadratura:
+\begin{equation}
+  \tilde{s}(t) \;=\; s_I(t) + j\, s_Q(t).
+  \label{eq:iq_def}
+\end{equation}
+Expandindo \eqref{eq:envoltoria_def} no domínio do tempo:
+\begin{align}
+  \tilde{s}(t)
+  &= \bigl[\,s(t) + j\,\hat{s}(t)\,\bigr]\bigl[\,\cos(2\pi f_c t) - j\sin(2\pi f_c t)\,\bigr]
+  \label{eq:iq_passo1}\\[0.5em]
+  &= \underbrace{\bigl[\,s(t)\cos(2\pi f_c t) + \hat{s}(t)\sin(2\pi f_c t)\,\bigr]}_{\textcolor{azul}{s_I(t)}}
+   + j\,\underbrace{\bigl[\,\hat{s}(t)\cos(2\pi f_c t) - s(t)\sin(2\pi f_c t)\,\bigr]}_{\textcolor{vermelho}{s_Q(t)}} .
+  \label{eq:iq_passo2}
+\end{align}
+
+\begin{quadro}[Banda passante $\rightarrow$ banda base]
+\[
+  \boxed{
+  \begin{bmatrix} \textcolor{azul}{s_I(t)} \\[0.35em] \textcolor{vermelho}{s_Q(t)} \end{bmatrix}
+  \;=\;
+  \underbrace{\begin{bmatrix}
+     \cos(2\pi f_c t) & \sin(2\pi f_c t) \\[0.35em]
+    -\sin(2\pi f_c t) & \cos(2\pi f_c t)
+  \end{bmatrix}}_{\mathbf{R}(t)}
+  \begin{bmatrix} s(t) \\[0.35em] \hat{s}(t) \end{bmatrix}}
+\]
+\end{quadro}
+
+A matriz $\mathbf{R}(t)$ é uma rotação de $-2\pi f_c t$ radianos aplicada, a cada instante, ao par formado pelo sinal e por sua transformada de Hilbert. Ela é ortogonal:
+\begin{equation}
+  \mathbf{R}(t)\,\mathbf{R}^{\mathsf{T}}(t) \;=\; \mathbf{I},
+  \qquad
+  \det \mathbf{R}(t) \;=\; \cos^{2}(2\pi f_c t) + \sin^{2}(2\pi f_c t) \;=\; 1 .
+  \label{eq:R_ortogonal}
+\end{equation}
+Duas consequências imediatas: a conversão é sempre inversível, com $\mathbf{R}^{-1} = \mathbf{R}^{\mathsf{T}}$, e a norma do par é preservada,
+\begin{equation}
+  s_I^{2}(t) + s_Q^{2}(t) \;=\; s^{2}(t) + \hat{s}^{2}(t) \;=\; \bigl|\tilde{s}(t)\bigr|^{2} .
+  \label{eq:norma_preservada}
+\end{equation}
+
+% ============================================================
+\section{Da banda base para a banda passante}
+% ============================================================
+
+\subsection{Reconstrução no domínio do tempo}
+
+O caminho inverso parte de $\tilde{s}(t)$ e recupera o sinal real. Invertendo \eqref{eq:envoltoria_def}, tem-se $s_a(t) = \tilde{s}(t)e^{\,j2\pi f_c t}$, e como $s(t) = \operatorname{Re}\{s_a(t)\}$ por construção:
+\begin{align}
+  s(t)
+  &= \operatorname{Re}\bigl\{\tilde{s}(t)\, e^{\,j2\pi f_c t}\bigr\}
+  \label{eq:bp_passo1}\\[0.5em]
+  &= \operatorname{Re}\Bigl\{\bigl[\,\textcolor{azul}{s_I(t)} + j\,\textcolor{vermelho}{s_Q(t)}\,\bigr]
+     \bigl[\,\cos(2\pi f_c t) + j\sin(2\pi f_c t)\,\bigr]\Bigr\}
+  \label{eq:bp_passo2}\\[0.5em]
+  &= \operatorname{Re}\Bigl\{
+     \underbrace{\textcolor{azul}{s_I}\cos(2\pi f_c t) - \textcolor{vermelho}{s_Q}\sin(2\pi f_c t)}_{\text{parte real}}
+     \;+\; j\underbrace{\bigl[\,\textcolor{azul}{s_I}\sin(2\pi f_c t) + \textcolor{vermelho}{s_Q}\cos(2\pi f_c t)\,\bigr]}_{\text{parte imaginária, descartada}}\Bigr\}
+  \label{eq:bp_passo3}\\[0.5em]
+  &= \textcolor{azul}{s_I(t)}\cos(2\pi f_c t) \;-\; \textcolor{vermelho}{s_Q(t)}\sin(2\pi f_c t).
+  \label{eq:bp_passo4}
+\end{align}
+
+\begin{quadro}[Banda base $\rightarrow$ banda passante]
+\[
+  \boxed{
+  \begin{bmatrix} s(t) \\[0.35em] \hat{s}(t) \end{bmatrix}
+  \;=\;
+  \underbrace{\begin{bmatrix}
+    \cos(2\pi f_c t) & -\sin(2\pi f_c t) \\[0.35em]
+    \sin(2\pi f_c t) & \phantom{-}\cos(2\pi f_c t)
+  \end{bmatrix}}_{\mathbf{R}^{\mathsf{T}}(t)}
+  \begin{bmatrix} \textcolor{azul}{s_I(t)} \\[0.35em] \textcolor{vermelho}{s_Q(t)} \end{bmatrix}}
+\]
+cuja primeira linha é o sinal transmitido:
+\[
+  s(t) \;=\; \operatorname{Re}\bigl\{\tilde{s}(t)\, e^{\,j2\pi f_c t}\bigr\}
+   \;=\; \textcolor{azul}{s_I(t)}\cos(2\pi f_c t) \;-\; \textcolor{vermelho}{s_Q(t)}\sin(2\pi f_c t).
+\]
+\end{quadro}
+
+A segunda linha entrega, sem custo adicional, a transformada de Hilbert do sinal reconstruído. A matriz da conversão inversa é a transposta da matriz da conversão direta, conforme \eqref{eq:R_ortogonal}.
+
+\subsection{Reconstrução no domínio da frequência}
+
+Escrevendo a parte real como a semissoma com o conjugado,
+\begin{equation}
+  s(t) \;=\; \frac{1}{2}\,\tilde{s}(t)\, e^{\,j2\pi f_c t} \;+\; \frac{1}{2}\,\tilde{s}^{*}(t)\, e^{-j2\pi f_c t},
+  \label{eq:semissoma}
+\end{equation}
+e transformando termo a termo:
+\begin{align}
+  \tilde{s}(t)\, e^{\,j2\pi f_c t}
+  &\;\longleftrightarrow\; \tilde{S}(\textcolor{azul}{f-f_c}),
+  \label{eq:freq_passo1}\\[0.4em]
+  \tilde{s}^{*}(t)
+  &\;\longleftrightarrow\; \tilde{S}^{*}(-f)
+  \qquad\Longrightarrow\qquad
+  \tilde{s}^{*}(t)\, e^{-j2\pi f_c t} \;\longleftrightarrow\; \tilde{S}^{*}(\textcolor{vermelho}{-f-f_c}),
+  \label{eq:freq_passo2}
+\end{align}
+o que fornece:
+
+\begin{quadro}[Espectro do sinal reconstruído]
+\[
+  \boxed{\;S(f) \;=\; \frac{1}{2}\Bigl[\, \tilde{S}(\textcolor{azul}{f-f_c}) \;+\; \tilde{S}^{*}(\textcolor{vermelho}{-f-f_c}) \,\Bigr]\;}
+\]
+\end{quadro}
+
+A primeira parcela reposiciona o espectro de banda base em $\textcolor{azul}{+f_c}$. A segunda, conjugada e refletida, reconstrói a parcela em $\textcolor{vermelho}{-f_c}$ e é exatamente o que torna $s(t)$ real, conforme exigido por \eqref{eq:hermitiana}.
+
+\subsection{Verificação da inversibilidade}
+
+Na forma matricial, a composição das duas conversões é imediata. Abreviando $c = \cos(2\pi f_c t)$ e $\sigma = \sin(2\pi f_c t)$:
+\begin{align}
+  \mathbf{R}^{\mathsf{T}}\mathbf{R}
+  &= \begin{bmatrix} c & -\sigma \\[0.3em] \sigma & c \end{bmatrix}
+     \begin{bmatrix} c & \sigma \\[0.3em] -\sigma & c \end{bmatrix}
+  \label{eq:inv_passo1}\\[0.6em]
+  &= \begin{bmatrix}
+       c^{2} + \sigma^{2} & \cancel{c\,\sigma} - \cancel{\sigma\, c} \\[0.4em]
+       \cancel{\sigma\, c} - \cancel{c\,\sigma} & \sigma^{2} + c^{2}
+     \end{bmatrix}
+  \label{eq:inv_passo2}\\[0.6em]
+  &= \begin{bmatrix} 1 & 0 \\[0.3em] 0 & 1 \end{bmatrix} \;=\; \mathbf{I},
+  \label{eq:inv_passo3}
+\end{align}
+de modo que
+\begin{equation}
+  \begin{bmatrix} s(t) \\[0.3em] \hat{s}(t) \end{bmatrix}
+  \;=\; \mathbf{R}^{\mathsf{T}}(t)\,\mathbf{R}(t)
+  \begin{bmatrix} s(t) \\[0.3em] \hat{s}(t) \end{bmatrix}
+  \;=\; \begin{bmatrix} s(t) \\[0.3em] \hat{s}(t) \end{bmatrix}.
+  \label{eq:inv_passo4}
+\end{equation}
+
+Escrevendo a primeira linha por extenso, recupera-se a mesma conta na forma escalar:
+\begin{align}
+  \textcolor{azul}{s_I}\,c - \textcolor{vermelho}{s_Q}\,\sigma
+  &= \bigl[\,s\,c + \hat{s}\,\sigma\,\bigr] c \;-\; \bigl[\,\hat{s}\,c - s\,\sigma\,\bigr]\sigma
+  \label{eq:inv_esc1}\\[0.5em]
+  &= s\,c^{2} + \cancel{\hat{s}\,\sigma c} - \cancel{\hat{s}\,c\,\sigma} + s\,\sigma^{2}
+  \label{eq:inv_esc2}\\[0.5em]
+  &= s(t)\,\underbrace{\bigl[\,c^{2} + \sigma^{2}\,\bigr]}_{=\,1} \;=\; s(t).
+  \label{eq:inv_esc3}
+\end{align}
+As duas conversões são, portanto, exatamente inversas uma da outra. Os termos cruzados que envolvem $\hat{s}(t)$ se cancelam, e com eles desaparece qualquer componente de frequência em $2f_c$.
+
+% ============================================================
+\section{Diagramas de blocos}
+% ============================================================
+
+As duas conversões correspondem aos diagramas da Figura~\ref{fig:bp_para_bb} e da Figura~\ref{fig:bb_para_bp}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  >={Latex[length=2.2mm]},
+  bloco/.style={draw,thick,rounded corners=2pt,fill=blue!4,
+                minimum width=2.0cm,minimum height=1.05cm,align=center,font=\small},
+  peq/.style={draw,thick,rounded corners=2pt,fill=blue!4,
+              minimum width=1.5cm,minimum height=1.05cm,align=center,font=\small},
+  fonte/.style={draw,thick,rounded corners=2pt,fill=black!4,
+                minimum width=2.4cm,minimum height=0.8cm,align=center,font=\small},
+  op/.style={draw,thick,circle,minimum size=0.7cm,inner sep=0pt,font=\normalsize},
+  fio/.style={->,thick},
+  font=\small
+]
+\def\yA{1.5}
+\def\yB{-1.5}
+
+\coordinate (in)   at (-0.9,0);
+\coordinate (no)   at ( 0.4,0);
+\coordinate (topo) at ( 0.4,\yA);
+\coordinate (base) at ( 0.4,\yB);
+
+\node[bloco] (hil) at ( 2.3,\yB) {Hilbert\\[-0.15em] $-j\,\sgn(f)$};
+\node[peq]   (jb)  at ( 5.0,\yB) {$\times\, j$};
+\node[op]    (som) at ( 7.1,0)   {$+$};
+\node[op]    (mix) at ( 9.0,0)   {$\times$};
+\coordinate  (der) at (10.5,0);
+\node[peq]   (reb) at (12.2, \yA) {$\operatorname{Re}\{\cdot\}$};
+\node[peq]   (imb) at (12.2, \yB) {$\operatorname{Im}\{\cdot\}$};
+\coordinate  (outI) at (14.3, \yA);
+\coordinate  (outQ) at (14.3, \yB);
+
+\node[fonte] (osc) at (9.0,-3.3) {$e^{-j2\pi f_c t}$};
+
+% entrada e divisao
+\draw[fio] (in) -- node[above=1pt]{$s(t)$} (no);
+\draw[thick] (topo) -- (base);
+\fill (no) circle (2pt);
+
+% ramo direto
+\draw[fio] (topo) -- node[above=1pt,pos=0.62]{$s(t)$} (som |- topo) -- (som);
+
+% ramo de Hilbert
+\draw[fio] (base) -- (hil);
+\draw[fio] (hil) -- node[above=1pt]{$\hat{s}(t)$} (jb);
+\draw[fio] (jb) -- node[above=1pt,pos=0.55]{$j\,\hat{s}(t)$} (som |- jb) -- (som);
+
+% sinal analitico e translacao
+\draw[fio] (som) -- node[above=1pt]{$s_a(t)$} (mix);
+\draw[fio] (osc) -- (mix);
+\draw[fio] (mix) -- node[above=1pt]{$\tilde{s}(t)$} (der);
+\draw[thick] (der) ++(0,\yA) coordinate (dtopo) -- ++(0,2*\yB) coordinate (dbase);
+\fill (der) circle (2pt);
+\draw[fio] (dtopo) -- (reb);
+\draw[fio] (dbase) -- (imb);
+\draw[fio] (reb) -- node[above=1pt,text=azul]{$s_I(t)$} (outI);
+\draw[fio] (imb) -- node[above=1pt,text=vermelho]{$s_Q(t)$} (outQ);
+
+\end{tikzpicture}
+\caption{Conversão de banda passante para banda base. O sinal analítico $s_a(t) = s(t) + j\hat{s}(t)$ é transladado para a origem, e as partes real e imaginária da envoltória complexa fornecem os componentes em fase e em quadratura. Nenhum filtro passa-baixas é necessário, pois a construção não gera componentes de frequência em $2f_c$.}
+\label{fig:bp_para_bb}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  >={Latex[length=2.2mm]},
+  fonte/.style={draw,thick,rounded corners=2pt,fill=black!4,
+                minimum width=2.3cm,minimum height=0.8cm,align=center,font=\small},
+  op/.style={draw,thick,circle,minimum size=0.7cm,inner sep=0pt,font=\normalsize},
+  fio/.style={->,thick},
+  font=\small
+]
+\def\yI{1.6}
+\def\yQ{-1.6}
+
+\coordinate (inI) at (0.4,\yI);
+\coordinate (inQ) at (0.4,\yQ);
+\node[op] (mixI) at (4.2,\yI) {$\times$};
+\node[op] (mixQ) at (4.2,\yQ) {$\times$};
+\node[op] (som)  at (7.0,0) {$+$};
+\coordinate (out) at (10.2,0);
+
+\node[fonte] (oscI) at (4.2, 3.4) {$\cos(2\pi f_c t)$};
+\node[fonte] (oscQ) at (4.2,-3.4) {$-\sin(2\pi f_c t)$};
+
+\draw[fio] (inI) -- node[above=1pt,text=azul]{$s_I(t)$} (mixI);
+\draw[fio] (inQ) -- node[below=1pt,text=vermelho]{$s_Q(t)$} (mixQ);
+\draw[fio] (oscI) -- (mixI);
+\draw[fio] (oscQ) -- (mixQ);
+\draw[fio] (mixI) -- (som |- mixI) -- (som);
+\draw[fio] (mixQ) -- (som |- mixQ) -- (som);
+\draw[fio] (som) -- node[above=1pt]{$s(t) = s_I\cos(2\pi f_c t) - s_Q\sin(2\pi f_c t)$} (out);
+\end{tikzpicture}
+\caption{Conversão de banda base para banda passante, conhecida como modulador em quadratura.}
+\label{fig:bb_para_bp}
+\end{figure}
+
+% ============================================================
+\section{Consequências e casos particulares}
+% ============================================================
+
+\subsection{Envoltória, fase e frequência instantânea}
+
+Na forma polar, $\tilde{s}(t) = a(t)\,e^{\,j\phi(t)}$, com
+\begin{align}
+  a(t) &\;=\; \bigl|\tilde{s}(t)\bigr| \;=\; \sqrt{s_I^{2}(t) + s_Q^{2}(t)},
+  \label{eq:envoltoria_real}\\[0.4em]
+  \phi(t) &\;=\; \arg\bigl\{\tilde{s}(t)\bigr\} \;=\; \arctan\frac{s_Q(t)}{s_I(t)},
+  \label{eq:fase}
+\end{align}
+e o sinal de banda passante assume a forma canônica
+\begin{equation}
+  s(t) \;=\; a(t)\,\cos\bigl[\,2\pi f_c t + \phi(t)\,\bigr],
+  \qquad
+  f_i(t) \;=\; f_c + \frac{1}{2\pi}\frac{\dd\phi(t)}{\dd t}.
+  \label{eq:forma_canonica}
+\end{equation}
+Toda modulação analógica é um caso particular dessa expressão, distinguido pela escolha de $a(t)$ e $\phi(t)$.
+
+\subsection{Potência}
+
+Da forma canônica segue $s^{2}(t) = a^{2}(t)\cos^{2}[\cdot]$, cuja média temporal, para $f_c$ elevado, vale
+\begin{equation}
+  P_s \;=\; \frac{1}{2}\,\overline{a^{2}(t)}
+      \;=\; \frac{1}{2}\,\overline{\bigl|\tilde{s}(t)\bigr|^{2}}
+      \;=\; \frac{1}{2}\Bigl[\,\overline{s_I^{2}(t)} + \overline{s_Q^{2}(t)}\,\Bigr].
+  \label{eq:potencia_bb}
+\end{equation}
+A potência do sinal transmitido é metade da potência da envoltória complexa, o que permite fazer todo o cálculo de potência em banda base.
+
+\subsection{Tabela de casos particulares}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}lccl@{}}
+\toprule
+\textbf{Modulação} & $s_I(t)$ & $s_Q(t)$ & \textbf{Envoltória complexa} \\
+\midrule
+DSB-SC          & $A_c\,m(t)$              & $0$                       & $\tilde{s} = A_c m$ \\
+AM com portadora & $A_c\bigl[1+\mu m_n(t)\bigr]$ & $0$                  & $\tilde{s}$ real e positivo \\
+SSB superior    & $\tfrac{A_c}{2}m(t)$     & $-\tfrac{A_c}{2}\hat{m}(t)$ & $\tilde{s} = \tfrac{A_c}{2}\bigl[m - j\hat{m}\bigr]$ \\
+QAM             & $m_1(t)$                 & $m_2(t)$                  & duas mensagens na mesma faixa \\
+FM              & $A_c\cos\phi(t)$         & $A_c\sin\phi(t)$          & $\tilde{s} = A_c e^{\,j\phi(t)}$ \\
+\bottomrule
+\end{tabular}
+\caption{Modulações analógicas vistas como escolhas da envoltória complexa.}
+\label{tab:casos}
+\end{table}
+
+\begin{exemplo}[DSB-SC]
+Para $s(t) = A_c\,m(t)\cos(2\pi f_c t)$, com $m(t)$ limitado a $W < f_c$, a transformada de Hilbert atua apenas sobre a portadora,
+\[
+  \hat{s}(t) \;=\; A_c\,m(t)\sin(2\pi f_c t),
+\]
+e o quadro da Seção~2.4 fornece
+\[
+  s_I(t) = A_c m(t)\bigl[\cos^{2} + \sin^{2}\bigr] = A_c\,m(t),
+  \qquad
+  s_Q(t) = A_c m(t)\bigl[\sin\cos - \cos\sin\bigr] = 0 .
+\]
+A envoltória complexa é real, $\tilde{s}(t) = A_c m(t)$, e o ramo em quadratura permanece livre. É esse ramo que a modulação em quadratura aproveita para transmitir uma segunda mensagem na mesma faixa de frequências.
+\end{exemplo}
+
+\end{document}

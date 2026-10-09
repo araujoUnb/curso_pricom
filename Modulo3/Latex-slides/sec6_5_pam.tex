@@ -69,7 +69,7 @@
 
 \begin{frame}{Constelações PAM}
   \begin{center}
-    \includegraphics[width=0.78\textwidth]{figures/cap6/pam_constellation}
+    \includegraphics[width=0.78\textwidth,height=0.62\textheight,keepaspectratio]{figures/cap6/pam_constellation}
   \end{center}
   \vspace{-0.2cm}
   {\footnotesize
@@ -82,7 +82,7 @@
 
 \begin{frame}{Comparação de Formas de Onda: 2-PAM vs.\ 4-PAM}
   \begin{center}
-    \includegraphics[width=0.78\textwidth]{figures/cap6/pam_waveforms}
+    \includegraphics[width=0.78\textwidth,height=0.6\textheight,keepaspectratio]{figures/cap6/pam_waveforms}
   \end{center}
   \vspace{-0.2cm}
   {\footnotesize
@@ -115,8 +115,44 @@
 
   \vspace{0.3cm}
   \textit{Observação:} quanto maior $M$, menor a distância $d$
-  (para mesma potência média), e portanto \alert{maior a taxa de erro}.
+  para a mesma potência média, e portanto \alert{maior a taxa de erro}.
   Há um compromisso entre eficiência espectral e desempenho.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Visualização da Decisão e do Erro}
+  \begin{center}
+    \only<1>{\includegraphics[width=0.93\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/pam_decision_1}}%
+    \only<2>{\includegraphics[width=0.93\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/pam_decision_2}}%
+    \only<3>{\includegraphics[width=0.93\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/pam_decision_3}}%
+    \only<4->{\includegraphics[width=0.93\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/pam_decision_4}}%
+  \end{center}
+  \vspace{0.05cm}
+  {\footnotesize
+    \only<1>{O eixo é a amplitude recebida $r(kT)$. Entre dois limiares tracejados fica a região de um símbolo: o receptor decide pelo \alert{mais próximo}.}%
+    \only<2>{Sem ruído, $r(kT)$ cai exatamente sobre um símbolo. A regra $\hat a_k=\arg\min_{a_m}|r(kT)-a_m|$ devolve aquele nível.}%
+    \only<3>{Com ruído gaussiano de desvio $\sigma$, $r(kT)$ se espalha em torno do símbolo. Há erro quando o ruído cruza o limiar a uma distância $d$: a área da cauda é exatamente $Q(d/\sigma)$.}%
+    \only<4->{Um símbolo interior tem dois vizinhos, logo duas caudas; os de borda têm só uma. Somando sobre os $M$ símbolos, $2(M-1)$ caudas em $M$ pontos $\Rightarrow P_s=2(1-\tfrac1M)\,Q(d/\sigma)$.}%
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Por que o Fator $2(M-1)$?}
+  \begin{center}
+    \only<1>{\includegraphics[width=0.93\textwidth,height=0.5\textheight,keepaspectratio]{figures/cap6/pam_count_1}}%
+    \only<2>{\includegraphics[width=0.93\textwidth,height=0.5\textheight,keepaspectratio]{figures/cap6/pam_count_2}}%
+    \only<3>{\includegraphics[width=0.93\textwidth,height=0.5\textheight,keepaspectratio]{figures/cap6/pam_count_3}}%
+    \only<4->{\includegraphics[width=0.93\textwidth,height=0.5\textheight,keepaspectratio]{figures/cap6/pam_count_4}}%
+  \end{center}
+  \vspace{0.05cm}
+  {\footnotesize
+    \only<1>{Entre $M$ símbolos há $M-1$ limiares de decisão, um em cada intervalo entre vizinhos.}%
+    \only<2>{Um único limiar gera \alert{dois} erros possíveis: o símbolo à esquerda pode ser lido como o da direita, e vice-versa.}%
+    \only<3>{São $M-1$ limiares, cada um com dois sentidos $\Rightarrow 2(M-1)$ eventos de erro entre vizinhos.}%
+    \only<4->{Cada evento contribui com $Q(d/\sigma)$. Dividindo pelos $M$ símbolos equiprováveis, $P_s = \tfrac1M\,2(M-1)\,Q(d/\sigma) = 2(1-\tfrac1M)\,Q(d/\sigma)$.}%
+  }
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -127,13 +163,79 @@
     E_s = \frac{(M^2 - 1)\, d^2}{3}
   \]
 
+  \vspace{0.2cm}
   Substituindo $d = \sqrt{3 E_s / (M^2 - 1)}$ na expressão de $P_s$:
   \[
     P_s = 2\left(1 - \frac{1}{M}\right)
     Q\!\left(\sqrt{\frac{3\, E_s}{(M^2 - 1)\,\sigma^2}}\right)
   \]
 
-  \vspace{0.3cm}
+  \vspace{0.2cm}
+  A distância entre níveis encolhe com $M$, então a mesma energia se
+  reparte por mais símbolos e cada um fica mais sujeito ao ruído.
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{De Onde Vem a Energia Média?}
+  \begin{center}
+    \only<1>{\includegraphics[width=0.9\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/pam_energy_1}}%
+    \only<2>{\includegraphics[width=0.9\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/pam_energy_2}}%
+    \only<3->{\includegraphics[width=0.9\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/pam_energy_3}}%
+  \end{center}
+  \vspace{0.05cm}
+  {\footnotesize
+    \only<1>{Os $M$ níveis ficam em amplitudes simétricas e igualmente espaçadas: $\pm d, \pm 3d, \dots, \pm(M-1)d$.}%
+    \only<2>{A energia de cada símbolo é o quadrado da sua amplitude, $a_m^2$. Os níveis externos carregam muito mais energia que os internos.}%
+    \only<3->{Como os símbolos são equiprováveis, $E_s$ é a \alert{média} desses quadrados. Para o 4-PAM, $\tfrac{9+1+1+9}{4}d^2 = 5d^2$, que coincide com $\tfrac{M^2-1}{3}d^2$.}%
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Energia Média em Função da Distância}
+  Os $M$ níveis são simétricos e espaçados de $2d$:
+  \[
+    a_m \in \{\pm d,\, \pm 3d,\, \dots,\, \pm(M-1)d\}
+  \]
+
+  \onslide<2->{%
+  \vspace{0.1cm}
+  Com símbolos equiprováveis, $E_s$ é a média dos quadrados:
+  \[
+    E_s = \frac{1}{M}\sum_{m=1}^{M} a_m^2
+        = \frac{2d^2}{M}\big(1^2 + 3^2 + \dots + (M-1)^2\big).
+  \]
+  }%
+
+  \onslide<3->{%
+  \vspace{0.1cm}
+  A soma dos $M/2$ primeiros quadrados ímpares vale $\dfrac{M(M^2-1)}{6}$, logo
+  \[
+    \boxed{\,E_s = \frac{(M^2-1)\,d^2}{3}\,}
+    \qquad\Longleftrightarrow\qquad
+    d = \sqrt{\frac{3 E_s}{M^2-1}}.
+  \]
+  }%
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Energia e Distância: Relação Mútua}
+  \begin{center}
+    \only<1>{\includegraphics[width=0.86\textwidth,height=0.6\textheight,keepaspectratio]{figures/cap6/pam_esd}}%
+    \only<2->{\includegraphics[width=0.86\textwidth,height=0.6\textheight,keepaspectratio]{figures/cap6/pam_des}}%
+  \end{center}
+  \vspace{0.05cm}
+  {\footnotesize
+    \only<1>{Para uma ordem fixa, a energia cresce com o \alert{quadrado} de $d$: dobrar $d$ quadruplica $E_s$. Mais níveis deixam a parábola mais íngreme.}%
+    \only<2->{Invertendo, $d=\sqrt{3E_s/(M^2-1)}$: para a \alert{mesma energia} $E_s$, aumentar a ordem $M$ encolhe $d$ — é a raiz do pior desempenho das ordens altas.}%
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Energia por Bit e o Custo de Aumentar $M$}
   Em termos da \textbf{energia por bit} $E_b = E_s / \log_2 M$:
   \[
     P_s = 2\left(1 - \frac{1}{M}\right)
@@ -141,9 +243,23 @@
     \frac{2 E_b}{N_0}}\right)
   \]
 
-  \vspace{0.2cm}
+  \vspace{0.4cm}
   \textit{Aumentar $M$ exige maior $E_b/N_0$ para manter a mesma
   $P_s$ — é o ``custo'' da eficiência espectral.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Efeito da SNR e da Ordem da Modulação}
+  \begin{center}
+    \only<1>{\includegraphics[width=0.86\textwidth,height=0.62\textheight,keepaspectratio]{figures/cap6/pam_ber_1}}%
+    \only<2->{\includegraphics[width=0.86\textwidth,height=0.62\textheight,keepaspectratio]{figures/cap6/pam_ber_2}}%
+  \end{center}
+  \vspace{0.05cm}
+  {\footnotesize
+    \only<1>{Para uma ordem fixa, aumentar $E_b/N_0$ reduz a probabilidade de erro: a curva desce de forma acentuada, caindo várias ordens de grandeza em poucos dB.}%
+    \only<2->{Aumentar a ordem $M$ desloca a curva para a \alert{direita}: para a mesma $P_s$ alvo, exige-se mais $E_b/N_0$. Transmitir mais bits por símbolo custa potência.}%
+  }
 \end{frame}
 
 % ------------------------------------------------------------------

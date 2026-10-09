@@ -1,0 +1,117 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{../figures_global/}}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+
+\geometry{margin=2.5cm, headheight=32pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textbf{Faculdade de Ciências e Tecnologias em Engenharia}}
+\fancyhead[R]{\includegraphics[height=0.85cm]{../figures_global/unb.png}}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyfoot[C]{\small Laboratório de Comunicações --- Práticas}
+\fancyfoot[R]{\small \thepage}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[L]{\small\textbf{Faculdade de Ciências e Tecnologias em Engenharia}}%
+  \fancyhead[R]{\includegraphics[height=0.85cm]{../figures_global/unb.png}}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+  \fancyfoot[C]{\small Laboratório de Comunicações --- Práticas}%
+  \fancyfoot[R]{\small \thepage}%
+  \renewcommand{\footrulewidth}{0.4pt}%
+}
+
+\newcommand{\pratica}[3]{%
+  \subsection{#1}
+  \textit{Objetivo.} #2
+
+  \textit{Método e medições.} #3
+  \vspace{0.3em}
+}
+
+\title{\textbf{Catálogo de Práticas}\\[0.3em]\large Laboratório de Comunicações}
+\author{Faculdade de Ciências e Tecnologias em Engenharia --- FCTE/UnB}
+\date{}
+
+\begin{document}
+
+\thispagestyle{plain}
+\maketitle
+\vspace{-1.0em}
+
+\section{Apresentação}
+
+Este documento propõe as práticas do Laboratório de Comunicações, organizadas em duas frentes complementares. A Frente A trata de modulação, recepção e sincronização em rádio definido por software com o ambiente GNU Radio. A Frente B trata de radiopropagação e caracterização de circuitos analógicos de radiofrequência e de seu impacto sobre o desempenho dos sistemas de comunicação. Cada prática indica seu objetivo e o conjunto de medições e análises esperadas.
+
+\section{Carga horária}
+
+O componente tem 2 créditos, distribuídos entre atividades teórico-práticas e extensão. As oito práticas deste catálogo ocupam a parte teórico-prática, com quatro práticas em cada frente. A componente de extensão é dedicada ao apoio técnico às equipes de competição, quando as práticas pertinentes são retomadas e adaptadas ao projeto real da equipe.
+
+\begin{center}
+\small
+\begin{tabular}{@{}p{0.60\textwidth} p{0.24\textwidth}@{}}
+\toprule
+\textbf{Atividade} & \textbf{Práticas} \\
+\midrule
+Frente A --- GNU Radio & 4 \\
+Frente B --- Radiofrequência & 4 \\
+Extensão --- apoio às equipes & --- \\
+\midrule
+\textbf{Total} & \textbf{8} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Frente A --- Modulação, Recepção e Sincronização em GNU Radio}
+
+\pratica{Introdução ao SDR e análise espectral}
+{Familiarizar o estudante com a cadeia de recepção em rádio definido por software e com a medição de espectro no GNU Radio.}
+{Montagem de um fluxograma de recepção, ajuste de frequência, taxa de amostragem e ganho, estimação de espectro por FFT com janelamento, e captura de um sinal do ambiente.}
+
+\pratica{Modulação e demodulação analógica AM e FM}
+{Implementar e avaliar as modulações analógicas em amplitude e em frequência.}
+{Geração de AM e FM com parâmetros ajustáveis, análise espectral, verificação da regra de Carson e demodulação por detector de envoltória, coerente e discriminador.}
+
+\pratica{Modulação digital e recepção com filtro casado}
+{Gerar sinais digitais passa-banda e avaliar a recepção ótima com filtro casado.}
+{Geração de BPSK e QPSK, conformação por cosseno levantado, diagrama de olho e constelação, filtro casado e medição da taxa de erro em função da relação sinal-ruído.}
+
+\pratica{Sincronização e enlace digital ponta a ponta}
+{Integrar sincronização de portadora, de temporização e de quadro em um enlace completo.}
+{Malha de captura de fase e de Costas, recuperação de temporização, detecção de preâmbulo, transmissão de uma mensagem entre dois rádios e comparação da taxa de erro com a curva teórica.}
+
+\section{Frente B --- Radiopropagação e Caracterização de Circuitos Analógicos}
+
+\pratica{Linhas de transmissão e casamento de impedância}
+{Compreender reflexão, coeficiente de onda estacionária e casamento de impedância.}
+{Medição de parâmetros de espalhamento no analisador de redes, uso da carta de Smith, e projeto e verificação de uma rede de casamento.}
+
+\pratica{Radiopropagação e diagrama de antenas}
+{Verificar modelos de propagação e levantar as características de radiação de antenas.}
+{Medição da potência recebida em função da distância, ajuste do expoente de perda de percurso, e levantamento do diagrama de radiação e do ganho de uma antena.}
+
+\pratica{Amplificador de baixo ruído e linearidade}
+{Caracterizar ganho, ruído e linearidade de dispositivos ativos de radiofrequência.}
+{Medição de ganho e figura de ruído, cálculo do efeito sobre a sensibilidade pela fórmula de Friis, ponto de compressão de um decibel e ensaio de dois tons para intermodulação.}
+
+\pratica{Orçamento de enlace e impacto das imperfeições}
+{Consolidar os parâmetros de um enlace e relacionar imperfeições de circuito ao desempenho.}
+{Montagem de um enlace curto, cálculo do orçamento com ganhos, perdas e ruído, e observação do efeito do ruído de fase do oscilador sobre a constelação e o vetor de erro.}
+
+\section{Articulação com a componente de extensão}
+
+As práticas das duas frentes fornecem a base técnica para o apoio às equipes de competição, previsto na componente de extensão. A partir de uma demanda concreta da equipe, como um enlace de telemetria de foguete ou de minissatélite, a turma seleciona e adapta as práticas pertinentes, executa as medições no contexto real do projeto da equipe e entrega um laudo técnico com recomendações. Assim, o mesmo instrumental usado nas práticas didáticas passa a atender a uma necessidade externa, cumprindo o caráter extensionista do componente.
+
+\end{document}

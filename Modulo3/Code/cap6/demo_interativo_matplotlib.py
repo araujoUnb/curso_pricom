@@ -9,7 +9,7 @@ filtro formatador RRC -> canal AWGN -> filtro casado RRC.
 
 Dois modos de uso:
 
-  1. Interativo com sliders (alpha, ruído, amostras por símbolo):
+  1. Interativo com sliders (alpha, SNR, jitter, amostras por símbolo):
         python3 demo_interativo_matplotlib.py
 
   2. Geração das figuras dos slides (salva PDFs e encerra):
@@ -143,15 +143,40 @@ def salvar_figuras(destino):
 # ------------------------------------------------------------------
 # Modo interativo com sliders
 # ------------------------------------------------------------------
+def instante_otimo(olho):
+    """Coluna de maior abertura do olho — o instante ideal de amostragem.
+    É onde os traços ficam mais afastados do limiar (maior |amplitude| média),
+    o que corrige automaticamente o atraso dos filtros."""
+    return int(np.argmax(np.mean(np.abs(olho), axis=0)))
+
+
+def amostras_com_jitter(olho, tt, jitter, centro, seed=123):
+    """Amostra cada traço do olho no instante de decisão `centro` perturbado
+    por jitter de temporização. jitter = desvio-padrão do erro, em frações de
+    símbolo. Retorna os pares (tempo amostrado, valor amostrado)."""
+    rng = np.random.default_rng(seed)
+    sps = len(tt) // 2
+    xs, ys = [], []
+    for tr in olho:
+        desloc = rng.normal(0.0, jitter) if jitter > 0 else 0.0
+        idx = int(round(centro + desloc * sps))
+        idx = min(max(idx, 0), len(tt) - 1)
+        xs.append(tt[idx])
+        ys.append(tr[idx])
+    return np.array(xs), np.array(ys)
+
+
 def interativo():
     from matplotlib.widgets import Slider
 
-    sps0, beta0, ruido0 = 8, 0.35, 0.0
-    fig, (ax_t, ax_e) = plt.subplots(1, 2, figsize=(11, 4.2))
-    plt.subplots_adjust(bottom=0.30, wspace=0.28)
+    sps0, beta0, snr0, jitter0 = 8, 0.35, 20.0, 0.0
+    fig, (ax_t, ax_e) = plt.subplots(1, 2, figsize=(11, 4.6))
+    plt.subplots_adjust(bottom=0.34, wspace=0.28)
 
-    def desenhar(beta, sps, ruido):
+    def desenhar(beta, sps, snr_db, jitter):
         ax_t.clear(); ax_e.clear()
+        # SNR (dB) -> desvio do ruído: sinal TX é normalizado (potência ~ 1)
+        ruido = 10.0 ** (-snr_db / 20.0)
         _, _, tx, rx = simular(beta, sps, ruido, seed=1)
         t = np.arange(300) / sps
         ax_t.plot(t, tx[:300], "C0-", lw=1.3)
@@ -162,27 +187,41 @@ def interativo():
         olho = segmentos_olho(rx, sps)
         tt = np.linspace(-1, 1, 2 * sps)
         for tr in olho:
-            ax_e.plot(tt, tr, "C0-", lw=0.5, alpha=0.35)
-        ax_e.axvline(0, color="C3", ls="--", lw=1)
-        ax_e.set_title("Diagrama de olho (após filtro casado)")
+            ax_e.plot(tt, tr, "C0-", lw=0.5, alpha=0.30)
+        ax_e.axhline(0, color="0.4", lw=1)              # limiar de decisão
+
+        # instante ideal de amostragem (maior abertura) e amostras com jitter
+        centro = instante_otimo(olho)
+        t_centro = tt[centro]
+        xs, ys = amostras_com_jitter(olho, tt, jitter, centro)
+        ax_e.scatter(xs, ys, s=14, color="C3", zorder=5,
+                     label="amostras de decisão")
+        if jitter > 0:
+            ax_e.axvspan(t_centro - jitter, t_centro + jitter,
+                         color="C1", alpha=0.15)
+        ax_e.axvline(t_centro, color="C3", ls="--", lw=1)
+        ax_e.set_title(f"Diagrama de olho — SNR = {snr_db:.0f} dB, "
+                       f"jitter = {jitter:.2f} símbolo")
         ax_e.set_xlabel("tempo (símbolos)")
         ax_e.set_ylim(-2.5, 2.5); ax_e.grid(alpha=0.3)
+        ax_e.legend(loc="upper right", fontsize=8)
         fig.canvas.draw_idle()
 
-    ax_beta = plt.axes([0.12, 0.17, 0.76, 0.03])
-    ax_ruido = plt.axes([0.12, 0.10, 0.76, 0.03])
-    ax_sps = plt.axes([0.12, 0.03, 0.76, 0.03])
+    ax_beta = plt.axes([0.12, 0.22, 0.76, 0.03])
+    ax_snr = plt.axes([0.12, 0.15, 0.76, 0.03])
+    ax_jit = plt.axes([0.12, 0.08, 0.76, 0.03])
+    ax_sps = plt.axes([0.12, 0.01, 0.76, 0.03])
     s_beta = Slider(ax_beta, "roll-off alpha", 0.0, 1.0, valinit=beta0, valstep=0.05)
-    s_ruido = Slider(ax_ruido, "ruído (AWGN)", 0.0, 0.6, valinit=ruido0, valstep=0.02)
+    s_snr = Slider(ax_snr, "SNR (dB)", 0.0, 30.0, valinit=snr0, valstep=1.0)
+    s_jit = Slider(ax_jit, "jitter (símbolo)", 0.0, 0.5, valinit=jitter0, valstep=0.02)
     s_sps = Slider(ax_sps, "amostras/símbolo", 4, 16, valinit=sps0, valstep=1)
 
     def atualizar(_):
-        desenhar(s_beta.val, int(s_sps.val), s_ruido.val)
+        desenhar(s_beta.val, int(s_sps.val), s_snr.val, s_jit.val)
 
-    s_beta.on_changed(atualizar)
-    s_ruido.on_changed(atualizar)
-    s_sps.on_changed(atualizar)
-    desenhar(beta0, sps0, ruido0)
+    for s in (s_beta, s_snr, s_jit, s_sps):
+        s.on_changed(atualizar)
+    desenhar(beta0, sps0, snr0, jitter0)
     plt.show()
 
 

@@ -86,22 +86,74 @@
 % ------------------------------------------------------------------
 
 \begin{frame}{Condição para ISI Nula}
-  Para eliminar a ISI, precisamos que $p(t)$ satisfaça:
+  Para eliminar a ISI, o pulso deve satisfazer, no domínio do tempo:
   \[
     p(nT) = \begin{cases} 1, & n = 0 \\ 0, & n \neq 0 \end{cases}
+    \qquad\Longleftrightarrow\qquad p(nT) = \delta_n
   \]
 
-  \vspace{0.1cm}
-  Isso equivale, no domínio da frequência, ao \alert{Critério de Nyquist}:
-  \[
-    \sum_{k=-\infty}^{\infty} P\!\left(f - \frac{k}{T}\right) = T
-    \quad \forall\, f
-  \]
-
+  \onslide<2->{%
   \vspace{0.2cm}
-  \textit{Interpretação:} somando réplicas de $P(f)$ com espaçamento $1/T$,
-  o resultado deve ser \textbf{constante} — só assim $p(nT)=0$ para
-  $n\neq 0$.
+  \textbf{Passo 1.} Amostre $p(t)$ com período $T$. O trem de amostras é
+  \[
+    p_\delta(t) = \sum_{n=-\infty}^{\infty} p(nT)\,\delta(t - nT).
+  \]
+  }%
+
+  \onslide<3->{%
+  \vspace{0.1cm}
+  \textbf{Passo 2.} A condição $p(nT)=\delta_n$ anula todos os termos menos
+  o de $n=0$:
+  \[
+    p_\delta(t) = p(0)\,\delta(t) = \delta(t).
+  \]
+  Amostrar um pulso sem ISI devolve um \alert{único impulso}.
+  }%
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Critério de Nyquist no Domínio da Frequência}
+  \textbf{Passo 3.} A transformada de um sinal amostrado a cada $T$ é a
+  soma periódica do espectro — fórmula de amostragem:
+  \[
+    \mathcal{F}\{p_\delta(t)\}
+    = \frac{1}{T}\sum_{k=-\infty}^{\infty} P\!\left(f - \frac{k}{T}\right).
+  \]
+
+  \onslide<2->{%
+  \vspace{0.1cm}
+  \textbf{Passo 4.} Do Passo 2, $p_\delta(t)=\delta(t)$, cuja transformada
+  vale $1$. Igualando as duas expressões:
+  \[
+    \frac{1}{T}\sum_{k=-\infty}^{\infty} P\!\left(f - \frac{k}{T}\right) = 1.
+  \]
+  }%
+
+  \onslide<3->{%
+  \vspace{0.1cm}
+  \[
+    \boxed{\;\sum_{k=-\infty}^{\infty} P\!\left(f - \frac{k}{T}\right) = T
+    \quad \forall\, f\;}
+    \qquad \alert{\text{Critério de Nyquist}}
+  \]
+  }%
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Interpretação Gráfica do Critério}
+  \begin{center}
+    \only<1>{\includegraphics[width=0.92\textwidth,height=0.55\textheight,keepaspectratio]{figures/cap6/nyquist_fold_1}}%
+    \only<2>{\includegraphics[width=0.92\textwidth,height=0.55\textheight,keepaspectratio]{figures/cap6/nyquist_fold_2}}%
+    \only<3->{\includegraphics[width=0.92\textwidth,height=0.55\textheight,keepaspectratio]{figures/cap6/nyquist_fold_3}}%
+  \end{center}
+  \vspace{0.1cm}
+  {\footnotesize
+  \only<1>{Espectro $P(f)$ de um pulso candidato, com banda até $\tfrac{1+\alpha}{2T}$.}%
+  \only<2>{As réplicas $P(f-k/T)$ espaçadas de $1/T$ se superpõem justamente na faixa de \emph{roll-off}.}%
+  \only<3->{A soma de todas as réplicas é \alert{constante e igual a $T$} — é o critério de Nyquist em ação: no tempo, isso garante $p(nT)=0$ para $n\neq 0$.}%
+  }
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -175,6 +227,79 @@
   {\footnotesize
   $\alpha = 0$: banda mínima ($W = 1/2T$), mas caudas lentas (sinc puro). \\
   $\alpha = 1$: dobro da banda ($W = 1/T$), mas caudas decaem como $1/t^3$ — muito mais robusto.}
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Por que o Cosseno Levantado Satisfaz Nyquist}
+  \begin{center}
+    \only<1>{\includegraphics[width=0.92\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/rc_nyq_1}}%
+    \only<2>{\includegraphics[width=0.92\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/rc_nyq_2}}%
+    \only<3>{\includegraphics[width=0.92\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/rc_nyq_3}}%
+    \only<4->{\includegraphics[width=0.92\textwidth,height=0.52\textheight,keepaspectratio]{figures/cap6/rc_nyq_4}}%
+  \end{center}
+  \vspace{0.05cm}
+  {\footnotesize
+  \only<1>{O espectro decai suavemente. No centro da transição, a frequência de Nyquist $f=1/2T$, vale exatamente $P=T/2$.}%
+  \only<2>{A borda é \alert{anti-simétrica} em torno de $1/2T$: o quanto $P$ sobe de um lado é o quanto desce do outro, logo $P(\tfrac{1}{2T}-\delta)+P(\tfrac{1}{2T}+\delta)=T$.}%
+  \only<3>{A réplica vizinha $P(f-1/T)$ \alert{sobe na mesma faixa} em que $P(f)$ desce — as duas se cruzam em $T/2$ na frequência de Nyquist.}%
+  \only<4->{A descida de uma réplica completa a subida da outra: a soma vale $T$ em toda a faixa. \alert{Critério de Nyquist satisfeito} — e, no tempo, $p(nT)=0$ para $n\neq0$.}%
+  }
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{A Simetria da Borda de Roll-off}
+  Avalie $P(f)$ na faixa de transição, escrevendo $f = \tfrac{1}{2T}+\delta$:
+  \[
+    P\!\left(\tfrac{1}{2T}+\delta\right) = \frac{T}{2}\left[1 - \sin\!\left(\frac{\pi T\delta}{\alpha}\right)\right],
+    \quad
+    P\!\left(\tfrac{1}{2T}-\delta\right) = \frac{T}{2}\left[1 + \sin\!\left(\frac{\pi T\delta}{\alpha}\right)\right].
+  \]
+
+  \onslide<2->{%
+  \vspace{0.1cm}
+  Somando, o termo em seno se cancela:
+  \[
+    P\!\left(\tfrac{1}{2T}-\delta\right) + P\!\left(\tfrac{1}{2T}+\delta\right) = T.
+  \]
+  }%
+
+  \onslide<3->{%
+  \vspace{0.1cm}
+  Como $P$ é par, a réplica vizinha satisfaz $P(f-\tfrac{1}{T}) = P(\tfrac{1}{2T}-\delta)$.
+  Na faixa de transição, $P(f)+P(f-\tfrac1T)=T$; fora dela, uma réplica vale $T$ e as
+  demais valem $0$. Logo $\sum_k P(f-\tfrac kT)=T$ para todo $f$.
+  }%
+
+  \onslide<4->{%
+  \vspace{0.15cm}
+  {\footnotesize O \textit{roll-off} $\alpha$ é a largura da transição, igual a $\alpha/T$: com $\alpha\to0$ a borda vira um degrau, o sinc frágil; com $\alpha\to1$ ela se espalha por toda a banda, suavizando o pulso e acelerando o decaimento das caudas.}
+  }%
+\end{frame}
+
+% ------------------------------------------------------------------
+
+\begin{frame}{Transmissão de Bits com o Cosseno Levantado}
+  \begin{center}
+    \only<1>{\includegraphics[width=0.86\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/rc_bits_1}}%
+    \only<2>{\includegraphics[width=0.86\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/rc_bits_2}}%
+    \only<3>{\includegraphics[width=0.86\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/rc_bits_3}}%
+    \only<4>{\includegraphics[width=0.86\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/rc_bits_4}}%
+    \only<5>{\includegraphics[width=0.86\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/rc_bits_5}}%
+    \only<6>{\includegraphics[width=0.86\textwidth,height=0.66\textheight,keepaspectratio]{figures/cap6/rc_bits_6}}%
+    \only<7->{\includegraphics[width=0.9\textwidth,height=0.6\textheight,keepaspectratio]{figures/cap6/rc_bits_isi}}%
+  \end{center}
+  \vspace{-0.1cm}
+  {\footnotesize
+    \only<1>{Chega o 1.\textsuperscript{o} símbolo $+1$: um único pulso cosseno levantado. O sinal total, em preto, é o próprio pulso.}%
+    \only<2>{Chega o 2.\textsuperscript{o} símbolo: soma-se outro pulso, tracejado; o sinal total é atualizado.}%
+    \only<3>{3.\textsuperscript{o} símbolo somado — o total acumula a contribuição de todos os pulsos já chegados.}%
+    \only<4>{4.\textsuperscript{o} símbolo somado ao total.}%
+    \only<5>{5.\textsuperscript{o} símbolo: todos os pulsos presentes, sobrepostos no sinal total.}%
+    \only<6>{Amostrando com erro de temporização $\epsilon=0{,}15\,T$, a amostra, em losango, fica \textcolor{UNB_GREEN}{muito próxima} do símbolo ideal, em cinza. As caudas decaem como $1/|t|^3$, então quase não contaminam os vizinhos.}%
+    \only<7->{Pior caso, com vizinhos alinhados: a ISI do \textcolor{RED}{sinc} cresce como $\ln N$ e não tem limite, enquanto a do \textcolor{UNB_GREEN}{cosseno levantado} \alert{satura} num valor pequeno. É por isso que o cosseno levantado é usado na prática.}%
+  }
 \end{frame}
 
 % ------------------------------------------------------------------
@@ -276,20 +401,3 @@
   compromisso entre banda e robustez.}
 \end{frame}
 
-% ------------------------------------------------------------------
-\subsection{Demonstração no GNU Radio}
-% ------------------------------------------------------------------
-
-\begin{frame}{Demonstração ao Vivo: Formatação de Pulso e ISI}
-  No flowgraph \texttt{demo\_pulse\_shaping\_olho.grc} uma sequência 2-PAM
-  passa por um filtro RRC de transmissão, pelo canal e pelo filtro casado.
-  O slider de \emph{roll-off} $\alpha$ controla a banda ocupada e o formato
-  do pulso em tempo real.
-  \begin{center}
-    \includegraphics[width=0.78\textwidth]{figures/cap6/demo_gr_pulse_shaping}
-  \end{center}
-  \vspace{-0.1cm}
-  {\footnotesize Cada símbolo gera um pulso RRC centrado no seu instante;
-  a soma dos pulsos é o sinal transmitido. Ao reduzir $\alpha$, a banda
-  encolhe para $W=(1+\alpha)R_s/2$ e as caudas do pulso ficam mais longas.}
-\end{frame}

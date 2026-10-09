@@ -357,8 +357,15 @@ Em sistemas práticos, busca-se minimizar distorção na banda de interesse.
 \begin{frame}{Distorção de Fase — Simulação}
 
 \begin{center}
-\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/gnuradio_distorcao_fase}
+\only<1>{\includegraphics[width=\figFull, height=0.70\textheight, keepaspectratio]{figures/cap3/gnuradio_distorcao_fase_etapa1}}%
+\only<2>{\includegraphics[width=\figFull, height=0.70\textheight, keepaspectratio]{figures/cap3/gnuradio_distorcao_fase_etapa2}}%
+\only<3>{\includegraphics[width=\figFull, height=0.70\textheight, keepaspectratio]{figures/cap3/gnuradio_distorcao_fase_etapa3}}
 \end{center}
+
+\vspace{-4mm}
+\only<1>{Cinco componentes de frequência somadas com fase nula.}
+\only<2>{Fase linear: todas as componentes atrasam igualmente e a forma de onda se preserva.}
+\only<3>{Fase quadrática: cada componente atrasa de forma diferente e a forma de onda muda, mesmo com as amplitudes inalteradas.}
 
 \end{frame}
 
@@ -434,30 +441,6 @@ Faixa onde $|H(\omega)| > 0$ (pode ser infinita).
 \end{column}
 \begin{column}{0.50\textwidth}
 \includegraphics[width=\textwidth]{figures/cap3/largura_banda_3dB_abs}
-\end{column}
-\end{columns}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Largura de Banda de Sistemas — Banda de Ruído}
-
-\begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\textbf{Largura de banda de ruído:}
-\[
-B_n = \frac{1}{|H(\omega_{\max})|^2} \int_{-\infty}^{\infty} |H(\omega)|^2 d\omega
-\]
-
-Retângulo de mesma área que $|H(\omega)|^2$, com altura $|H(\omega_{\max})|^2$.
-
-\vspace{0.3cm}
-
-\textbf{Princípio:} Sistemas de banda limitada introduzem distorção em sinais de banda larga.
-\end{column}
-\begin{column}{0.50\textwidth}
-\includegraphics[width=\textwidth]{figures/cap3/largura_banda_ruido}
 \end{column}
 \end{columns}
 

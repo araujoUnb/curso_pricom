@@ -1,0 +1,203 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{../figures_global/}}
+\usepackage{fancyhdr}
+\usepackage[backend=biber, style=numeric, sorting=none]{biblatex}
+\usepackage{hyperref}
+\addbibresource{referencias.bib}
+
+\geometry{margin=2.5cm, headheight=32pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textbf{Faculdade de Ciências e Tecnologias em Engenharia}}
+\fancyhead[R]{\includegraphics[height=0.85cm]{../figures_global/unb.png}}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyfoot[C]{\small Princípios de Comunicação para Engenharia --- Ementa}
+\fancyfoot[R]{\small \thepage}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[L]{\small\textbf{Faculdade de Ciências e Tecnologias em Engenharia}}%
+  \fancyhead[R]{\includegraphics[height=0.85cm]{../figures_global/unb.png}}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+  \fancyfoot[C]{\small Princípios de Comunicação para Engenharia --- Ementa}%
+  \fancyfoot[R]{\small \thepage}%
+  \renewcommand{\footrulewidth}{0.4pt}%
+}
+
+\title{\textbf{Ementa}\\[0.3em]\large Princípios de Comunicação para Engenharia}
+\author{Faculdade de Ciências e Tecnologias em Engenharia --- FCTE/UnB}
+\date{}
+
+\begin{document}
+
+\thispagestyle{plain}
+\maketitle
+\vspace{-1.0em}
+
+\section{Identificação}
+
+\begin{center}
+\small
+\begin{tabular}{@{}p{0.32\textwidth} p{0.60\textwidth}@{}}
+\toprule
+\textbf{Componente curricular} & Princípios de Comunicação para Engenharia \\
+\textbf{Natureza} & Obrigatória \\
+\textbf{Créditos} & 4 créditos --- 3 teóricos e 1 de extensão \\
+\textbf{Carga horária total} & 60 horas \\
+\textbf{Carga horária teórica} & 45 horas \\
+\textbf{Carga horária de extensão} & 15 horas \\
+\textbf{Modalidade} & Presencial \\
+\textbf{Pré-requisitos} & Sinais e Sistemas; Teoria de Circuitos Eletrônicos I \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A carga horária de extensão atende à curricularização da extensão prevista na Resolução CNE/CES 07/2018 e nas normas da UnB, correspondendo a 25\% da carga horária total do componente.
+
+\section{Ementa}
+
+Introdução aos sistemas de comunicação e nivelamento em análise de sinais. Diagrama de blocos de um sistema de comunicação. Classificação de sinais. Revisão de Série e Transformada de Fourier. Densidade espectral de energia e de potência. Sinais passa-banda e representação em fase e quadratura. Modulação analógica em amplitude e suas variantes. Modulação angular em frequência e em fase. Malha de captura de fase. Ruído em sistemas de comunicação analógicos e relação sinal-ruído em demoduladores. Amostragem, quantização e modulação por código de pulso. Codificação de linha e interferência entre símbolos. Desempenho de enlaces digitais e taxa de erro de bit. Noções de protocolos e arquiteturas de redes. Projeto de extensão aplicado a demanda real da comunidade externa, com desenvolvimento e entrega de um produto de comunicação.
+
+\section{Objetivos}
+
+\subsection*{Objetivo geral}
+
+Capacitar o estudante a analisar, projetar e avaliar os blocos fundamentais de um sistema de comunicação, articulando a formação teórica com a solução de um problema real por meio de projeto de extensão.
+
+\subsection*{Objetivos específicos}
+
+\begin{itemize}[noitemsep]
+  \item Compreender a análise espectral de sinais e sua aplicação em sistemas de comunicação.
+  \item Dominar as técnicas de modulação analógica em amplitude, frequência e fase.
+  \item Analisar o efeito do ruído em sistemas analógicos e digitais de comunicação.
+  \item Entender os processos de amostragem, quantização e modulação por código de pulso.
+  \item Avaliar o desempenho de enlaces digitais em termos de taxa de erro de bit.
+  \item Obter noções básicas de protocolos e arquiteturas de redes de comunicação.
+  \item Aplicar os conceitos da disciplina no desenvolvimento de um produto de comunicação para uma demanda concreta da comunidade externa.
+\end{itemize}
+
+\section{Conteúdo Programático}
+
+\begin{center}
+\small
+\begin{tabular}{|p{0.30\textwidth}|p{0.30\textwidth}|p{0.30\textwidth}|}
+\hline
+\textbf{Unidade 1: Introdução e Nivelamento} & \textbf{Unidade 2: Modulações Analógicas} & \textbf{Unidade 3: ADC e Comunicação Digital} \\
+\hline
+\parbox[t]{0.28\textwidth}{%
+  \vspace{0.2em}
+  \begin{itemize}[noitemsep, leftmargin=*, nosep, font=\small]
+    \item Sistemas de comunicação e diagrama de blocos
+    \item Classificação de sinais
+    \item Revisão de Série e Transformada de Fourier
+    \item Densidade espectral de energia e de potência
+    \item Sinais passa-banda
+  \end{itemize}
+  \vspace{0.2em}
+} &
+\parbox[t]{0.28\textwidth}{%
+  \vspace{0.2em}
+  \begin{itemize}[noitemsep, leftmargin=*, nosep, font=\small]
+    \item Modulação em amplitude AM
+    \item Variantes DSB, DSB+C, SSB, VSB
+    \item Modulação em frequência FM
+    \item Modulação em fase PM
+    \item Malha de captura de fase PLL
+    \item Ruído em sistemas analógicos
+    \item Relação sinal-ruído em demoduladores
+  \end{itemize}
+  \vspace{0.2em}
+} &
+\parbox[t]{0.28\textwidth}{%
+  \vspace{0.2em}
+  \begin{itemize}[noitemsep, leftmargin=*, nosep, font=\small]
+    \item Amostragem
+    \item Quantização
+    \item PCM linear e não linear
+    \item Codificação de linha
+    \item Interferência entre símbolos
+    \item Taxa de erro de bit
+    \item Noções de protocolos
+  \end{itemize}
+  \vspace{0.2em}
+} \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Componente de Extensão}
+
+A componente de extensão corresponde a 1 crédito e organiza-se como um projeto desenvolvido ao longo do semestre, no qual os estudantes aplicam o conteúdo da disciplina para atender a uma demanda real de um ator externo à universidade. O projeto é entregue ao final do semestre e deve resultar em um produto ou solução de comunicação com valor concreto para o parceiro.
+
+\subsection*{Formas de interação com a comunidade externa}
+
+\begin{itemize}[noitemsep]
+  \item Parceria com empresas do setor de eletrônica, telecomunicações ou correlatos, a partir de um problema por elas apresentado.
+  \item Apoio técnico a equipes de competição da universidade, como foguetemodelismo, satélites universitários, veículos autônomos e afins, no desenvolvimento de enlaces de telemetria e comunicação.
+  \item Atendimento a demandas de instituições públicas, associações comunitárias ou grupos de radioamadorismo.
+\end{itemize}
+
+\subsection*{Exemplos de projetos de extensão}
+
+\begin{itemize}[noitemsep]
+  \item Enlace de telemetria em radiofrequência para foguete ou minissatélite de equipe de competição.
+  \item Sistema de recepção e decodificação de sinais de satélites meteorológicos para uso didático e comunitário.
+  \item Módulo de transmissão de dados de baixo custo para monitoramento ambiental em parceria com órgão externo.
+  \item Prova de conceito de enlace de comunicação demandada por empresa parceira, com caracterização de desempenho.
+\end{itemize}
+
+\subsection*{Produtos e registro da extensão}
+
+Cada grupo entrega um relatório técnico do projeto, um protótipo ou demonstração funcional e uma apresentação final aberta ao parceiro externo. As atividades e a interação com a comunidade são registradas conforme as normas de extensão da UnB, incluindo o cadastro da ação e o registro da carga horária dos estudantes.
+
+\section{Metodologia}
+
+As aulas teóricas combinam exposição dialogada, resolução de problemas e demonstrações computacionais. A componente de extensão é conduzida por aprendizagem baseada em projetos, com acompanhamento em encontros de orientação, definição de escopo junto ao parceiro externo e entregas parciais ao longo do semestre. O material da disciplina é disponibilizado pelo ambiente virtual institucional.
+
+\section{Avaliação}
+
+A nota final combina a componente teórica e a componente de extensão.
+
+\subsection*{Componente teórica}
+
+A nota teórica $N_T$ é a média ponderada de três provas:
+\[
+N_T = \frac{P_1 + P_2 + 2\,P_3}{4}
+\]
+
+\subsection*{Componente de extensão}
+
+A nota de extensão $N_E$ resulta do projeto desenvolvido junto ao parceiro externo, avaliado por entregas parciais, relatório técnico final, protótipo ou demonstração e apresentação:
+\[
+N_E = 0{,}3\,\text{Parciais} + 0{,}4\,\text{Relatório} + 0{,}3\,\text{Apresentação}
+\]
+
+\subsection*{Nota final e aprovação}
+
+\[
+N_F = 0{,}75\,N_T + 0{,}25\,N_E
+\]
+
+\begin{itemize}[noitemsep]
+  \item Exige-se aprovação simultânea na teoria e na extensão, com $N_T \geq 5$ e $N_E \geq 5$.
+  \item A aprovação final é obtida com $N_F \geq 5$.
+  \item É obrigatória a frequência mínima de 75\% nas atividades teóricas e de extensão.
+\end{itemize}
+
+\section{Referências}
+
+\nocite{lathi2019modern, haykin2009communication, proakis2007fundamentals, couch2013digital, carlson2002communication, ziemer2015principles}
+\printbibliography[heading=none]
+
+\end{document}

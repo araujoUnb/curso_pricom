@@ -292,10 +292,10 @@ class demo_pulse_shaping_olho(gr.top_block, Qt.QWidget):
 
     def set_sps(self, sps):
         self.sps = sps
-        self.set_sym_rate(self.samp_rate/self.sps)
         self.set_ntaps(11*self.sps+1)
-        self.tx_rrc.set_taps(firdes.root_raised_cosine(self.sps, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
+        self.set_sym_rate(self.samp_rate/self.sps)
         self.eye_sink_rx.set_samp_per_symbol(self.sps)
+        self.tx_rrc.set_taps(firdes.root_raised_cosine(self.sps, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
 
     def get_samp_rate(self):
         return self.samp_rate
@@ -303,28 +303,28 @@ class demo_pulse_shaping_olho(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.set_sym_rate(self.samp_rate/self.sps)
-        self.tx_rrc.set_taps(firdes.root_raised_cosine(self.sps, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
+        self.eye_sink_rx.set_samp_rate(self.samp_rate)
+        self.freq_sink_tx.set_frequency_range(0, self.samp_rate)
         self.rx_rrc.set_taps(firdes.root_raised_cosine(1, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
         self.time_sink_tx.set_samp_rate(self.samp_rate)
-        self.freq_sink_tx.set_frequency_range(0, self.samp_rate)
-        self.eye_sink_rx.set_samp_rate(self.samp_rate)
+        self.tx_rrc.set_taps(firdes.root_raised_cosine(self.sps, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
 
     def get_sym_rate(self):
         return self.sym_rate
 
     def set_sym_rate(self, sym_rate):
         self.sym_rate = sym_rate
+        self.rx_rrc.set_taps(firdes.root_raised_cosine(1, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
         self.throttle.set_sample_rate(self.sym_rate)
         self.tx_rrc.set_taps(firdes.root_raised_cosine(self.sps, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
-        self.rx_rrc.set_taps(firdes.root_raised_cosine(1, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
 
     def get_ntaps(self):
         return self.ntaps
 
     def set_ntaps(self, ntaps):
         self.ntaps = ntaps
-        self.tx_rrc.set_taps(firdes.root_raised_cosine(self.sps, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
         self.rx_rrc.set_taps(firdes.root_raised_cosine(1, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
+        self.tx_rrc.set_taps(firdes.root_raised_cosine(self.sps, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
 
     def get_noise_amp(self):
         return self.noise_amp
@@ -338,8 +338,8 @@ class demo_pulse_shaping_olho(gr.top_block, Qt.QWidget):
 
     def set_alpha(self, alpha):
         self.alpha = alpha
-        self.tx_rrc.set_taps(firdes.root_raised_cosine(self.sps, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
         self.rx_rrc.set_taps(firdes.root_raised_cosine(1, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
+        self.tx_rrc.set_taps(firdes.root_raised_cosine(self.sps, self.samp_rate, self.sym_rate, self.alpha, self.ntaps))
 
 
 

@@ -331,26 +331,154 @@ R(\tau) = \frac{1}{2\pi} \int_{-\infty}^{\infty} S(\omega) e^{j\omega\tau}\, d\o
 
 % ============================================
 
-\begin{frame}{Exemplo: Autocorrelação de Senoide}
+\begin{frame}{Exemplo: Autocorrelação de Senoide — montando a integral}
 
-\textbf{Sinal:} $f(t) = A\cos(\omega_0 t)$
+\textbf{Sinal de potência:} $f(t) = A\cos(\omega_0 t)$
 
-Usando $\cos(a)\cos(b) = \frac{1}{2}[\cos(a-b) + \cos(a+b)]$:
-
+\onslide<2->{Definição de autocorrelação para sinal de potência:}
+\vspace{-3mm}
 \[
-R(\tau) = \lim_{T \to \infty} \frac{1}{T} \int_{-T/2}^{T/2} A^2\cos(\omega_0 t)\cos(\omega_0(t-\tau))\, dt
+\onslide<2->{R(\tau) = \lim_{T \to \infty} \frac{1}{T} \int_{-T/2}^{T/2} f(t)\, f(t-\tau)\, dt}
 \]
 
-O termo $\cos(2\omega_0 t - \omega_0\tau)$ integra a zero sobre período completo:
-
+\onslide<3->{Substituindo $f(t) = A\cos(\omega_0 t)$:}
+\vspace{-3mm}
 \[
-\boxed{R(\tau) = \frac{A^2}{2} \cos(\omega_0 \tau)}
+\onslide<3->{R(\tau) = \lim_{T \to \infty} \frac{A^2}{T} \int_{-T/2}^{T/2}
+\tikzmarknode{fa}{\cos(\omega_0 t)}\,
+\tikzmarknode{fb}{\cos(\omega_0 t - \omega_0\tau)}\, dt}
 \]
 
-\textbf{Verificação via Wiener-Khinchin:}
+\vspace{6mm}
+
+\onslide<5->{Produto em soma:
+$\cos a \cos b = \frac{1}{2}\left[\cos(a-b) + \cos(a+b)\right]$,
+com $a - b = \omega_0\tau$ e $a + b = 2\omega_0 t - \omega_0\tau$.}
+
+\anotacoes{
+\only<4->{
+  \node[nota=cBlue] (na) at ([xshift=-14mm,yshift=-7mm]fa.south) {$a = \omega_0 t$};
+  \draw[setinha,cBlue] (na) -- (fa.south);
+  \node[nota=cGreen] (nb) at ([xshift=16mm,yshift=-7mm]fb.south) {$b = \omega_0 t - \omega_0\tau$};
+  \draw[setinha,cGreen] (nb) -- (fb.south);
+}}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Autocorrelação de Senoide — os dois termos}
+
+A identidade separa a integral em duas parcelas:
+\vspace{-3mm}
 \[
-S(\omega) = \ft\{R(\tau)\} = \frac{\pi A^2}{2}[\delta(\omega - \omega_0) + \delta(\omega + \omega_0)] \quad \checkmark
+R(\tau) = \underbrace{\lim_{T \to \infty} \frac{A^2}{2T} \int_{-T/2}^{T/2}
+\tikzmarknode{i1}{\cos(\omega_0\tau)}\, dt}_{\textstyle I_1}
+\;+\;
+\underbrace{\lim_{T \to \infty} \frac{A^2}{2T} \int_{-T/2}^{T/2}
+\tikzmarknode{i2}{\cos(2\omega_0 t - \omega_0\tau)}\, dt}_{\textstyle I_2}
 \]
+
+\vspace{10mm}
+
+\onslide<3->{\textbf{Primeiro termo:} o integrando é constante em $t$, logo a integral vale $T$:}
+\vspace{-3mm}
+\[
+\onslide<3->{I_1 = \frac{A^2}{2}\cos(\omega_0\tau)\,
+\lim_{T \to \infty} \frac{1}{T}\,
+\tikzmarknode{it}{T}
+\onslide<4->{= \frac{A^2}{2}\cos(\omega_0\tau)}}
+\]
+
+\vspace{5mm}
+
+\anotacoes{
+\only<2->{
+  \node[nota=cBlue] (n1) at ([xshift=-8mm,yshift=-13mm]i1.south)
+    {não depende de $t$};
+  \draw[setinha,cBlue] (n1) -- (i1.south);
+  \node[nota=cRed] (n2) at ([xshift=14mm,yshift=-13mm]i2.south)
+    {oscila em $2\omega_0$};
+  \draw[setinha,cRed] (n2) -- (i2.south);
+}
+\only<4->{
+  \node[nota=cGreen] (n3) at ([xshift=6mm,yshift=-9mm]it.south)
+    {$\frac{1}{T}\cdot T = 1$};
+  \draw[setinha,cGreen] (n3) -- (it.south);
+}}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Autocorrelação de Senoide — o termo oscilante}
+
+\textbf{Segundo termo:} agora a integral é resolvida explicitamente.
+\vspace{-3mm}
+\[
+\int_{-T/2}^{T/2} \cos(2\omega_0 t - \omega_0\tau)\, dt
+\onslide<2->{= \left. \frac{\sin(2\omega_0 t - \omega_0\tau)}{2\omega_0} \right|_{-T/2}^{T/2}}
+\]
+
+\vspace{-2mm}
+
+\onslide<3->{Aplicando os limites de integração:}
+\vspace{-3mm}
+\[
+\onslide<3->{= \frac{\sin(\omega_0 T - \omega_0\tau)
++ \tikzmarknode{sb}{\sin(\omega_0 T + \omega_0\tau)}}{2\omega_0}
+\onslide<5->{= \frac{\sin(\omega_0 T)\cos(\omega_0\tau)}{\omega_0}}}
+\]
+
+\vspace{6mm}
+
+\onslide<6->{Dividindo por $T$, o termo é limitado e some no limite:}
+\vspace{-3mm}
+\[
+\onslide<6->{|I_2| \le \frac{A^2}{2}\,\frac{1}{\omega_0 T}
+\;\xrightarrow[\;T \to \infty\;]{}\; 0}
+\]
+
+\anotacoes{
+\only<4->{
+  \node[nota=cPurple] (ns) at ([xshift=24mm,yshift=-11mm]sb.south)
+    {$\sin(x-y) + \sin(x+y) = 2\sin x \cos y$};
+  \draw[setinha,cPurple] (ns) -- (sb.south);
+}}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: Autocorrelação de Senoide — resultado}
+
+Somando as duas parcelas, $R(\tau) = I_1 + I_2$ com $I_2 = 0$:
+\vspace{-2mm}
+\[
+\boxed{R(\tau) = \frac{A^2}{2}\,\tikzmarknode{rr}{\cos(\omega_0 \tau)}}
+\]
+
+\vspace{6mm}
+
+\onslide<3->{\textbf{Verificação via Wiener-Khinchin:} a densidade espectral de potência é a
+transformada de $R(\tau)$,}
+\vspace{-3mm}
+\[
+\onslide<3->{S(\omega) = \ft\{R(\tau)\} = \frac{\pi A^2}{2}
+\left[\delta(\omega - \omega_0) + \delta(\omega + \omega_0)\right]}
+\]
+
+\vspace{2mm}
+
+\onslide<4->{Toda a potência do sinal está concentrada em $\pm\omega_0$, e
+$R(0) = A^2/2$ recupera a potência média da senoide.}
+
+\anotacoes{
+\only<2->{
+  \node[nota=cRed] (nr) at ([xshift=32mm,yshift=1mm]rr.east)
+    {mesma frequência do sinal,\\ mas sem informação de fase};
+  \draw[setinha,cRed] (nr) -- (rr.east);
+}}
 
 \end{frame}
 
@@ -508,154 +636,9 @@ E_{pass} = \frac{1}{2\pi} \int_{-W}^{W} \Psi_x(\omega)\, d\omega
 \end{frame}
 
 % ============================================
-% LARGURA DE BANDA E RELAÇÃO DE INCERTEZA
+% RELAÇÃO SINAL-RUÍDO
 % ============================================
-\subsection{Largura de Banda e Relação de Incerteza}
-
-\begin{frame}{Definições de Largura de Banda}
-
-\begin{enumerate}
-\item \textbf{Largura de banda absoluta:}
-
-   Menor intervalo $[-W, W]$ onde $F(\omega) \neq 0$ (pode ser infinita)
-
-\item \textbf{Largura de banda de 3 dB:}
-
-   Faixa onde $\Psi(\omega) \geq \Psi_{\max}/2$ \quad (ou $S(\omega) \geq S_{\max}/2$)
-
-\item \textbf{Largura de banda de ruído equivalente:}
-   \[
-   B_n = \frac{1}{\Psi(0)} \int_{-\infty}^{\infty} \Psi(\omega)\, d\omega = \frac{2\pi E}{\Psi(0)}
-   \]
-
-\item \textbf{Largura de banda de X\%:}
-
-   Menor faixa $[-W_x, W_x]$ contendo X\% da energia/potência total
-\end{enumerate}
-
-\vspace{0.1cm}
-
-\textbf{Princípio geral:} $\text{Duração no tempo} \times \text{Largura de banda} \approx \text{constante}$
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Relação de Incerteza de Heisenberg-Gabor}
-
-\textbf{Duração efetiva} e \textbf{largura de banda efetiva:}
-
-\[
-\Delta t = \sqrt{\frac{\int t^2 |f(t)|^2 dt}{\int |f(t)|^2 dt}}, \qquad
-\Delta \omega = \sqrt{\frac{\int \omega^2 |F(\omega)|^2 d\omega}{\int |F(\omega)|^2 d\omega}}
-\]
-
-\begin{block}{Desigualdade de Heisenberg-Gabor}
-\[
-\Delta t \cdot \Delta \omega \geq \frac{1}{2}
-\]
-\end{block}
-
-\begin{itemize}
-\item Produto tempo-frequência tem \textbf{limite inferior}
-\item Compromisso fundamental: localização no tempo $\leftrightarrow$ localização em frequência
-\item \textbf{Sinal ótimo:} Gaussiana $f(t) = e^{-\alpha t^2}$ atinge $\Delta t \cdot \Delta \omega = 1/2$
-\item Gaussiana no tempo $\leftrightarrow$ Gaussiana na frequência
-\end{itemize}
-
-\end{frame}
-
-% ============================================
-% RUÍDO BRANCO E SNR
-% ============================================
-\subsection{Ruído Branco e Relação Sinal-Ruído}
-
-\begin{frame}{Ruído Branco}
-
-\textbf{Modelo idealizado:} PSD constante para todas as frequências.
-
-\begin{block}{PSD de Ruído Branco}
-\[
-S_n(\omega) = \frac{N_0}{2} \quad \text{para todo } \omega
-\]
-\end{block}
-
-\textbf{Autocorrelação:}
-\[
-R_n(\tau) = \frac{N_0}{2} \delta(\tau)
-\]
-
-Amostras em tempos diferentes são completamente descorrelacionadas.
-
-\vspace{0.2cm}
-
-\textbf{Características:}
-
-\begin{itemize}
-\item Potência infinita (modelo idealizado, fisicamente irrealizável)
-\item Todas as frequências igualmente representadas (analogia: luz branca)
-\item Na prática: PSD aproximadamente constante na banda de interesse
-\end{itemize}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Ruído Branco Filtrado pelo Canal}
-
-\textbf{Entrada:} Ruído branco $n(t)$ com $S_n(\omega) = N_0/2$
-
-\textbf{Canal:} $H(\omega)$ \qquad \textbf{Saída:} $y(t) = n(t) \conv h(t)$
-
-\textbf{PSD na saída:} $S_y(\omega) = |H(\omega)|^2 \cdot \frac{N_0}{2}$
-
-\textbf{Potência do ruído na saída:}
-
-\[
-P_y = \frac{1}{2\pi} \int_{-\infty}^{\infty} |H(\omega)|^2 \frac{N_0}{2}\, d\omega = \frac{N_0}{2} \cdot \underbrace{\frac{1}{2\pi}\int_{-\infty}^{\infty} |H(\omega)|^2\, d\omega}_{\int |h(t)|^2 dt \;\text{(Parseval)}}
-\]
-
-\[
-\boxed{P_y = \frac{N_0}{2} \int_{-\infty}^{\infty} |h(t)|^2\, dt}
-\]
-
-Ruído filtrado \textbf{não é mais branco}: PSD adquire forma de $|H(\omega)|^2$.
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Visualização: Ruído Branco e Filtrado}
-
-\begin{center}
-\includegraphics[width=\figFull, height=0.85\textheight, keepaspectratio]{figures/cap3/ruido_branco_filtrado}
-\end{center}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{Exemplo: Ruído em Filtro RC}
-
-\textbf{Filtro:} $H(\omega) = 1/(1 + j\omega RC)$, \quad $\omega_c = 1/(RC)$
-
-\textbf{Entrada:} Ruído branco $S_n = N_0/2$
-
-\textbf{PSD na saída:}
-\[
-S_y(\omega) = \frac{N_0/2}{1 + (\omega RC)^2}
-\]
-
-\textbf{Potência na saída:}
-\[
-P_y = \frac{1}{2\pi} \int_{-\infty}^{\infty} \frac{N_0/2}{1 + (\omega/\omega_c)^2}\, d\omega = \frac{N_0}{4\pi} \cdot \pi\omega_c = \frac{N_0\omega_c}{4} = \frac{N_0}{4RC}
-\]
-
-Potência de ruído na saída \textbf{proporcional à largura de banda} do filtro.
-
-\end{frame}
-
-% ============================================
+\subsection{Relação Sinal-Ruído}
 
 \begin{frame}{Relação Sinal-Ruído (SNR)}
 
@@ -727,7 +710,6 @@ $\text{SNR} = -40 - (-101) = 61$ dB $\Rightarrow$ excelente qualidade!
 \begin{itemize}
 \item Canal multiplica a densidade espectral por $|H(\omega)|^2$
 \item Ruído de saída: $P_n = N_0 B$ (proporcional à banda)
-\item Relação de incerteza: $\Delta t \cdot \Delta \omega \geq 1/2$
 \end{itemize}
 
 \end{frame}

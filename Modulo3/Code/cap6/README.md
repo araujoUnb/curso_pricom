@@ -48,11 +48,18 @@ python3 demo_pulse_shaping_olho.py
 
 ## 2. Demonstração em Python (com sliders)
 
-Janela interativa com sliders de alpha, ruído e amostras por símbolo:
+Janela interativa com sliders de alpha, SNR, jitter e amostras por símbolo:
 
 ```bash
 python3 demo_interativo_matplotlib.py
 ```
+
+- **Roll-off alpha** — formato do pulso e abertura horizontal do olho.
+- **SNR (dB)** — relação sinal-ruído; o ruído é derivado do sinal normalizado,
+  então mais SNR engrossa menos os traços e aproxima as amostras dos níveis.
+- **Jitter (símbolo)** — desvio-padrão do erro de temporização na amostragem;
+  espalha as amostras de decisão na horizontal e, no limite, empurra-as para
+  o lado errado do limiar.
 
 ## 3. Regenerar as figuras dos slides
 
@@ -66,8 +73,11 @@ de olho dos slides.
 
 ## Roteiro sugerido em sala
 
-1. Iniciar com `alpha = 1` e ruído zero: pulso largo, olho bem aberto.
+1. Iniciar com `alpha = 1` e SNR alta: pulso largo, olho bem aberto.
 2. Reduzir `alpha` até `0,2`: a banda encolhe no espectro e o olho fica mais
    estreito na horizontal — conexão direta com a sensibilidade a jitter.
-3. Voltar `alpha` a `0,35` e aumentar o ruído: o olho fecha na vertical,
+3. Voltar `alpha` a `0,35` e reduzir a SNR: o olho fecha na vertical,
    ilustrando a perda de margem de decisão e o aumento da taxa de erro.
+4. Aumentar o jitter: as amostras de decisão se espalham na horizontal e
+   começam a cruzar o limiar, mesmo com SNR alta — o erro de relógio também
+   degrada o desempenho.

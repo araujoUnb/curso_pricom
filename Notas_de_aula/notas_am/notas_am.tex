@@ -1,0 +1,534 @@
+\documentclass[11pt,a4paper]{article}
+
+% ============================================
+% PACOTES
+% ============================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usepackage{cancel}
+
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+% --- Caixas de derivação e exemplo ---
+\tcbuselibrary{skins,breakable}
+
+\newtcolorbox{quadro}[1][]{
+  colback=blue!4,
+  colframe=blue!55!black,
+  fonttitle=\bfseries,
+  title=#1,
+  breakable,
+  enhanced,
+  arc=2mm,
+  boxrule=0.6pt
+}
+
+\newtcolorbox{exemplo}[1][]{
+  colback=green!5,
+  colframe=green!45!black,
+  fonttitle=\bfseries,
+  title=#1,
+  breakable,
+  enhanced,
+  arc=2mm,
+  boxrule=0.6pt
+}
+
+\newtcolorbox{observacao}[1][]{
+  colback=orange!5,
+  colframe=orange!70!black,
+  fonttitle=\bfseries,
+  title=#1,
+  breakable,
+  enhanced,
+  arc=2mm,
+  boxrule=0.6pt
+}
+
+\newtcolorbox{exercicio}[1][]{
+  colback=red!4,
+  colframe=red!55!black,
+  fonttitle=\bfseries,
+  title=#1,
+  breakable,
+  enhanced,
+  arc=2mm,
+  boxrule=0.6pt
+}
+
+% --- Cabeçalho ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Notas de Aula -- Modulação AM}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% --- Comandos ---
+\newcommand{\AM}{\text{AM}}
+\newcommand{\DSB}{\text{DSB}}
+\newcommand{\dd}{\,\mathrm{d}}
+
+% --- Cores de destaque ---
+\definecolor{azul}{RGB}{0,70,160}
+\definecolor{vermelho}{RGB}{175,25,25}
+\definecolor{verde}{RGB}{0,110,60}
+
+\DeclareMathOperator{\sgn}{sgn}
+
+\begin{document}
+
+% ============================================
+% CAPA
+% ============================================
+\begin{titlepage}
+\thispagestyle{empty}
+\centering
+
+\vspace*{1.5cm}
+
+{\large\textbf{Universidade de Brasília}}\\[0.15cm]
+{\large\textbf{Faculdade de Ciências e Tecnologias em Engenharia -- FCTE}}\\[0.15cm]
+{\normalsize Curso de Engenharia Eletrônica}\\[1.8cm]
+
+\rule{\textwidth}{1pt}\\[0.5cm]
+{\Huge\textbf{Notas de Aula}}\\[0.5cm]
+{\LARGE\textbf{Modulação em Amplitude}}\\[0.4cm]
+{\large Análise Espectral do Sinal Modulado}\\[0.5cm]
+\rule{\textwidth}{1pt}
+
+\vspace{2.5cm}
+
+{\large FGA0092 -- Princípios de Comunicação para Engenharia}
+
+\vfill
+
+\begin{flushleft}
+\large
+\textbf{Professor:} Daniel Costa Araújo\\[0.3cm]
+\textbf{Semestre:} 2026/1
+\end{flushleft}
+
+\vspace{1cm}
+
+{\large Brasília -- DF}
+
+\end{titlepage}
+
+% ============================================
+% SUMÁRIO
+% ============================================
+\newpage
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{Análise espectral do sinal AM}
+% ============================================================
+
+\subsection{A equação da modulação em amplitude}
+
+Sejam a mensagem $m(t)$, de banda limitada a $W$ hertz, e a portadora $c(t)$:
+\begin{align}
+  M(f) &= 0, \qquad |f| > W, \label{eq:banda_limitada}\\[0.2em]
+  c(t) &= A_c\cos(2\pi f_c t), \qquad f_c \gg W. \label{eq:portadora}
+\end{align}
+
+A modulação de banda lateral dupla com portadora suprimida é o produto entre ambas:
+
+\begin{quadro}[Sinal DSB-SC]
+\[
+  \boxed{\;s_{\DSB}(t) \;=\; m(t)\,c(t) \;=\; A_c\, m(t)\,\cos(2\pi f_c t)\;}
+\]
+\end{quadro}
+
+Reescrevendo a portadora pela fórmula de Euler,
+\begin{equation}
+  \cos(2\pi f_c t) \;=\; \frac{e^{\,j2\pi f_c t} + e^{-j2\pi f_c t}}{2},
+  \label{eq:euler}
+\end{equation}
+o sinal transmitido assume a forma
+\begin{align}
+  s_{\DSB}(t)
+  &= A_c\, m(t)\,\frac{e^{\,j2\pi f_c t} + e^{-j2\pi f_c t}}{2} \nonumber\\[0.3em]
+  &= \frac{A_c}{2}\, m(t)\, e^{\,j2\pi f_c t} \;+\; \frac{A_c}{2}\, m(t)\, e^{-j2\pi f_c t}.
+  \label{eq:dsbsc_euler}
+\end{align}
+
+Nessa forma, o sinal é a soma de duas cópias da mensagem, cada uma multiplicada por uma exponencial complexa de frequência $\pm f_c$. É essa estrutura que a transformada de Fourier converterá em dois deslocamentos espectrais.
+
+\subsection{Transformada de Fourier do sinal DSB-SC}
+
+Partimos da definição da transformada, aplicada a \eqref{eq:dsbsc_euler}. Em cada passo, a cor azul acompanha a parcela associada a $+f_c$ e a cor vermelha a parcela associada a $-f_c$:
+\begin{align}
+  S_{\DSB}(f)
+  &= \int_{-\infty}^{\infty} s_{\DSB}(t)\, e^{-j2\pi f t}\dd t
+  \label{eq:tf_passo1}\\[0.5em]
+  &= \int_{-\infty}^{\infty}
+     \left[\,\frac{A_c}{2} m(t)\, \textcolor{azul}{e^{\,j2\pi f_c t}}
+     \;+\; \frac{A_c}{2} m(t)\, \textcolor{vermelho}{e^{-j2\pi f_c t}}\,\right]
+     e^{-j2\pi f t}\dd t
+  \label{eq:tf_passo2}\\[0.5em]
+  &= \frac{A_c}{2}\int_{-\infty}^{\infty} m(t)\, \textcolor{azul}{e^{\,j2\pi f_c t}}\, e^{-j2\pi f t}\dd t
+   \;+\; \frac{A_c}{2}\int_{-\infty}^{\infty} m(t)\, \textcolor{vermelho}{e^{-j2\pi f_c t}}\, e^{-j2\pi f t}\dd t
+  \label{eq:tf_passo3}\\[0.5em]
+  &= \frac{A_c}{2}\int_{-\infty}^{\infty} m(t)\,
+       e^{-j2\pi \left(\textcolor{azul}{f-f_c}\right) t}\dd t
+   \;+\; \frac{A_c}{2}\int_{-\infty}^{\infty} m(t)\,
+       e^{-j2\pi \left(\textcolor{vermelho}{f+f_c}\right) t}\dd t
+  \label{eq:tf_passo4}\\[0.5em]
+  &= \frac{A_c}{2}\, \underbrace{M(\textcolor{azul}{f-f_c})}_{\text{banda em } +f_c}
+   \;+\; \frac{A_c}{2}\, \underbrace{M(\textcolor{vermelho}{f+f_c})}_{\text{banda em } -f_c}
+  \label{eq:tf_passo5}
+\end{align}
+
+De \eqref{eq:tf_passo1} para \eqref{eq:tf_passo2} apenas substituímos $s_{\DSB}(t)$. De \eqref{eq:tf_passo2} para \eqref{eq:tf_passo3} usamos a linearidade da integral. De \eqref{eq:tf_passo3} para \eqref{eq:tf_passo4} agrupamos os expoentes,
+\[
+  \textcolor{azul}{e^{\,j2\pi f_c t}}\, e^{-j2\pi f t} = e^{-j2\pi(\textcolor{azul}{f-f_c})t},
+  \qquad
+  \textcolor{vermelho}{e^{-j2\pi f_c t}}\, e^{-j2\pi f t} = e^{-j2\pi(\textcolor{vermelho}{f+f_c})t},
+\]
+e de \eqref{eq:tf_passo4} para \eqref{eq:tf_passo5} reconhecemos em cada integral a própria transformada de $m(t)$,
+\[
+  M(\nu) \;=\; \int_{-\infty}^{\infty} m(t)\, e^{-j2\pi \nu t}\dd t,
+\]
+avaliada em $\nu = \textcolor{azul}{f-f_c}$ na primeira parcela e em $\nu = \textcolor{vermelho}{f+f_c}$ na segunda.
+
+\begin{quadro}[Espectro do sinal DSB-SC]
+\[
+  \boxed{\;S_{\DSB}(f) \;=\; \frac{A_c}{2}\Bigl[\, M(\textcolor{azul}{f-f_c}) \;+\; M(\textcolor{vermelho}{f+f_c}) \,\Bigr]\;}
+\]
+\end{quadro}
+
+O espectro da mensagem aparece replicado em duas cópias, centradas em $f_c$ e em $-f_c$, ambas com amplitude reduzida pelo fator $A_c/2$. Como $M(f)$ é nulo fora de $|f| \le W$, a cópia centrada em $f_c$ ocupa a faixa
+\begin{equation}
+  f_c - W \;\le\; f \;\le\; f_c + W,
+  \label{eq:faixa_ocupada}
+\end{equation}
+de modo que a largura de banda de transmissão é
+\begin{equation}
+  B_T \;=\; 2W,
+  \label{eq:largura_banda}
+\end{equation}
+o dobro da largura de banda da mensagem. O trecho acima de $f_c$ é a banda lateral superior e o trecho abaixo de $f_c$ é a banda lateral inferior, o que justifica o nome banda lateral dupla.
+
+Note ainda que $S_{\DSB}(f)$ não contém nenhum impulso em $f = \pm f_c$, pois nenhuma parcela de \eqref{eq:dsbsc_euler} é independente de $m(t)$. A portadora está suprimida, e toda a potência transmitida está nas bandas laterais.
+
+
+\subsection{Potência do sinal DSB-SC}
+
+Com $S_{\DSB}(f)$ conhecido, a energia é obtida pelo teorema de Rayleigh:
+\begin{align}
+  E_{\DSB}
+  &= \int_{-\infty}^{\infty} \bigl|S_{\DSB}(f)\bigr|^{2}\dd f
+  \label{eq:pot_passo1}\\[0.5em]
+  &= \frac{A_c^{2}}{4}\int_{-\infty}^{\infty}
+     \bigl|\, M(\textcolor{azul}{f-f_c}) + M(\textcolor{vermelho}{f+f_c}) \,\bigr|^{2}\dd f
+  \label{eq:pot_passo2}\\[0.5em]
+  &= \frac{A_c^{2}}{4}\int_{-\infty}^{\infty}
+     \Bigl[\,\bigl|M(\textcolor{azul}{f-f_c})\bigr|^{2}
+          + \bigl|M(\textcolor{vermelho}{f+f_c})\bigr|^{2}
+          + 2\operatorname{Re}\bigl\{ M(\textcolor{azul}{f-f_c})\,M^{*}(\textcolor{vermelho}{f+f_c})\bigr\}\Bigr]\dd f
+  \label{eq:pot_passo3}\\[0.5em]
+  &= \frac{A_c^{2}}{4}\Bigl[\, \underbrace{\int_{-\infty}^{\infty}\bigl|M(\textcolor{azul}{f-f_c})\bigr|^{2}\dd f}_{=\,E_m}
+   \;+\; \underbrace{\int_{-\infty}^{\infty}\bigl|M(\textcolor{vermelho}{f+f_c})\bigr|^{2}\dd f}_{=\,E_m}
+   \;+\; \cancelto{0}{\;2\!\int_{-\infty}^{\infty}\!\operatorname{Re}\{\cdots\}\dd f\;} \,\Bigr]
+  \label{eq:pot_passo4}\\[0.5em]
+  &= \frac{A_c^{2}}{2}\, E_m
+  \label{eq:pot_passo5}
+\end{align}
+
+Duas justificativas sustentam a passagem de \eqref{eq:pot_passo3} para \eqref{eq:pot_passo4}. As integrais das parcelas quadráticas independem do deslocamento, de modo que cada uma vale a energia da mensagem,
+\[
+  \int_{-\infty}^{\infty}\bigl|M(f \mp f_c)\bigr|^{2}\dd f
+  \;=\; \int_{-\infty}^{\infty}\bigl|M(\nu)\bigr|^{2}\dd \nu
+  \;=\; E_m .
+\]
+Já o termo cruzado se anula porque os suportes das duas cópias são disjuntos:
+\begin{equation}
+  \underbrace{\bigl[\,\textcolor{azul}{f_c-W},\ \textcolor{azul}{f_c+W}\,\bigr]}_{\text{cópia em } +f_c}
+  \;\cap\;
+  \underbrace{\bigl[\,\textcolor{vermelho}{-f_c-W},\ \textcolor{vermelho}{-f_c+W}\,\bigr]}_{\text{cópia em } -f_c}
+  \;=\; \varnothing
+  \qquad \text{sempre que} \qquad f_c > W .
+  \label{eq:suportes_disjuntos}
+\end{equation}
+Em cada frequência $f$, ao menos um dos dois fatores do produto $M(f-f_c)\,M^{*}(f+f_c)$ é nulo, e o integrando desaparece.
+
+Para uma mensagem de potência finita, o mesmo desenvolvimento aplicado à densidade espectral de potência $S_m(f)$ fornece
+\begin{equation}
+  S_{s}(f) \;=\; \frac{A_c^{2}}{4}\Bigl[\, S_m(\textcolor{azul}{f-f_c}) + S_m(\textcolor{vermelho}{f+f_c}) \,\Bigr],
+  \label{eq:dep_dsbsc}
+\end{equation}
+cuja integral em todo o eixo de frequências é a potência média transmitida:
+\begin{equation}
+  P_{\DSB} \;=\; \int_{-\infty}^{\infty} S_{s}(f)\dd f
+  \;=\; \frac{A_c^{2}}{4}\bigl[\,P_m + P_m\,\bigr],
+  \qquad
+  P_m = \int_{-\infty}^{\infty} S_m(f)\dd f .
+  \label{eq:pot_integra_dep}
+\end{equation}
+
+\begin{quadro}[Potência do sinal DSB-SC]
+\[
+  \boxed{\;P_{\DSB} \;=\; \frac{A_c^{2}}{2}\,P_m\;}
+\]
+distribuída em partes iguais entre as duas bandas laterais,
+\[
+  \underbrace{\frac{A_c^{2}}{4}P_m}_{\text{banda em } \textcolor{azul}{+f_c}}
+  \;+\;
+  \underbrace{\frac{A_c^{2}}{4}P_m}_{\text{banda em } \textcolor{vermelho}{-f_c}} .
+\]
+\end{quadro}
+
+Como não há impulso em $f = \pm f_c$, nenhuma fração da potência é gasta com a portadora. A eficiência de potência, definida como a razão entre a potência útil e a potência total, é
+\begin{equation}
+  \eta \;=\; \frac{P_{\text{bandas laterais}}}{P_{\DSB}} \;=\; 1 .
+  \label{eq:eficiencia_dsbsc}
+\end{equation}
+
+\begin{exemplo}[Mensagem senoidal]
+Para $m(t) = A_m\cos(2\pi f_m t)$, com $f_m \le W$, a potência da mensagem é
+\[
+  P_m \;=\; \frac{A_m^{2}}{2},
+\]
+e a potência transmitida resulta
+\[
+  P_{\DSB} \;=\; \frac{A_c^{2}}{2}\cdot\frac{A_m^{2}}{2} \;=\; \frac{A_c^{2}A_m^{2}}{4},
+\]
+com $A_c^{2}A_m^{2}/8$ em cada banda lateral.
+\end{exemplo}
+
+
+% ============================================================
+\section{Demodulação pela transformada de Hilbert}
+% ============================================================
+
+\subsection{Transformada de Hilbert e sinal analítico}
+
+A transformada de Hilbert de um sinal $x(t)$ é a saída do filtro de resposta ao impulso $h(t) = 1/(\pi t)$:
+\begin{equation}
+  \hat{x}(t) \;=\; \frac{1}{\pi}\int_{-\infty}^{\infty}\frac{x(\tau)}{t-\tau}\dd\tau
+  \qquad\Longleftrightarrow\qquad
+  \hat{X}(f) \;=\; \underbrace{-j\,\sgn(f)}_{H(f)}\, X(f),
+  \label{eq:hilbert_def}
+\end{equation}
+isto é, um deslocamento de fase de $-90^{\circ}$ nas frequências positivas e de $+90^{\circ}$ nas negativas, sem alteração de amplitude. A partir dela define-se o sinal analítico e a envoltória complexa:
+\begin{align}
+  x_a(t) &= x(t) + j\,\hat{x}(t)
+  &&\Longleftrightarrow&
+  X_a(f) &= \bigl[\,1 + \sgn(f)\,\bigr] X(f) \;=\; 2\,X(f)\,u(f),
+  \label{eq:analitico}\\[0.3em]
+  \tilde{x}(t) &= x_a(t)\, e^{-j2\pi f_c t}
+  &&\Longleftrightarrow&
+  \tilde{X}(f) &= X_a(f+f_c).
+  \label{eq:envoltoria_complexa}
+\end{align}
+O sinal analítico descarta as frequências negativas e a envoltória complexa traz o que sobrou de volta à banda base.
+
+\subsection{Aplicação ao sinal DSB-SC}
+
+Aplicando \eqref{eq:hilbert_def} ao espectro obtido em \eqref{eq:tf_passo5}:
+\begin{align}
+  \hat{S}_{\DSB}(f)
+  &= -j\,\sgn(f)\,\frac{A_c}{2}\Bigl[\, M(\textcolor{azul}{f-f_c}) + M(\textcolor{vermelho}{f+f_c}) \,\Bigr]
+  \label{eq:hil_passo1}\\[0.5em]
+  &= \frac{A_c}{2}\Bigl[\, -j\,\underbrace{\sgn(f)}_{=\,+1}\,M(\textcolor{azul}{f-f_c})
+   \;-\; j\,\underbrace{\sgn(f)}_{=\,-1}\,M(\textcolor{vermelho}{f+f_c}) \,\Bigr]
+  \label{eq:hil_passo2}\\[0.5em]
+  &= -j\,\frac{A_c}{2}\Bigl[\, M(\textcolor{azul}{f-f_c}) - M(\textcolor{vermelho}{f+f_c}) \,\Bigr]
+  \label{eq:hil_passo3}\\[0.5em]
+  &\quad\Longleftrightarrow\quad
+  \hat{s}_{\DSB}(t) \;=\; A_c\, m(t)\, \sin(2\pi f_c t).
+  \label{eq:hil_passo4}
+\end{align}
+
+Em \eqref{eq:hil_passo2} usamos novamente \eqref{eq:suportes_disjuntos}: a cópia centrada em $\textcolor{azul}{+f_c}$ vive apenas em $f>0$ e a centrada em $\textcolor{vermelho}{-f_c}$ apenas em $f<0$, de modo que $\sgn(f)$ assume um valor definido sobre cada uma. O efeito da transformada de Hilbert é, portanto, trocar a portadora cosseno por uma portadora seno, sem tocar na mensagem.
+
+Formando o sinal analítico com \eqref{eq:analitico}:
+\begin{align}
+  S_{a}(f)
+  &= \bigl[\,1+\sgn(f)\,\bigr]\frac{A_c}{2}\Bigl[\, M(\textcolor{azul}{f-f_c}) + M(\textcolor{vermelho}{f+f_c}) \,\Bigr]
+  \label{eq:ana_passo1}\\[0.5em]
+  &= \frac{A_c}{2}\Bigl[\,\underbrace{2\,M(\textcolor{azul}{f-f_c})}_{f>0:\ 1+\sgn(f)=2}
+   \;+\; \underbrace{\cancelto{0}{\bigl[1+\sgn(f)\bigr]M(\textcolor{vermelho}{f+f_c})}}_{f<0:\ 1+\sgn(f)=0}\,\Bigr]
+  \label{eq:ana_passo2}\\[0.5em]
+  &= A_c\, M(\textcolor{azul}{f-f_c})
+  \label{eq:ana_passo3}
+\end{align}
+e deslocando para a banda base conforme \eqref{eq:envoltoria_complexa}:
+\begin{equation}
+  \tilde{S}(f) \;=\; S_a(f+f_c) \;=\; A_c\, M(f)
+  \qquad\Longleftrightarrow\qquad
+  \tilde{s}(t) \;=\; A_c\, m(t).
+  \label{eq:envoltoria_dsbsc}
+\end{equation}
+
+\begin{quadro}[Demodulação pelo sinal analítico]
+\[
+  \boxed{\;m(t) \;=\; \frac{1}{A_c}\,\operatorname{Re}\Bigl\{\bigl[\,s_{\DSB}(t) + j\,\hat{s}_{\DSB}(t)\,\bigr] e^{-j2\pi f_c t}\Bigr\}\;}
+\]
+\end{quadro}
+
+A estrutura de \eqref{eq:demod_hilbert_tempo} corresponde ao diagrama da Figura~\ref{fig:demod_hilbert}. O sinal recebido é dividido em dois ramos: o ramo em fase multiplica $s_{\DSB}(t)$ pela portadora cosseno; o ramo em quadratura aplica primeiro o filtro de Hilbert e depois multiplica pela portadora seno. A soma dos dois produtos entrega $A_c\,m(t)$.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  >={Latex[length=2.2mm]},
+  bloco/.style={draw,thick,rounded corners=2pt,fill=blue!4,
+                minimum width=2.3cm,minimum height=1.1cm,align=center,font=\small},
+  fonte/.style={draw,thick,rounded corners=2pt,fill=black!4,
+                minimum width=2.3cm,minimum height=0.8cm,align=center,font=\small},
+  op/.style={draw,thick,circle,minimum size=0.7cm,inner sep=0pt,font=\normalsize},
+  fio/.style={->,thick},
+  font=\small
+]
+
+% ---------- geometria ----------
+\def\yI{1.9}      % ramo em fase
+\def\yQ{-1.9}     % ramo em quadratura
+\def\xmix{6.2}    % multiplicadores
+\def\xsom{9.9}    % somador
+
+\coordinate (in)    at (-1.0,0);
+\coordinate (no)    at ( 0.4,0);
+\coordinate (topo)  at ( 0.4,\yI);
+\coordinate (base)  at ( 0.4,\yQ);
+
+\node[op]    (mixI) at (\xmix,\yI) {$\times$};
+\node[bloco] (hil)  at ( 3.0,\yQ)  {Hilbert\\[-0.15em] $-j\,\sgn(f)$};
+\node[op]    (mixQ) at (\xmix,\yQ) {$\times$};
+\node[op]    (som)  at (\xsom,0)   {$+$};
+\node[bloco] (gan)  at (12.7,0)    {$1/A_c$};
+\coordinate  (out)  at (14.5,0);
+
+\node[fonte] (oscI) at (\xmix, 3.9) {$\cos(2\pi f_c t)$};
+\node[fonte] (oscQ) at (\xmix,-3.9) {$\sin(2\pi f_c t)$};
+
+% ---------- entrada ----------
+\draw[fio] (in) -- node[above=1pt]{$s_{\DSB}(t)$} (no);
+\draw[thick] (topo) -- (base);
+\fill (no) circle (2pt);
+
+% ---------- ramo em fase ----------
+\draw[fio] (topo) -- (mixI);
+\draw[fio] (oscI) -- (mixI);
+\draw[fio] (mixI) -- (som |- mixI) -- (som);
+\node[above=5pt,font=\scriptsize,text=azul] at ($ (mixI) !0.5! (som |- mixI) $)
+      {$A_c m(t)\cos^{2}(2\pi f_c t)$};
+\node[above=3pt,font=\scriptsize,text=azul] at (2.6,\yI) {ramo em fase};
+
+% ---------- ramo em quadratura ----------
+\draw[fio] (base) -- (hil);
+\draw[fio] (hil)  -- node[above=1pt]{$\hat{s}_{\DSB}(t)$} (mixQ);
+\draw[fio] (oscQ) -- (mixQ);
+\draw[fio] (mixQ) -- (som |- mixQ) -- (som);
+\node[below=5pt,font=\scriptsize,text=vermelho] at ($ (mixQ) !0.5! (som |- mixQ) $)
+      {$A_c m(t)\sin^{2}(2\pi f_c t)$};
+\node[below=3pt,font=\scriptsize,text=vermelho] at (3.0,-2.5) {ramo em quadratura};
+
+% ---------- saida ----------
+\draw[fio] (som) -- node[above=1pt]{$A_c\,m(t)$} (gan);
+\draw[fio] (gan) -- node[above=1pt]{$m(t)$} (out);
+
+\end{tikzpicture}
+\caption{Demodulação do sinal DSB-SC pela transformada de Hilbert. As duas portadoras provêm do mesmo oscilador local, defasadas de $90^{\circ}$ entre si.}
+\label{fig:demod_hilbert}
+\end{figure}
+
+Os componentes de frequência em $2f_c$ gerados nos dois ramos têm sinais opostos e se cancelam no somador, conforme a identidade usada em \eqref{eq:tempo_passo2}. Nenhum filtro passa-baixas é necessário na saída.
+
+\subsection{Verificação no domínio do tempo}
+
+Expandindo o quadro anterior com $s_{\DSB}(t) = A_c m(t)\cos(2\pi f_c t)$ e $\hat{s}_{\DSB}(t) = A_c m(t)\sin(2\pi f_c t)$:
+\begin{align}
+  \operatorname{Re}\bigl\{\tilde{s}(t)\bigr\}
+  &= \operatorname{Re}\Bigl\{ A_c m(t)\bigl[\cos(2\pi f_c t) + j\sin(2\pi f_c t)\bigr]
+     \bigl[\cos(2\pi f_c t) - j\sin(2\pi f_c t)\bigr]\Bigr\}
+  \label{eq:tempo_passo1}\\[0.5em]
+  &= A_c m(t)\,\Bigl[\,\underbrace{\cos^{2}(2\pi f_c t) + \sin^{2}(2\pi f_c t)}_{=\,1}\,\Bigr]
+  \label{eq:tempo_passo2}\\[0.5em]
+  &= A_c\, m(t).
+  \label{eq:tempo_passo3}
+\end{align}
+
+Equivalentemente, sem notação complexa,
+\begin{equation}
+  \textcolor{verde}{s_{\DSB}(t)\cos(2\pi f_c t) \;+\; \hat{s}_{\DSB}(t)\sin(2\pi f_c t)} \;=\; A_c\, m(t).
+  \label{eq:demod_hilbert_tempo}
+\end{equation}
+
+\begin{observacao}[Comparação com o detector coerente]
+No detector coerente convencional, o produto por uma única portadora gera
+\[
+  s_{\DSB}(t)\cdot 2\cos(2\pi f_c t)
+  \;=\; \underbrace{A_c m(t)}_{\text{banda base}}
+   \;+\; \underbrace{A_c m(t)\cos(4\pi f_c t)}_{\text{em } 2f_c},
+\]
+e o segundo termo exige um filtro passa-baixas. O ramo em quadratura de \eqref{eq:demod_hilbert_tempo} produz o mesmo par de termos com o sinal oposto no componente de $2f_c$, que assim se cancela na soma. A recuperação de $m(t)$ é exata e não depende de filtragem.
+\end{observacao}
+
+\begin{observacao}[Envoltória e ambiguidade de sinal]
+O módulo da envoltória complexa é
+\[
+  \bigl|\tilde{s}(t)\bigr| \;=\; A_c\,\bigl|m(t)\bigr| ,
+\]
+que perde a informação de polaridade sempre que $m(t)$ muda de sinal. Um detector de envoltória aplicado ao DSB-SC recupera $|m(t)|$, não $m(t)$. É essa limitação que motiva a adição de um termo constante à envoltória na modulação AM com portadora.
+\end{observacao}
+
+
+\subsection{Representação em banda base do sinal DSB-SC}
+
+As conversões entre banda passante e banda base estão desenvolvidas nas notas de aula sobre banda base e banda passante. Aqui interessa apenas aplicá-las ao sinal em estudo. Na notação daquelas notas, o par de conversões é
+\begin{equation}
+  \begin{bmatrix} s_I(t) \\[0.3em] s_Q(t) \end{bmatrix}
+  = \mathbf{R}(t)\begin{bmatrix} s(t) \\[0.3em] \hat{s}(t) \end{bmatrix},
+  \qquad
+  s(t) = \operatorname{Re}\bigl\{\tilde{s}(t)\,e^{\,j2\pi f_c t}\bigr\}
+       = s_I(t)\cos(2\pi f_c t) - s_Q(t)\sin(2\pi f_c t),
+  \label{eq:conversoes_ref}
+\end{equation}
+com $\tilde{s}(t) = s_I(t) + j\,s_Q(t)$.
+
+\begin{quadro}[O DSB-SC em banda base]
+De \eqref{eq:envoltoria_dsbsc}, a envoltória complexa do sinal DSB-SC é puramente real:
+\[
+  \tilde{s}(t) = A_c\, m(t)
+  \qquad\Longrightarrow\qquad
+  \textcolor{azul}{s_I(t) = A_c\, m(t)}, \qquad \textcolor{vermelho}{s_Q(t) = 0} .
+\]
+Aplicando a conversão inversa,
+\[
+  s(t) \;=\; A_c\, m(t)\cos(2\pi f_c t) \;-\; 0\cdot\sin(2\pi f_c t) \;=\; s_{\DSB}(t),
+\]
+e, no domínio da frequência, com $\tilde{S}(f) = A_c M(f)$ e $M^{*}(-\nu) = M(\nu)$ para $m(t)$ real,
+\[
+  S(f) \;=\; \frac{1}{2}\Bigl[\,\tilde{S}(f-f_c) + \tilde{S}^{*}(-f-f_c)\,\Bigr]
+       \;=\; \frac{A_c}{2}\Bigl[\, M(\textcolor{azul}{f-f_c}) + M(\textcolor{vermelho}{f+f_c}) \,\Bigr]
+       \;=\; S_{\DSB}(f),
+\]
+que é exatamente \eqref{eq:tf_passo5}.
+\end{quadro}
+
+O DSB-SC é, portanto, o caso particular em que o ramo em quadratura permanece nulo. A modulação transporta a mensagem apenas no componente em fase, e metade da capacidade da representação fica ociosa. É justamente esse ramo livre que a modulação em quadratura aproveita para transmitir uma segunda mensagem na mesma faixa de frequências.
+
+\end{document}

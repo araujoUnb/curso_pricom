@@ -35,7 +35,7 @@
 \newcommand{\universidadeEN}{University of Brasilia}
 \newcommand{\departamentoEN}{Faculty of Sciences and Technology in Engineering}
 \newcommand{\laboratorioEN}{Telecommunications Laboratory}
-\newcommand{\dataApresentacao}{17 de Março de 2026}
+\newcommand{\dataApresentacao}{11 de Agosto de 2026}
 
 \newcommand{\institutoFinal}{%
     \ifthenelse{\equal{\idioma}{pt}}{\universidadePT \\ \laboratorioPT}%
@@ -363,7 +363,7 @@ Cada uma com suas vantagens
 \end{frame}
 }
 
-\begin{frame}{Vis\~{a}o geral do semestre --- 2026/1}
+\begin{frame}{Vis\~{a}o geral do semestre --- 2026/2}
 \begin{tikzpicture}[scale=0.88]
   \draw[very thick, -{Stealth}, gray!50] (0, 0) -- (14, 0)
     node[right, font=\small, gray] {semestre};
@@ -386,9 +386,9 @@ Cada uma com suas vantagens
   \draw[very thick, blue!70] (4.2, -0.05) -- (4.2, -1.15);
   \draw[very thick, teal!60] (9.0, -0.05) -- (9.0, -1.15);
   \draw[very thick, purple!70] (13.5, -0.05) -- (13.5, -1.15);
-  \node[font=\tiny, gray, below] at (0.2,-1.15)  {mar/26};
-  \node[font=\tiny, gray, below] at (6.85,-1.15) {mai/26};
-  \node[font=\tiny, gray, below] at (13.5,-1.15) {jul/26};
+  \node[font=\tiny, gray, below] at (0.2,-1.15)  {ago/26};
+  \node[font=\tiny, gray, below] at (6.85,-1.15) {out/26};
+  \node[font=\tiny, gray, below] at (13.5,-1.15) {dez/26};
 \end{tikzpicture}
 \vspace{0.2cm}
 \begin{columns}
@@ -524,16 +524,23 @@ Cada uma com suas vantagens
 \begin{columns}
 \begin{column}{0.48\textwidth}
   \textbf{8 pr\'{a}ticas experimentais:}
-  \begin{enumerate}
-    \item An\'{a}lise Espectral (FFT)
-    \item Modulac\~{a}o AM DSB-SC
-    \item AM Convencional (DSB+C)
-    \item Modulac\~{a}o SSB
-    \item Modulac\~{a}o FM e Regra de Carson
-    \item Phase-Locked Loop (PLL)
-    \item Ru\'{\i}do em demoduladores AM vs FM
-    \item Amostragem e aliasing
-  \end{enumerate}
+  \vspace{0.15cm}
+
+  \small
+  \begin{tabular}{@{}r@{\ \ }l@{\hspace{8pt}}l@{}}
+    \hline
+    \# & \textbf{Pr\'{a}tica} & \textbf{Semanas} \\
+    \hline
+    1 & FFT e an\'{a}lise espectral        & 2--3   \\
+    2 & Modulac\~{a}o AM DSB-SC            & 4--5   \\
+    3 & AM convencional DSB+C              & 6--7   \\
+    4 & Modulac\~{a}o SSB                  & 8--9   \\
+    5 & Modulac\~{a}o FM e regra de Carson & 10--11 \\
+    6 & Demodulac\~{a}o FM: discriminador  & 12--13 \\
+    7 & Phase-Locked Loop                  & 14--15 \\
+    8 & Amostragem, aliasing e PCM         & 16--17 \\
+    \hline
+  \end{tabular}
 \end{column}
 \begin{column}{0.48\textwidth}
   \begin{tikzpicture}[scale=0.82, every node/.style={font=\tiny}]
@@ -553,7 +560,7 @@ Cada uma com suas vantagens
     \node[gray, below, font=\tiny] at (3.3, 0.2) {GNU Radio: DSB-SC};
   \end{tikzpicture}
   \vspace{0.1cm}
-  \small Relat\'{o}rio individual por pr\'{a}tica.\\
+  \small Relat\'{o}rio individual/dupla por pr\'{a}tica.\\
   $N_L$ = m\'{e}dia dos 8 relat\'{o}rios.
   \vspace{0.2cm}\\
   \alert{Presenças m\'{\i}nimas: 75\% nas pr\'{a}ticas}
@@ -562,7 +569,7 @@ Cada uma com suas vantagens
 \end{frame}
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Exemplos Motivacionais}
+\section{Aplicações}
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 {
@@ -571,7 +578,7 @@ Cada uma com suas vantagens
 \usebeamercolor[fg]{normal text}
 \begin{frame}[plain,c]
 \begin{center}
-{\Huge\textbf{Exemplos Motivacionais}}\\[0.8cm]
+{\Huge\textbf{Aplicac\~{o}es}}\\[0.8cm]
 {\LARGE Como os conceitos aparecem na pr\'{a}tica?}\\[0.5cm]
 {\large AM, FM, celular, GPS, satélite \ldots}
 \end{center}
@@ -745,13 +752,13 @@ O celular original (\textbf{AMPS}, 1983) usava exatamente a modulac\~{a}o FM que
   \begin{block}{Nota Te\'{o}rica ($N_T$)}
   \vspace{-4pt}
   \[\textstyle
-    N_T = \frac{P_1 + P_2 + 2P_3}{4}
+    N_T = \frac{P_1 + 2P_2 + 3P_3}{6}
   \]
   \vspace{-6pt}
   \begin{itemize}\setlength{\itemsep}{0pt}
-    \item $P_1$: ao final do M\'{o}dulo 1
-    \item $P_2$: ao final do M\'{o}dulo 2
-    \item $P_3$: M\'{o}dulo 3 (peso 2) --- \alert{obrigat\'{o}ria}
+    \item $P_1$: M\'{o}dulo 1, peso 1
+    \item $P_2$: M\'{o}dulo 2, peso 2
+    \item $P_3$: M\'{o}dulo 3, peso 3
   \end{itemize}
   \vspace{-2pt}
   \end{block}
@@ -762,8 +769,7 @@ O celular original (\textbf{AMPS}, 1983) usava exatamente a modulac\~{a}o FM que
     N_L = \frac{\sum_{k=1}^{8} \text{Rel}_k}{8}
   \]
   \vspace{-6pt}
-  \footnotesize Relat\'{o}rio individual por pr\'{a}tica (8 no total)
-  \vspace{-2pt}
+  {\footnotesize Um relat\'{o}rio por pr\'{a}tica\par}
   \end{block}
 \end{column}
 \begin{column}{0.45\textwidth}
@@ -793,32 +799,28 @@ O celular original (\textbf{AMPS}, 1983) usava exatamente a modulac\~{a}o FM que
 \begin{columns}
 \begin{column}{0.50\textwidth}
   \begin{alertblock}{Condic\~{o}es obrigat\'{o}rias}
-  \begin{enumerate}
-    \item $N_T \geq 5{,}0$ \textbf{e} $N_L \geq 5{,}0$
+  \small
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item $N_T \geq 5{,}0$ e $N_L \geq 5{,}0$
     \item $N_F \geq 5{,}0$
     \item Frequ\^{e}ncia $\geq 75\%$ nas aulas te\'{o}ricas
-    \item Presenc\~{a} $\geq 75\%$ nas pr\'{a}ticas de lab
-    \item \alert{Obrigat\'{o}rio realizar P3}
+    \item Presen\c{c}a $\geq 75\%$ nas pr\'{a}ticas de laborat\'{o}rio
   \end{enumerate}
   \end{alertblock}
-  \vspace{0.2cm}
- %\begin{exampleblock}{Dica}
- %Alunos que fazem \textbf{todas as pr\'{a}ticas} com boa qualidade
- %garantem $N_L$ alta e aliviam a press\~{a}o nas provas!
- %\end{exampleblock}
 \end{column}
 \begin{column}{0.47\textwidth}
-  \textbf{Cronograma 2026/1:}
+  \textbf{Cronograma 2026/2:}
   \vspace{0.1cm}
   \begin{tabular}{ll}
     \hline
     \textbf{Evento} & \textbf{Data} \\
     \hline
-    In\'{\i}cio das aulas  & 16/03/2026 \\
-    Prova 1 (P1)       & Semana de 20/04 \\
-    Prova 2 (P2)       & Semana de 08/06 \\
-    Prova 3 (P3)       & Semana de 13/07 \\
-    Fim do semestre    & 18/07/2026 \\
+    In\'{\i}cio das aulas  & 10/08/2026 \\
+    Semana Universit\'{a}ria & 20 a 25/09 \\
+    Prova 1 (P1)       & 17/09/2026 \\
+    Prova 2 (P2)       & 29/10/2026 \\
+    Prova 3 (P3)       & 03/12/2026 \\
+    Fim das aulas      & 14/12/2026 \\
     \hline
   \end{tabular}
   \vspace{0.2cm}\\
@@ -910,7 +912,7 @@ O celular original (\textbf{AMPS}, 1983) usava exatamente a modulac\~{a}o FM que
   \end{enumerate}
 \end{column}
 \begin{column}{0.47\textwidth}
-  \begin{exampleblock}{Dica: baixe antes da aula}
+  \begin{exampleblock}{Sugestão: baixe antes da aula}
   O arquivo de instalac\~{a}o tem $\sim$1--2 GB.\\
   Baixe em casa e leve num pen-drive para n\~{a}o depender
   da internet do laborat\'{o}rio.
@@ -932,68 +934,22 @@ O celular original (\textbf{AMPS}, 1983) usava exatamente a modulac\~{a}o FM que
   \end{enumerate}
 \end{column}
 \begin{column}{0.47\textwidth}
-  \begin{tikzpicture}[scale=0.82, every node/.style={font=\tiny}]
-    \tikzset{flowstep/.style={rectangle, rounded corners=3pt, draw=unbprimary,
-                          fill=unbprimary!10, minimum width=3.5cm,
-                          minimum height=0.55cm, align=center, font=\tiny}}
-    \node[flowstep] (d) at (0, 2.4) {1. Download do .exe};
-    \node[flowstep] (i) at (0, 1.7) {2. Executar instalador};
-    \node[flowstep] (p) at (0, 1.0) {3. Selecionar diret\'{o}rio};
-    \node[flowstep] (f) at (0, 0.3) {4. Finalizar instalac\~{a}o};
-    \node[flowstep, fill=green!20] (ok) at (0,-0.4) {GNU Radio pronto!};
+  \centering
+  \begin{tikzpicture}[
+    node distance=0.45cm,
+    flowstep/.style={rectangle, rounded corners=4pt, draw=unbprimary, thick,
+                     fill=unbprimary!10, minimum width=4.8cm, minimum height=0.7cm,
+                     align=center, font=\footnotesize},
+    arr/.style={->, >=Stealth, thick, draw=unbprimary!80}]
+    \node[flowstep] (d) {1. Download do \texttt{.exe}};
+    \node[flowstep, below=of d] (i) {2. Executar como administrador};
+    \node[flowstep, below=of i] (p) {3. Selecionar diret\'{o}rio};
+    \node[flowstep, below=of p] (f) {4. Finalizar instalac\~{a}o};
+    \node[flowstep, below=of f, fill=green!25,
+          draw=green!45!black] (ok) {GNU Radio pronto!};
     \foreach \a/\b in {d/i, i/p, p/f, f/ok}
-      \draw[->, unbprimary] (\a) -- (\b);
+      \draw[arr] (\a) -- (\b);
   \end{tikzpicture}
-\end{column}
-\end{columns}
-\end{frame}
-
-\begin{frame}{Usando o Radioconda no Windows --- passo a passo}
-\begin{columns}
-\begin{column}{0.50\textwidth}
-  \textbf{Ap\'{o}s a instalac\~{a}o:}
-  \begin{enumerate}
-    \item Abra o \textbf{Menu Iniciar}
-    \item Procure a pasta \textbf{``radioconda''}
-    \item Clique em \textbf{``radioconda Prompt''}
-    \item No terminal aberto, execute:
-  \end{enumerate}
-  \vspace{0.1cm}
-  \begin{block}{Comandos \'{u}teis no radioconda Prompt}
-  \begin{itemize}
-    \item Abrir GNU Radio Companion:\\
-      \texttt{gnuradio-companion}
-    \item Atualizar pacotes:\\
-      \texttt{mamba update -{}-all}
-    \item Instalar pacote adicional:\\
-      \texttt{mamba install <pacote>}
-  \end{itemize}
-  \end{block}
-\end{column}
-\begin{column}{0.47\textwidth}
-  \begin{tikzpicture}[scale=0.82, every node/.style={font=\tiny}]
-    % Janela de terminal estilizada
-    \draw[rounded corners=4pt, thick, gray!70, fill=gray!10]
-      (0,0) rectangle (6.2, 4.5);
-    \fill[unbprimary!80] (0,4.0) rectangle (6.2,4.5);
-    \node[text=white, font=\small\bfseries] at (3.1,4.25) {radioconda Prompt};
-    \node[right, font=\ttfamily\tiny, text=green!60!black] at (0.2,3.6)
-      {(base) C:\textbackslash{}Users\textbackslash{}aluno>};
-    \node[right, font=\ttfamily\tiny] at (0.2,3.2)
-      {gnuradio-companion};
-    \node[right, font=\ttfamily\tiny, text=gray] at (0.2,2.8)
-      {-- GNU Radio Companion 3.10.x --};
-    \node[right, font=\ttfamily\tiny, text=gray] at (0.2,2.4)
-      {Loading flowgraph...};
-    \node[right, font=\tiny, text=unbprimary!80] at (0.2,1.8)
-      {Aplicacao abre em janela separada};
-    \node[right, font=\ttfamily\tiny, text=green!60!black] at (0.2,1.3)
-      {(base) C:\textbackslash{}Users\textbackslash{}aluno>};
-  \end{tikzpicture}
-  \vspace{0.2cm}
-  \small O GRC abre em janela separada.\\
-  Atalhos na pasta \textbf{radioconda} do\\
-  menu iniciar tamb\'{e}m funcionam.
 \end{column}
 \end{columns}
 \end{frame}
@@ -1110,7 +1066,7 @@ O celular original (\textbf{AMPS}, 1983) usava exatamente a modulac\~{a}o FM que
 \begin{frame}{Bem-vindos \`{a} disciplina!}
 \begin{center}
 \Large \textbf{Princ\'{\i}pios de Comunicac\~{a}o para Engenharia}\\
-\large FGA0092 --- 2026/1
+\large FGA0092 --- 2026/2
 \vspace{0.8cm}
 
 \normalsize
@@ -1136,12 +1092,9 @@ O celular original (\textbf{AMPS}, 1983) usava exatamente a modulac\~{a}o FM que
 \begin{column}{0.33\textwidth}
 \centering
 \textbf{In\'{\i}cio:}\\
-\small 16/03/2026
+\small 10/08/2026
 \end{column}
 \end{columns}
-
-\vspace{0.7cm}
-\large \alert{Vamos come\c{c}ar?}
 \end{center}
 \end{frame}
 

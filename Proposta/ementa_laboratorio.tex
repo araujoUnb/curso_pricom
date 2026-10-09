@@ -1,0 +1,185 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{../figures_global/}}
+\usepackage{fancyhdr}
+\usepackage[backend=biber, style=numeric, sorting=none]{biblatex}
+\usepackage{hyperref}
+\addbibresource{referencias.bib}
+
+\geometry{margin=2.5cm, headheight=32pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textbf{Faculdade de Ciências e Tecnologias em Engenharia}}
+\fancyhead[R]{\includegraphics[height=0.85cm]{../figures_global/unb.png}}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyfoot[C]{\small Laboratório de Comunicações --- Ementa}
+\fancyfoot[R]{\small \thepage}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[L]{\small\textbf{Faculdade de Ciências e Tecnologias em Engenharia}}%
+  \fancyhead[R]{\includegraphics[height=0.85cm]{../figures_global/unb.png}}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+  \fancyfoot[C]{\small Laboratório de Comunicações --- Ementa}%
+  \fancyfoot[R]{\small \thepage}%
+  \renewcommand{\footrulewidth}{0.4pt}%
+}
+
+\title{\textbf{Ementa}\\[0.3em]\large Laboratório de Comunicações}
+\author{Faculdade de Ciências e Tecnologias em Engenharia --- FCTE/UnB}
+\date{}
+
+\begin{document}
+
+\thispagestyle{plain}
+\maketitle
+\vspace{-1.0em}
+
+\section{Identificação}
+
+\begin{center}
+\small
+\begin{tabular}{@{}p{0.32\textwidth} p{0.60\textwidth}@{}}
+\toprule
+\textbf{Componente curricular} & Laboratório de Comunicações \\
+\textbf{Natureza} & Obrigatória \\
+\textbf{Créditos} & 2 créditos --- 1 teórico e 1 de extensão \\
+\textbf{Carga horária total} & 30 horas \\
+\textbf{Carga horária teórica} & 15 horas \\
+\textbf{Carga horária de extensão} & 15 horas \\
+\textbf{Modalidade} & Presencial, em laboratório \\
+\textbf{Pré-requisito ou correquisito} & Princípios de Comunicação para Engenharia \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A carga horária de extensão corresponde a 50\% do componente e atende à curricularização da extensão prevista na Resolução CNE/CES 07/2018 e nas normas da UnB.
+
+\section{Ementa}
+
+Prática experimental de sistemas de comunicação em duas frentes complementares. Na primeira, implementação e análise de cadeias de modulação, recepção e sincronização utilizando rádio definido por software e o ambiente GNU Radio. Na segunda, medição de radiopropagação e caracterização de circuitos analógicos de radiofrequência, com avaliação de seu impacto sobre o desempenho dos sistemas de comunicação. As práticas articulam-se a um projeto de extensão de apoio técnico a equipes de competição da universidade.
+
+\section{Objetivos}
+
+\subsection*{Objetivo geral}
+
+Desenvolver competências experimentais para implementar, medir e diagnosticar sistemas de comunicação, integrando o domínio de ferramentas de rádio definido por software com a caracterização de circuitos e enlaces reais, em benefício de demandas concretas de equipes e parceiros externos.
+
+\subsection*{Objetivos específicos}
+
+\begin{itemize}[noitemsep]
+  \item Construir e analisar cadeias de modulação e demodulação analógica e digital em GNU Radio.
+  \item Implementar blocos de recepção, incluindo filtragem casada e decisão.
+  \item Aplicar técnicas de sincronização de portadora, temporização e quadro.
+  \item Medir radiopropagação e verificar modelos de perda de percurso e orçamento de enlace.
+  \item Caracterizar circuitos analógicos de radiofrequência quanto a ganho, ruído e linearidade.
+  \item Relacionar as imperfeições de circuito ao desempenho medido do sistema de comunicação.
+  \item Prestar apoio técnico a equipes de competição, transferindo os resultados de laboratório para uma aplicação real.
+\end{itemize}
+
+\section{Conteúdo Programático}
+
+\begin{center}
+\small
+\begin{tabular}{|p{0.44\textwidth}|p{0.44\textwidth}|}
+\hline
+\textbf{Frente A: Modulação, Recepção e Sincronização em GNU Radio} & \textbf{Frente B: Radiopropagação e Caracterização de Circuitos Analógicos} \\
+\hline
+\parbox[t]{0.42\textwidth}{%
+  \vspace{0.2em}
+  \begin{itemize}[noitemsep, leftmargin=*, nosep, font=\small]
+    \item Introdução ao rádio definido por software e ao GNU Radio
+    \item Modulação e demodulação analógica AM e FM
+    \item Modulação digital em banda-base e passa-banda
+    \item Filtro casado e decisão na recepção
+    \item Sincronização de portadora
+    \item Sincronização de temporização de símbolo
+    \item Detecção de preâmbulo e sincronização de quadro
+    \item Recepção de sinais reais do ambiente
+  \end{itemize}
+  \vspace{0.2em}
+} &
+\parbox[t]{0.42\textwidth}{%
+  \vspace{0.2em}
+  \begin{itemize}[noitemsep, leftmargin=*, nosep, font=\small]
+    \item Linhas de transmissão e casamento de impedância
+    \item Medição de perda de percurso e modelos de propagação
+    \item Diagrama de radiação de antenas
+    \item Caracterização de amplificador de baixo ruído
+    \item Não linearidades, compressão e intermodulação
+    \item Filtros de radiofrequência e resposta em frequência
+    \item Ruído de fase do oscilador e seu efeito na constelação
+    \item Orçamento de enlace e verificação experimental
+  \end{itemize}
+  \vspace{0.2em}
+} \\
+\hline
+\end{tabular}
+\end{center}
+
+A lista detalhada e o roteiro das práticas encontram-se no documento complementar de práticas do laboratório.
+
+\section{Componente de Extensão}
+
+A componente de extensão corresponde a 1 crédito e concretiza-se no apoio técnico a equipes de competição da universidade. As turmas colocam a instrumentação e os métodos do laboratório a serviço de uma necessidade real de comunicação da equipe, como um enlace de telemetria, a caracterização de uma antena ou o diagnóstico de um receptor.
+
+\subsection*{Formas de interação com a comunidade externa}
+
+\begin{itemize}[noitemsep]
+  \item Diagnóstico e melhoria de enlaces de telemetria e telecomando de equipes de competição.
+  \item Caracterização de antenas, cabos e módulos de radiofrequência usados pelas equipes.
+  \item Apoio a demonstrações públicas, mostras e eventos de divulgação científica.
+\end{itemize}
+
+\subsection*{Produtos e registro da extensão}
+
+Cada grupo entrega um laudo técnico das medições realizadas, as recomendações à equipe atendida e um registro da atividade conforme as normas de extensão da UnB, incluindo o cadastro da ação e o registro da carga horária dos estudantes.
+
+\section{Metodologia}
+
+O laboratório funciona por rotação em bancadas, com roteiros previamente disponibilizados e execução em grupos. A frente de GNU Radio é conduzida em rádio definido por software e a frente de radiofrequência utiliza instrumentação de bancada. A componente de extensão é planejada junto às equipes de competição, com definição de escopo, execução das medições e devolutiva dos resultados.
+
+\section{Avaliação}
+
+\subsection*{Componente prática}
+
+A nota das práticas $N_P$ é a média dos relatórios das atividades experimentais das duas frentes:
+\[
+N_P = \frac{\text{Rel}_1 + \text{Rel}_2 + \cdots + \text{Rel}_n}{n}
+\]
+
+\subsection*{Componente de extensão}
+
+A nota de extensão $N_E$ avalia o apoio prestado à equipe de competição por meio do laudo técnico, da devolutiva e do registro da atividade:
+\[
+N_E = 0{,}5\,\text{Laudo} + 0{,}3\,\text{Devolutiva} + 0{,}2\,\text{Registro}
+\]
+
+\subsection*{Nota final e aprovação}
+
+\[
+N_F = 0{,}5\,N_P + 0{,}5\,N_E
+\]
+
+\begin{itemize}[noitemsep]
+  \item Exige-se aprovação simultânea nas práticas e na extensão, com $N_P \geq 5$ e $N_E \geq 5$.
+  \item A aprovação final é obtida com $N_F \geq 5$.
+  \item É obrigatória a frequência mínima de 75\% nas atividades de laboratório e de extensão.
+\end{itemize}
+
+\section{Referências}
+
+\nocite{lathi2019modern, haykin2009communication, couch2013digital, proakis2001digital, carlson2002communication}
+\printbibliography[heading=none]
+
+\end{document}

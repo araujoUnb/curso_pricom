@@ -217,6 +217,98 @@ def fig_distorcao_fase():
 
 
 # ====================================================================
+# 2b. Distorção de Fase — versão em etapas (overlay dos slides)
+# ====================================================================
+def fig_distorcao_fase_etapas():
+    """
+    Mesma simulação da distorção de fase, salva em 3 etapas para overlay:
+      etapa 1: apenas o sinal original
+      etapa 2: acrescenta o canal ideal (fase linear = atraso)
+      etapa 3: acrescenta o canal dispersivo (fase quadrática)
+    Eixos fixos nas tres etapas para nada "pular" na transicao dos slides.
+    """
+    print('Gerando: distorcao_fase (etapas)')
+
+    fs = 48000
+    T = 0.006
+    t = np.arange(0, T, 1/fs)
+    freqs_sig = np.array([500, 1000, 1500, 2000, 2500])
+
+    td = 0.3e-3
+    phi_linear = -2 * np.pi * freqs_sig * td
+
+    beta = 0.4e-6
+    phi_quad = -beta * (2 * np.pi * freqs_sig)**2
+
+    x = np.zeros_like(t)
+    for f in freqs_sig:
+        x += np.cos(2 * np.pi * f * t)
+
+    x_lin = np.zeros_like(t)
+    for f, phi in zip(freqs_sig, phi_linear):
+        x_lin += np.cos(2 * np.pi * f * t + phi)
+
+    y = np.zeros_like(t)
+    for f, phi in zip(freqs_sig, phi_quad):
+        y += np.cos(2 * np.pi * f * t + phi)
+
+    t_ms = t * 1000
+    ymax = 1.15 * max(np.abs(x).max(), np.abs(x_lin).max(), np.abs(y).max())
+
+    N = len(t)
+    freqs = np.fft.rfftfreq(N, 1/fs)
+    X_mag = 2*np.abs(np.fft.rfft(x))/N
+    Y_mag = 2*np.abs(np.fft.rfft(y))/N
+    mask = freqs <= 4000
+
+    titulos = [
+        'Sinal original — cinco componentes de frequência em fase',
+        'Canal ideal — fase linear apenas desloca o sinal no tempo',
+        'Canal dispersivo — fase quadrática altera a forma de onda',
+    ]
+
+    for etapa in (1, 2, 3):
+        fig, axes = plt.subplots(2, 1, figsize=(10, 6))
+
+        axes[0].plot(t_ms, x, 'b-', linewidth=2,
+                     label='Original', alpha=0.9)
+        if etapa >= 2:
+            axes[0].plot(t_ms, x_lin, 'g--', linewidth=2,
+                         label=r'Canal ideal ($\phi$ linear = atraso)',
+                         alpha=0.8)
+        if etapa >= 3:
+            axes[0].plot(t_ms, y, 'r--', linewidth=2,
+                         label=r'Canal dispersivo ($\phi$ quadrática)',
+                         alpha=0.9)
+        axes[0].set_xlabel('Tempo (ms)')
+        axes[0].set_ylabel('Amplitude')
+        axes[0].set_title(titulos[etapa - 1])
+        axes[0].legend(loc='upper right', fontsize=10)
+        axes[0].set_xlim([0, T*1000])
+        axes[0].set_ylim([-ymax, ymax])
+
+        axes[1].stem(freqs[mask]/1000, X_mag[mask],
+                     linefmt='b-', markerfmt='bo', basefmt='b-',
+                     label='Original')
+        if etapa >= 3:
+            axes[1].stem(freqs[mask]/1000, Y_mag[mask],
+                         linefmt='r-', markerfmt='r^', basefmt='r-',
+                         label='Distorcido')
+        axes[1].set_xlabel('Frequência (kHz)')
+        axes[1].set_ylabel('|X(f)|')
+        if etapa >= 3:
+            axes[1].set_title('Espectro de magnitude idêntico — '
+                              'a distorção está apenas na fase')
+        else:
+            axes[1].set_title('Espectro de magnitude do sinal original')
+        axes[1].legend(loc='upper right')
+        axes[1].set_xlim([-0.2, 4])
+        axes[1].set_ylim([0, 1.25])
+
+        fig.tight_layout()
+        save(fig, f'gnuradio_distorcao_fase_etapa{etapa}')
+
+# ====================================================================
 # 3. Atraso de Grupo
 # ====================================================================
 def fig_atraso_grupo():
@@ -777,6 +869,7 @@ if __name__ == '__main__':
     print('=== Gerando figuras de distorção ===')
     fig_distorcao_amplitude()
     fig_distorcao_fase()
+    fig_distorcao_fase_etapas()
     fig_atraso_grupo()
     fig_canal_ideal_vs_distorcido()
     fig_largura_banda()
