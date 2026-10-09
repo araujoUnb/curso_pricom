@@ -2420,11 +2420,11 @@ function show(i, opts = {}) {
 function forward() {
   const n = steps(slides[cur]).length;
   if (shown < n) { shown++; paintSteps(); $("next").disabled = cur === slides.length - 1 && shown >= n; $("prev").disabled = false; }
-  else show(cur + 1);
+  else if (cur < slides.length - 1) show(cur + 1);   // no último passo do último slide, não faz nada
 }
 function backward() {
   if (shown > 1) { shown--; paintSteps(); $("next").disabled = false; }
-  else show(cur - 1, { allSteps: true });
+  else if (cur > 0) show(cur - 1, { allSteps: true });
 }
 $("prev").addEventListener("click", backward);
 $("next").addEventListener("click", forward);
