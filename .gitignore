@@ -160,3 +160,22 @@ Laboratorio/**/figuras/**/*.png
 # ============================================
 .cache/
 *.tmp
+
+# ============================================
+# Material do professor: fica em avaliacoes_unb, nunca neste repositório público
+# (gabaritos, resoluções, listas, provas, notas e dados de alunos)
+# ============================================
+gabaritos_professor/
+*_gabarito/
+*_gabarito.py
+gabarito_*
+*_com_gabarito.*
+resolucao_lista*
+resolucao_prova*
+resolucoes_quadro*/
+lista_exercicio/
+Lista-exercicios/
+provas/
+Projeto_20*/
+notas_*.csv
+alunos*.csv
