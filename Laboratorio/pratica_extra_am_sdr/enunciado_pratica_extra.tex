@@ -1,0 +1,529 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\onehalfspacing
+
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{instrucao}[1][]{colback=blue!5,colframe=blue!40!black,
+  fonttitle=\bfseries, title=#1, breakable}
+\newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
+  fonttitle=\bfseries, title=#1, breakable}
+
+\newcommand{\numpratica}{Extra}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small FGA0092 -- Princípios de Comunicação para Engenharia}
+\fancyhead[R]{\small Enunciado -- Prática \numpratica}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+\begin{center}
+      \includegraphics[width=0.18\textwidth]{../../figures_global/unb.png}\\[0.5cm]
+      {\large\textbf{Universidade de Brasília (UnB) -- FCTE}}\\[0.2cm]
+      {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
+      \rule{14cm}{0.8pt}\\[0.3cm]
+      {\LARGE\textbf{Prática \numpratica}}\\[0.15cm]
+      {\Large\textbf{Modulações AM entre dois SDRs}}\\[0.3cm]
+      \rule{14cm}{0.8pt}
+\end{center}
+
+\vspace{0.3cm}
+\textbf{Duração:} 10 minutos \hfill
+\textbf{Software:} GNU Radio Companion $\geq$ 3.10 \hfill
+\textbf{Semestre:} 2026/2
+
+\bigskip
+
+% ======================================================
+\section{Objetivos}
+
+\begin{itemize}
+      \item Observar, em um enlace de rádio real entre dois SDRs, a diferença
+            entre um sinal DSB-LC corretamente modulado e um sinal sobremodulado.
+      \item Observar o efeito do erro de frequência entre os osciladores dos dois
+            rádios na detecção coerente de DSB-SC, VSB e SSB-USB, sem e com
+            recuperação de portadora por PLL.
+      \item Registrar os espectros durante a prática e, no relatório, relacionar
+            cada componente observada com as expressões do sinal nos domínios do
+            tempo e da frequência.
+\end{itemize}
+
+% ======================================================
+\section{Fundamentos teóricos}
+
+\subsection*{Tempo, frequência e banda base}
+
+Todo sinal modulado em amplitude pode ser escrito a partir de uma envoltória
+complexa $u(t)$:
+\begin{equation}
+      s(t) = \mathrm{Re}\!\left\{u(t)\,e^{j2\pi f_c t}\right\}
+      \qquad\Longleftrightarrow\qquad
+      S(f) = \tfrac{1}{2}\big[U(f - f_c) + U^{*}(-f - f_c)\big].
+      \label{eq:bb}
+\end{equation}
+Os blocos do GNU Radio geram e processam apenas $u(t)$; a multiplicação por
+$e^{j2\pi f_c t}$ é feita pelo oscilador local do próprio SDR, em
+$f_c = 1$\,GHz. Por isso o analisador de espectro da tela mostra $U(f)$: a
+posição da portadora aparece em $0$\,Hz e as bandas laterais em $\pm f_m$.
+
+Nas expressões abaixo, $m(t)$ é a mensagem, $M(f)$ o seu espectro,
+$\hat{m}(t)$ a transformada de Hilbert de $m(t)$ e $W$ a banda da mensagem.
+Para o tom de teste usado na prática, $m(t) = \cos(2\pi f_m t)$, com
+$\hat{m}(t) = \sin(2\pi f_m t)$ e $M(f) = \tfrac{1}{2}[\delta(f-f_m) + \delta(f+f_m)]$.
+
+\subsection*{DSB-LC}
+
+\begin{align}
+      s(t) & = A_c\big[1 + k_a\,m(t)\big]\cos(2\pi f_c t)            \\
+      S(f) & = \tfrac{A_c}{2}\big[\delta(f-f_c) + \delta(f+f_c)\big]
+      + \tfrac{A_c k_a}{2}\big[M(f-f_c) + M(f+f_c)\big]              \\
+      U(f) & = A_c\,\delta(f)
+      + \tfrac{A_c\mu}{2}\big[\delta(f-f_m) + \delta(f+f_m)\big]
+      \qquad \text{(tom, na tela)}
+      \label{eq:lc_tela}
+\end{align}
+
+em que $\mu = k_a\max|m(t)|$ é o índice de modulação. Os impulsos em $\pm f_c$
+(em $0$\,Hz na tela) são a portadora, e só existem no DSB-LC. Largura de banda:
+$B = 2W$. Na estação, a expressão $A_c[1 + k_a m(t)]$ é montada bloco a bloco,
+na mesma ordem em que é lida. O último passo, a multiplicação por $A_c$, fica
+depois do seletor de modulação e é comum aos quatro tipos, assim como $A_c$
+aparece nas quatro expressões de $s(t)$:
+\[
+      m(t) \;\xrightarrow{\;\times\,k_a\;}\; k_a m(t)
+      \;\xrightarrow{\;+\,1\;}\; 1 + k_a m(t)
+      \;\xrightarrow{\;\times\,A_c\;}\; A_c\big[1 + k_a m(t)\big].
+\]
+
+Pela Equação~\eqref{eq:lc_tela}, cada banda lateral tem amplitude
+$A_c\mu/2$ em relação à portadora $A_c$. Em decibéis, a diferença de nível
+entre uma banda lateral e a portadora é
+\begin{equation}
+      \Delta = 20\log_{10}\!\left(\frac{\mu}{2}\right)\ \text{dB}
+      \qquad\Longleftrightarrow\qquad
+      \mu = 2\cdot 10^{\Delta/20},
+      \label{eq:delta}
+\end{equation}
+e a fração da potência total contida nas bandas laterais é
+\begin{equation}
+      \eta = \frac{\mu^2}{2 + \mu^2}.
+\end{equation}
+
+\subsection*{DSB-SC}
+
+\begin{align}
+      s(t) & = A_c\,m(t)\cos(2\pi f_c t)                             \\
+      S(f) & = \tfrac{A_c}{2}\big[M(f-f_c) + M(f+f_c)\big]           \\
+      U(f) & = \tfrac{A_c}{2}\big[\delta(f-f_m) + \delta(f+f_m)\big]
+      \qquad \text{(tom, na tela)}
+\end{align}
+
+É a expressão do DSB-LC \textbf{sem} os impulsos da portadora. A largura de
+banda continua $B = 2W$: a economia é de potência, não de espectro.
+
+\subsection*{VSB}
+
+\begin{align}
+      s(t) & = \big[A_c\,m(t)\cos(2\pi f_c t)\big] * h_\text{VSB}(t)        \\
+      S(f) & = \tfrac{A_c}{2}\big[M(f-f_c) + M(f+f_c)\big]\,H_\text{VSB}(f) \\
+      U(f) & = \tfrac{A_c}{2}\big[H_\text{bb}(f_m)\,\delta(f-f_m)
+            + H_\text{bb}(-f_m)\,\delta(f+f_m)\big]
+      \qquad \text{(tom, na tela)}
+\end{align}
+
+em que $H_\text{bb}(f) = H_\text{VSB}(f + f_c)$ é o mesmo filtro deslocado para
+banda base. A convolução no tempo corresponde à multiplicação na frequência:
+o bloco \texttt{Band Pass Filter} executa a convolução com $h_\text{VSB}(t)$, e
+os cortes escolhidos nele desenham $H_\text{VSB}(f)$. Largura de banda: entre
+$W$ e $2W$.
+
+\subsection*{SSB-USB}
+
+\begin{align}
+      s(t) & = \tfrac{A_c}{2}\big[m(t)\cos(2\pi f_c t) - \hat{m}(t)\sin(2\pi f_c t)\big] \\
+      S(f) & = \tfrac{A_c}{2}\big[M(f-f_c)\,u(f-f_c) + M(f+f_c)\,u(-f-f_c)\big]          \\
+      U(f) & = \tfrac{A_c}{2}\,\delta(f-f_m)
+      \qquad \text{(tom, na tela)}
+\end{align}
+
+O sinal negativo no domínio do tempo seleciona a banda superior, e o degrau
+$u(\cdot)$ elimina tudo o que está entre $-f_c$ e $+f_c$. Largura de banda:
+$B = W$, metade do DSB. O bloco \texttt{Hilbert} gera
+$m(t) + j\hat{m}(t)$ e, pela Equação~\eqref{eq:bb}, o próprio oscilador do SDR
+monta os dois termos de $s(t)$. Na estação, o fator $\tfrac{1}{2}$ da fórmula
+não é aplicado: o sinal gerado é $A_c[m(t) + j\hat{m}(t)]$, de modo que a
+componente do tom aparece com amplitude $A_c$, e não $A_c/2$.
+
+\subsection*{Detecção de envoltória, sobremodulação e saturação}
+
+O receptor calcula o módulo do sinal recebido, que para o DSB-LC vale
+\begin{equation}
+      |v(t)| = \tfrac{G}{2}A_c\,\big|1 + \mu\cos(2\pi f_m t)\big|.
+\end{equation}
+Como $|e^{j\theta}| = 1$ para qualquer $\theta$, o erro de fase entre os
+osciladores dos dois rádios não interfere. A mensagem é recuperada sem
+distorção desde que duas condições sejam satisfeitas:
+\begin{equation}
+      \underbrace{\mu = k_a\max|m(t)| \leq 1}_{\text{sem sobremodulação}}
+      \qquad\text{e}\qquad
+      \underbrace{A_c(1 + \mu) \leq 1}_{\text{sem saturação}}.
+      \label{eq:cond}
+\end{equation}
+
+\textbf{Sobremodulação ($\mu > 1$).} O termo $1 + \mu\cos(2\pi f_m t)$ passa a
+assumir valores negativos. O sinal transmitido continua sendo o produto de
+$u(t)$ pela portadora, e o espectro $U(f)$ continua com apenas três
+componentes; a única diferença visível no transmissor é que as bandas laterais
+ficam a menos de 6\,dB da portadora, pois
+$\Delta = 20\log_{10}(\mu/2) > -6$\,dB. A distorção surge no \emph{receptor}: o
+módulo ``dobra'' a parte negativa de $1 + \mu\cos(2\pi f_m t)$, e aparecem
+harmônicos em $2f_m$, $3f_m$, etc.
+
+\textbf{Saturação ($A_c(1 + \mu) > 1$).} O conversor digital-analógico do SDR
+trabalha na faixa $\pm 1$ e corta tudo o que passar disso, de modo que o sinal
+transmitido passa a ser
+\begin{equation}
+      u_\text{sat}(t) = \min\big\{A_c\big[1 + \mu\cos(2\pi f_m t)\big],\; 1\big\}.
+\end{equation}
+Esse corte é uma operação não linear feita \emph{no próprio transmissor}: os
+harmônicos já saem pela antena. Como o analisador do transmissor mostra o sinal
+\emph{antes} do conversor, ele não vê esse corte, e $\Delta$ continua com o valor
+normal.
+
+Na estação, $A_c$ multiplica o sinal inteiro: alterar $A_c$ muda o nível e o
+pico, mas \textbf{não} altera $\mu$. Por isso $A_c$ sozinho nunca causa
+sobremodulação, apenas saturação, e na prática ele fica fixo em $0{,}5$,
+variando-se apenas $k_a$. Com esse valor, as duas condições da
+Equação~\eqref{eq:cond} são atingidas juntas em $k_a = 1$; para $k_a > 1$ ocorrem
+sobremodulação e saturação ao mesmo tempo.
+
+\subsection*{Detecção coerente sem recuperação de portadora}
+
+Os dois rádios usam osciladores independentes. Depois da correção do
+deslocamento intencional \texttt{offset}, sobra um erro residual $f_e$, de modo
+que o receptor enxerga
+\begin{equation}
+      v(t) = \tfrac{G}{2}\,u(t)\,e^{j(2\pi f_e t + \phi)}.
+\end{equation}
+A 1\,GHz, um erro de apenas 1\,ppm entre os osciladores já corresponde a
+$f_e = 1$\,kHz. Escrevendo o tom em banda base como
+$u(t) = a\,e^{j2\pi f_m t} + b\,e^{-j2\pi f_m t}$, e tomando diretamente a parte
+real, sem PLL, o espectro recuperado (frequências positivas) é
+\begin{equation}
+      Y(f) \propto a\,\delta\big(f - (f_m + f_e)\big) + b\,\delta\big(f - (f_m - f_e)\big).
+      \label{eq:sempll}
+\end{equation}
+\begin{center}
+      \begin{tabular}{l c l l}
+            \toprule
+            \textbf{Tipo} & \textbf{$b$} & \textbf{Espectro recuperado}    & \textbf{Efeito audível} \\
+            \midrule
+            DSB-SC        & $a$          & $f_m \pm f_e$, mesmo nível      & volume oscila em $f_e$  \\
+            VSB           & $a/2$        & $f_m \pm f_e$, uma 6\,dB abaixo & volume oscila, menos    \\
+            SSB-USB       & $0$          & só $f_m + f_e$                  & tom deslocado de $f_e$  \\
+            \bottomrule
+      \end{tabular}
+\end{center}
+Assim, o próprio espectro permite medir $f_e$: metade da separação entre as duas
+componentes no DSB-SC, ou o deslocamento da componente única no SSB-USB.
+
+\subsection*{Recuperação da portadora com PLL}
+
+No laço quadrático, o PLL recebe $v^2(t)$. Para o tom,
+\begin{equation}
+      v^2(t) \propto \Big[\,\underbrace{2ab}_{\text{referência}}
+      + \;a^2 e^{j2\pi(2f_m)t} + b^2 e^{-j2\pi(2f_m)t}\Big]\,e^{j2\pi(2f_e)t},
+      \label{eq:quad}
+\end{equation}
+ou seja, uma referência em $2f_e$, que é onde o PLL deve travar, e duas
+componentes espúrias em $2f_e \pm 2f_m$ ($\pm 4$\,kHz em torno da referência).
+A intensidade da referência depende de $b$, isto é, de quanto sobra da banda
+lateral inferior:
+\begin{center}
+      \begin{tabular}{l c c c}
+            \toprule
+            \textbf{Tipo} & \textbf{Referência $2ab$} & \textbf{Maior espúria} & \textbf{Margem} \\
+            \midrule
+            DSB-SC        & $2a^2$                    & $a^2$                  & $+6$\,dB        \\
+            VSB           & $a^2$                     & $a^2$                  & $0$\,dB         \\
+            SSB-USB       & $0$                       & $a^2$                  & sem referência  \\
+            \bottomrule
+      \end{tabular}
+\end{center}
+Com o PLL travado, a fase é dividida por dois e $v(t)$ é multiplicado pelo
+conjugado da portadora reconstruída: as componentes em $f_m \pm f_e$ voltam a
+se juntar em uma única componente em $f_m$. O PLL pode travar com a fase
+invertida em $180^\circ$ e entregar $-m(t)$; isso é inaudível e é uma
+propriedade do método quadrático.
+
+O bloco \texttt{PLL Carrier Regeneration} tem dois ajustes:
+\begin{itemize}
+      \item \textbf{Faixa de captura}, \texttt{expected\_freq\_pll}, que aqui
+            chamamos de $E$: o PLL só procura a referência entre $-E$ e $+E$. A
+            faixa precisa incluir a referência e excluir as espúrias:
+            \begin{equation}
+                  2|f_e| \;<\; E \;<\; 2f_m - 2|f_e|.
+                  \label{eq:captura}
+            \end{equation}
+      \item \textbf{Banda da malha}, \texttt{loop\_bandwidth\_pll} ($w$, em
+            rad/amostra), que corresponde aproximadamente a
+            $B \approx w\,f_s/2\pi$: $w = 0{,}001$ dá cerca de 8\,Hz e $w = 0{,}01$,
+            cerca de 76\,Hz. Um $w$ maior trava mais rápido, mas deixa passar mais
+            ruído de fase; um $w$ menor é mais limpo, porém mais lento. Quanto mais
+            fraca a referência, menor deve ser $w$.
+\end{itemize}
+
+\textbf{O caso do SSB-USB.} Com um tom, o SSB-USB é uma única senoide em
+$f_c + f_m$, indistinguível de uma portadora sem modulação: não sobra nenhuma
+informação sobre $f_c$ e a portadora não pode ser recuperada. Se a faixa de
+captura for maior que $2f_m$, o PLL trava no próprio tom e, depois da correção,
+ele vira uma constante e desaparece. Com música a referência depende do
+conteúdo e o resultado nunca é perfeito; por isso receptores SSB reais usam
+sintonia manual ou uma portadora piloto.
+
+% ======================================================
+\section{Materiais e blocos GNU Radio}
+
+A estação é composta por dois ANTSDR E200: o transmissor, ligado a um
+Raspberry Pi 4B, e o receptor, ligado a um notebook, ambos com antenas. A
+estação já está montada. Os alunos operam os controles e registram as medidas;
+nenhum bloco precisa ser criado.
+
+\begin{table}[H]
+      \centering
+      \begin{tabular}{l l l}
+            \toprule
+            \textbf{Bloco / controle}                  & \textbf{Parte} & \textbf{Função}                                    \\
+            \midrule
+            \texttt{select\_mensagem}                  & TX             & Escolhe tom de teste ou música                     \\
+            \texttt{set\_mod\_tx}                      & TX             & Escolhe DSB-LC, DSB-SC, VSB ou SSB-USB             \\
+            \texttt{Multiply Const} (\texttt{ka})      & TX             & Sensibilidade de amplitude $k_a$ (slider)          \\
+            \texttt{Add Const} (1)                     & TX             & O termo $1$ de $1 + k_a m(t)$                      \\
+            \texttt{Band Pass Filter} (ccc)            & TX             & Filtro $H_\text{VSB}(f)$                           \\
+            \texttt{Hilbert}                           & TX             & Sinal analítico $m(t) + j\hat{m}(t)$               \\
+            \texttt{Multiply Const} (\texttt{Ac})      & TX             & Amplitude $A_c$, comum aos quatro tipos (fixa)     \\
+            \texttt{PlutoSDR Sink}                     & TX             & Oscilador local em \texttt{fc} e transmissão       \\
+            \texttt{PlutoSDR Source}                   & RX             & Recepção em \texttt{fc\_rx} e banda base           \\
+            \texttt{Signal Source} + \texttt{Multiply} & RX             & Remove o deslocamento \texttt{offset}              \\
+            \texttt{Decimating FIR Filter}             & RX             & Filtra e reduz a taxa de 960 para 48\,kS/s         \\
+            \texttt{set\_mod\_rx}                      & RX             & \emph{Com portadora}, \emph{Sem portadora Com PLL} \\
+                                                       &                & ou \emph{Sem portadora Sem PLL}                    \\
+            \texttt{Complex to Mag}                    & RX             & Detector de envoltória $|v(t)|$                    \\
+            \texttt{DC Blocker}                        & RX             & Remove o nível DC da envoltória                    \\
+            \texttt{Multiply} ($v\cdot v$)             & RX             & Gera $v^2(t)$, entrada do laço quadrático          \\
+            \texttt{PLL Carrier Regeneration}          & RX             & Trava na referência em $2f_e$                      \\
+            \texttt{Unwrap e Divide por 2}             & RX             & Bloco Python: divide a fase por 2                  \\
+            \texttt{Multiply Conjugate}                & RX             & $v(t)$ vezes o conjugado da portadora              \\
+            \texttt{Complex to Real}                   & RX             & Detecção coerente $\mathrm{Re}\{\cdot\}$           \\
+            \texttt{Low Pass Filter}                   & RX             & Limita a mensagem recuperada a $W$                 \\
+            \texttt{QT GUI Freq Sink}                  & TX/RX          & Espectros $U(f)$ e $Y(f)$                          \\
+            \texttt{Audio Sink}                        & RX             & Reprodução do áudio (\texttt{volume})              \\
+            \bottomrule
+      \end{tabular}
+      \caption{Controles e blocos relevantes da estação.}
+\end{table}
+
+% ======================================================
+\section{Roteiro de execução}
+
+\subsection*{Parâmetros da estação}
+
+\begin{center}
+      \small
+      \begin{tabular}{l l}
+            \toprule
+            Portadora \texttt{fc} = 1\,GHz (fixo)            & \texttt{offset} = 40\,kHz, com \texttt{fc\_rx} = \texttt{fc} $-$ \texttt{offset} (fixo) \\
+            Taxa do SDR = 960\,kS/s  (fixo)                  & \texttt{samp\_rate} = 48\,kHz  (fixo)                                                   \\
+            Tom de teste $f_m$ = 2\,000\,Hz (fixo)           & Banda $W$ = \texttt{cut\_freq} $-$ \texttt{transition\_width} = 9\,kHz (fixo)           \\
+            \texttt{Ac} = 0,5 (fixo)                         & \texttt{ka} de 0,2 a 1,5                                                                \\
+            \texttt{expected\_freq\_pll} = 2\,000\,Hz (fixo) & \texttt{loop\_bandwidth\_pll} de 0,001 a 0,01                                           \\
+            \bottomrule
+      \end{tabular}
+\end{center}
+
+O tom tem amplitude unitária, de modo que $\max|m(t)| = 1$ e o valor do slider
+\texttt{ka} é o próprio índice de modulação, $\mu = k_a$.
+
+\begin{instrucao}[Como registrar]
+      Cada situação é observada uma única vez. Durante a prática, anote apenas as
+      observações rápidas pedidas nas tabelas e \textbf{capture a tela} dos
+      espectros indicados: as medidas em dB e os cálculos teóricos são feitos
+      depois, no relatório, a partir dessas capturas. Com o tom, registre as
+      observações; com a música, registre apenas se o áudio está audível e sem
+      distorção.
+\end{instrucao}
+
+\subsection*{Experimento 1 -- DSB-LC e sobremodulação (0--5 min)}
+
+\begin{instrucao}[Variação de $k_a$]
+      \begin{enumerate}[label=\arabic*.]
+            \item Selecione \texttt{select\_mensagem} = \emph{Cosseno},
+                  \texttt{set\_mod\_tx} = DSB-LC e \texttt{set\_mod\_rx} =
+                  \emph{Com portadora}.
+            \item Para cada valor de \texttt{ka} da Tabela~\ref{tab:exp1}, capture a
+                  tela do espectro do transmissor e do espectro recuperado, escute o
+                  tom e anote as duas observações.
+            \item Mude \texttt{select\_mensagem} para \emph{Música} e escute com
+                  \texttt{ka} = 0,5 e com \texttt{ka} = 1,5.
+      \end{enumerate}
+\end{instrucao}
+
+\begin{table}[H]
+      \centering
+      \begin{tabular}{l c c c}
+            \toprule
+            \texttt{ka} & \textbf{Mais de um pico no RX?} & \textbf{Sobremodulação?} & \textbf{Música audível?} \\
+            \midrule
+            0,5         &                                 &                          &                          \\
+            1,5         &                                 &                          &                          \\
+            \bottomrule
+      \end{tabular}
+      \caption{DSB-LC com $A_c = 0{,}5$. Responda S ou N.}
+      \label{tab:exp1}
+\end{table}
+
+\begin{atencao}[Como decidir rapidamente]
+      \begin{itemize}[leftmargin=*]
+            \item \textbf{Mais de um pico no RX?} No espectro recuperado, além da
+                  componente em $2\,000$\,Hz, aparecem outras em $4\,000$, $6\,000$\,Hz?
+            \item \textbf{Sobremodulação?} No espectro do transmissor, as bandas
+                  laterais ficam a menos de 6\,dB da portadora, ou acima dela?
+            \item \textbf{Música audível?} Consegue escutar com pouco ou quase nenhum ruído?
+      \end{itemize}
+\end{atencao}
+
+\subsection*{Experimento 2 -- Sem portadora: sem PLL e com PLL (5--10 min)}
+
+\begin{instrucao}[Parte A: detecção coerente sem PLL]
+      \begin{enumerate}[label=\arabic*.]
+            \item Selecione \texttt{select\_mensagem} = \emph{Cosseno} e
+                  \texttt{set\_mod\_rx} = \emph{Sem portadora Sem PLL}.
+            \item Para \texttt{set\_mod\_tx} = DSB-SC, VSB e SSB-USB, capture a tela
+                  do espectro recuperado, escute o tom e anote as observações da
+                  Tabela~\ref{tab:sempll}.
+      \end{enumerate}
+\end{instrucao}
+
+\begin{table}[H]
+      \centering
+      \begin{tabular}{l c c}
+            \toprule
+            \textbf{Tipo} & \textbf{Quantos picos?} & \textbf{Pico exatamente em 2\,kHz?} \\
+            \midrule
+            DSB-SC        &                         &                                     \\
+            VSB           &                         &                                     \\
+            SSB-USB       &                         &                                     \\
+            \bottomrule
+      \end{tabular}
+      \caption{Detecção coerente sem recuperação de portadora. Na coluna
+            \emph{Quantos picos?}, anote a quantidade observada; na última, S ou N.}
+      \label{tab:sempll}
+\end{table}
+
+\begin{instrucao}[Parte B: detecção coerente com PLL]
+      \begin{enumerate}[label=\arabic*.]
+            \item Mude \texttt{set\_mod\_rx} para \emph{Sem portadora Com PLL} e mantenha
+                  \texttt{expected\_freq\_pll} = 2\,000\,Hz.
+            \item Para cada tipo, ajuste \texttt{loop\_bandwidth\_pll} no valor
+                  indicado na Tabela~\ref{tab:pll}, capture a tela do espectro
+                  recuperado e anote se sobrou um único pico em $2\,000$\,Hz.
+            \item Mude \texttt{select\_mensagem} para \emph{Música} e anote, para
+                  cada tipo, se o áudio está audível e sem distorção.
+      \end{enumerate}
+\end{instrucao}
+
+\begin{table}[H]
+      \centering
+      \begin{tabular}{l c c c}
+            \toprule
+            \textbf{Tipo} & \texttt{loop\_bandwidth\_pll} & \textbf{Único pico em 2\,kHz?} & \textbf{Música audível?} \\
+            \midrule
+            DSB-SC        & 0,010                         &                                &                          \\
+            VSB           & 0,005                         &                                &                          \\
+            SSB-USB       & 0,001                         &                                &                          \\
+            \bottomrule
+      \end{tabular}
+      \caption{Detecção coerente com PLL. Responda S ou N.}
+      \label{tab:pll}
+\end{table}
+
+\begin{atencao}[O que esperar]
+      Sem PLL, o DSB-SC e o VSB tendem a mostrar dois picos próximos e o volume oscila; o
+      SSB-USB mostra um único pico fora de $2\,000$\,Hz e o tom soa deslocado. Com
+      PLL, o DSB-SC trava com mais facilidade que o VSB, e o SSB-USB não trava
+      corretamente com o tom. A explicação está nas
+      Equações~\eqref{eq:sempll} e \eqref{eq:quad} e deve ser desenvolvida no
+      relatório.
+\end{atencao}
+
+% ======================================================
+\section{Perguntas para o relatório}
+
+Use as capturas de tela feitas durante a prática para as medidas pedidas.
+
+\begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
+
+      \item Nas capturas do espectro do transmissor, meça a diferença $\Delta$ entre
+            banda lateral e portadora para cada valor de \texttt{ka}. Calcule o
+            índice de modulação $\mu = 2\cdot 10^{\Delta/20}$, compare com $k_a$ e
+            calcule a eficiência $\eta$. Em qual valor de \texttt{ka} as bandas
+            laterais passam a ficar a menos de 6\,dB da portadora, e por quê?
+
+      \item Nas capturas do espectro recuperado, identifique as componentes que
+            surgem para \texttt{ka} $> 1$. Explique, a partir de
+            $|1 + \mu\cos(2\pi f_m t)|$, como a sobremodulação as produz. Com
+            $A_c = 0{,}5$, mostre pela Equação~\eqref{eq:cond} que também ocorre
+            saturação para \texttt{ka} $> 1$ e calcule o maior $A_c$ que evitaria a
+            saturação até \texttt{ka} $= 2$. Relacione com o que foi ouvido na
+            música.
+
+      \item Nas capturas da Parte A do Experimento~2, meça a frequência dos picos,
+            estime o erro de frequência residual $f_e$ e converta-o para partes por
+            milhão em relação a 1\,GHz. Usando a Equação~\eqref{eq:sempll}, explique
+            por que o DSB-SC apresenta dois picos de mesmo nível, o VSB dois picos de
+            níveis diferentes e o SSB-USB um único pico deslocado.
+
+      \item Com a Equação~\eqref{eq:quad}, explique por que o PLL travou com mais
+            facilidade no DSB-SC do que no VSB e por que não funciona para o SSB-USB
+            com um tom. Verifique, com o $f_e$ da questão anterior, se
+            \texttt{expected\_freq\_pll} = 2\,000\,Hz satisfaz a
+            Equação~\eqref{eq:captura}. Por que, na prática, receptores SSB usam
+            sintonia manual ou portadora piloto?
+
+\end{enumerate}
+
+% ======================================================
+\section{Entregáveis}
+
+O entregável é o relatório no modelo definido no SIGAA contendo:
+
+\begin{itemize}
+      \item Capturas do espectro do transmissor e do espectro recuperado para cada
+            valor de \texttt{ka} do Experimento~1.
+      \item Capturas do espectro recuperado sem PLL e com PLL para DSB-SC, VSB e
+            SSB-USB.
+      \item Tabelas~\ref{tab:exp1} a \ref{tab:pll} preenchidas.
+      \item Respostas às 4 questões.
+\end{itemize}
+
+\end{document}
