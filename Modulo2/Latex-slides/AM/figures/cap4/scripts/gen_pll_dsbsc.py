@@ -23,7 +23,7 @@ plt.rcParams.update({
     'figure.facecolor': 'white',
 })
 
-FIGDIR = '/home/daniel/Documentos/UnB/Aulas/curso_pricom/Modulo2/Latex-slides/figures/cap4/'
+FIGDIR = '/home/daniel/Documentos/UnB/Aulas/curso_pricom/Modulo2/Latex-slides/AM/figures/cap4/'
 
 # ============================================================
 # Figura 1: Diagrama de blocos estilo GNU Radio

@@ -16,9 +16,9 @@
 \usepackage{ifthen}
 \usepackage{bm}
 \usepackage{array}
-\usepackage{booktabs}
 \usepackage{cancel}
 \usepackage{tikz}
+\usetikzlibrary{positioning,decorations.pathreplacing,decorations.pathmorphing}
 
 % ============================================
 % VARIÁVEIS DE CONFIGURAÇÃO
@@ -29,8 +29,8 @@
 \newcommand{\autorEmail}{daniel.araujo@unb.br}
 
 % --- Título e Subtítulo ---
-\newcommand{\tituloApresentacao}{Modulação Angular: FM e PM}
-\newcommand{\subtituloApresentacao}{Capítulo 4b: Modulação em Frequência, PLL e Receptor Superheterodino}
+\newcommand{\tituloApresentacao}{Modulação AM: SSB e VSB}
+\newcommand{\subtituloApresentacao}{Capítulo 4a: Banda Lateral Única e Vestigial}
 
 % --- Idioma ---
 \newcommand{\idioma}{pt}
@@ -68,7 +68,8 @@
 % ============================================
 % CARREGAR TEMPLATE UnB/LabTelecom
 % ============================================
-\input{../../template/beamertheme-unb.sty}
+\input{../../../template/beamertheme-unb.sty}
+\graphicspath{{./}{../}}
 
 % ============================================
 % APLICAR CONFIGURAÇÕES AO DOCUMENTO
@@ -154,14 +155,14 @@
 % ============================================
 % SUMÁRIO
 % ============================================
-\begin{frame}[shrink=15]{Sumário}
+\begin{frame}{Sumário}
 \tableofcontents[hideallsubsections]
 \end{frame}
 
 % ============================================
-% MODULAÇÃO ANGULAR: FM E PM
+% MODULAÇÃO EM AMPLITUDE (AM)
 % ============================================
-\input{fm_modulation}
+\input{am_ssb_vsb}
 
 % ============================================
 % AGRADECIMENTOS

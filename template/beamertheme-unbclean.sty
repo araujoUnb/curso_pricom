@@ -1,0 +1,181 @@
+% Template Beamer Clean para UnB/LabTelecom
+% Visual minimalista: fundo branco, tipografia sem serifa, sem barras coloridas.
+
+\makeatletter
+
+% Cores da UnB
+\definecolor{unbprimary}{RGB}{0,59,92}      % #003B5C
+\definecolor{unbsecondary}{RGB}{0,102,51}   % #006633
+\definecolor{unbalert}{RGB}{176,58,46}     % #B03A2E
+\definecolor{unbtext}{RGB}{40,40,40}
+\definecolor{unbmuted}{RGB}{120,120,120}
+\definecolor{unblight}{RGB}{242,245,247}
+
+% Fonte
+\usepackage[default]{sourcesanspro}
+\usepackage[skins]{tcolorbox}
+
+% Configuração do tema
+\usetheme{default}
+\usefonttheme{professionalfonts}
+
+% Cores
+\setbeamercolor{normal text}{fg=unbtext,bg=white}
+\setbeamercolor{structure}{fg=unbprimary}
+\setbeamercolor{alerted text}{fg=unbalert}
+\setbeamercolor{example text}{fg=unbsecondary}
+\setbeamercolor{title}{fg=unbprimary}
+\setbeamercolor{subtitle}{fg=unbmuted}
+\setbeamercolor{section in toc}{fg=unbtext}
+\setbeamercolor{subsection in toc}{fg=unbmuted}
+\setbeamercolor{caption name}{fg=unbprimary}
+
+% Fontes
+\setbeamerfont{title}{size=\LARGE,series=\bfseries}
+\setbeamerfont{subtitle}{size=\large,series=\mdseries}
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+\setbeamerfont{author}{size=\normalsize,series=\bfseries}
+\setbeamerfont{institute}{size=\small}
+\setbeamerfont{date}{size=\small}
+\setbeamerfont{footline}{size=\scriptsize}
+\setbeamerfont{caption}{size=\small}
+\setbeamerfont{block title}{size=\normalsize,series=\bfseries}
+
+% Remover símbolos de navegação
+\setbeamertemplate{navigation symbols}{}
+
+% Margens
+\setbeamersize{text margin left=1cm,text margin right=1cm}
+
+% Listas
+\setbeamertemplate{itemize item}{\small\raise0.25ex\hbox{\textcolor{unbprimary}{$\blacksquare$}}}
+\setbeamertemplate{itemize subitem}{\footnotesize\raise0.3ex\hbox{\textcolor{unbmuted}{$\blacktriangleright$}}}
+\setbeamertemplate{enumerate item}{\textcolor{unbprimary}{\textbf{\insertenumlabel.}}}
+\setbeamertemplate{enumerate subitem}{\textcolor{unbmuted}{\insertenumlabel.\insertsubenumlabel}}
+\setlength{\leftmargini}{1.2em}
+
+% Sumário
+\setbeamertemplate{section in toc}{%
+  {\color{unbprimary}\bfseries\inserttocsectionnumber.}~\inserttocsection}
+\setbeamertemplate{subsection in toc}{%
+  \hspace{1.5em}{\color{unbmuted}\small\inserttocsubsection}\par}
+
+% Legendas
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+
+% Cabeçalho: logo do LabTelecom no canto superior direito
+\setbeamertemplate{headline}{%
+  \vbox to 0pt{%
+    \vspace*{0.45cm}%
+    \hbox to\paperwidth{\hfill
+      \includegraphics[height=0.55cm]{figures_global/labtelecom.png}%
+      \hspace*{1cm}}%
+    \vss}%
+}
+
+% Título do slide: texto alinhado à esquerda com filete de destaque
+\setbeamercolor{frametitle}{fg=unbprimary,bg=}
+\setbeamertemplate{frametitle}{%
+  \vspace*{0.45cm}%
+  \begin{beamercolorbox}[wd=\paperwidth,leftskip=1cm,rightskip=1cm]{frametitle}
+    % largura limitada para o título quebrar antes do logo do canto direito
+    \parbox[t]{\dimexpr\paperwidth-5.4cm\relax}{\raggedright\usebeamerfont{frametitle}\insertframetitle}
+    \ifx\insertframesubtitle\@empty\else
+      \par{\usebeamerfont{framesubtitle}\color{unbmuted}\small\insertframesubtitle}%
+    \fi
+    \par\vspace{0.12cm}%
+    {\color{unbsecondary}\rule{1.2cm}{2pt}}%
+  \end{beamercolorbox}%
+  \vspace{0.1cm}%
+}
+
+% Rodapé discreto com traço verde: título | autor ....... logo  n/N
+\setbeamertemplate{footline}{%
+  \usebeamerfont{footline}\usebeamercolor[fg]{normal text}%
+  \vbox{%
+    \hbox to\paperwidth{\hspace*{1cm}%
+      {\color{unbsecondary}\rule{\dimexpr\paperwidth-2cm\relax}{0.6pt}}\hfil}%
+    \hbox to\paperwidth{\hspace*{1cm}%
+      \parbox[b][0.8cm][c]{0.6\paperwidth}{%
+        \color{unbmuted}\insertshorttitle\ \ \textbar\ \ \insertshortauthor}%
+      \hfill
+      \parbox[b][0.8cm][c]{0.25\paperwidth}{\raggedleft
+        \includegraphics[height=0.35cm]{figures_global/unb.png}\hspace{0.3cm}%
+        {\color{unbprimary}\bfseries\insertframenumber}{\color{unbmuted}\,/\,\inserttotalframenumber}}%
+      \hspace*{1cm}}}%
+}
+
+% Blocos planos com filete lateral
+\newcommand{\unbcleanblock}[1]{%
+  \tcbset{unbcleanstyle/.style={
+    enhanced, sharp corners, boxrule=0pt, frame hidden,
+    colback=#1!6!white, colframe=#1,
+    borderline west={3pt}{0pt}{#1},
+    left=8pt, right=8pt, top=5pt, bottom=5pt,
+    before skip=4pt, after skip=4pt}}%
+}
+\setbeamertemplate{block begin}{%
+  \unbcleanblock{unbprimary}%
+  \begin{tcolorbox}[unbcleanstyle]
+  \ifx\insertblocktitle\@empty\else
+    {\usebeamerfont{block title}\color{unbprimary}\insertblocktitle}\par\vspace{2pt}%
+  \fi
+  \usebeamercolor[fg]{normal text}}
+\setbeamertemplate{block end}{\end{tcolorbox}}
+
+\setbeamertemplate{block alerted begin}{%
+  \unbcleanblock{unbalert}%
+  \begin{tcolorbox}[unbcleanstyle]
+  \ifx\insertblocktitle\@empty\else
+    {\usebeamerfont{block title}\color{unbalert}\insertblocktitle}\par\vspace{2pt}%
+  \fi
+  \usebeamercolor[fg]{normal text}}
+\setbeamertemplate{block alerted end}{\end{tcolorbox}}
+
+\setbeamertemplate{block example begin}{%
+  \unbcleanblock{unbsecondary}%
+  \begin{tcolorbox}[unbcleanstyle]
+  \ifx\insertblocktitle\@empty\else
+    {\usebeamerfont{block title}\color{unbsecondary}\insertblocktitle}\par\vspace{2pt}%
+  \fi
+  \usebeamercolor[fg]{normal text}}
+\setbeamertemplate{block example end}{\end{tcolorbox}}
+
+% Página de título
+\setbeamertemplate{title page}{%
+  \vspace*{-0.2cm}%
+  \includegraphics[height=0.9cm]{figures_global/unb.png}%
+  \hfill
+  \includegraphics[height=0.9cm]{figures_global/labtelecom.png}%
+  \par\vfill
+  {\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par}%
+  \ifx\insertsubtitle\@empty\else
+    \vspace{0.2cm}%
+    {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+  \fi
+  \vspace{0.35cm}%
+  {\color{unbsecondary}\rule{2cm}{3pt}}\par
+  \vspace{0.35cm}%
+  {\usebeamerfont{author}\insertauthor\par}%
+  \vspace{0.1cm}%
+  {\usebeamerfont{institute}\color{unbmuted}\insertinstitute\par}%
+  \vfill
+  {\usebeamerfont{date}\color{unbmuted}\insertdate\par}%
+}
+
+% Slide divisor automático no início de cada seção
+\AtBeginSection[]{%
+  {\setbeamertemplate{footline}{}%
+   \begin{frame}[noframenumbering]
+     \vfill
+     {\color{unbsecondary}\usebeamerfont{title}\Huge\bfseries\thesection}\par
+     \vspace{0.2cm}%
+     {\color{unbprimary}\usebeamerfont{title}\insertsectionhead\par}%
+     \vspace{0.3cm}%
+     {\color{unbsecondary}\rule{2cm}{3pt}}%
+     \vfill
+   \end{frame}}%
+}
+
+\makeatother

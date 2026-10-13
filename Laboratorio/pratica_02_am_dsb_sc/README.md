@@ -60,5 +60,3 @@ Relatório em PDF contendo:
 
 - `enunciado_pratica_02.tex` / `.pdf` — enunciado do aluno
 - `pratica_02_am_dsbsc.grc` — fluxograma de referência
-- `../gabaritos_professor/pratica_02_am_dsb_sc/` — gabarito e critérios
-- `../Codigos/pratica_02_gabarito/` — validação numérica sobre o GNU Radio

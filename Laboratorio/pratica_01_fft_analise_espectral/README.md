@@ -50,5 +50,3 @@ O `QT GUI Frequency Sink` está configurado com *Control Panel* habilitado e *Sp
 
 - `enunciado_pratica_01.tex` / `.pdf` — enunciado do aluno
 - `pratica_01_fft_analise_espectral.grc` — flowgraph de referência
-- Gabarito do professor: `../gabaritos_professor/pratica_01_fft_analise_espectral/`
-- Script que gera os valores de referência: `../Codigos/pratica_01_gabarito/codigos/pratica_01_gabarito.py`

@@ -1,0 +1,43 @@
+% ============================================
+% PREÂMBULO COMUM DOS SLIDES DE FM
+% Usado por FM/main_fm.tex e pelo main.tex combinado do Módulo 2
+% ============================================
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{decorations.pathmorphing, decorations.pathreplacing, arrows.meta,
+                positioning, calc, fit, backgrounds, shapes.geometric, tikzmark}
+
+% ============================================
+% RECURSOS PARA DERIVAÇÃO ESTILO QUADRO
+% (setas de anotação + destaques + overlays)
+% ============================================
+\colorlet{cRed}{red!65!black}
+\colorlet{cBlue}{blue!65!black}
+\colorlet{cGreen}{green!45!black}
+\colorlet{cOrange}{orange!85!black}
+\colorlet{cPurple}{purple!70!black}
+
+\tikzset{
+  nota/.style={draw=#1, text=#1, fill=white, rounded corners=2pt, inner sep=3pt,
+               font=\scriptsize, align=center, line width=0.6pt},
+  nota/.default=cRed,
+  setinha/.style={-{Stealth[length=2.2mm,width=1.6mm]}, line width=0.8pt,
+                  shorten >=2pt, shorten <=2pt},
+}
+
+% Destaque de um trecho de equação. Depende da baseline, então fica inline.
+\providecommand{\hl}{}
+\renewcommand{\hl}[2][cRed]{%
+  \tikz[baseline=(HLX.base)]{%
+    \node[inner sep=1.5pt, outer sep=0pt, fill=#1!18,
+          rounded corners=1.5pt] (HLX) {$\displaystyle #2$};}}
+% Setas de anotação sobre as equações, no estilo quadro.
+% Uso: \anotacoes{ \only<2->{ \node[nota=cRed] ... ; \draw[setinha,cRed] ... ; } }
+\providecommand{\anotacoes}[1]{%
+  \begin{tikzpicture}[remember picture, overlay]#1\end{tikzpicture}}
+
+% Espaço menor em volta das equações exibidas, para frames densos.
+% Usar depois de \small, que redefine esses comprimentos.
+\newcommand{\compacto}{%
+  \setlength\abovedisplayskip{4pt}\setlength\belowdisplayskip{4pt}%
+  \setlength\abovedisplayshortskip{2pt}\setlength\belowdisplayshortskip{2pt}}

@@ -31,7 +31,3 @@ QT GUI Frequency Sink (FFT 8192, flat-top) e Quadrature Demod (samp_rate/2π, sa
 
 Relatório em PDF com as Tabelas 2 a 5 preenchidas, capturas do espectro e do Time Sink e respostas
 numéricas às perguntas Q1 a Q6.
-
-## Gabarito
-
-`Laboratorio/Codigos/pratica_05_gabarito/codigos/pratica_05_gabarito.py`, validado no GNU Radio 3.10.12.

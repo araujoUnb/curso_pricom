@@ -142,7 +142,7 @@ Thumbs.db
 # ============================================
 # Ignorar PNGs gerados nos módulos
 Modulo1/Latex-slides/figures/**/*.png
-Modulo2/Latex-slides/figures/**/*.png
+Modulo2/Latex-slides/**/figures/**/*.png
 Modulo3/Latex-slides/figures/**/*.png
 
 # Ignorar figuras geradas para gabaritos em LaTeX (Laboratório)

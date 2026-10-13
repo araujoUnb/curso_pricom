@@ -16,9 +16,11 @@
 \usepackage{ifthen}
 \usepackage{bm}
 \usepackage{array}
+\usepackage{booktabs}
 \usepackage{cancel}
 \usepackage{tikz}
-\usetikzlibrary{positioning,decorations.pathreplacing,decorations.pathmorphing}
+\usepackage[english,brazilian]{babel}
+\input{preambulo_fm}
 
 % ============================================
 % VARIÁVEIS DE CONFIGURAÇÃO
@@ -29,8 +31,8 @@
 \newcommand{\autorEmail}{daniel.araujo@unb.br}
 
 % --- Título e Subtítulo ---
-\newcommand{\tituloApresentacao}{Modulação AM: SSB e VSB}
-\newcommand{\subtituloApresentacao}{Capítulo 4a: Banda Lateral Única e Vestigial}
+\newcommand{\tituloApresentacao}{Modulação Angular: FM e PM}
+\newcommand{\subtituloApresentacao}{Capítulo 4b: Modulação em Frequência, PLL e Receptor Superheterodino}
 
 % --- Idioma ---
 \newcommand{\idioma}{pt}
@@ -68,7 +70,9 @@
 % ============================================
 % CARREGAR TEMPLATE UnB/LabTelecom
 % ============================================
-\input{../../template/beamertheme-unb.sty}
+% figures_global/ fica na raiz do curso; o tema clean usa o caminho relativo
+\graphicspath{{./}{../../../}}
+\input{../../../template/beamertheme-unbclean.sty}
 
 % ============================================
 % APLICAR CONFIGURAÇÕES AO DOCUMENTO
@@ -126,20 +130,6 @@
 \newcommand{\figw}{\figFull}
 
 % ============================================
-% SLIDE DE TRANSIÇÃO A CADA SEÇÃO
-% ============================================
-\AtBeginSection[]{%
-  \begin{frame}
-  \vfill
-  \centering
-  \begin{beamercolorbox}[sep=12pt,center,shadow=true,rounded=true]{title}
-    \usebeamerfont{title}\insertsectionnumber.~\insertsection\par%
-  \end{beamercolorbox}
-  \vfill
-  \end{frame}
-}
-
-% ============================================
 % INÍCIO DO DOCUMENTO
 % ============================================
 \begin{document}
@@ -147,21 +137,21 @@
 % ============================================
 % SLIDE DE TÍTULO
 % ============================================
-\begin{frame}
+\begin{frame}[plain]
 \titlepage
 \end{frame}
 
 % ============================================
 % SUMÁRIO
 % ============================================
-\begin{frame}{Sumário}
+\begin{frame}[shrink=15]{Sumário}
 \tableofcontents[hideallsubsections]
 \end{frame}
 
 % ============================================
-% MODULAÇÃO EM AMPLITUDE (AM)
+% MODULAÇÃO ANGULAR: FM E PM
 % ============================================
-\input{am_ssb_vsb}
+\input{fm_modulation}
 
 % ============================================
 % AGRADECIMENTOS

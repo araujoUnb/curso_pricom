@@ -34,7 +34,3 @@ mantendo a 3.ª em −30 dB e dobrando a amplitude (+6 dB).
 ## Entregáveis
 
 Relatório em PDF com as Tabelas 2 e 3, capturas sem ruído e com noise_amp = 1,0 e respostas numéricas Q1 a Q6.
-
-## Gabarito
-
-`Laboratorio/Codigos/pratica_06_gabarito/codigos/pratica_06_gabarito.py`, validado no GNU Radio 3.10.12.
