@@ -1199,20 +1199,20 @@ Carson: reta $2(\beta + 1)$.
 \small
 \parbox[t][0.95cm]{\linewidth}{%
 \only<1>{FM simulado e espectro por FFT: $\Delta f = 5$\,kHz e tom de $f_m = 1$\,kHz, $\beta = 5$.}%
-\only<2>{Banda de Carson: $2(\Delta f + f_m) = 12$\,kHz. Dentro dela ficam 98\,\% da potência.}%
-\only<3>{Mensagem aleatória, banda de 1\,kHz, com o mesmo pico de desvio: 99\,\% da potência em só 6,5\,kHz.}%
-\only<4>{Uma mensagem real raramente fica no pico de desvio: para ela, Carson é uma estimativa folgada, pelo lado seguro.}}
+\only<2>{Banda de 98\,\%: abrimos a faixa a partir da portadora até juntar 98\,\% da potência. Em $\pm 5$\,kHz há só 95,9\,\%; em $\pm 6$\,kHz, 99,4\,\%.}%
+\only<3->{Carson: $2(\Delta f + f_m) = 12$\,kHz, a mesma faixa que guarda 98\,\% da potência.}}
 
 \begin{center}
 \begin{tikzpicture}
-\begin{axis}[espec, width=11.5cm, height=3.3cm, xmin=-15, xmax=15, ymin=-70, ymax=5,
+\begin{axis}[espec, width=11.5cm, height=4cm, xmin=-15, xmax=15, ymin=-70, ymax=32,
              xlabel={$f - f_c$ [kHz]}, ylabel={PSD [dB]}, xtick={-15,-12,...,15}, ytick={-60,-40,-20,0}]
-\only<2->{\fill[cGreen, opacity=0.12] (axis cs:-6,-70) rectangle (axis cs:6,5);
-  \draw[cGreen, <->, thick] (axis cs:-6,2) -- (axis cs:6,2) node[midway, above, font=\scriptsize] {Carson, 12 kHz};}
-\only<1-2>{\addplot[cBlue, thick] table[x=f, y=P]{dados/psd_tom.dat};}
-\only<3->{\addplot[cBlue!30] table[x=f, y=P]{dados/psd_tom.dat};
-  \addplot[cRed, thick] table[x=f, y=P]{dados/psd_ruido.dat};
-  \draw[cRed, <->, thick] (axis cs:-3.25,-8) -- (axis cs:3.25,-8) node[midway, below, font=\scriptsize] {99\,\%: 6,5 kHz};}
+\only<3->{\fill[cGreen, opacity=0.12] (axis cs:-6,-70) rectangle (axis cs:6,32);
+  \draw[cGreen, <->, thick] (axis cs:-6,24) -- (axis cs:6,24) node[midway, above, font=\scriptsize] {Carson, 12 kHz};}
+\addplot[cBlue, thick] table[x=f, y=P]{dados/psd_tom.dat};
+\only<2->{\draw[cRed, dashed] (axis cs:-5,-70) -- (axis cs:-5,4) (axis cs:5,-70) -- (axis cs:5,4)
+    (axis cs:-6,-70) -- (axis cs:-6,14) (axis cs:6,-70) -- (axis cs:6,14);
+  \draw[cRed!60, <->] (axis cs:-5,4) -- (axis cs:5,4) node[midway, above, font=\scriptsize] {$\pm 5$ kHz: 95,9\,\%};
+  \draw[cRed, <->, thick] (axis cs:-6,14) -- (axis cs:6,14) node[midway, above, font=\scriptsize] {$\pm 6$ kHz: 99,4\,\%, passa de 98\,\%};}
 \end{axis}
 \end{tikzpicture}
 \end{center}
@@ -1714,7 +1714,7 @@ A(t) = 2\pi A_c f_i(t) = 2\pi A_c f_c\Big[1 + \tikzmarknode{rz}{\frac{k_f m(t)}{
 \column{0.48\textwidth}
 O canal faz a amplitude variar:
 \[
-r(t) = \tikzmarknode{At}{A(t)}\cos\theta(t)
+\rule{0pt}{0.8cm}r(t) = \tikzmarknode{At}{A(t)}\cos\theta(t)
 \]
 
 \onslide<2->{\[
@@ -1745,7 +1745,7 @@ r(t) = \tikzmarknode{At}{A(t)}\cos\theta(t)
 \end{columns}
 
 \only<2->{\anotacoes{
-  \node[nota=cOrange, anchor=south] (a1) at ([yshift=0.3cm]At.north) {desvanecimento, ruído};
+  \node[nota=cOrange, anchor=south] (a1) at ([yshift=0.12cm]At.north) {desvanecimento, ruído};
   \draw[setinha, cOrange] (a1.south) -- (At.north);
   \node[font=\scriptsize, text=gray, anchor=north] (a2) at ([yshift=-0.2cm]dA.south) {lento: pequeno};
 }}
