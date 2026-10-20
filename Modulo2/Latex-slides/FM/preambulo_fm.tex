@@ -41,3 +41,20 @@
 \newcommand{\compacto}{%
   \setlength\abovedisplayskip{4pt}\setlength\belowdisplayskip{4pt}%
   \setlength\abovedisplayshortskip{2pt}\setlength\belowdisplayshortskip{2pt}}
+
+% Estilo comum dos gráficos de forma de onda desta seção
+\pgfplotsset{
+  onda/.style={scale only axis, width=12.5cm, axis lines=middle, xtick=\empty, ytick=\empty,
+               enlarge x limits=false, clip=false, samples=500,
+               every axis x label/.style={at={(current axis.right of origin)}, anchor=west, font=\scriptsize},
+               every axis y label/.style={at={(current axis.north west)}, anchor=south west, font=\scriptsize}},
+}
+
+% Estilo dos espectros: eixos à esquerda e componentes em haste
+\pgfplotsset{
+  espec/.style={scale only axis, axis lines=left, ymin=0, clip=false,
+                tick label style={font=\tiny}, label style={font=\scriptsize},
+                every axis x label/.style={at={(current axis.right of origin)}, anchor=west, font=\scriptsize},
+                every axis y label/.style={at={(current axis.north west)}, anchor=south west, font=\scriptsize}},
+  comp/.style={ycomb, mark=*, mark size=1.2pt, thick},
+}
