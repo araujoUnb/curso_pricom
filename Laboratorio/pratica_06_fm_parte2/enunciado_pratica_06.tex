@@ -139,7 +139,9 @@ a 2.ª e a 3.ª harmônicas.
     \texttt{Import}            & Misc                 & \texttt{import math} \\
     \texttt{Signal Source}     & Waveform Generators  & Mensagem $m(t)$ \\
     \texttt{Frequency Mod}     & Modulators           & Modulador FM \\
-    \texttt{Noise Source}, \texttt{Add} & Waveform Generators, Math & Ruído gaussiano \\
+    \texttt{Throttle}          & Misc                 & Limita a taxa de execução \\
+    \texttt{Noise Source}      & Waveform Generators  & Ruído gaussiano \\
+    \texttt{Add}               & Math Operators       & Soma do ruído ao sinal FM \\
     \texttt{Band Pass Filter}  & Filters              & Filtros de inclinação \\
     \texttt{Complex to Mag}    & Type Converters      & Detector de envoltória \\
     \texttt{Subtract}          & Math Operators       & Subtração balanceada \\
@@ -185,7 +187,7 @@ a 2.ª e a 3.ª harmônicas.
   \toprule
   \texttt{samp\_rate}, \texttt{audio\_rate} & $480\,000$\,Hz, $48\,000$\,Hz \\
   \texttt{fm\_freq} & $200$ a $5\,000$\,Hz, passo $100$, padrão $1\,000$ \\
-  \texttt{max\_dev} & $5\,000$ a $40\,000$\,Hz, passo $1\,000$, padrão $25\,000$ \\
+  \texttt{max\_dev} & $5\,000$ a $34\,000$\,Hz, passo $1\,000$, padrão $25\,000$ \\
   \texttt{noise\_amp} & $0$ a $2$, passo $0{,}05$, padrão $0$ \\
   Frequency Mod, \textit{Sensitivity} & \texttt{2*math.pi*max\_dev/samp\_rate} \\
   \texttt{bpf\_pos} & corte \texttt{max\_dev} a \texttt{5*max\_dev}, transição \texttt{4*max\_dev}, Hamming \\
@@ -193,6 +195,8 @@ a 2.ª e a 3.ª harmônicas.
   DC Blocker & comprimento $128$, forma longa \\
   Low Pass Filter & corte $5$\,kHz, transição $2$\,kHz, decimação $10$ \\
   Quadrature Demod, \textit{Gain} & \texttt{samp\_rate/(2*math.pi*max\_dev)} \\
+  Keep 1 in N & $N = 10$ \\
+  Frequency Sink do sinal FM & complex, FFT $8\,192$, \textit{Flat-top}, eixo $-100$ a $10$\,dB \\
   Frequency Sink das saídas & float, $3$ entradas, FFT $4\,096$, \textit{Flat-top}, média $0{,}2$ \\
   Time Sink & float, $4$ entradas, $480$ pontos, $10$\,ms, eixo $\pm 1{,}2$ \\
   \bottomrule
@@ -200,15 +204,20 @@ a 2.ª e a 3.ª harmônicas.
 \end{center}
 
 \begin{atencao}[Atenção -- limite de \texttt{max\_dev}]
-A borda superior de \texttt{bpf\_pos} fica em $5\,\Delta f$ e precisa estar
-abaixo de $\texttt{samp\_rate}/2 = 240$\,kHz. Por isso o slider vai só até
-$40$\,kHz, que leva a borda a $200$\,kHz.
+A borda superior de \texttt{bpf\_pos} fica em $5\,\Delta f$, e a transição de
+largura $4\,\Delta f$ é centrada nela, de modo que a rampa de descida vai até
+$7\,\Delta f$. Essa rampa precisa terminar abaixo de
+$\texttt{samp\_rate}/2 = 240$\,kHz, senão ela se rebate para as frequências
+negativas. Por isso o slider vai só até $34$\,kHz, que leva a rampa a
+$238$\,kHz.
 \end{atencao}
 
 \begin{instrucao}[Leitura dos instrumentos]
 No Frequency Sink das saídas, passe o mouse sobre o topo de cada componente para
 ler o nível em dB. Use só diferenças entre níveis: elas não dependem da escala
-do instrumento. No Time Sink, a amplitude é metade do valor pico a pico.
+do instrumento. No Time Sink, a amplitude é metade do valor pico a pico. As saídas de
+inclinação e do balanceado ficam abaixo de $0{,}2$: ative o \textit{Autoscale}
+no menu do botão direito para lê-las.
 \end{instrucao}
 
 \subsection*{Etapa 1 -- Transmissor (0--6 min)}
