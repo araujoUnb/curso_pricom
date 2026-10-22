@@ -1,0 +1,568 @@
+% ============================================
+% DESEMPENHO EM BANDA BASE
+% Caracterização do ruído, cálculo das potências e SNR de referência
+% ============================================
+
+\section{Desempenho em banda base}
+
+\begin{frame}{Por que começar pela banda base?}
+
+Para comparar AM e FM sob ruído precisamos de uma régua. A régua é o sistema mais simples possível: a mensagem vai pelo canal sem modulação.
+
+\par\vspace{0.4cm}
+\begin{center}
+\begin{tikzpicture}[font=\small,
+  block/.style={rectangle, draw, rounded corners, minimum height=0.9cm, minimum width=2cm, align=center},
+  sum/.style={circle, draw, inner sep=1pt}]
+\node (in) {$m(t)$};
+\node[block, right=0.8cm of in] (ch) {Canal};
+\draw[->] (in) -- (ch);
+\onslide<2->{
+  \node[sum, right=0.9cm of ch] (sum) {$+$};
+  \node[below=0.5cm of sum, cRed] (n) {$n(t)$};
+  \draw[->] (ch) -- (sum);
+  \draw[->, cRed] (n) -- (sum);
+}
+\onslide<3->{
+  \node[block, right=0.9cm of sum] (lpf) {Filtro PB\\ banda $W$};
+  \node[right=0.8cm of lpf] (out) {$y(t)$};
+  \draw[->] (sum) -- node[above, font=\scriptsize] {$r(t)$} (lpf);
+  \draw[->] (lpf) -- (out);
+}
+\onslide<4->{
+  \node[nota=cBlue, above=0.5cm of ch] (si) {potência recebida $S_i$};
+  \draw[setinha, cBlue] (si) -- (ch.north);
+  \node[nota=cRed, right=0.3cm of n] {ruído do receptor};
+}
+\end{tikzpicture}
+\end{center}
+
+\par\vspace{0.3cm}
+\only<2>{O canal soma um ruído $n(t)$ que o receptor não consegue prever.}%
+\only<3>{O receptor só deixa passar a banda $W$ da mensagem.}%
+\only<4>{A comparação justa: AM, FM e banda base com a mesma potência recebida $S_i$, o mesmo ruído e a mesma mensagem de banda $W$.}%
+\only<5->{Roteiro: caracterizar o ruído, calcular as potências na saída e montar a SNR.}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Caracterização do ruído}
+
+\begin{frame}{Modelo do sinal recebido}
+
+\[
+r(t) = \tikzmarknode{rm}{m(t)} + \tikzmarknode{rn}{\color{cRed} n(t)}
+\]
+\par\vspace{1.2cm}
+
+\anotacoes{
+  \only<2->{
+    \node[nota=cBlue, anchor=north east] (a1) at ([xshift=-0.6cm,yshift=-0.6cm]rm.south) {mensagem, banda $W$};
+    \draw[setinha, cBlue] (a1.north) -- (rm.south);
+  }
+  \only<3->{
+    \node[nota=cRed, anchor=north west] (a2) at ([xshift=0.6cm,yshift=-0.6cm]rn.south) {aditivo: soma, não multiplica};
+    \draw[setinha, cRed] (a2.north) -- (rn.south);
+  }
+}
+
+\onslide<4->{O ruído agregado $n(t)$ reúne todas as fontes do receptor. O modelo de trabalho tem três hipóteses:}
+\begin{itemize}
+\item<5-> aditivo, como na equação acima;
+\item<6-> gaussiano: cada amostra $n(t_0)$ é uma variável aleatória gaussiana de média nula;
+\item<7-> branco: a densidade espectral de potência é constante em frequência.
+\end{itemize}
+
+\onslide<8->{Juntas, as três hipóteses dão o nome do canal: AWGN, de \emph{additive white gaussian noise}.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Gaussiano: o que se vê no tempo}
+
+\pgfmathsetseed{7}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[onda, width=8.5cm, height=2.6cm, xmin=0, xmax=10, ymin=-3.2, ymax=3.2,
+             xlabel={$t$}, ylabel={$n(t)$}]
+  \addplot[cRed, samples=300, domain=0:10] {1.1*(rand+rand+rand)};
+  \onslide<3->{
+    \draw[cBlue, dashed, thick] (axis cs:6.2,-3.2) -- (axis cs:6.2,3.2);
+    \node[cBlue, font=\scriptsize, anchor=south west] at (axis cs:6.2,3.2) {$t_0$};
+  }
+\end{axis}
+\onslide<2->{
+\begin{axis}[onda, width=2.6cm, height=2.6cm, at={(9.3cm,0)}, xmin=0, xmax=1.1, ymin=-3.2, ymax=3.2,
+             xlabel={$p$}, ylabel={}]
+  \addplot[cBlue, thick, fill=cBlue!15, domain=-3.2:3.2, samples=100] ({exp(-x^2/(2*1.1^2))}, {x}) \closedcycle;
+\end{axis}
+}
+\end{tikzpicture}
+\end{center}
+
+\par\vspace{0.2cm}
+\only<1>{Uma realização do ruído: oscila em torno de zero sem padrão.}%
+\only<2>{O histograma das amplitudes tem forma de sino: densidade gaussiana.}%
+\only<3->{
+\[
+n(t_0) \sim \mathcal{N}\big(0,\ \tikzmarknode{var}{\sigma_n^2}\big)
+\]
+\par\vspace{0.6cm}
+\anotacoes{\only<4->{
+  \node[nota=cRed, anchor=west] (v) at ([xshift=1.2cm]var.east) {variância $=$ potência, pois a média é nula};
+  \draw[setinha, cRed] (v.west) -- (var.east);
+}}%
+}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Branco: PSD constante}
+
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{tikzpicture}
+\begin{axis}[onda, width=5.5cm, height=1.6cm, xmin=-3, xmax=3, ymin=0, ymax=1.4,
+             xlabel={$f$}, ylabel={$S_n(f)$}]
+  \addplot[cRed, very thick, domain=-3:3, samples=2] {0.8};
+  \node[cRed, font=\scriptsize, anchor=south] at (axis cs:1.6,0.8) {$N_0/2$};
+\end{axis}
+\onslide<3->{
+\begin{axis}[onda, width=5.5cm, height=1.6cm, at={(0,-2.8cm)}, xmin=-3, xmax=3, ymin=0, ymax=1.4,
+             xlabel={$\tau$}, ylabel={$R_n(\tau)$}]
+  \draw[cBlue, very thick, -{Stealth[length=2.5mm]}] (axis cs:0,0) -- (axis cs:0,1.25);
+  \node[cBlue, font=\scriptsize, anchor=west] at (axis cs:0.1,1.1) {$\tfrac{N_0}{2}\delta(\tau)$};
+\end{axis}
+}
+\end{tikzpicture}
+
+\column{0.5\textwidth}
+\small\compacto
+\onslide<2->{Todas as frequências com a mesma densidade, como a luz branca:}
+\[
+S_n(f) = \frac{N_0}{2}\ \text{W/Hz}, \quad \forall f
+\]
+\onslide<3->{Autocorrelação pela transformada inversa:}
+\only<3->{
+\[
+R_n(\tau) = \int_{-\infty}^{\infty} \frac{N_0}{2}\, e^{j2\pi f\tau}\, df
+\]}%
+\only<4->{
+\[
+R_n(\tau) = \frac{N_0}{2}\,\tikzmarknode{dl}{\delta(\tau)}
+\]
+\par\vspace{0.9cm}
+\anotacoes{\node[nota=cBlue, anchor=north] (d) at ([yshift=-0.35cm]dl.south) {$\int e^{j2\pi f\tau}df = \delta(\tau)$};
+\draw[setinha, cBlue] (d.north) -- (dl.south);}
+}
+\onslide<5->{Amostras em instantes distintos, por mais próximos, são descorrelacionadas.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Potência do ruído branco}
+
+\small\compacto
+Potência é a área sob a PSD:
+\only<2->{
+\[
+P_n = \int_{-\infty}^{\infty} S_n(f)\, df
+\only<3->{= \int_{-\infty}^{\infty} \frac{N_0}{2}\, df}
+\only<4->{= \tikzmarknode{inf}{\color{cRed}\infty}}
+\]}%
+\par\vspace{0.7cm}
+\anotacoes{\only<4->{
+  \node[nota=cRed, anchor=north east] (i) at ([xshift=0.3cm,yshift=-0.35cm]inf.south) {área de um retângulo de largura infinita};
+  \draw[setinha, cRed] ([xshift=-0.3cm]i.north east) -- (inf.south);
+}}%
+
+\onslide<5->{O ruído branco é uma idealização. Ele vale porque o ruído térmico é plano até centenas de GHz, muito além de qualquer filtro do receptor:}
+\only<6->{
+\[
+\tikzmarknode{n0}{N_0} = k\,T
+\only<7->{= 1{,}38\!\times\!10^{-23}\cdot 290}
+\only<8->{\approx 4\!\times\!10^{-21}\ \text{W/Hz}}
+\]
+\par\vspace{0.8cm}%
+\anotacoes{\only<7-8>{
+  \node[nota=cBlue, anchor=north] (k) at ([yshift=-0.4cm]n0.south) {$k$: Boltzmann, $T$: temperatura em K};
+  \draw[setinha, cBlue] (k.north) -- (n0.south);
+}}%
+}%
+\onslide<9->{Em escala logarítmica, $N_0 \approx -174$\,dBm/Hz. Na prática, o ruído só tem potência finita depois de filtrado.}
+
+\end{frame}
+
+% ============================================
+
+\subsection{Cálculo das potências}
+
+\begin{frame}{Espectros na entrada e na saída do filtro}
+
+\begin{columns}[T]
+\column{0.55\textwidth}
+\begin{tikzpicture}
+% entrada
+\begin{axis}[onda, width=6cm, height=1.1cm, xmin=-2.6, xmax=2.6, ymin=0, ymax=1.3,
+             xlabel={$f$}, ylabel={entrada}]
+  \addplot[cBlue, thick, fill=cBlue!20, domain=-1:1] {1.1*(1-x^2)} \closedcycle;
+  \addplot[cRed, thick, domain=-2.6:2.6, samples=2] {0.3};
+  \node[font=\tiny, anchor=north] at (axis cs:-1,0) {$-W$};
+  \node[font=\tiny, anchor=north] at (axis cs:1,0) {$W$};
+  \node[cBlue, font=\tiny, anchor=west] at (axis cs:0.5,1.0) {$S_m(f)$};
+  \node[cRed, font=\tiny, anchor=south] at (axis cs:2.0,0.3) {$N_0/2$};
+\end{axis}
+% filtro
+\onslide<2->{
+\begin{axis}[onda, width=6cm, height=1.1cm, at={(0,-1.85cm)}, xmin=-2.6, xmax=2.6, ymin=0, ymax=1.3,
+             xlabel={$f$}, ylabel={$|H(f)|^2$}]
+  \addplot[cGreen, very thick] coordinates {(-2.6,0) (-1,0) (-1,1) (1,1) (1,0) (2.6,0)};
+  \node[font=\tiny, anchor=north] at (axis cs:-1,0) {$-W$};
+  \node[font=\tiny, anchor=north] at (axis cs:1,0) {$W$};
+  \node[cGreen, font=\tiny, anchor=south west] at (axis cs:1,1) {$1$};
+\end{axis}
+}
+% saída
+\onslide<3->{
+\begin{axis}[onda, width=6cm, height=1.1cm, at={(0,-3.7cm)}, xmin=-2.6, xmax=2.6, ymin=0, ymax=1.3,
+             xlabel={$f$}, ylabel={saída}]
+  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-1,0) (-1,0.3) (1,0.3) (1,0)};
+  \addplot[cBlue, thick, fill=cBlue!20, fill opacity=0.7, domain=-1:1] {1.1*(1-x^2)} \closedcycle;
+  \node[font=\tiny, anchor=north] at (axis cs:-1,0) {$-W$};
+  \node[font=\tiny, anchor=north] at (axis cs:1,0) {$W$};
+\end{axis}
+}
+\end{tikzpicture}
+
+\column{0.45\textwidth}
+\small
+\parbox[t][4.5cm]{\linewidth}{%
+\only<1>{Na entrada, a mensagem ocupa $|f|\le W$ e o ruído branco ocupa todas as frequências.}%
+\only<2>{O filtro passa-baixas ideal deixa passar $|f|\le W$ com ganho unitário e corta o resto.}%
+\only<3>{Na saída, a mensagem passa intacta. Do ruído sobra só a faixa $|f|\le W$.}%
+\only<4->{O filtro é linear, então cada parcela passa separadamente:
+\[
+y(t) = m_o(t) + n_o(t)
+\]
+Basta calcular as duas potências: $S_o$ de $m_o$ e $N_o$ de $n_o$.}}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Potência do sinal na saída}
+
+\small\compacto
+A PSD na saída de um filtro linear é $|H(f)|^2$ vezes a PSD de entrada:
+\onslide<2->{
+\[
+S_o = \int_{-\infty}^{\infty} \tikzmarknode{hh}{|H(f)|^2}\, S_m(f)\, df
+\only<3->{= \int_{\tikzmarknode{lim}{-W}}^{W} S_m(f)\, df}
+\only<4->{= \int_{-\infty}^{\infty} \tikzmarknode{sm}{S_m(f)}\, df}
+\only<5->{= \tikzmarknode{m2}{\overline{m^2(t)}}}
+\]}%
+\par\vspace{1.4cm}
+\anotacoes{
+  \only<3->{
+    \node[nota=cGreen, anchor=north] (h) at ([yshift=-0.9cm]hh.south) {$=1$ em $|f|\le W$, zero fora};
+    \draw[setinha, cGreen] (h.north) -- (hh.south);
+  }
+  \only<4->{
+    \node[nota=cBlue, anchor=north] (s) at ([yshift=-0.5cm]sm.south) {$S_m=0$ fora de $|f|\le W$};
+    \draw[setinha, cBlue] (s.north) -- (sm.south);
+  }
+  \only<5->{
+    \node[nota=cRed, anchor=south] (p) at ([yshift=0.5cm]m2.north) {potência $=$ área da PSD};
+    \draw[setinha, cRed] (p.south) -- (m2.north);
+  }
+}
+
+\onslide<6->{Em banda base, a potência da mensagem é a própria potência recebida:}
+\onslide<6->{
+\[
+\boxed{\,S_o = \overline{m^2(t)} = S_i\,}
+\]}%
+
+\onslide<7->{O filtro não tira nada da mensagem porque a banda dele foi escolhida igual à dela.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Potência do ruído na saída}
+
+\begin{columns}[T]
+\column{0.58\textwidth}
+\small\compacto
+Mesma conta, agora com a PSD do ruído:
+\onslide<2->{
+\[
+N_o = \int_{-\infty}^{\infty} |H(f)|^2\, \tikzmarknode{snn}{\frac{N_0}{2}}\, df
+\]}%
+\onslide<3->{
+\[
+N_o = \int_{-W}^{W} \frac{N_0}{2}\, df
+\only<4->{= \frac{N_0}{2}\,\Big[\,\tikzmarknode{ff}{f}\,\Big]_{-W}^{W}}
+\]}%
+\onslide<5->{
+\[
+N_o = \frac{N_0}{2}\,\big(W - (-W)\big)
+\only<6->{= \frac{N_0}{2}\cdot 2W}
+\]}%
+\onslide<7->{
+\[
+\boxed{\,N_o = \tikzmarknode{res}{N_0\, W}\,}
+\]}%
+\par\vspace{0.2cm}
+\anotacoes{
+  \only<2->{
+    \node[nota=cRed, anchor=west] (a) at ([xshift=1.4cm]snn.east) {PSD do ruído branco};
+    \draw[setinha, cRed] (a.west) -- (snn.east);
+  }
+  \only<4->{
+    \node[nota=cBlue, anchor=west] (b) at ([xshift=1.0cm]ff.east) {integral de uma constante};
+    \draw[setinha, cBlue] (b.west) -- ([xshift=0.15cm]ff.east);
+  }
+  \only<8->{
+    \node[nota=cGreen, anchor=west] (c) at ([xshift=1.0cm]res.east) {cresce com a banda};
+    \draw[setinha, cGreen] (c.west) -- ([xshift=0.15cm]res.east);
+  }
+}
+
+\column{0.42\textwidth}
+\onslide<3->{
+\begin{tikzpicture}
+\begin{axis}[onda, width=4.6cm, height=2cm, xmin=-2.4, xmax=2.4, ymin=0, ymax=1.4,
+             xlabel={$f$}, ylabel={$S_{n_o}(f)$}]
+  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-1,0) (-1,0.8) (1,0.8) (1,0)};
+  \node[font=\tiny, anchor=north] at (axis cs:-1,0) {$-W$};
+  \node[font=\tiny, anchor=north] at (axis cs:1,0) {$W$};
+  \node[cRed, font=\tiny, anchor=east] at (axis cs:-1,0.8) {$N_0/2$};
+  \onslide<6->{
+    \draw[cBlue, <->] (axis cs:-1,1.15) -- node[above, font=\tiny, xshift=0.35cm] {$2W$} (axis cs:1,1.15);
+    \node[font=\scriptsize, cRed!70!black] at (axis cs:0,0.4) {área};
+  }
+\end{axis}
+\end{tikzpicture}
+
+\par\vspace{0.2cm}
+\small
+\onslide<6->{Retângulo de altura $N_0/2$ e largura $2W$.}
+}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Outra leitura: variância da amostra}
+
+\small\compacto
+O ruído filtrado tem média nula, então sua potência é a variância $\sigma_n^2$ do slide da gaussiana.
+
+\onslide<2->{A autocorrelação na origem dá a potência:}
+\onslide<2->{
+\[
+\sigma_n^2 = R_{n_o}(0)
+\only<3->{= \int_{-\infty}^{\infty} S_{n_o}(f)\, \tikzmarknode{ex}{e^{j2\pi f\cdot 0}}\, df}
+\only<4->{= N_0 W}
+\]}%
+\par\vspace{0.8cm}
+\anotacoes{\only<3->{
+  \node[nota=cBlue, anchor=north] (e) at ([yshift=-0.4cm]ex.south) {$e^0 = 1$: sobra a área da PSD};
+  \draw[setinha, cBlue] (e.north) -- (ex.south);
+}}%
+
+\onslide<5->{Cada amostra do ruído na saída é
+\[
+n_o(t_0) \sim \mathcal{N}(0,\ N_0 W)
+\]}%
+\onslide<6->{O ruído branco de entrada tinha variância infinita. O filtro a tornou finita e proporcional a $W$.}
+
+\end{frame}
+
+% ============================================
+
+\subsection{SNR de referência}
+
+\begin{frame}{SNR na saída}
+
+\small\compacto
+\[
+\left(\frac{S}{N}\right)_o = \frac{S_o}{N_o}
+\only<2->{= \frac{\tikzmarknode{si}{S_i}}{\tikzmarknode{nw}{N_0\, W}}}
+\]
+\par\vspace{0.2cm}
+\anotacoes{
+  \only<3->{
+    \node[nota=cBlue, anchor=west] (a) at ([xshift=1.4cm,yshift=0.15cm]si.east) {sobe com a potência recebida};
+    \draw[setinha, cBlue] (a.west) -- (si.east);
+  }
+  \only<4->{
+    \node[nota=cRed, anchor=west] (b) at ([xshift=1.0cm,yshift=-0.15cm]nw.east) {cai com o ruído e com a banda};
+    \draw[setinha, cRed] (b.west) -- (nw.east);
+  }
+}
+
+\onslide<5->{
+\begin{block}{SNR de referência}
+\[
+\gamma \triangleq \frac{S_i}{N_0 W}, \qquad \left(\frac{S}{N}\right)_o\Big|_{\text{banda base}} = \gamma
+\]
+\end{block}}
+
+\onslide<6->{Cada modulação terá sua SNR escrita como múltiplo de $\gamma$. Fator maior que 1: melhor que a banda base.}
+
+\onslide<7->{Em decibéis: $\gamma_{\text{dB}} = S_{i,\text{dBm}} - 10\log_{10}(N_0 W)_{\text{dBm}}$.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{E se o filtro for mais largo?}
+
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{tikzpicture}
+\begin{axis}[onda, width=5.4cm, height=2cm, xmin=-2.6, xmax=2.6, ymin=0, ymax=1.3,
+             xlabel={$f$}, ylabel={saída}]
+  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-1,0) (-1,0.3) (1,0.3) (1,0)};
+  \onslide<2->{
+    \addplot[cRed, thick, fill=cRed!50, samples=2] coordinates {(-2,0) (-2,0.3) (-1,0.3) (-1,0)};
+    \addplot[cRed, thick, fill=cRed!50, samples=2] coordinates {(1,0) (1,0.3) (2,0.3) (2,0)};
+    \node[font=\tiny, anchor=north] at (axis cs:-2,0) {$-B$};
+    \node[font=\tiny, anchor=north] at (axis cs:2,0) {$B$};
+  }
+  \addplot[cBlue, thick, fill=cBlue!20, fill opacity=0.7, domain=-1:1] {1.1*(1-x^2)} \closedcycle;
+  \node[font=\tiny, anchor=north] at (axis cs:-1,0) {$-W$};
+  \node[font=\tiny, anchor=north] at (axis cs:1,0) {$W$};
+  \onslide<3->{
+    \node[nota=cRed, anchor=south] (x) at (axis cs:1.9,0.85) {só ruído};
+    \draw[setinha, cRed] (x.south) -- (axis cs:1.5,0.3);
+  }
+\end{axis}
+\end{tikzpicture}
+
+\column{0.5\textwidth}
+\small\compacto
+\onslide<2->{Com banda $B > W$, a mensagem não muda, mas entra mais ruído:}
+\onslide<3->{
+\[
+N_o = N_0 B \quad\Rightarrow\quad \left(\frac{S}{N}\right)_o = \gamma\, \tikzmarknode{wb}{\frac{W}{B}}
+\]}%
+\par\vspace{0.9cm}
+\anotacoes{\only<4->{
+  \node[nota=cRed, anchor=north] (l) at ([xshift=-0.6cm,yshift=-0.4cm]wb.south) {perda de $10\log_{10}(B/W)$ dB};
+  \draw[setinha, cRed] (l.north) -- (wb.south);
+}}%
+\onslide<5->{Com $B < W$, o filtro corta a mensagem e aparece distorção.}
+
+\onslide<6->{O melhor filtro tem banda igual à da mensagem: $B = W$.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: enlace telefônico em banda base}
+
+Um sinal de voz com banda $W = 4$\,kHz atravessa um cabo com atenuação de 50\,dB. O receptor tem $N_0 = 10^{-14}$\,W/Hz.
+
+\begin{enumerate}
+\item<2-> Qual potência recebida $S_i$ garante $(S/N)_o = 40$\,dB?
+\item<3-> Qual potência o transmissor precisa entregar ao cabo?
+\item<4-> Se o filtro do receptor tiver banda de 16\,kHz, qual a SNR de saída?
+\end{enumerate}
+
+\par\vspace{0.4cm}
+\onslide<2->{
+\begin{center}
+\begin{tikzpicture}[font=\small,
+  block/.style={rectangle, draw, rounded corners, minimum height=0.8cm, minimum width=1.6cm, align=center},
+  sum/.style={circle, draw, inner sep=1pt}]
+\node[block] (tx) {Tx\\\scriptsize $P_T = ?$};
+\node[block, right=0.9cm of tx] (ch) {Cabo\\\scriptsize $-50$\,dB};
+\node[sum, right=0.9cm of ch] (sum) {$+$};
+\node[below=0.4cm of sum, cRed, font=\scriptsize] (n) {$N_0 = 10^{-14}$};
+\node[block, right=0.9cm of sum] (lpf) {Filtro PB\\\scriptsize $W = 4$\,kHz};
+\node[right=0.6cm of lpf] (out) {\scriptsize 40\,dB};
+\draw[->] (tx) -- (ch);
+\draw[->] (ch) -- node[above, font=\scriptsize] {$S_i$} (sum);
+\draw[->, cRed] (n) -- (sum);
+\draw[->] (sum) -- (lpf);
+\draw[->] (lpf) -- (out);
+\end{tikzpicture}
+\end{center}}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: potência recebida}
+
+\small\compacto
+\onslide<1->{Ruído na saída do filtro:}
+\[
+N_o = N_0 W = 10^{-14}\cdot 4\!\times\!10^{3}
+\only<2->{= 4\!\times\!10^{-11}\ \text{W}}
+\]
+\onslide<3->{SNR pedida em escala linear:}
+\onslide<3->{
+\[
+\gamma = 10^{\tikzmarknode{dbv}{40/10}}
+\only<4->{= 10^4}
+\]}%
+\par\vspace{0.7cm}
+\anotacoes{\only<3->{
+  \node[nota=cBlue, anchor=north west] (a) at ([xshift=1.4cm,yshift=-0.45cm]dbv.south east) {dB para linear: $10^{x/10}$};
+  \draw[setinha, cBlue] (a.west) to[out=180, in=-60] (dbv.south east);
+}}%
+\onslide<5->{Isolando $S_i$ em $\gamma = S_i/(N_0W)$:}
+\onslide<5->{
+\[
+S_i = \gamma\, N_0 W
+\only<6->{= 10^4 \cdot 4\!\times\!10^{-11}}
+\only<7->{= 4\!\times\!10^{-7}\ \text{W} = 0{,}4\ \mu\text{W}}
+\]}%
+\onslide<8->{Em dBm: $10\log_{10}(4\!\times\!10^{-7}/10^{-3}) \approx -34$\,dBm.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução: transmissor e filtro largo}
+
+\small\compacto
+\onslide<1->{O cabo atenua 50\,dB, ou seja, divide a potência por $10^5$:}
+\[
+P_T = S_i\cdot 10^{5}
+\only<2->{= 4\!\times\!10^{-7}\cdot 10^5}
+\only<3->{= 40\ \text{mW}}
+\]
+\onslide<4->{Em dBm: $-34 + 50 = 16$\,dBm. Somar dB equivale a multiplicar em linear.}
+
+\par\vspace{0.3cm}
+\onslide<5->{Com filtro de $B = 16$\,kHz, a mensagem é a mesma e o ruído quadruplica:}
+\onslide<5->{
+\[
+\left(\frac{S}{N}\right)_o = \gamma\,\frac{W}{B}
+\only<6->{= 10^4\cdot \frac{4}{16}}
+\only<7->{= \tikzmarknode{r25}{2{,}5\!\times\!10^3}}
+\]}%
+\par\vspace{0.8cm}
+\anotacoes{\only<8->{
+  \node[nota=cRed, anchor=north] (a) at ([yshift=-0.4cm]r25.south) {$\approx 34$\,dB: perde $10\log_{10}4 \approx 6$\,dB};
+  \draw[setinha, cRed] (a.north) -- (r25.south);
+}}%
+
+\onslide<9->{Os mesmos 6\,dB perdidos custariam quadruplicar $P_T$ para 160\,mW.}
+
+\end{frame}
+
+% ============================================

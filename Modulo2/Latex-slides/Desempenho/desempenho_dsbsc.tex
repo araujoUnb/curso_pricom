@@ -1,0 +1,625 @@
+% ============================================
+% DESEMPENHO DO DSB-SC
+% Segue o diagrama do receptor: ponto 1, antes da detecção, com ruído
+% passa-banda; ponto 2, depois da detecção, com tudo em banda base.
+% ============================================
+
+% Marcador numerado dos pontos de medida no diagrama
+\tikzset{marca/.style={circle, inner sep=0pt, minimum size=3.6mm, font=\tiny\bfseries}}
+
+% Diagrama compacto do receptor DSB-SC. Argumento: ponto destacado, 1 ou 2.
+\newcommand{\diagDSB}[1]{%
+\begin{tikzpicture}[font=\scriptsize,
+  blk/.style={rectangle, draw, rounded corners, minimum height=0.6cm, minimum width=1.2cm, align=center},
+  sm/.style={circle, draw, inner sep=0.5pt}]
+\node (in) {$s(t)$};
+\node[sm, right=0.5cm of in] (sum) {$+$};
+\node[above=0.25cm of sum, cRed] (n) {$n(t)$};
+\node[blk, right=0.5cm of sum] (bpf) {PF $2W$\\ em $f_c$};
+\node[sm, right=1.3cm of bpf] (mix) {$\times$};
+\node[above=0.25cm of mix] (lo) {$\cos(2\pi f_c t)$};
+\node[blk, right=0.5cm of mix] (lpf) {PB $W$};
+\node[right=1.3cm of lpf] (out) {$y(t)$};
+\draw[->] (in) -- (sum);
+\draw[->, cRed] (n) -- (sum);
+\draw[->] (sum) -- (bpf);
+\draw[->] (bpf) -- (mix);
+\draw[->] (lo) -- (mix);
+\draw[->] (mix) -- (lpf);
+\draw[->] (lpf) -- (out);
+\coordinate (p1) at ($(bpf.east)!0.5!(mix.west)$);
+\coordinate (p2) at ($(lpf.east)!0.5!(out.west)$);
+\ifnum#1=1
+  \node[marca, fill=cBlue, text=white] at (p1) {1};
+\else
+  \node[marca, draw=gray!60, fill=white, text=gray] at (p1) {1};
+\fi
+\ifnum#1=2
+  \node[marca, fill=cGreen, text=white] at (p2) {2};
+\else
+  \node[marca, draw=gray!60, fill=white, text=gray] at (p2) {2};
+\fi
+\end{tikzpicture}}
+
+% Diagrama no topo dos frames de cálculo, com pouco espaço vertical
+\newcommand{\topoDSB}[1]{{\centering\diagDSB{#1}\par}\vspace{2pt}}
+
+\section{Modulação AM}
+
+\subsection{DSB-SC}
+
+\begin{frame}{Receptor DSB-SC}
+
+\[
+s(t) = A_c\, m(t)\cos(2\pi f_c t)
+\]
+
+\begin{center}
+\begin{tikzpicture}[font=\small,
+  block/.style={rectangle, draw, rounded corners, minimum height=0.9cm, minimum width=1.7cm, align=center},
+  sum/.style={circle, draw, inner sep=1pt}]
+\node (in) {$s(t)$};
+\node[sum, right=0.7cm of in] (sum) {$+$};
+\node[below=0.5cm of sum, cRed] (n) {$n(t)$};
+\draw[->] (in) -- (sum);
+\draw[->, cRed] (n) -- (sum);
+\onslide<2->{
+  \node[block, right=0.7cm of sum] (bpf) {Filtro PF\\ $2W$ em $f_c$};
+  \draw[->] (sum) -- (bpf);
+}
+\onslide<3->{
+  \node[sum, right=1.6cm of bpf] (mix) {$\times$};
+  \node[below=0.5cm of mix] (lo) {$\cos(2\pi f_c t)$};
+  \draw[->] (bpf) -- (mix);
+  \draw[->] (lo) -- (mix);
+}
+\onslide<4->{
+  \node[block, right=0.9cm of mix] (lpf) {Filtro PB\\ banda $W$};
+  \node[right=1.6cm of lpf] (out) {$y(t)$};
+  \draw[->] (mix) -- (lpf);
+  \draw[->] (lpf) -- (out);
+}
+\onslide<5->{
+  \node[nota=cBlue, above=0.4cm of bpf] (a) {deixa passar só a banda do DSB};
+  \draw[setinha, cBlue] (a) -- (bpf.north);
+  \node[nota=cGreen, right=0.4cm of lo] (b) {portadora local coerente};
+  \draw[setinha, cGreen] (b.west) -- (lo.east);
+}
+\onslide<6->{
+  \node[marca, fill=cBlue, text=white, minimum size=4.5mm, font=\scriptsize\bfseries] (m1) at ($(bpf.east)!0.5!(mix.west)$) {1};
+  \node[marca, fill=cGreen, text=white, minimum size=4.5mm, font=\scriptsize\bfseries] (m2) at ($(lpf.east)!0.5!(out.west)$) {2};
+}
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.2cm}
+\only<1>{O sinal DSB-SC ocupa a faixa $f_c \pm W$: banda $2W$, o dobro da mensagem.}%
+\only<2>{O filtro passa-faixa corta todo o ruído fora da banda do sinal.}%
+\only<3>{A multiplicação pela portadora local traz o sinal de volta para a banda base.}%
+\only<4>{O passa-baixas remove as componentes em $2f_c$.}%
+\only<5>{Mesmas condições da banda base: potência recebida $S_i$ e ruído branco $N_0/2$.}%
+\only<6->{Calculamos sinal, ruído e SNR em dois pontos. No ponto 1, antes da detecção, o ruído ainda é passa-banda. No ponto 2, depois da detecção, tudo está em banda base.}
+
+\end{frame}
+
+% ============================================
+% PONTO 1: ANTES DA DETECÇÃO
+% ============================================
+
+\begin{frame}{Ponto 1: sinal antes da detecção}
+
+\topoDSB{1}
+
+\small\compacto
+O passa-faixa deixa o DSB-SC passar intacto. A potência no ponto 1 é a potência recebida:
+\onslide<2->{
+\[
+S_i = \overline{A_c^2\, m^2(t)\,\tikzmarknode{cq}{\cos^2(2\pi f_c t)}}
+\only<3->{= \frac{A_c^2}{2}\,\overline{m^2} + \tikzmarknode{hf}{\frac{A_c^2}{2}\,\overline{m^2(t)\cos(4\pi f_c t)}}}
+\]}%
+\par\vspace{0.9cm}%
+\anotacoes{
+  \only<3->{
+    \node[nota=cBlue, anchor=north east] (a) at ([xshift=0.4cm,yshift=-0.35cm]cq.south) {$\cos^2 x = \tfrac12 + \tfrac12\cos 2x$};
+    \draw[setinha, cBlue] ([xshift=-0.4cm]a.north east) -- (cq.south);
+  }
+  \only<4->{
+    \node[nota=cRed, anchor=north east] (b) at ([xshift=1.6cm,yshift=-0.35cm]hf.south) {média nula: $m^2$ varia devagar\\ perto de $\cos 4\pi f_c t$};
+    \draw[setinha, cRed] ([xshift=-1.6cm]b.north east) -- (hf.south);
+  }
+}%
+\onslide<5->{
+\[
+\boxed{\,S_i = \frac{A_c^2}{2}\,\overline{m^2}\,}
+\]}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Ponto 1: ruído antes da detecção}
+
+\topoDSB{1}
+
+\begin{columns}[T]
+\column{0.52\textwidth}
+\begin{tikzpicture}
+\begin{axis}[onda, width=6cm, height=1.4cm, xmin=-4, xmax=4, ymin=0, ymax=1.3,
+             xlabel={$f$}, ylabel={$S_n(f)$ no ponto 1}]
+  \only<1>{\addplot[cRed, thick, domain=-4:4, samples=2] {0.6};}
+  \only<2->{
+    \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-3.1,0) (-3.1,0.6) (-1.9,0.6) (-1.9,0)};
+    \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(1.9,0) (1.9,0.6) (3.1,0.6) (3.1,0)};
+    \node[font=\tiny, anchor=north] at (axis cs:2.5,0) {$f_c$};
+    \node[font=\tiny, anchor=north] at (axis cs:-2.5,0) {$-f_c$};
+  }
+  \node[cRed, font=\tiny, anchor=south] at (axis cs:0,0.6) {$N_0/2$};
+  \onslide<3->{
+    \draw[cBlue, <->] (axis cs:1.9,0.85) -- node[above, font=\tiny] {$2W$} (axis cs:3.1,0.85);
+    \draw[cBlue, <->] (axis cs:-3.1,0.85) -- node[above, font=\tiny] {$2W$} (axis cs:-1.9,0.85);
+  }
+\end{axis}
+\end{tikzpicture}
+
+\vspace{0.2cm}
+\small
+\only<1>{Ruído branco antes do filtro.}%
+\only<2->{Ruído passa-banda: só sobram duas faixas, em torno de $\pm f_c$.}
+
+\column{0.48\textwidth}
+\small\compacto
+\onslide<3->{Potência: área das duas faixas.}
+\onslide<4->{
+\[
+\overline{n^2(t)} = \tikzmarknode{dois}{2}\times \frac{N_0}{2}\times \tikzmarknode{larg}{2W}
+\]}%
+\par\vspace{0.7cm}%
+\anotacoes{\only<5->{
+  \node[nota=cRed, anchor=north] (a) at ([xshift=-0.5cm,yshift=-0.4cm]dois.south) {duas faixas};
+  \draw[setinha, cRed] (a.north) -- (dois.south);
+  \node[nota=cBlue, anchor=north] (b) at ([xshift=0.9cm,yshift=-0.4cm]larg.south) {altura $\times$ largura};
+  \draw[setinha, cBlue] (b.north) -- (larg.south);
+}}%
+\onslide<6->{
+\[
+\boxed{\,\overline{n^2(t)} = 2N_0W\,}
+\]}%
+\onslide<7->{O dobro do ruído da banda base.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Ponto 1: SNR antes da detecção}
+
+\topoDSB{1}
+
+\small\compacto
+Sinal e ruído no mesmo ponto, os dois ainda em torno de $f_c$:
+\onslide<2->{
+\[
+\left(\frac{S}{N}\right)_1 = \frac{S_i}{\overline{n^2}}
+\only<3->{= \frac{S_i}{2N_0W}}
+\only<4->{= \frac12\,\tikzmarknode{gm}{\frac{S_i}{N_0W}}}
+\only<5->{= \frac{\gamma}{2}}
+\]}%
+\par\vspace{0.9cm}%
+\anotacoes{\only<4->{
+  \node[nota=cGreen, anchor=north] (a) at ([yshift=-0.35cm]gm.south) {$\gamma$: SNR da banda base com a mesma $S_i$};
+  \draw[setinha, cGreen] (a.north) -- (gm.south);
+}}%
+\onslide<6->{Antes de detectar, o DSB-SC está 3\,dB abaixo da banda base: entrou o dobro de ruído.}
+
+\onslide<7->{Agora o sinal atravessa o detector. Para isso precisamos escrever o ruído passa-banda de um jeito que a multiplicação por $\cos$ saiba tratar.}
+
+\end{frame}
+
+% ============================================
+% PONTO 2: DEPOIS DA DETECÇÃO
+% ============================================
+
+\begin{frame}{Ruído passa-banda em fase e quadratura}
+
+\topoDSB{1}
+
+\small\compacto
+O ruído do ponto 1 com duas componentes de banda base, como $s_I$ e $s_Q$ no AM:
+\onslide<2->{
+\[
+n(t) = \tikzmarknode{nc}{n_c(t)}\cos(2\pi f_c t) - \tikzmarknode{ns}{n_s(t)}\sin(2\pi f_c t)
+\]}%
+\par\vspace{0.7cm}%
+\anotacoes{
+  \only<3->{
+    \node[nota=cBlue, anchor=north east] (a) at ([xshift=-0.3cm,yshift=-0.3cm]nc.south) {em fase, banda $W$};
+    \draw[setinha, cBlue] (a.north) -- (nc.south);
+  }
+  \only<4->{
+    \node[nota=cOrange, anchor=north west] (b) at ([xshift=0.3cm,yshift=-0.3cm]ns.south) {em quadratura, banda $W$};
+    \draw[setinha, cOrange] (b.north) -- (ns.south);
+  }
+}%
+\onslide<5->{Potência, com $\overline{\cos^2} = \overline{\sin^2} = \tfrac12$ e produto cruzado de média nula:}
+\onslide<6->{
+\[
+\overline{n^2} = \tfrac12\,\overline{n_c^2} + \tfrac12\,\overline{n_s^2}
+\only<7->{\quad\Rightarrow\quad \tikzmarknode{res}{\overline{n_c^2} = \overline{n_s^2} = \overline{n^2} = 2N_0W}}
+\]}%
+\par\vspace{0.2cm}%
+\anotacoes{\only<7->{
+  \node[nota=cRed, anchor=north] (c) at ([yshift=-0.3cm]res.south) {$n_c$ e $n_s$ dividem a potência por igual};
+  \draw[setinha, cRed] (c.north) -- (res.south);
+}}%
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Ponto 2: atravessando o detector}
+
+\topoDSB{2}
+
+\small\compacto
+\onslide<1->{Entrada do detector, agrupando o que multiplica cada portadora:}
+\[
+r(t) = \big[A_c m + n_c\big]\cos(2\pi f_c t) - n_s\sin(2\pi f_c t)
+\]
+\onslide<2->{Multiplicando por $\cos(2\pi f_c t)$:}
+\onslide<2->{
+\[
+r\cos(2\pi f_c t) = \big[A_c m + n_c\big]\tikzmarknode{c2}{\cos^2(2\pi f_c t)} - n_s\,\tikzmarknode{sc}{\sin(2\pi f_c t)\cos(2\pi f_c t)}
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{
+  \only<3->{
+    \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.25cm]c2.south) {$\tfrac12 + \tfrac12\cos 4\pi f_c t$};
+    \draw[setinha, cBlue] (a.north) -- (c2.south);
+  }
+  \only<4->{
+    \node[nota=cOrange, anchor=north] (b) at ([yshift=-0.25cm]sc.south) {$\tfrac12\sin 4\pi f_c t$: só em $2f_c$};
+    \draw[setinha, cOrange] (b.north) -- (sc.south);
+  }
+}%
+\onslide<5->{Depois do passa-baixas: \quad $\boxed{\,y(t) = \tfrac12 A_c\, m(t) + \tfrac12 n_c(t)\,}$}
+
+\onslide<6->{O $n_s$ sumiu: o detector coerente rejeita o ruído em quadratura.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Ponto 2: sinal depois da detecção}
+
+\topoDSB{2}
+
+\small\compacto
+\[
+y(t) = \tikzmarknode{ys}{\tfrac12 A_c\, m(t)} + \tfrac12 n_c(t)
+\]
+\par\vspace{0.5cm}%
+\anotacoes{
+  \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.25cm]ys.south) {parcela de sinal};
+  \draw[setinha, cBlue] (a.north) -- (ys.south);
+}%
+\onslide<2->{O fator $\tfrac12$ entra ao quadrado na potência:}
+\onslide<2->{
+\[
+S_o = \frac{A_c^2}{4}\,\overline{m^2}
+\only<3->{= \frac12\cdot\tikzmarknode{si}{\frac{A_c^2}{2}\,\overline{m^2}}}
+\only<4->{= \frac{S_i}{2}}
+\]}%
+\par\vspace{0.2cm}%
+\anotacoes{\only<3->{
+  \node[nota=cBlue, anchor=west] (b) at ([xshift=1.6cm]si.east) {$S_i$ do ponto 1};
+  \draw[setinha, cBlue] (b.west) -- (si.east);
+}}%
+\onslide<5->{Mensagem em banda base, com metade da potência que tinha no ponto 1.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Ponto 2: PSD do ruído $n_c$}
+
+\begin{columns}[T]
+\column{0.55\textwidth}
+\begin{tikzpicture}
+\begin{axis}[onda, width=6.2cm, height=0.9cm, xmin=-5.8, xmax=5.8, ymin=0, ymax=1.3,
+             xlabel={$f$}, ylabel={$S_n(f-f_c)$}]
+  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-0.6,0) (-0.6,0.5) (0.6,0.5) (0.6,0)};
+  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(4.4,0) (4.4,0.5) (5.6,0.5) (5.6,0)};
+  \node[font=\tiny, anchor=north] at (axis cs:5,0) {$2f_c$};
+\end{axis}
+\onslide<2->{
+\begin{axis}[onda, width=6.2cm, height=0.9cm, at={(0,-1.8cm)}, xmin=-5.8, xmax=5.8, ymin=0, ymax=1.3,
+             xlabel={$f$}, ylabel={$S_n(f+f_c)$}]
+  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-0.6,0) (-0.6,0.5) (0.6,0.5) (0.6,0)};
+  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-5.6,0) (-5.6,0.5) (-4.4,0.5) (-4.4,0)};
+  \node[font=\tiny, anchor=north] at (axis cs:-5,0) {$-2f_c$};
+\end{axis}
+}
+\onslide<3->{
+\begin{axis}[onda, width=6.2cm, height=0.9cm, at={(0,-3.6cm)}, xmin=-5.8, xmax=5.8, ymin=0, ymax=1.3,
+             xlabel={$f$}, ylabel={$S_{n_c}(f)$}]
+  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-0.6,0) (-0.6,1.0) (0.6,1.0) (0.6,0)};
+  \node[font=\tiny, anchor=north] at (axis cs:-0.6,0) {$-W$};
+  \node[font=\tiny, anchor=north] at (axis cs:0.6,0) {$W$};
+  \node[cPurple, font=\tiny, anchor=west] at (axis cs:0.7,1.0) {$N_0$};
+\end{axis}
+}
+\end{tikzpicture}
+
+\column{0.45\textwidth}
+\small\compacto
+O detector desloca o ruído do ponto 1 para a banda base.
+\vspace{0.2cm}
+
+\only<1>{Multiplicar por $\cos$ desloca a PSD de $+f_c$: uma faixa cai em torno de zero, a outra em $2f_c$.}%
+\only<2>{E de $-f_c$: outra faixa cai em torno de zero.}%
+\only<3->{O passa-baixas guarda só $|f|\le W$, onde as duas faixas se somam:
+\[
+S_{n_c}(f) = \frac{N_0}{2}+\frac{N_0}{2} = N_0, \quad |f|\le W
+\]}%
+\onslide<4->{Área: $N_0\cdot 2W = 2N_0W$, a mesma potência do slide anterior.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Ponto 2: ruído depois da detecção}
+
+\topoDSB{2}
+
+\begin{columns}[T]
+\column{0.55\textwidth}
+\small\compacto
+\[
+y(t) = \tfrac12 A_c\, m(t) + \tikzmarknode{yn}{\tfrac12 n_c(t)}
+\]
+\par\vspace{0.4cm}%
+\anotacoes{
+  \node[nota=cRed, anchor=west] (a) at ([xshift=0.5cm]yn.east) {parcela de ruído};
+  \draw[setinha, cRed] (a.west) -- (yn.east);
+}%
+\onslide<2->{O fator $\tfrac12$ divide a PSD por 4:}
+\onslide<2->{
+\[
+S_{n_o}(f) = \tfrac14\, S_{n_c}(f)
+\only<3->{= \frac{N_0}{4}, \quad |f|\le W}
+\]}%
+\onslide<4->{
+\[
+N_o = \frac{N_0}{4}\cdot 2W
+\only<5->{= \frac{N_0W}{2}}
+\]}%
+\onslide<6->{Ruído de banda base, com metade de $N_0W$.}
+
+\column{0.45\textwidth}
+\onslide<3->{
+\begin{tikzpicture}
+\begin{axis}[onda, width=4.4cm, height=1.6cm, xmin=-2.2, xmax=2.2, ymin=0, ymax=1.3,
+             xlabel={$f$}, ylabel={$S_{n_o}(f)$}]
+  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-1,0) (-1,0.5) (1,0.5) (1,0)};
+  \node[font=\tiny, anchor=north] at (axis cs:-1,0) {$-W$};
+  \node[font=\tiny, anchor=north] at (axis cs:1,0) {$W$};
+  \node[cRed, font=\tiny, anchor=east] at (axis cs:-1,0.5) {$N_0/4$};
+\end{axis}
+\end{tikzpicture}}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Ponto 2: SNR depois da detecção}
+
+\topoDSB{2}
+
+\small\compacto
+Sinal e ruído no ponto 2, os dois em banda base, com \textcolor{cBlue}{$S_o = S_i/2$} e \textcolor{cRed}{$N_o = N_0W/2$}:
+\onslide<2->{
+\[
+\left(\frac{S}{N}\right)_2 = \frac{\color{cBlue}S_o}{\color{cRed}N_o}
+\only<3->{= \frac{\color{cBlue}S_i/2}{\color{cRed}N_0W/2}}
+\only<4->{= \frac{S_i}{N_0W}}
+\]}%
+\onslide<5->{Resultado: \quad $\boxed{\,\left(\frac{S}{N}\right)_{2} = \gamma\,}$}
+
+\onslide<6->{O DSB-SC com detecção coerente tem a mesma SNR de saída da banda base.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Comparando os dois pontos}
+
+\begin{center}
+\begin{tikzpicture}[font=\small,
+  block/.style={rectangle, draw, rounded corners, minimum height=0.9cm, minimum width=1.7cm, align=center},
+  sum/.style={circle, draw, inner sep=1pt},
+  medida/.style={rounded corners=3pt, inner sep=4pt, font=\footnotesize, align=left, line width=0.7pt}]
+\node (in) {$s(t)$};
+\node[sum, right=0.7cm of in] (sum) {$+$};
+\node[above=0.5cm of sum, cRed] (n) {$n(t)$};
+\node[block, right=0.7cm of sum] (bpf) {Filtro PF\\ $2W$ em $f_c$};
+\node[sum, right=1.6cm of bpf] (mix) {$\times$};
+\node[above=0.5cm of mix] (lo) {$\cos(2\pi f_c t)$};
+\node[block, right=0.8cm of mix] (lpf) {Filtro PB\\ banda $W$};
+\node[right=1.6cm of lpf] (out) {$y(t)$};
+\draw[->] (in) -- (sum);
+\draw[->, cRed] (n) -- (sum);
+\draw[->] (sum) -- (bpf);
+\draw[->] (bpf) -- (mix);
+\draw[->] (lo) -- (mix);
+\draw[->] (mix) -- (lpf);
+\draw[->] (lpf) -- (out);
+\coordinate (p1) at ($(bpf.east)!0.5!(mix.west)$);
+\coordinate (p2) at ($(lpf.east)!0.5!(out.west)$);
+\node[marca, fill=cBlue, text=white, minimum size=4.5mm, font=\scriptsize\bfseries] at (p1) {1};
+\node[marca, fill=cGreen, text=white, minimum size=4.5mm, font=\scriptsize\bfseries] at (p2) {2};
+\onslide<2->{
+  \draw[cBlue, dashed] ($(p1)+(0,-0.25)$) -- ++(0,-0.75);
+  \node[medida, draw=cBlue, text=cBlue, fill=cBlue!6, anchor=north] (m1) at ($(p1)+(0,-1.0)$) {%
+    passa-banda\\[2pt]
+    sinal: $S_i$\\[2pt]
+    ruído: $2N_0W$\\[2pt]
+    SNR: $\gamma/2$};
+}
+\onslide<3->{
+  \draw[cGreen, dashed] ($(p2)+(0,-0.25)$) -- ++(0,-0.75);
+  \node[medida, draw=cGreen, text=cGreen, fill=cGreen!6, anchor=north] (m2) at ($(p2)+(0,-1.0)$) {%
+    banda base\\[2pt]
+    sinal: $S_i/2$\\[2pt]
+    ruído: $N_0W/2$\\[2pt]
+    SNR: $\gamma$};
+}
+\onslide<4->{
+  \draw[setinha, cOrange] (m1.east) -- node[above, font=\scriptsize, cOrange] {$\times 2$} (m2.west);
+}
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.1cm}
+\small
+\only<1>{Os dois pontos de medida no mesmo receptor.}%
+\only<2>{No ponto 1, o ruído ocupa a banda $2W$ do DSB.}%
+\only<3>{No ponto 2, o sinal cai pela metade e o ruído cai a um quarto.}%
+\only<4->{O detector dobra a SNR: ganho de detecção 2. A comparação com a banda base é feita no ponto 2.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Nem ganha nem perde: por quê?}
+
+\small
+\begin{itemize}
+\item<1-> O detector coerente aproveita todo o sinal, que está em fase com a portadora local.
+\item<2-> Do ruído passa-banda, aproveita só $n_c$ e descarta $n_s$, que está em quadratura.
+\item<3-> Esse ganho de 2 só compensa o dobro de ruído que entrou pela banda $2W$.
+\end{itemize}
+
+\onslide<4->{
+\begin{center}
+\begin{tabular}{lcccc}
+\toprule
+ & banda & ruído no ponto 1 & SNR no ponto 1 & SNR de saída \\
+\midrule
+banda base & $W$ & $N_0W$ & $\gamma$ & $\gamma$ \\
+DSB-SC & $2W$ & $2N_0W$ & $\gamma/2$ & $\gamma$ \\
+\bottomrule
+\end{tabular}
+\end{center}}
+
+\onslide<5->{O DSB-SC paga com o dobro de banda e entrega a mesma qualidade da banda base.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Erro de fase da portadora local}
+
+\small\compacto
+Se o oscilador local é $\cos(2\pi f_c t + \phi)$, a mesma conta dá:
+\onslide<2->{
+\[
+y(t) = \tfrac12\big[A_c m + n_c\big]\tikzmarknode{cf}{\cos\phi} + \tfrac12\, n_s \tikzmarknode{sf}{\sin\phi}
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{
+  \only<3->{
+    \node[nota=cBlue, anchor=north east] (a) at ([xshift=-0.2cm,yshift=-0.3cm]cf.south) {sinal atenuado};
+    \draw[setinha, cBlue] (a.north) -- (cf.south);
+  }
+  \only<4->{
+    \node[nota=cOrange, anchor=north west] (b) at ([xshift=0.2cm,yshift=-0.3cm]sf.south) {$n_s$ volta};
+    \draw[setinha, cOrange] (b.north) -- (sf.south);
+  }
+}%
+\onslide<5->{
+\[
+S_o = \frac{A_c^2\overline{m^2}}{4}\cos^2\phi, \quad N_o = \frac14\big(2N_0W\cos^2\phi + 2N_0W\sin^2\phi\big)
+\only<6->{= \frac{N_0W}{2}}
+\]}%
+\onslide<7->{
+\[
+\left(\frac{S}{N}\right)_o = \gamma\cos^2\phi
+\]}%
+\onslide<8->{O ruído total não muda, só o sinal encolhe. Com $\phi = 90^\circ$, a saída é só ruído.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: enlace DSB-SC}
+
+Um transmissor DSB-SC entrega $P_T = 2$\,W a um enlace com perda de 90\,dB. A mensagem tem banda $W = 5$\,kHz e o receptor tem $N_0 = 2\times10^{-17}$\,W/Hz.
+
+\begin{enumerate}
+\item<2-> Qual a SNR antes da detecção, no ponto 1?
+\item<3-> Qual a SNR depois da detecção coerente, no ponto 2?
+\item<4-> E se a portadora local tiver erro de fase de $30^\circ$?
+\end{enumerate}
+
+\vspace{0.4cm}
+\onslide<2->{
+\begin{center}
+\begin{tikzpicture}[font=\small,
+  block/.style={rectangle, draw, rounded corners, minimum height=0.8cm, minimum width=1.5cm, align=center},
+  sum/.style={circle, draw, inner sep=1pt}]
+\node[block] (tx) {Tx DSB\\\scriptsize $2$\,W};
+\node[block, right=0.7cm of tx] (ch) {Enlace\\\scriptsize $-90$\,dB};
+\node[sum, right=0.7cm of ch] (sum) {$+$};
+\node[below=0.4cm of sum, cRed, font=\scriptsize] (n) {$N_0/2$};
+\node[block, right=0.7cm of sum] (bpf) {PF\\\scriptsize $10$\,kHz};
+\node[block, right=0.7cm of bpf] (det) {Detector\\\scriptsize coerente};
+\node[right=0.5cm of det] (out) {$y(t)$};
+\draw[->] (tx) -- (ch);
+\draw[->] (ch) -- node[above, font=\scriptsize] {$S_i$} (sum);
+\draw[->, cRed] (n) -- (sum);
+\draw[->] (sum) -- (bpf);
+\draw[->] (bpf) -- (det);
+\draw[->] (det) -- (out);
+\end{tikzpicture}
+\end{center}}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolução}
+
+\small\compacto
+\onslide<1->{Potência recebida, com 90\,dB $= 10^9$:}
+\[
+S_i = \frac{2}{10^9} = 2\times10^{-9}\ \text{W}
+\]
+\onslide<2->{SNR de referência:}
+\onslide<2->{
+\[
+\gamma = \frac{S_i}{N_0W}
+\only<3->{= \frac{2\times10^{-9}}{2\times10^{-17}\cdot 5\times10^{3}}}
+\only<4->{= 2\times10^{4} \approx 43\ \text{dB}}
+\]}%
+\onslide<5->{No ponto 1, antes da detecção: $\gamma/2 = 10^4 = 40$\,dB.}
+
+\onslide<6->{No ponto 2, depois da detecção: $\gamma \approx 43$\,dB, 3\,dB de ganho de detecção.}
+
+\onslide<7->{Com $\phi = 30^\circ$:}
+\onslide<7->{
+\[
+\gamma\cos^2 30^\circ
+\only<8->{= 2\times10^4\cdot 0{,}75}
+\only<9->{= \tikzmarknode{res}{1{,}5\times10^4 \approx 41{,}8\ \text{dB}}}
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{\only<10->{
+  \node[nota=cRed, anchor=west] (a) at ([xshift=0.8cm]res.east) {perde $1{,}25$\,dB};
+  \draw[setinha, cRed] (a.west) -- (res.east);
+}}%
+
+\end{frame}
+
+% ============================================
