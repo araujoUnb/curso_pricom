@@ -320,48 +320,150 @@ S_o = \frac{A_c^2}{4}\,\overline{m^2}
 
 % ============================================
 
+\begin{frame}{Ponto 2: autocorrelação depois do misturador}
+
+\small\compacto
+Para achar a PSD de $n_c$, olhamos o ruído logo depois do misturador, com um 2 que compensa o $\tfrac12$ do $\cos^2$:
+\[
+x(t) = 2\,n(t)\cos(2\pi f_c t) \quad\Rightarrow\quad n_c(t) = \text{PB}\{x(t)\}
+\]
+\onslide<2->{Autocorrelação: a média sobre o ruído dá $R_n(\tau)$ e nos cossenos fica a média no tempo:}
+\onslide<2->{
+\[
+R_x(\tau) = \overline{x(t)\,x(t+\tau)}
+\only<3->{= 4\,R_n(\tau)\;\tikzmarknode{cc}{\overline{\cos(2\pi f_c t)\cos\big(2\pi f_c (t+\tau)\big)}}}
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{\only<4->{
+  \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.25cm]cc.south) {$\tfrac12\cos(2\pi f_c\tau) + \tfrac12\cos(4\pi f_c t + 2\pi f_c\tau)$};
+  \draw[setinha, cBlue] (a.north) -- (cc.south);
+}}%
+\onslide<5->{
+\[
+R_x(\tau) = 2R_n(\tau)\Big[\cos(2\pi f_c\tau) + \tikzmarknode{dt}{\overline{\cos(4\pi f_c t + 2\pi f_c\tau)}}\Big]
+\only<7->{= \tikzmarknode{rx}{2R_n(\tau)\cos(2\pi f_c\tau)}}
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{
+  \only<6->{
+    \node[nota=cRed, anchor=north] (b) at ([yshift=-0.25cm]dt.south) {oscila em $t$ com $2f_c$: média zero};
+    \draw[setinha, cRed] (b.north) -- (dt.south);
+  }
+  \only<8->{
+    \node[nota=cGreen, anchor=north] (c) at ([yshift=-0.25cm]rx.south) {só depende de $\tau$};
+    \draw[setinha, cGreen] (c.north) -- (rx.south);
+  }
+}%
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Ponto 2: PSD depois do misturador}
+
+\small\compacto
+Pela Wiener--Khinchin, a PSD é a transformada de Fourier de $R_x(\tau)$:
+\[
+S_x(f) = \int_{-\infty}^{\infty} 2R_n(\tau)\,\tikzmarknode{cs}{\cos(2\pi f_c\tau)}\, e^{-j2\pi f\tau}\,d\tau
+\]
+\par\vspace{0.5cm}%
+\anotacoes{\only<2->{
+  \node[nota=cBlue, anchor=west] (a) at ([xshift=2.6cm,yshift=-0.1cm]cs.east) {$\dfrac{e^{j2\pi f_c\tau}+e^{-j2\pi f_c\tau}}{2}$};
+  \draw[setinha, cBlue] (a.west) -- ([xshift=2.0cm]cs.east) to[out=180,in=-60] (cs.south east);
+}}%
+\onslide<3->{Cada exponencial junta com $e^{-j2\pi f\tau}$:}
+\onslide<3->{
+\[
+S_x(f) = \tikzmarknode{i1}{\int_{-\infty}^{\infty} R_n(\tau)\,e^{-j2\pi(f-f_c)\tau}\,d\tau}
+\;+\; \tikzmarknode{i2}{\int_{-\infty}^{\infty} R_n(\tau)\,e^{-j2\pi(f+f_c)\tau}\,d\tau}
+\]}%
+\par\vspace{0.7cm}%
+\anotacoes{\only<4->{
+  \node[nota=cOrange, anchor=north] (b) at ([yshift=-0.25cm]i1.south) {$S_n$ calculada em $f-f_c$};
+  \draw[setinha, cOrange] (b.north) -- (i1.south);
+  \node[nota=cPurple, anchor=north] (c) at ([yshift=-0.25cm]i2.south) {$S_n$ calculada em $f+f_c$};
+  \draw[setinha, cPurple] (c.north) -- (i2.south);
+}}%
+\onslide<5->{
+\[
+\boxed{\,S_x(f) = S_n(f-f_c) + S_n(f+f_c)\,}
+\]}%
+\onslide<6->{Multiplicar por $2\cos(2\pi f_c t)$ copia a PSD deslocada de $+f_c$ e de $-f_c$ e soma as duas cópias.}
+
+\end{frame}
+
+% ============================================
+
 \begin{frame}{Ponto 2: PSD do ruído $n_c$}
 
 \begin{columns}[T]
 \column{0.55\textwidth}
 \begin{tikzpicture}
-\begin{axis}[onda, width=6.2cm, height=0.9cm, xmin=-5.8, xmax=5.8, ymin=0, ymax=1.3,
+\begin{axis}[onda, width=5.4cm, height=0.6cm, every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize}, xmin=-5.8, xmax=5.8, ymin=0, ymax=1.3,
              xlabel={$f$}, ylabel={$S_n(f-f_c)$}]
-  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-0.6,0) (-0.6,0.5) (0.6,0.5) (0.6,0)};
-  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(4.4,0) (4.4,0.5) (5.6,0.5) (5.6,0)};
+  \addplot[cOrange, thick, fill=cOrange!20, samples=2] coordinates {(-0.6,0) (-0.6,0.5) (0.6,0.5) (0.6,0)};
+  \addplot[cOrange, thick, fill=cOrange!20, samples=2] coordinates {(4.4,0) (4.4,0.5) (5.6,0.5) (5.6,0)};
   \node[font=\tiny, anchor=north] at (axis cs:5,0) {$2f_c$};
+  \node[font=\tiny, anchor=north] at (axis cs:0,0) {$0$};
 \end{axis}
 \onslide<2->{
-\begin{axis}[onda, width=6.2cm, height=0.9cm, at={(0,-1.8cm)}, xmin=-5.8, xmax=5.8, ymin=0, ymax=1.3,
+\begin{axis}[onda, width=5.4cm, height=0.6cm, every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize}, at={(0,-1.35cm)}, xmin=-5.8, xmax=5.8, ymin=0, ymax=1.3,
              xlabel={$f$}, ylabel={$S_n(f+f_c)$}]
-  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-0.6,0) (-0.6,0.5) (0.6,0.5) (0.6,0)};
-  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-5.6,0) (-5.6,0.5) (-4.4,0.5) (-4.4,0)};
+  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-0.6,0) (-0.6,0.5) (0.6,0.5) (0.6,0)};
+  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-5.6,0) (-5.6,0.5) (-4.4,0.5) (-4.4,0)};
   \node[font=\tiny, anchor=north] at (axis cs:-5,0) {$-2f_c$};
+  \node[font=\tiny, anchor=north] at (axis cs:0,0) {$0$};
 \end{axis}
 }
 \onslide<3->{
-\begin{axis}[onda, width=6.2cm, height=0.9cm, at={(0,-3.6cm)}, xmin=-5.8, xmax=5.8, ymin=0, ymax=1.3,
+\begin{axis}[onda, width=5.4cm, height=0.6cm, every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize}, at={(0,-2.7cm)}, xmin=-5.8, xmax=5.8, ymin=0, ymax=1.3,
+             xlabel={$f$}, ylabel={$S_x(f)$}]
+  \addplot[cOrange, thick, fill=cOrange!20, samples=2] coordinates {(-0.6,0) (-0.6,0.5) (0.6,0.5) (0.6,0)};
+  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-0.6,0.5) (-0.6,1.0) (0.6,1.0) (0.6,0.5)};
+  \addplot[cOrange, thick, fill=cOrange!20, samples=2] coordinates {(4.4,0) (4.4,0.5) (5.6,0.5) (5.6,0)};
+  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-5.6,0) (-5.6,0.5) (-4.4,0.5) (-4.4,0)};
+  \node[font=\tiny, anchor=north] at (axis cs:5,0) {$2f_c$};
+  \node[font=\tiny, anchor=north] at (axis cs:-5,0) {$-2f_c$};
+  \only<4->{
+    \draw[cGreen, thick, dashed] (axis cs:-5.8,0) -- (axis cs:-0.6,0) -- (axis cs:-0.6,1.25)
+      -- (axis cs:0.6,1.25) -- (axis cs:0.6,0) -- (axis cs:5.8,0);
+    \node[cGreen, font=\tiny, anchor=west] at (axis cs:0.7,1.25) {$|H(f)|^2$};
+  }
+  \only<5->{
+    \draw[cRed, very thick] (axis cs:4.3,-0.1) -- (axis cs:5.7,0.6) (axis cs:4.3,0.6) -- (axis cs:5.7,-0.1);
+    \draw[cRed, very thick] (axis cs:-5.7,-0.1) -- (axis cs:-4.3,0.6) (axis cs:-5.7,0.6) -- (axis cs:-4.3,-0.1);
+  }
+\end{axis}
+}
+\onslide<6->{
+\begin{axis}[onda, width=5.4cm, height=0.6cm, every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize}, at={(0,-4.05cm)}, xmin=-5.8, xmax=5.8, ymin=0, ymax=1.3,
              xlabel={$f$}, ylabel={$S_{n_c}(f)$}]
-  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-0.6,0) (-0.6,1.0) (0.6,1.0) (0.6,0)};
+  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-0.6,0) (-0.6,1.0) (0.6,1.0) (0.6,0)};
   \node[font=\tiny, anchor=north] at (axis cs:-0.6,0) {$-W$};
   \node[font=\tiny, anchor=north] at (axis cs:0.6,0) {$W$};
-  \node[cPurple, font=\tiny, anchor=west] at (axis cs:0.7,1.0) {$N_0$};
+  \node[cRed, font=\tiny, anchor=west] at (axis cs:0.7,1.0) {$N_0$};
 \end{axis}
 }
 \end{tikzpicture}
 
 \column{0.45\textwidth}
 \small\compacto
-O detector desloca o ruído do ponto 1 para a banda base.
-\vspace{0.2cm}
+\only<1>{Cópia deslocada de $+f_c$: a faixa de $-f_c$ cai em torno de zero e a de $+f_c$ vai para $2f_c$.}%
+\only<2>{Cópia deslocada de $-f_c$: a faixa de $+f_c$ cai em torno de zero e a de $-f_c$ vai para $-2f_c$.}%
+\only<3>{Somando as cópias, as duas faixas do centro se empilham e dão altura $N_0$. As de $\pm 2f_c$ ficam com $N_0/2$.
 
-\only<1>{Multiplicar por $\cos$ desloca a PSD de $+f_c$: uma faixa cai em torno de zero, a outra em $2f_c$.}%
-\only<2>{E de $-f_c$: outra faixa cai em torno de zero.}%
-\only<3->{O passa-baixas guarda só $|f|\le W$, onde as duas faixas se somam:
+São as parcelas $n_c\cos 4\pi f_c t$ e $n_s\sin 4\pi f_c t$ que apareceram no detector.}%
+\only<4->{O passa-baixas multiplica a PSD por $|H(f)|^2$:
+\[
+S_{n_c}(f) = |H(f)|^2\, S_x(f)
+\]
+com $|H(f)| = 1$ em $|f|\le W$ e zero fora.\par}%
+\only<5>{As faixas de $\pm 2f_c$ ocupam $2f_c - W \le |f| \le 2f_c + W$. Como $f_c > W$, vale $2f_c - W > W$: elas caem onde $H = 0$ e somem.}%
+\only<6->{Sobra só o centro:
 \[
 S_{n_c}(f) = \frac{N_0}{2}+\frac{N_0}{2} = N_0, \quad |f|\le W
 \]}%
-\onslide<4->{Área: $N_0\cdot 2W = 2N_0W$, a mesma potência do slide anterior.}
+\onslide<7->{Área: $N_0\cdot 2W = 2N_0W$, a mesma potência de $n_c$ calculada antes.}
 \end{columns}
 
 \end{frame}
@@ -522,32 +624,80 @@ DSB-SC & $2W$ & $2N_0W$ & $\gamma/2$ & $\gamma$ \\
 \begin{frame}{Erro de fase da portadora local}
 
 \small\compacto
-Se o oscilador local é $\cos(2\pi f_c t + \phi)$, a mesma conta dá:
+Se o oscilador local é $\cos(2\pi f_c t + \phi)$, a entrada do detector é a mesma de antes:
+\[
+r(t) = \big[A_c m + n_c\big]\cos(2\pi f_c t) - n_s\sin(2\pi f_c t)
+\]
+\onslide<2->{Multiplicando pelo oscilador com erro de fase:}
 \onslide<2->{
+\[
+r\cos(2\pi f_c t+\phi) = \big[A_c m + n_c\big]\tikzmarknode{pc}{\cos(2\pi f_c t)\cos(2\pi f_c t+\phi)} - n_s\,\tikzmarknode{ps}{\sin(2\pi f_c t)\cos(2\pi f_c t+\phi)}
+\]}%
+\par\vspace{0.8cm}%
+\anotacoes{
+  \only<3->{
+    \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.25cm]pc.south) {$\tfrac12\cos\phi + \tfrac12\cos(4\pi f_c t+\phi)$};
+    \draw[setinha, cBlue] (a.north) -- (pc.south);
+  }
+  \only<4->{
+    \node[nota=cOrange, anchor=north] (b) at ([yshift=-0.25cm]ps.south) {$-\tfrac12\sin\phi + \tfrac12\sin(4\pi f_c t+\phi)$};
+    \draw[setinha, cOrange] (b.north) -- (ps.south);
+  }
+}%
+\onslide<5->{O passa-baixas tira as parcelas em $2f_c$ e o sinal de menos do $n_s$ se cancela com o de $-\tfrac12\sin\phi$:}
+\onslide<5->{
 \[
 y(t) = \tfrac12\big[A_c m + n_c\big]\tikzmarknode{cf}{\cos\phi} + \tfrac12\, n_s \tikzmarknode{sf}{\sin\phi}
 \]}%
 \par\vspace{0.6cm}%
 \anotacoes{
-  \only<3->{
-    \node[nota=cBlue, anchor=north east] (a) at ([xshift=-0.2cm,yshift=-0.3cm]cf.south) {sinal atenuado};
-    \draw[setinha, cBlue] (a.north) -- (cf.south);
+  \only<6->{
+    \node[nota=cBlue, anchor=north east] (c) at ([xshift=-0.2cm,yshift=-0.3cm]cf.south) {sinal atenuado};
+    \draw[setinha, cBlue] (c.north) -- (cf.south);
   }
-  \only<4->{
-    \node[nota=cOrange, anchor=north west] (b) at ([xshift=0.2cm,yshift=-0.3cm]sf.south) {$n_s$ volta};
-    \draw[setinha, cOrange] (b.north) -- (sf.south);
+  \only<7->{
+    \node[nota=cOrange, anchor=north west] (d) at ([xshift=0.2cm,yshift=-0.3cm]sf.south) {$n_s$ volta};
+    \draw[setinha, cOrange] (d.north) -- (sf.south);
   }
 }%
-\onslide<5->{
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Erro de fase: potência de sinal e de ruído}
+
+\small\compacto
+Separando as parcelas de \textcolor{cBlue}{sinal} e de \textcolor{cRed}{ruído} em $y(t)$:
 \[
-S_o = \frac{A_c^2\overline{m^2}}{4}\cos^2\phi, \quad N_o = \frac14\big(2N_0W\cos^2\phi + 2N_0W\sin^2\phi\big)
-\only<6->{= \frac{N_0W}{2}}
+y(t) = \textcolor{cBlue}{\tfrac12 A_c m\cos\phi} + \textcolor{cRed}{\tfrac12\big(n_c\cos\phi + n_s\sin\phi\big)}
+\onslide<2->{\quad\Rightarrow\quad S_o = \frac{A_c^2\overline{m^2}}{4}\cos^2\phi}
+\]
+\onslide<3->{
+\[
+N_o = \tfrac14\,\overline{\big(n_c\cos\phi + n_s\sin\phi\big)^2}
+\only<4->{= \tfrac14\Big(\tikzmarknode{nc2}{\overline{n_c^2}}\cos^2\phi + \overline{n_s^2}\sin^2\phi + 2\,\tikzmarknode{ncs}{\overline{n_c n_s}}\sin\phi\cos\phi\Big)}
 \]}%
+\par\vspace{0.6cm}%
+\anotacoes{
+  \only<5->{
+    \node[nota=cGreen, anchor=north east] (c) at ([xshift=-0.2cm,yshift=-0.3cm]nc2.south) {$\overline{n_c^2} = \overline{n_s^2} = 2N_0W$};
+    \draw[setinha, cGreen] (c.north) -- (nc2.south);
+  }
+  \only<6->{
+    \node[nota=cRed, anchor=north west] (d) at ([xshift=0.2cm,yshift=-0.3cm]ncs.south) {zero: $n_c$ e $n_s$ descorrelacionados};
+    \draw[setinha, cRed] (d.north) -- (ncs.south);
+  }
+}%
 \onslide<7->{
 \[
-\left(\frac{S}{N}\right)_o = \gamma\cos^2\phi
+N_o = \frac14\big(2N_0W\cos^2\phi + 2N_0W\sin^2\phi\big)
+\only<8->{= \frac{N_0W}{2}\big(\cos^2\phi+\sin^2\phi\big)}
+\only<9->{= \frac{N_0W}{2}}
 \]}%
-\onslide<8->{O ruído total não muda, só o sinal encolhe. Com $\phi = 90^\circ$, a saída é só ruído.}
+\onslide<10->{SNR: \quad $\left(\frac{S}{N}\right)_o = \dfrac{A_c^2\overline{m^2}\cos^2\phi/4}{N_0W/2} = \gamma\cos^2\phi$}
+
+\onslide<11->{O ruído total não muda, só o sinal encolhe. Com $\phi = 90^\circ$, a saída é só ruído.}
 
 \end{frame}
 

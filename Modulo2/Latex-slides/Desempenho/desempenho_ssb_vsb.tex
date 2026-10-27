@@ -1,0 +1,532 @@
+% ============================================
+% DESEMPENHO DO SSB E DO VSB
+% Detecção coerente, como no DSB-SC. O que muda é a banda do filtro de
+% recepção e a parcela em quadratura do sinal transmitido.
+% ============================================
+
+% Receptor coerente com o filtro de recepção como argumento.
+% #1: texto do filtro; #2: ponto destacado, 1 ou 2.
+\newcommand{\diagCoe}[2]{%
+\begin{tikzpicture}[font=\scriptsize,
+  blk/.style={rectangle, draw, rounded corners, minimum height=0.6cm, minimum width=1.2cm, align=center},
+  sm/.style={circle, draw, inner sep=0.5pt}]
+\node (in) {$s(t)$};
+\node[sm, right=0.5cm of in] (sum) {$+$};
+\node[above=0.25cm of sum, cRed] (n) {$n(t)$};
+\node[blk, right=0.5cm of sum] (bpf) {#1};
+\node[sm, right=1.3cm of bpf] (mix) {$\times$};
+\node[above=0.25cm of mix] (lo) {$\cos(2\pi f_c t)$};
+\node[blk, right=0.5cm of mix] (lpf) {PB $W$};
+\node[right=1.3cm of lpf] (out) {$y(t)$};
+\draw[->] (in) -- (sum);
+\draw[->, cRed] (n) -- (sum);
+\draw[->] (sum) -- (bpf);
+\draw[->] (bpf) -- (mix);
+\draw[->] (lo) -- (mix);
+\draw[->] (mix) -- (lpf);
+\draw[->] (lpf) -- (out);
+\coordinate (p1) at ($(bpf.east)!0.5!(mix.west)$);
+\coordinate (p2) at ($(lpf.east)!0.5!(out.west)$);
+\ifnum#2=1
+  \node[marca, fill=cBlue, text=white] at (p1) {1};
+\else
+  \node[marca, draw=gray!60, fill=white, text=gray] at (p1) {1};
+\fi
+\ifnum#2=2
+  \node[marca, fill=cGreen, text=white] at (p2) {2};
+\else
+  \node[marca, draw=gray!60, fill=white, text=gray] at (p2) {2};
+\fi
+\end{tikzpicture}}
+
+\newcommand{\topoSSB}[1]{{\centering\diagCoe{PF $W$, de\\ $f_c$ a $f_c+W$}{#1}\par}\vspace{2pt}}
+\newcommand{\topoVSB}[1]{{\centering\diagCoe{PF de $f_c - f_v$\\ a $f_c+W$}{#1}\par}\vspace{2pt}}
+
+\subsection{SSB}
+
+\begin{frame}{Receptor SSB}
+
+\small\compacto
+Banda lateral superior, com $m_h$ a transformada de Hilbert de $m$:
+\[
+s(t) = A_c\big[m(t)\cos(2\pi f_c t) - \tikzmarknode{mh}{m_h(t)}\sin(2\pi f_c t)\big]
+\]
+\par\vspace{0.45cm}%
+\anotacoes{\only<2->{
+  \node[nota=cOrange, anchor=north east] (a) at ([xshift=-1.2cm,yshift=-0.15cm]mh.south west) {$M_h(f) = -j\,\mathrm{sgn}(f)\,M(f)$};
+  \draw[setinha, cOrange] (a.east) -- (mh.south west);
+}}%
+
+\vspace{-0.3cm}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[onda, width=9cm, height=1.1cm, xmin=-4, xmax=4, ymin=0, ymax=1.3,
+             xlabel={$f$}, ylabel={espectro de $s(t)$}]
+  \only<3->{
+    \addplot[cBlue, thick, fill=cBlue!20, samples=2] coordinates {(2,0) (2,0.8) (3.2,0)};
+    \addplot[cBlue, thick, fill=cBlue!20, samples=2] coordinates {(-2,0) (-2,0.8) (-3.2,0)};
+    \node[font=\tiny, anchor=north] at (axis cs:2,0) {$f_c$};
+    \node[font=\tiny, anchor=north] at (axis cs:3.2,0) {$f_c+W$};
+    \node[font=\tiny, anchor=north] at (axis cs:-2,0) {$-f_c$};
+  }
+  \only<4->{
+    \draw[cGreen, thick, dashed] (axis cs:2,0) -- (axis cs:2,1.1) -- (axis cs:3.2,1.1) -- (axis cs:3.2,0);
+    \draw[cGreen, thick, dashed] (axis cs:-2,0) -- (axis cs:-2,1.1) -- (axis cs:-3.2,1.1) -- (axis cs:-3.2,0);
+    \node[cGreen, font=\tiny, anchor=south] at (axis cs:2.6,1.1) {filtro de recepção};
+  }
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\only<1-2>{O sinal ocupa só a banda lateral superior.}%
+\only<3>{Banda $W$, metade do DSB-SC.}%
+\only<4>{O filtro de recepção acompanha o sinal: largura $W$, de $f_c$ a $f_c+W$.}%
+\only<5->{{\centering\diagCoe{PF $W$, de\\ $f_c$ a $f_c+W$}{0}\par}}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{SSB, ponto 1: potência do sinal}
+
+\small\compacto
+\[
+S_i = A_c^2\Big[\overline{m^2}\,\tikzmarknode{c2}{\overline{\cos^2}} + \overline{m_h^2}\,\overline{\sin^2} - 2\,\tikzmarknode{cs}{\overline{m\,m_h\cos\sin}}\Big]
+\only<3->{= \frac{A_c^2}{2}\big(\overline{m^2} + \tikzmarknode{mh2}{\overline{m_h^2}}\big)}
+\]
+\par\vspace{0.7cm}%
+\anotacoes{
+  \only<2->{
+    \node[nota=cBlue, anchor=north east] (a) at ([xshift=-0.2cm,yshift=-0.3cm]c2.south) {$\overline{\cos^2} = \overline{\sin^2} = \tfrac12$};
+    \draw[setinha, cBlue] (a.north) -- (c2.south);
+    \node[nota=cRed, anchor=north] (b) at ([xshift=0.4cm,yshift=-0.3cm]cs.south) {$\cos\sin = \tfrac12\sin 4\pi f_c t$: média nula};
+    \draw[setinha, cRed] (b.north) -- (cs.south);
+  }
+}%
+\onslide<4->{Potência de $m_h$ pela PSD, com $|{-j}\,\mathrm{sgn}(f)| = 1$:}
+\onslide<4->{
+\[
+\overline{m_h^2} = \int_{-\infty}^{\infty} S_m(f)\,\tikzmarknode{hh}{\big|{-j}\,\mathrm{sgn}(f)\big|^2}\,df
+\only<5->{= \int_{-\infty}^{\infty} S_m(f)\,df = \overline{m^2}}
+\]}%
+\par\vspace{0.5cm}%
+\anotacoes{\only<5->{
+  \node[nota=cOrange, anchor=north] (c) at ([yshift=-0.25cm]hh.south) {Hilbert só muda a fase};
+  \draw[setinha, cOrange] (c.north) -- (hh.south);
+}}%
+\onslide<6->{
+\[
+\boxed{\,S_i = A_c^2\,\overline{m^2}\,}
+\]}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{SSB, ponto 1: ruído e SNR}
+
+\topoSSB{1}
+
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{tikzpicture}
+\begin{axis}[onda, width=5.6cm, height=1.4cm, xmin=-4, xmax=4, ymin=0, ymax=1.3,
+             xlabel={$f$}, ylabel={$S_n(f)$ no ponto 1}]
+  \only<1>{\addplot[cRed, thick, domain=-4:4, samples=2] {0.6};}
+  \only<2->{
+    \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(2,0) (2,0.6) (3.2,0.6) (3.2,0)};
+    \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-3.2,0) (-3.2,0.6) (-2,0.6) (-2,0)};
+    \node[font=\tiny, anchor=north] at (axis cs:2,0) {$f_c$};
+    \node[font=\tiny, anchor=north] at (axis cs:-2,0) {$-f_c$};
+    \draw[cBlue, <->] (axis cs:2,0.85) -- node[above, font=\tiny] {$W$} (axis cs:3.2,0.85);
+  }
+  \node[cRed, font=\tiny, anchor=south] at (axis cs:0,0.6) {$N_0/2$};
+\end{axis}
+\end{tikzpicture}
+
+\vspace{0.2cm}\small
+\only<1>{Ruído branco antes do filtro.}%
+\only<2->{Duas faixas de largura $W$, metade das do DSB-SC.}
+
+\column{0.5\textwidth}
+\small\compacto
+\onslide<3->{
+\[
+\overline{n^2} = 2\times\frac{N_0}{2}\times W = N_0W
+\]}%
+\onslide<4->{
+\[
+\left(\frac{S}{N}\right)_1 = \frac{S_i}{N_0W}
+\only<5->{= \gamma}
+\]}%
+\onslide<6->{A banda menor deixa entrar a metade do ruído do DSB-SC: no ponto 1 o SSB já está com $\gamma$, 3\,dB acima do DSB-SC.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{SSB: PSD do ruído $n_c$}
+
+\begin{columns}[T]
+\column{0.55\textwidth}
+\begin{tikzpicture}
+\begin{axis}[onda, width=5.4cm, height=0.6cm, xmin=-6, xmax=6, ymin=0, ymax=1.3,
+             every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize},
+             xlabel={$f$}, ylabel={$S_n(f-f_c)$}]
+  \addplot[cOrange, thick, fill=cOrange!20, samples=2] coordinates {(0,0) (0,0.5) (1,0.5) (1,0)};
+  \addplot[cOrange, thick, fill=cOrange!20, samples=2] coordinates {(4.5,0) (4.5,0.5) (5.5,0.5) (5.5,0)};
+  \node[font=\tiny, anchor=north] at (axis cs:4.5,0) {$2f_c$};
+  \node[font=\tiny, anchor=north] at (axis cs:1,0) {$W$};
+\end{axis}
+\onslide<2->{
+\begin{axis}[onda, width=5.4cm, height=0.6cm, at={(0,-1.35cm)}, xmin=-6, xmax=6, ymin=0, ymax=1.3,
+             every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize},
+             xlabel={$f$}, ylabel={$S_n(f+f_c)$}]
+  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-1,0) (-1,0.5) (0,0.5) (0,0)};
+  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-5.5,0) (-5.5,0.5) (-4.5,0.5) (-4.5,0)};
+  \node[font=\tiny, anchor=north] at (axis cs:-4.5,0) {$-2f_c$};
+  \node[font=\tiny, anchor=north] at (axis cs:-1,0) {$-W$};
+\end{axis}}
+\onslide<3->{
+\begin{axis}[onda, width=5.4cm, height=0.6cm, at={(0,-2.7cm)}, xmin=-6, xmax=6, ymin=0, ymax=1.3,
+             every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize},
+             xlabel={$f$}, ylabel={$S_x(f)$}]
+  \addplot[cOrange, thick, fill=cOrange!20, samples=2] coordinates {(0,0) (0,0.5) (1,0.5) (1,0)};
+  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-1,0) (-1,0.5) (0,0.5) (0,0)};
+  \addplot[cOrange, thick, fill=cOrange!20, samples=2] coordinates {(4.5,0) (4.5,0.5) (5.5,0.5) (5.5,0)};
+  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-5.5,0) (-5.5,0.5) (-4.5,0.5) (-4.5,0)};
+  \only<4->{
+    \draw[cGreen, thick, dashed] (axis cs:-6,0) -- (axis cs:-1,0) -- (axis cs:-1,1.2)
+      -- (axis cs:1,1.2) -- (axis cs:1,0) -- (axis cs:6,0);
+    \draw[cRed, very thick] (axis cs:4.4,-0.1) -- (axis cs:5.6,0.6) (axis cs:4.4,0.6) -- (axis cs:5.6,-0.1);
+    \draw[cRed, very thick] (axis cs:-5.6,-0.1) -- (axis cs:-4.4,0.6) (axis cs:-5.6,0.6) -- (axis cs:-4.4,-0.1);
+  }
+\end{axis}}
+\onslide<5->{
+\begin{axis}[onda, width=5.4cm, height=0.6cm, at={(0,-4.05cm)}, xmin=-6, xmax=6, ymin=0, ymax=1.3,
+             every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize},
+             xlabel={$f$}, ylabel={$S_{n_c}(f)$}]
+  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-1,0) (-1,0.5) (1,0.5) (1,0)};
+  \node[font=\tiny, anchor=north] at (axis cs:-1,0) {$-W$};
+  \node[font=\tiny, anchor=north] at (axis cs:1,0) {$W$};
+  \node[cRed, font=\tiny, anchor=west] at (axis cs:1.1,0.5) {$N_0/2$};
+\end{axis}}
+\end{tikzpicture}
+
+\column{0.45\textwidth}
+\small\compacto
+Mesma regra do DSB-SC: $S_x(f) = S_n(f-f_c) + S_n(f+f_c)$.
+
+\only<1>{A faixa de $[f_c, f_c+W]$ cai em $[0, W]$.}%
+\only<2>{A faixa de $[-f_c-W, -f_c]$ cai em $[-W, 0]$.}%
+\only<3>{As duas faixas não se empilham: encostam em $f = 0$. A altura fica $N_0/2$, metade do DSB-SC.}%
+\only<4>{O passa-baixas guarda $|f|\le W$ e elimina as faixas de $\pm 2f_c$.}%
+\only<5->{
+\[
+\overline{n_c^2} = \frac{N_0}{2}\cdot 2W = N_0W
+\]
+Mesma potência do ruído do ponto 1, como no DSB-SC: $\overline{n_c^2} = \overline{n^2}$.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{SSB, ponto 2: depois da detecção}
+
+\small\compacto
+Entrada do detector, agrupando por portadora:
+\[
+r(t) = \big[A_c m + n_c\big]\cos(2\pi f_c t) - \big[\tikzmarknode{qm}{A_c m_h + n_s}\big]\sin(2\pi f_c t)
+\]
+\par\vspace{0.5cm}%
+\anotacoes{\only<2->{
+  \node[nota=cOrange, anchor=north east] (a) at ([xshift=0.6cm,yshift=-0.25cm]qm.south) {vezes $\cos$ vira $\tfrac12\sin 4\pi f_c t$: o PB elimina};
+  \draw[setinha, cOrange] ([xshift=-0.6cm]a.north east) -- (qm.south);
+}}%
+\onslide<3->{
+\[
+y(t) = \tfrac12 A_c\,m(t) + \tfrac12\,n_c(t)
+\]}%
+\onslide<4->{
+\[
+S_o = \frac{A_c^2\,\overline{m^2}}{4} = \frac{S_i}{4}, \qquad
+N_o = \frac14\,\overline{n_c^2} = \frac{N_0W}{4}
+\]}%
+\onslide<5->{
+\[
+\left(\frac{S}{N}\right)_2 = \frac{S_i/4}{N_0W/4}
+\only<6->{= \frac{S_i}{N_0W} = \gamma}
+\]}%
+\onslide<7->{Ganho de detecção 1: o detector descarta $n_s$, mas também descarta $m_h$, que levava metade de $S_i$.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{DSB-SC e SSB lado a lado}
+
+\small
+\begin{center}
+\begin{tabular}{l c c c c c}
+\toprule
+ & banda & ruído no ponto 1 & SNR no ponto 1 & SNR no ponto 2 & ganho de detecção \\
+\midrule
+banda base & $W$ & $N_0W$ & $\gamma$ & $\gamma$ & -- \\
+\pause
+DSB-SC & $2W$ & $2N_0W$ & $\gamma/2$ & $\gamma$ & 2 \\
+\pause
+SSB & $W$ & $N_0W$ & $\gamma$ & $\gamma$ & 1 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+\item<4-> No DSB-SC, as duas bandas laterais carregam a mesma mensagem e se somam em fase no detector; o ruído das duas bandas é independente e se soma em potência.
+\item<5-> No SSB não há essa soma, mas também não entra o ruído da outra banda.
+\item<6-> As duas chegam a $\gamma$. O SSB usa metade da banda; o preço é o filtro e o modulador mais difíceis.
+\end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\subsection{VSB}
+
+\begin{frame}{Sinal VSB em fase e quadratura}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[onda, width=9cm, height=1.4cm, xmin=0, xmax=5, ymin=0, ymax=1.4,
+             xlabel={$f$}, ylabel={espectro de $s(t)$ em torno de $f_c$}]
+  \addplot[cBlue, thick, fill=cBlue!20, samples=2] coordinates {(1.6,0) (2.4,0.8) (3.2,0.8) (3.2,0)};
+  \node[font=\tiny, anchor=north] at (axis cs:2,0) {$f_c$};
+  \node[font=\tiny, anchor=north] at (axis cs:1.6,0) {$f_c-f_v$};
+  \node[font=\tiny, anchor=north] at (axis cs:3.2,0) {$f_c+W$};
+  \only<2->{
+    \draw[cOrange, thick, dashed] (axis cs:1.6,0) -- (axis cs:2.4,1.1) -- (axis cs:3.4,1.1);
+    \node[cOrange, font=\tiny, anchor=south] at (axis cs:3.0,1.1) {$H(f)$};
+    \draw[cOrange, <->] (axis cs:1.6,1.25) -- node[above, font=\tiny] {$2f_v$} (axis cs:2.4,1.25);
+  }
+  \only<3->{
+    \draw[cGreen, thick, dashed] (axis cs:1.6,0) -- (axis cs:1.6,0.95) -- (axis cs:3.2,0.95) -- (axis cs:3.2,0);
+    \node[cGreen, font=\tiny, anchor=west] at (axis cs:3.25,0.95) {filtro de recepção};
+  }
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\small\compacto
+\only<1>{A banda superior passa inteira e um vestígio da inferior, de largura $f_v$, fica junto de $f_c$.}%
+\only<2>{O filtro VSB $H(f)$ tem simetria complementar em $f_c$: $H(f_c + f) + H(f_c - f) = 1$ para $|f| \le W$.}%
+\only<3>{O filtro de recepção deixa passar a faixa inteira, de $f_c - f_v$ a $f_c + W$: banda $W(1+\nu)$, com $\nu = f_v/W$.}%
+\only<4->{Escrevendo o VSB como o SSB, com outra parcela em quadratura:
+\[
+s(t) = A_c\big[m(t)\cos(2\pi f_c t) - \tikzmarknode{mq}{m_Q(t)}\sin(2\pi f_c t)\big]
+\]
+\par\vspace{0.5cm}%
+\anotacoes{\only<5->{
+  \node[nota=cOrange, anchor=north] (a) at ([xshift=-1.5cm,yshift=-0.25cm]mq.south) {$m$ filtrado por $H_Q(f) = j\big[H(f-f_c) - H(f+f_c)\big]$};
+  \draw[setinha, cOrange] ([xshift=1.5cm]a.north) -- (mq.south);
+}}%
+\par\vspace{0.5cm}%
+\onslide<6->{Casos extremos: $H$ plano dá $H_Q = 0$, o DSB-SC; $f_v = 0$ dá $H_Q = -j\,\mathrm{sgn}(f)$, o SSB.}}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{VSB, ponto 1: sinal e ruído}
+
+\small\compacto
+Mesma conta do SSB, com $m_Q$ no lugar de $m_h$:
+\[
+S_i = \frac{A_c^2}{2}\big(\overline{m^2} + \tikzmarknode{mq2}{\overline{m_Q^2}}\big)
+\only<3->{= \frac{A_c^2\,\overline{m^2}}{2}\,(1 + \kappa)}
+\]
+\par\vspace{1.0cm}%
+\anotacoes{\only<2->{
+  \node[nota=cOrange, anchor=north] (a) at ([yshift=-0.25cm]mq2.south) {$\displaystyle\overline{m_Q^2} = \int S_m(f)\,|H_Q(f)|^2 df \triangleq \kappa\,\overline{m^2}$};
+  \draw[setinha, cOrange] (a.north) -- (mq2.south);
+}}%
+\onslide<4->{$|H_Q| \le 1$, então $0 \le \kappa \le 1$: $\kappa = 0$ no DSB-SC e $\kappa = 1$ no SSB.}
+
+\onslide<5->{Ruído no ponto 1, faixa de largura $W + f_v$ em cada lado:}
+\onslide<5->{
+\[
+\overline{n^2} = 2\times\frac{N_0}{2}\times W(1+\nu) = N_0W(1+\nu)
+\]}%
+\onslide<6->{
+\[
+\left(\frac{S}{N}\right)_1 = \frac{S_i}{N_0W(1+\nu)} = \frac{\gamma}{1+\nu}
+\]}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{VSB: PSD do ruído $n_c$}
+
+\begin{columns}[T]
+\column{0.55\textwidth}
+\begin{tikzpicture}
+\begin{axis}[onda, width=5.4cm, height=0.6cm, xmin=-2.2, xmax=2.2, ymin=0, ymax=1.3,
+             every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize},
+             xlabel={$f$}, ylabel={$S_n(f-f_c)$}]
+  \addplot[cOrange, thick, fill=cOrange!20, samples=2] coordinates {(-0.3,0) (-0.3,0.5) (1.2,0.5) (1.2,0)};
+  \node[font=\tiny, anchor=north] at (axis cs:-0.3,0) {$-f_v$};
+  \node[font=\tiny, anchor=north] at (axis cs:1.2,0) {$W$};
+\end{axis}
+\onslide<2->{
+\begin{axis}[onda, width=5.4cm, height=0.6cm, at={(0,-1.35cm)}, xmin=-2.2, xmax=2.2, ymin=0, ymax=1.3,
+             every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize},
+             xlabel={$f$}, ylabel={$S_n(f+f_c)$}]
+  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-1.2,0) (-1.2,0.5) (0.3,0.5) (0.3,0)};
+  \node[font=\tiny, anchor=north] at (axis cs:-1.2,0) {$-W$};
+  \node[font=\tiny, anchor=north] at (axis cs:0.3,0) {$f_v$};
+\end{axis}}
+\onslide<3->{
+\begin{axis}[onda, width=5.4cm, height=0.6cm, at={(0,-2.7cm)}, xmin=-2.2, xmax=2.2, ymin=0, ymax=1.3,
+             every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize},
+             xlabel={$f$}, ylabel={$S_{n_c}(f)$}]
+  \addplot[cOrange, thick, fill=cOrange!20, samples=2] coordinates {(-0.3,0) (-0.3,0.5) (1.2,0.5) (1.2,0)};
+  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-1.2,0) (-1.2,0.5) (-0.3,0.5) (-0.3,0)};
+  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-0.3,0.5) (-0.3,1.0) (0.3,1.0) (0.3,0.5)};
+  \node[font=\tiny, anchor=north] at (axis cs:-1.2,0) {$-W$};
+  \node[font=\tiny, anchor=north] at (axis cs:1.2,0) {$W$};
+  \only<4->{
+    \node[cRed, font=\tiny, anchor=south] at (axis cs:0,1.0) {$N_0$};
+    \node[cRed, font=\tiny, anchor=south] at (axis cs:0.8,0.5) {$N_0/2$};
+  }
+\end{axis}}
+\end{tikzpicture}
+
+\column{0.45\textwidth}
+\small\compacto
+\only<1>{A faixa de $[f_c - f_v, f_c + W]$ cai em $[-f_v, W]$.}%
+\only<2>{A faixa negativa cai em $[-W, f_v]$.}%
+\only<3>{As duas se sobrepõem em $|f| < f_v$, a região do vestígio. As faixas de $\pm 2f_c$ já ficaram fora do passa-baixas.}%
+\only<4->{Área: a base $N_0/2$ em $2W$ mais o degrau $N_0/2$ em $2f_v$:
+\[
+\overline{n_c^2} = \frac{N_0}{2}\,2W + \frac{N_0}{2}\,2f_v
+\only<5->{= N_0W(1+\nu)}
+\]
+\onslide<6->{De novo $\overline{n_c^2} = \overline{n^2}$. Entre o SSB, com $\nu = 0$, e o DSB-SC, com $\nu = 1$.}}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{VSB, ponto 2: depois da detecção}
+
+\small\compacto
+O detector elimina a parcela em quadratura $A_c m_Q + n_s$, como no SSB:
+\[
+y(t) = \tfrac12 A_c\,m(t) + \tfrac12\,n_c(t)
+\]
+\onslide<2->{
+\[
+S_o = \frac{A_c^2\,\overline{m^2}}{4}, \qquad N_o = \frac{N_0W(1+\nu)}{4}
+\]}%
+\onslide<3->{
+\[
+\left(\frac{S}{N}\right)_2 = \frac{\tikzmarknode{am}{A_c^2\,\overline{m^2}}}{N_0W(1+\nu)}
+\]}%
+\anotacoes{\only<4->{
+  \node[nota=cOrange, anchor=west] (a) at ([xshift=2.2cm]am.east) {do ponto 1: $A_c^2\overline{m^2} = \dfrac{2S_i}{1+\kappa}$};
+  \draw[setinha, cOrange] (a.west) -- (am.east);
+}}%
+\onslide<5->{
+\[
+\boxed{\,\left(\frac{S}{N}\right)_2 = \frac{2}{(1+\kappa)(1+\nu)}\,\gamma\,}
+\]}%
+\onslide<6->{Conferindo os extremos:
+\[
+\text{SSB: } \kappa = 1,\ \nu = 0 \;\Rightarrow\; \gamma
+\qquad\quad
+\text{DSB-SC: } \kappa = 0,\ \nu = 1 \;\Rightarrow\; \gamma
+\]}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{VSB com vestígio linear}
+
+\begin{columns}[T]
+\column{0.56\textwidth}
+\small\compacto
+Rampa linear em $|f| \le f_v$ e PSD da mensagem plana, $S_m = \overline{m^2}/2W$:
+\onslide<3->{
+\[
+\kappa = \frac{2}{2W}\Big[\int_0^{f_v}\!\Big(\frac{f}{f_v}\Big)^2 df + \int_{f_v}^{W}\! df\Big]
+\]}%
+\onslide<4->{
+\[
+\kappa = \frac1W\Big[\tikzmarknode{i1}{\frac{f_v}{3}} + \tikzmarknode{i2}{W - f_v}\Big]
+\only<5->{= 1 - \frac{2\nu}{3}}
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{\only<4->{
+  \node[nota=cBlue, anchor=north east] (a) at ([xshift=-0.2cm,yshift=-0.3cm]i1.south) {$\dfrac{1}{f_v^2}\cdot\dfrac{f_v^3}{3}$};
+  \draw[setinha, cBlue] (a.north) -- (i1.south);
+}}%
+\onslide<6->{
+\[
+(1+\kappa)(1+\nu) = 2\Big(1 - \frac{\nu}{3}\Big)(1+\nu)
+\]}%
+\onslide<7->{Com $\nu = 0{,}25$: $\;(0{,}917)(1{,}25) = 1{,}146$, perda de $0{,}59$\,dB.}
+
+\column{0.44\textwidth}
+\small\compacto
+\onslide<2->{
+\[
+|H_Q(f)| = \begin{cases} |f|/f_v, & |f| \le f_v\\ 1, & f_v < |f| \le W\end{cases}
+\]}%
+\onslide<6->{
+\begin{tikzpicture}
+\begin{axis}[espec, width=4.4cm, height=2.8cm, xmin=0, xmax=1, ymin=0, ymax=1.4,
+             xlabel={$\nu = f_v/W$}, ylabel={perda (dB)}, xtick={0,0.25,0.5,1},
+             xticklabels={$0$,$0{,}25$,$0{,}5$,$1$}, grid=major]
+  \addplot[cBlue, thick, domain=0:1, samples=60] {10*log10((1-x/3)*(1+x))};
+  \only<7->{\addplot[cRed, only marks, mark=*, mark size=2pt] coordinates {(0.25,0.592)};}
+\end{axis}
+\end{tikzpicture}}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resumo: modulações lineares}
+
+\small
+\begin{center}
+\begin{tabular}{l c c l}
+\toprule
+ & banda & detector & SNR de saída \\
+\midrule
+banda base & $W$ & -- & $\gamma$ \\
+\pause
+DSB-SC & $2W$ & coerente & $\gamma$ \\
+\pause
+AM convencional & $2W$ & envoltória & $\eta\gamma \le \gamma/3$, com limiar \\
+\pause
+SSB & $W$ & coerente & $\gamma$ \\
+\pause
+VSB & $W(1+\nu)$ & coerente & $\dfrac{2\gamma}{(1+\kappa)(1+\nu)} \approx \gamma$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+\item<6-> Com detecção coerente, nenhuma modulação linear supera a banda base: o melhor possível é $\gamma$.
+\item<7-> O AM convencional paga a portadora para usar um receptor simples.
+\item<8-> Para passar de $\gamma$ é preciso trocar banda por SNR, como faz o FM.
+\end{itemize}
+
+\end{frame}
+
+% ============================================

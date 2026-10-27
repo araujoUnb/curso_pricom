@@ -1,0 +1,389 @@
+% ============================================
+% DESEMPENHO DO AM CONVENCIONAL
+% Mesmo roteiro do DSB-SC: ponto 1 antes do detector de envoltória,
+% ponto 2 depois do bloqueio de CC. No fim, o limiar com ruído forte.
+% ============================================
+
+% Diagrama compacto do receptor AM. Argumento: ponto destacado, 1 ou 2.
+\newcommand{\diagAM}[1]{%
+\begin{tikzpicture}[font=\scriptsize,
+  blk/.style={rectangle, draw, rounded corners, minimum height=0.6cm, minimum width=1.2cm, align=center},
+  sm/.style={circle, draw, inner sep=0.5pt}]
+\node (in) {$s(t)$};
+\node[sm, right=0.5cm of in] (sum) {$+$};
+\node[above=0.25cm of sum, cRed] (n) {$n(t)$};
+\node[blk, right=0.5cm of sum] (bpf) {PF $2W$\\ em $f_c$};
+\node[blk, right=1.1cm of bpf] (env) {Detector de\\ envoltória};
+\node[blk, right=0.5cm of env] (dc) {Bloqueio\\ de CC};
+\node[right=1.1cm of dc] (out) {$y(t)$};
+\draw[->] (in) -- (sum);
+\draw[->, cRed] (n) -- (sum);
+\draw[->] (sum) -- (bpf);
+\draw[->] (bpf) -- (env);
+\draw[->] (env) -- (dc);
+\draw[->] (dc) -- (out);
+\coordinate (p1) at ($(bpf.east)!0.5!(env.west)$);
+\coordinate (p2) at ($(dc.east)!0.5!(out.west)$);
+\ifnum#1=1
+  \node[marca, fill=cBlue, text=white] at (p1) {1};
+\else
+  \node[marca, draw=gray!60, fill=white, text=gray] at (p1) {1};
+\fi
+\ifnum#1=2
+  \node[marca, fill=cGreen, text=white] at (p2) {2};
+\else
+  \node[marca, draw=gray!60, fill=white, text=gray] at (p2) {2};
+\fi
+\end{tikzpicture}}
+
+\newcommand{\topoAM}[1]{{\centering\diagAM{#1}\par}\vspace{2pt}}
+
+\subsection{AM convencional}
+
+\begin{frame}{Receptor AM convencional}
+
+\[
+s(t) = \big[\tikzmarknode{amA}{A} + m(t)\big]\cos(2\pi f_c t), \qquad A + m(t) \ge 0
+\]
+\anotacoes{\only<2->{
+  \node[nota=cBlue, anchor=east] (a) at ([xshift=-1.6cm,yshift=-0.1cm]amA.west) {portadora transmitida};
+  \draw[setinha, cBlue] (a.east) -- ([xshift=-0.3cm]amA.west);
+}}%
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[onda, width=10cm, height=1.5cm, xmin=0, xmax=10, ymin=-1.8, ymax=1.8,
+             xlabel={$t$}, ylabel={$s(t)$}]
+  \addplot[cBlue, domain=0:10, samples=900] {(1+0.6*cos(deg(2*pi*0.2*x)))*cos(deg(2*pi*3*x))};
+  \only<3->{
+    \addplot[cRed, thick, dashed, domain=0:10, samples=200] {1+0.6*cos(deg(2*pi*0.2*x))};
+    \node[cRed, font=\scriptsize, anchor=west] at (axis cs:10.1,1.6) {$A + m(t)$};
+  }
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.1cm}
+\small
+\only<1>{A diferença para o DSB-SC é a parcela $A\cos(2\pi f_c t)$.}%
+\only<2>{Com $A + m(t) \ge 0$, a envoltória nunca troca de sinal.}%
+\only<3>{O detector de envoltória segue a curva tracejada e dispensa a portadora local.}%
+\only<4->{Mesmo roteiro do DSB-SC: sinal, ruído e SNR no ponto 1, antes do detector, e no ponto 2, depois do bloqueio de CC.
+
+\vspace{0.1cm}
+{\centering\diagAM{0}\par}}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{AM, ponto 1: potência do sinal}
+
+\small\compacto
+Mesma conta do DSB-SC, agora com $A + m$ no lugar de $A_c m$:
+\onslide<2->{
+\[
+S_i = \overline{\big[A + m\big]^2\tikzmarknode{c2}{\cos^2(2\pi f_c t)}}
+\only<3->{= \tfrac12\,\overline{\big[A + m\big]^2}}
+\only<4->{= \tfrac12\big(A^2 + 2A\,\tikzmarknode{mm}{\overline{m}} + \overline{m^2}\big)}
+\]}%
+\par\vspace{0.7cm}%
+\anotacoes{
+  \only<3->{
+    \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.25cm]c2.south) {média $\tfrac12$: $\cos 4\pi f_c t$ tem média nula};
+    \draw[setinha, cBlue] (a.north) -- (c2.south);
+  }
+  \only<5->{
+    \node[nota=cRed, anchor=north west] (b) at ([xshift=-0.4cm,yshift=-0.3cm]mm.south) {$\overline{m} = 0$: mensagem sem nível CC};
+    \draw[setinha, cRed] ([xshift=0.4cm]b.north west) -- (mm.south);
+  }
+}%
+\onslide<6->{
+\[
+\boxed{\,S_i = \tikzmarknode{pc}{\frac{A^2}{2}} + \tikzmarknode{pl}{\frac{\overline{m^2}}{2}}\,}
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{\only<7->{
+  \node[nota=cOrange, anchor=north east] (c) at ([xshift=-0.3cm,yshift=-0.3cm]pc.south) {portadora: não leva informação};
+  \draw[setinha, cOrange] (c.north) -- (pc.south);
+  \node[nota=cGreen, anchor=north west] (d) at ([xshift=0.3cm,yshift=-0.3cm]pl.south) {bandas laterais: a mensagem};
+  \draw[setinha, cGreen] (d.north) -- (pl.south);
+}}%
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{AM, ponto 1: ruído e SNR}
+
+\topoAM{1}
+
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{tikzpicture}
+\begin{axis}[onda, width=5.6cm, height=1.5cm, xmin=-4, xmax=4, ymin=0, ymax=1.6,
+             xlabel={$f$}, ylabel={espectro no ponto 1}]
+  \only<2->{
+    \addplot[cRed, fill=cRed!15, draw=none, samples=2] coordinates {(-3.1,0) (-3.1,0.3) (-1.9,0.3) (-1.9,0)};
+    \addplot[cRed, fill=cRed!15, draw=none, samples=2] coordinates {(1.9,0) (1.9,0.3) (3.1,0.3) (3.1,0)};
+    \node[cRed, font=\tiny, anchor=south] at (axis cs:0,0.3) {$N_0/2$};
+  }
+  \addplot[cBlue, thick, fill=cBlue!20, samples=2] coordinates {(1.9,0) (2.5,0.8) (3.1,0)};
+  \addplot[cBlue, thick, fill=cBlue!20, samples=2] coordinates {(-3.1,0) (-2.5,0.8) (-1.9,0)};
+  \draw[cOrange, very thick, -{Stealth[length=2mm]}] (axis cs:2.5,0) -- (axis cs:2.5,1.45);
+  \draw[cOrange, very thick, -{Stealth[length=2mm]}] (axis cs:-2.5,0) -- (axis cs:-2.5,1.45);
+  \node[cOrange, font=\tiny, anchor=west] at (axis cs:2.6,1.4) {portadora};
+  \node[font=\tiny, anchor=north] at (axis cs:2.5,0) {$f_c$};
+  \node[font=\tiny, anchor=north] at (axis cs:-2.5,0) {$-f_c$};
+\end{axis}
+\end{tikzpicture}
+
+\vspace{0.2cm}\small
+\only<1>{A portadora aparece como componente de frequência em $\pm f_c$; a mensagem, nas bandas laterais.}%
+\only<2->{O filtro tem a mesma banda $2W$ do DSB-SC: o ruído é o mesmo.}
+
+\column{0.5\textwidth}
+\small\compacto
+\onslide<3->{
+\[
+\overline{n^2} = 2\times\frac{N_0}{2}\times 2W = 2N_0W
+\]}%
+\onslide<4->{
+\[
+\left(\frac{S}{N}\right)_1 = \frac{S_i}{2N_0W}
+\only<5->{= \frac12\,\tikzmarknode{g1}{\frac{S_i}{N_0W}}}
+\only<6->{= \frac{\gamma}{2}}
+\]}%
+\par\vspace{0.7cm}%
+\anotacoes{\only<5->{
+  \node[nota=cGreen, anchor=north] (a) at ([yshift=-0.3cm]g1.south) {$\gamma$ com a mesma $S_i$};
+  \draw[setinha, cGreen] (a.north) -- (g1.south);
+}}%
+\onslide<7->{Igual ao DSB-SC. A diferença vai aparecer depois do detector: parte de $S_i$ é portadora.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Envoltória com ruído}
+
+\begin{columns}[T]
+\column{0.42\textwidth}
+\begin{tikzpicture}[scale=1.05, >={Stealth[length=2mm]}]
+  \draw[gray!60, ->] (-0.2,0) -- (4.3,0) node[right, font=\scriptsize, gray] {fase};
+  \draw[gray!60, ->] (0,-0.2) -- (0,1.5) node[above, font=\scriptsize, gray] {quadratura};
+  \draw[->, cBlue, very thick] (0,0) -- (3,0) node[midway, below, font=\scriptsize] {$A + m$};
+  \onslide<2->{\draw[->, cRed, very thick] (3,0) -- (3.6,0) node[below, font=\scriptsize] {$n_c$};}
+  \onslide<3->{\draw[->, cOrange, very thick] (3.6,0) -- (3.6,0.55) node[right, font=\scriptsize] {$n_s$};}
+  \onslide<4->{\draw[->, cGreen, very thick] (0,0) -- (3.6,0.55) node[above, font=\scriptsize, pos=0.6] {$E(t)$};}
+\end{tikzpicture}
+
+\vspace{0.2cm}\small
+\only<1>{O sinal é um fasor em fase com a portadora.}%
+\only<2>{$n_c$ soma na mesma direção.}%
+\only<3>{$n_s$ entra a $90^\circ$.}%
+\only<4->{A envoltória é o comprimento do fasor resultante.}
+
+\column{0.58\textwidth}
+\small\compacto
+Entrada do detector, agrupando por portadora:
+\[
+r(t) = \big[A + m + n_c\big]\cos(2\pi f_c t) - n_s\sin(2\pi f_c t)
+\]
+\onslide<4->{
+\[
+E(t) = \sqrt{\big[A + m + n_c\big]^2 + \tikzmarknode{ns2}{n_s^2}}
+\]}%
+\par\vspace{0.7cm}%
+\anotacoes{\only<5->{
+  \node[nota=cOrange, anchor=north] (a) at ([xshift=-0.6cm,yshift=-0.3cm]ns2.south) {desprezível se $A + m \gg |n|$};
+  \draw[setinha, cOrange] (a.north) -- (ns2.south);
+}}%
+\onslide<6->{Ruído fraco frente à portadora:
+\[
+\boxed{\,E(t) \approx A + m(t) + n_c(t)\,}
+\]}%
+\onslide<7->{O detector de envoltória entrega a componente em fase, como o detector coerente.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{AM, ponto 2: sinal e ruído}
+
+\small\compacto
+\[
+E(t) \approx \tikzmarknode{eA}{A} + m(t) + n_c(t)
+\]
+\anotacoes{
+  \node[nota=cOrange, anchor=east] (a) at ([xshift=-1.2cm]eA.west) {CC: o bloqueio retira};
+  \draw[setinha, cOrange] (a.east) -- (eA.west);
+}%
+\onslide<2->{
+\[
+y(t) = \tikzmarknode{ym}{m(t)} + \tikzmarknode{yn}{n_c(t)}
+\]}%
+\anotacoes{\only<2->{
+  \node[nota=cBlue, anchor=east] (b) at ([xshift=-0.5cm]ym.west) {sinal};
+  \draw[setinha, cBlue] (b.east) -- (ym.west);
+  \node[nota=cRed, anchor=west] (c) at ([xshift=0.5cm]yn.east) {ruído};
+  \draw[setinha, cRed] (c.west) -- (yn.east);
+}}%
+\onslide<3->{Sem o fator $\tfrac12$ do misturador:}
+\onslide<3->{
+\[
+S_o = \overline{m^2}, \qquad N_o = \tikzmarknode{nc2}{\overline{n_c^2}}
+\only<4->{= 2N_0W}
+\]}%
+\par\vspace{0.5cm}%
+\anotacoes{\only<4->{
+  \node[nota=cGreen, anchor=north west] (d) at ([xshift=0.2cm,yshift=-0.25cm]nc2.south) {slide de fase e quadratura};
+  \draw[setinha, cGreen] ([xshift=0.3cm]d.north west) -- (nc2.south);
+}}%
+\onslide<5->{
+\[
+\left(\frac{S}{N}\right)_2 = \frac{\overline{m^2}}{2N_0W}
+\]}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{AM, ponto 2: SNR em função de $\gamma$}
+
+\small\compacto
+Para comparar com a banda base, a SNR precisa aparecer com $\gamma = S_i/(N_0W)$.
+\onslide<2->{Multiplicando e dividindo por $A^2 + \overline{m^2}$:}
+\onslide<2->{
+\[
+\left(\frac{S}{N}\right)_2 = \frac{\overline{m^2}}{2N_0W}
+= \tikzmarknode{eta}{\frac{\overline{m^2}}{A^2 + \overline{m^2}}}\cdot
+  \tikzmarknode{gam}{\frac{A^2 + \overline{m^2}}{2N_0W}}
+\]}%
+\par\vspace{1.6cm}%
+\anotacoes{
+  \only<3->{
+    \node[nota=cGreen, anchor=north east] (a) at ([xshift=1.2cm,yshift=-0.3cm]gam.south) {$\dfrac{A^2+\overline{m^2}}{2} = S_i$: vale $\dfrac{S_i}{N_0W} = \gamma$};
+    \draw[setinha, cGreen] ([xshift=-1.2cm]a.north east) -- (gam.south);
+  }
+  \only<4->{
+    \node[nota=cOrange, anchor=north east] (b) at ([xshift=-0.3cm,yshift=-1.3cm]eta.south) {$\eta$: fração de $S_i$ nas bandas laterais};
+    \draw[setinha, cOrange] (b.north) -- (eta.south);
+  }
+}%
+\onslide<5->{
+\[
+\boxed{\,\left(\frac{S}{N}\right)_2 = \eta\,\gamma, \qquad \eta = \frac{\overline{m^2}}{A^2 + \overline{m^2}} < 1\,}
+\]}%
+\onslide<6->{Sempre pior que o DSB-SC: a portadora conta em $S_i$ e não vira sinal.}
+\onslide<7->{Ganho de detecção: $\eta\gamma/(\gamma/2) = 2\eta$.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{AM com modulação por tom}
+
+\begin{columns}[T]
+\column{0.55\textwidth}
+\small\compacto
+Tom com índice $\mu$:
+\[
+m(t) = \mu A\cos(2\pi f_m t)
+\]
+\onslide<2->{
+\[
+\overline{m^2} = \mu^2A^2\,\tikzmarknode{cm}{\overline{\cos^2(2\pi f_m t)}}
+\only<3->{= \frac{\mu^2A^2}{2}}
+\]}%
+\par\vspace{0.4cm}%
+\anotacoes{\only<3->{
+  \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.2cm]cm.south) {média $\tfrac12$};
+  \draw[setinha, cBlue] (a.north) -- (cm.south);
+}}%
+\onslide<4->{
+\[
+\eta = \frac{\mu^2A^2/2}{A^2 + \mu^2A^2/2}
+\only<5->{= \tikzmarknode{et}{\frac{\mu^2}{2 + \mu^2}}}
+\]}%
+\anotacoes{\only<5->{
+  \node[nota=cGreen, anchor=west] (b) at ([xshift=1.0cm]et.east) {$A^2$ cancela};
+  \draw[setinha, cGreen] (b.west) -- (et.east);
+}}%
+\onslide<7->{Com $\mu = 1$, o melhor caso sem sobremodulação:
+\[
+\eta = \frac13 \;\Rightarrow\; \left(\frac{S}{N}\right)_2 = \frac{\gamma}{3}, \quad 4{,}77\ \text{dB abaixo}
+\]}
+
+\column{0.45\textwidth}
+\onslide<6->{
+\begin{tikzpicture}
+\begin{axis}[espec, width=4.6cm, height=3.6cm, xmin=0, xmax=1.05, ymax=0.4,
+             xlabel={$\mu$}, ylabel={$\eta$}, xtick={0,0.5,1}, ytick={0,0.1,0.2,1/3},
+             yticklabels={$0$,$0{,}1$,$0{,}2$,$\tfrac13$}, grid=major]
+  \addplot[cBlue, thick, domain=0:1, samples=60] {x^2/(2+x^2)};
+  \only<7->{\addplot[cRed, only marks, mark=*, mark size=2pt] coordinates {(1,1/3)};}
+\end{axis}
+\end{tikzpicture}}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{AM: limiar com ruído forte}
+
+\begin{columns}[T]
+\column{0.4\textwidth}
+\begin{tikzpicture}[scale=0.95, >={Stealth[length=2mm]}]
+  \draw[gray!60, ->] (-0.2,0) -- (3.2,0);
+  \draw[gray!60, ->] (0,-0.2) -- (0,2.9);
+  \draw[->, cBlue, very thick] (0,0) -- (0.7,0) node[below, font=\scriptsize] {$A + m$};
+  \onslide<2->{
+    \draw[->, cRed, very thick] (0.7,0) -- ++(65:2.8) node[right, font=\scriptsize] {$R_n$};
+    \draw[cRed] (1.2,0) arc (0:65:0.5);
+    \node[cRed, font=\scriptsize] at (1.4,0.35) {$\theta_n$};
+  }
+  \onslide<3->{\draw[->, cGreen, very thick] (0,0) -- ($(0.7,0)+(65:2.8)$) node[midway, left, font=\scriptsize] {$E$};}
+\end{tikzpicture}
+
+\vspace{0.1cm}\small
+\only<1>{Agora o ruído é maior que a portadora.}%
+\only<2>{Ruído em forma polar: $n_c = R_n\cos\theta_n$, $n_s = R_n\sin\theta_n$.}%
+\only<3->{A envoltória segue o ruído, que gira com fase aleatória.}
+
+\onslide<8->{\textcolor{cRed}{Limiar do detector de envoltória.} O detector coerente não tem limiar e dá $\eta\gamma$ com qualquer SNR.}
+
+\column{0.6\textwidth}
+\small\compacto
+\onslide<2->{
+\[
+E^2 = \big[A + m + R_n\cos\theta_n\big]^2 + R_n^2\sin^2\theta_n
+\]}%
+\onslide<3->{
+\[
+E^2 = \tikzmarknode{x2}{(A+m)^2} + 2(A+m)R_n\cos\theta_n + R_n^2
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{\only<4->{
+  \node[nota=cOrange, anchor=north] (a) at ([yshift=-0.25cm]x2.south) {desprezível se $R_n \gg A + m$};
+  \draw[setinha, cOrange] (a.north) -- (x2.south);
+}}%
+\onslide<5->{
+\[
+E \approx R_n\,\tikzmarknode{sq}{\sqrt{1 + \frac{2(A+m)\cos\theta_n}{R_n}}}
+\only<6->{\approx R_n + \big(A + m\big)\cos\theta_n}
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{\only<6->{
+  \node[nota=cBlue, anchor=north] (b) at ([yshift=-0.25cm]sq.south) {$\sqrt{1+x} \approx 1 + x/2$};
+  \draw[setinha, cBlue] (b.north) -- (sq.south);
+}}%
+\onslide<7->{A mensagem só aparece como $m\cos\theta_n$, multiplicada por um ruído: não há parcela proporcional a $m(t)$.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
