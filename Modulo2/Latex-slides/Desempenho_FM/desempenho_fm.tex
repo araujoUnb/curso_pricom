@@ -1,0 +1,697 @@
+% ============================================
+% DESEMPENHO DE FM E PM
+% Mesmo roteiro do deck de modulações lineares: ponto 1, antes da
+% detecção, e ponto 2, depois da detecção, com a SNR escrita em gamma.
+% ============================================
+
+% Marcador numerado dos pontos de medida no diagrama
+\tikzset{marca/.style={circle, inner sep=0pt, minimum size=3.6mm, font=\tiny\bfseries}}
+
+% Diagrama compacto do receptor FM. Argumento: ponto destacado, 1 ou 2.
+\newcommand{\diagFM}[1]{%
+\begin{tikzpicture}[font=\scriptsize,
+  blk/.style={rectangle, draw, rounded corners, minimum height=0.6cm, minimum width=1.2cm, align=center},
+  sm/.style={circle, draw, inner sep=0.5pt}]
+\node (in) {$s(t)$};
+\node[sm, right=0.5cm of in] (sum) {$+$};
+\node[above=0.25cm of sum, cRed] (n) {$n(t)$};
+\node[blk, right=0.5cm of sum] (bpf) {PF $B_T$\\ em $f_c$};
+\node[blk, right=1.1cm of bpf] (lim) {limitador};
+\node[blk, right=0.4cm of lim] (dis) {discrimi-\\nador};
+\node[blk, right=0.4cm of dis] (lpf) {PB $W$};
+\node[right=1.1cm of lpf] (out) {$y(t)$};
+\draw[->] (in) -- (sum);
+\draw[->, cRed] (n) -- (sum);
+\draw[->] (sum) -- (bpf);
+\draw[->] (bpf) -- (lim);
+\draw[->] (lim) -- (dis);
+\draw[->] (dis) -- (lpf);
+\draw[->] (lpf) -- (out);
+\coordinate (p1) at ($(bpf.east)!0.5!(lim.west)$);
+\coordinate (p2) at ($(lpf.east)!0.5!(out.west)$);
+\ifnum#1=1
+  \node[marca, fill=cBlue, text=white] at (p1) {1};
+\else
+  \node[marca, draw=gray!60, fill=white, text=gray] at (p1) {1};
+\fi
+\ifnum#1=2
+  \node[marca, fill=cGreen, text=white] at (p2) {2};
+\else
+  \node[marca, draw=gray!60, fill=white, text=gray] at (p2) {2};
+\fi
+\end{tikzpicture}}
+
+% Diagrama no topo dos frames de cálculo, com pouco espaço vertical
+\newcommand{\topoFM}[1]{{\centering\diagFM{#1}\par}\vspace{2pt}}
+
+\section{Receptor de modulação angular}
+
+% ============================================
+
+\begin{frame}{De onde vem a vantagem do FM?}
+
+\small
+\begin{itemize}
+\item<1-> Nas modulações lineares, o melhor resultado com detecção coerente é $\gamma$, o mesmo da banda base.
+\item<2-> Lá a mensagem está na amplitude, e o ruído soma direto na amplitude.
+\item<3-> No FM e no PM a mensagem está na fase. O ruído precisa primeiro girar a fase da portadora.
+\item<4-> Uma portadora forte gira pouco: quanto maior $A_c$, menor o ruído de fase.
+\item<5-> O preço é a banda: $B_T = 2(\beta + 1)W$ pela regra de Carson.
+\end{itemize}
+
+\vspace{0.3cm}
+\onslide<6->{Roteiro igual ao das modulações lineares: sinal, ruído e SNR no ponto 1, antes da detecção, e no ponto 2, depois da detecção, sempre comparados com $\gamma = S_i/(N_0W)$.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Receptor FM}
+
+\[
+s(t) = A_c\cos[2\pi f_c t + \phi(t)], \qquad \phi(t) = 2\pi k_f \int_{-\infty}^{t} m(\alpha)\,d\alpha
+\]
+
+\begin{center}
+\begin{tikzpicture}[font=\small,
+  block/.style={rectangle, draw, rounded corners, minimum height=0.9cm, minimum width=1.6cm, align=center},
+  sum/.style={circle, draw, inner sep=1pt}]
+\node (in) {$s(t)$};
+\node[sum, right=0.6cm of in] (sum) {$+$};
+\node[below=0.5cm of sum, cRed] (n) {$n(t)$};
+\draw[->] (in) -- (sum);
+\draw[->, cRed] (n) -- (sum);
+\onslide<2->{
+  \node[block, right=0.6cm of sum] (bpf) {Filtro PF\\ $B_T$ em $f_c$};
+  \draw[->] (sum) -- (bpf);
+}
+\onslide<3->{
+  \node[block, right=1.2cm of bpf] (lim) {limitador};
+  \draw[->] (bpf) -- (lim);
+}
+\onslide<4->{
+  \node[block, right=0.5cm of lim] (dis) {discrimi-\\nador};
+  \draw[->] (lim) -- (dis);
+}
+\onslide<5->{
+  \node[block, right=0.5cm of dis] (lpf) {Filtro PB\\ banda $W$};
+  \node[right=1.2cm of lpf] (out) {$y(t)$};
+  \draw[->] (dis) -- (lpf);
+  \draw[->] (lpf) -- (out);
+}
+\onslide<6->{
+  \node[nota=cBlue, above=0.4cm of bpf] (a) {banda de Carson};
+  \draw[setinha, cBlue] (a) -- (bpf.north);
+  \node[nota=cOrange, below=0.4cm of dis] (b) {$\dfrac{1}{2\pi}\dfrac{d\theta}{dt}$};
+  \draw[setinha, cOrange] (b) -- (dis.south);
+}
+\onslide<7->{
+  \node[marca, fill=cBlue, text=white, minimum size=4.5mm, font=\scriptsize\bfseries] at ($(bpf.east)!0.5!(lim.west)$) {1};
+  \node[marca, fill=cGreen, text=white, minimum size=4.5mm, font=\scriptsize\bfseries] at ($(lpf.east)!0.5!(out.west)$) {2};
+}
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.1cm}
+\only<1>{O sinal FM tem amplitude constante $A_c$; a mensagem está toda na fase $\phi(t)$.}%
+\only<2>{O passa-faixa deixa passar o sinal FM inteiro e corta o ruído fora de $f_c \pm B_T/2$.}%
+\only<3>{O limitador fixa a amplitude: o ruído que só mexe na envoltória some aqui.}%
+\only<4>{O discriminador entrega a frequência instantânea, a derivada da fase dividida por $2\pi$.}%
+\only<5>{O passa-baixas corta tudo acima da banda da mensagem $W$.}%
+\only<6>{No PM o detector entrega a própria fase $\theta(t)$: é o discriminador seguido de um integrador.}%
+\only<7->{Mesmas condições de antes: potência recebida $S_i$ e ruído branco de PSD $N_0/2$.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Ponto 1: sinal, ruído e SNR}
+
+\topoFM{1}
+
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{tikzpicture}
+\begin{axis}[onda, width=5.6cm, height=1.4cm, xmin=-4, xmax=4, ymin=0, ymax=1.3,
+             xlabel={$f$}, ylabel={$S_n(f)$ no ponto 1}]
+  \only<1-2>{\addplot[cRed, thick, domain=-4:4, samples=2] {0.6};}
+  \only<3->{
+    \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(1.4,0) (1.4,0.6) (3.4,0.6) (3.4,0)};
+    \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-3.4,0) (-3.4,0.6) (-1.4,0.6) (-1.4,0)};
+    \node[font=\tiny, anchor=north] at (axis cs:2.4,0) {$f_c$};
+    \node[font=\tiny, anchor=north] at (axis cs:-2.4,0) {$-f_c$};
+    \draw[cBlue, <->] (axis cs:1.4,0.85) -- node[above, font=\tiny] {$B_T$} (axis cs:3.4,0.85);
+  }
+  \node[cRed, font=\tiny, anchor=south] at (axis cs:0,0.6) {$N_0/2$};
+\end{axis}
+\end{tikzpicture}
+
+\vspace{0.2cm}\small
+\only<1-2>{Ruído branco antes do filtro.}%
+\only<3-6>{Duas faixas de largura $B_T$ em torno de $\pm f_c$.}%
+\only<7->{Antes da detecção o FM está pior que a banda base: a banda larga deixa entrar mais ruído. O ganho tem que vir do detector.}
+
+\column{0.5\textwidth}
+\small\compacto
+Amplitude constante, logo
+\[
+S_i = \tikzmarknode{si}{\overline{A_c^2\cos^2[2\pi f_c t + \phi(t)]}}
+\only<2->{= \frac{A_c^2}{2}}
+\]
+\par\vspace{0.5cm}%
+\anotacoes{\only<2->{
+  \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.2cm]si.south) {não depende de $m(t)$};
+  \draw[setinha, cBlue] (a.north) -- (si.south);
+}}%
+\onslide<4->{
+\[
+\overline{n^2} = 2\times\frac{N_0}{2}\times B_T = N_0B_T
+\]}%
+\onslide<5->{
+\[
+\left(\frac{S}{N}\right)_1 = \frac{S_i}{N_0B_T}
+\only<6->{= \tikzmarknode{g1}{\frac{W}{B_T}}\,\gamma}
+\]}%
+\anotacoes{\only<7->{
+  \node[nota=cRed, anchor=west] (b) at ([xshift=0.6cm]g1.east) {$< 1$};
+  \draw[setinha, cRed] (b.west) -- ([xshift=0.25cm]g1.east);
+}}%
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\section{Ruído na fase}
+
+\begin{frame}{Ruído em envoltória e fase}
+
+\small\compacto
+Ruído passa-banda em fase e quadratura, agora com banda $B_T$:
+\[
+n(t) = n_c(t)\cos(2\pi f_c t) - n_s(t)\sin(2\pi f_c t)
+\]
+\onslide<2->{Os mesmos dois termos escritos como uma senoide só:
+\[
+n(t) = \tikzmarknode{rn}{r_n(t)}\cos[2\pi f_c t + \tikzmarknode{psi}{\psi_n(t)}]
+\]}%
+\par\vspace{0.9cm}%
+\anotacoes{
+  \only<3->{
+    \node[nota=cBlue, anchor=north east] (a) at ([xshift=-0.3cm,yshift=-0.3cm]rn.south) {$r_n = \sqrt{n_c^2 + n_s^2}$};
+    \draw[setinha, cBlue] (a.north) -- (rn.south);
+  }
+  \only<4->{
+    \node[nota=cOrange, anchor=north west] (b) at ([xshift=0.3cm,yshift=-0.3cm]psi.south) {$\psi_n = \arctan\dfrac{n_s}{n_c}$};
+    \draw[setinha, cOrange] (b.north) -- (psi.south);
+  }
+}%
+\onslide<5->{Expandindo o cosseno da soma, $n_c = r_n\cos\psi_n$ e $n_s = r_n\sin\psi_n$.}
+
+\vspace{0.1cm}
+\onslide<6->{Como $n_c$ e $n_s$ são gaussianos independentes de mesma variância, a fase $\psi_n$ é uniforme em $[0, 2\pi)$: o ruído não tem direção preferida.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Sinal mais ruído: diagrama fasorial}
+
+\begin{columns}[T]
+\column{0.45\textwidth}
+\centering
+\begin{tikzpicture}[scale=1.15, >=Stealth]
+\draw[gray, ->] (-0.3,0) -- (4.3,0);
+\draw[very thick, cBlue, ->] (0,0) -- (3,0) node[midway, below, font=\small] {$A_c$};
+\onslide<2->{
+  \draw[very thick, cRed, ->] (3,0) -- (3.41,1.55) node[midway, left, font=\small] {$r_n$};
+  \draw[cRed] (3.4,0) arc (0:75:0.4);
+  \node[cRed, font=\scriptsize, anchor=west] at (3.65,0.17) {$\psi_n - \phi$};
+}
+\onslide<3->{
+  \draw[very thick, cGreen, ->] (0,0) -- (3.41,1.55) node[midway, above left, font=\small] {$R$};
+  \draw[cGreen] (1.3,0) arc (0:24:1.3);
+  \node[cGreen, font=\scriptsize, anchor=west] at (1.35,0.25) {$\theta - \phi$};
+}
+\onslide<4->{
+  \draw[gray, dashed] (3.41,1.55) -- (3.41,0);
+  \draw[cOrange, decorate, decoration={brace, amplitude=3pt, mirror}] (3.5,0) -- (3.5,1.55)
+    node[midway, right=2pt, font=\scriptsize] {$r_n\sin(\psi_n - \phi)$};
+  \draw[cPurple, decorate, decoration={brace, amplitude=3pt, mirror}] (0,-0.45) -- (3.41,-0.45)
+    node[midway, below=2pt, font=\scriptsize] {$A_c + r_n\cos(\psi_n - \phi)$};
+}
+\end{tikzpicture}
+
+\vspace{0.2cm}\small
+\only<1>{Eixo girando junto com a fase do sinal: o fasor do sinal fica parado.}%
+\only<2>{O fasor do ruído entra com ângulo $\psi_n - \phi$ em relação ao sinal.}%
+\only<3>{O receptor vê a soma $R$, com fase $\theta$.}%
+\only<4->{Catetos do triângulo formado pela soma.}
+
+\column{0.55\textwidth}
+\small\compacto
+Na entrada do limitador:
+\[
+r(t) = A_c\cos[2\pi f_c t + \phi] + r_n\cos[2\pi f_c t + \psi_n]
+\]
+\onslide<3->{
+\[
+r(t) = \tikzmarknode{R}{R(t)}\cos[2\pi f_c t + \theta(t)]
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{\only<3->{
+  \node[nota=cOrange, anchor=north] (a) at ([yshift=-0.25cm]R.south) {o limitador apaga};
+  \draw[setinha, cOrange] (a.north) -- (R.south);
+}}%
+\onslide<5->{
+\[
+\theta = \phi + \arctan\frac{r_n\sin(\psi_n - \phi)}{A_c + r_n\cos(\psi_n - \phi)}
+\]}%
+\onslide<6->{Só a fase $\theta(t)$ chega ao detector. O termo depois de $\phi$ é o ruído de fase.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Portadora forte: o ruído de fase fica linear}
+
+\small\compacto
+Suponha a portadora forte: $A_c \gg r_n$ quase o tempo todo.
+\onslide<2->{
+\[
+\theta = \phi + \arctan\frac{r_n\sin(\psi_n - \phi)}{\tikzmarknode{den}{A_c + r_n\cos(\psi_n - \phi)}}
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{\only<3->{
+  \node[nota=cBlue, anchor=west] (a) at ([xshift=0.6cm,yshift=-0.2cm]den.east) {$\approx A_c$};
+  \draw[setinha, cBlue] (a.west) -- (den.east);
+}}%
+\onslide<4->{O argumento do arco fica pequeno e $\arctan x \approx x$:
+\[
+\theta \approx \phi + \tikzmarknode{rat}{\frac{r_n}{A_c}}\sin(\psi_n - \phi)
+\]}%
+\par\vspace{0.8cm}%
+\anotacoes{\only<5->{
+  \node[nota=cRed, anchor=north] (b) at ([yshift=-0.25cm]rat.south) {ruído dividido pela portadora};
+  \draw[setinha, cRed] (b.north) -- (rat.south);
+}}%
+\onslide<6->{A aproximação vale enquanto $r_n \ll A_c$. Quando o ruído chega perto da portadora, ela quebra: é o limiar do FM.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Ruído de fase: a componente em quadratura}
+
+\small\compacto
+\[
+\theta \approx \phi + \frac{r_n}{A_c}\sin(\tikzmarknode{dif}{\psi_n - \phi})
+\]
+\par\vspace{0.8cm}%
+\anotacoes{\only<2->{
+  \node[nota=cOrange, anchor=north] (a) at ([yshift=-0.25cm]dif.south) {$\psi_n$ uniforme em $[0, 2\pi)$, logo $\psi_n - \phi$ também};
+  \draw[setinha, cOrange] (a.north) -- (dif.south);
+}}%
+\onslide<3->{A estatística do ruído não muda se trocarmos $\psi_n - \phi$ por $\psi_n$. O ruído de fase passa a não depender da mensagem:}
+\onslide<4->{
+\[
+\theta(t) \approx \phi(t) + \frac{\tikzmarknode{rs}{r_n\sin\psi_n}}{A_c}
+\only<5->{= \phi(t) + \hl[cGreen]{\frac{n_s(t)}{A_c}}}
+\]}%
+\par\vspace{0.7cm}%
+\anotacoes{\only<5->{
+  \node[nota=cBlue, anchor=north] (b) at ([yshift=-0.25cm]rs.south) {$n_s = r_n\sin\psi_n$};
+  \draw[setinha, cBlue] (b.north) -- (rs.south);
+}}%
+\onslide<6->{O ruído de fase é a componente em quadratura dividida por $A_c$: aumentar a portadora reduz o ruído.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{PSD da componente em quadratura}
+
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{tikzpicture}
+\begin{axis}[onda, width=5.6cm, height=1.3cm, xmin=-4, xmax=4, ymin=0, ymax=1.5,
+             xlabel={$f$}, ylabel={$S_n(f)$}]
+  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(1.4,0) (1.4,0.6) (3.4,0.6) (3.4,0)};
+  \addplot[cRed, thick, fill=cRed!20, samples=2] coordinates {(-3.4,0) (-3.4,0.6) (-1.4,0.6) (-1.4,0)};
+  \node[cRed, font=\tiny, anchor=south] at (axis cs:2.4,0.6) {$N_0/2$};
+  \node[font=\tiny, anchor=north] at (axis cs:2.4,0) {$f_c$};
+  \node[font=\tiny, anchor=north] at (axis cs:-2.4,0) {$-f_c$};
+\end{axis}
+\onslide<2->{
+\begin{axis}[onda, width=5.6cm, height=1.3cm, xmin=-4, xmax=4, ymin=0, ymax=1.5,
+             xlabel={$f$}, ylabel={$S_{n_s}(f)$}, at={(0,-2.4cm)}]
+  \addplot[cOrange, thick, fill=cOrange!20, samples=2] coordinates {(-1,0) (-1,1.2) (1,1.2) (1,0)};
+  \node[cOrange, font=\tiny, anchor=south west] at (axis cs:1,1.2) {$N_0$};
+  \node[font=\tiny, anchor=north] at (axis cs:1,0) {$\tfrac{B_T}{2}$};
+  \node[font=\tiny, anchor=north] at (axis cs:-1,0) {$-\tfrac{B_T}{2}$};
+\end{axis}}
+\end{tikzpicture}
+
+\column{0.5\textwidth}
+\small\compacto
+Como no DSB-SC, as faixas em $\pm f_c$ descem para a origem:
+\onslide<2->{\[
+S_{n_s}(f) = \tikzmarknode{n0}{N_0}, \qquad |f| < \frac{B_T}{2}
+\]}%
+\par\vspace{0.5cm}%
+\anotacoes{\only<3->{
+  \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.25cm]n0.south) {$\tfrac{N_0}{2} + \tfrac{N_0}{2}$};
+  \draw[setinha, cBlue] (a.north) -- (n0.south);
+}}%
+\onslide<4->{Conferindo a potência:
+\[
+\overline{n_s^2} = N_0\times B_T = \overline{n^2}
+\]}%
+\onslide<5->{Dividindo por $A_c$, a PSD cai por $A_c^2$:
+\[
+S_{n_s/A_c}(f) = \frac{N_0}{A_c^2}, \qquad |f| < \frac{B_T}{2}
+\]}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\section{Desempenho do PM}
+
+\begin{frame}{PM, ponto 2: sinal e ruído}
+
+\small\compacto
+No PM, $\phi(t) = k_p\, m(t)$ e o detector entrega a fase:
+\onslide<2->{
+\[
+y(t) = \tikzmarknode{ys}{k_p\, m(t)} + \tikzmarknode{yn}{\frac{n_s(t)}{A_c}}
+\]}%
+\par\vspace{0.4cm}%
+\anotacoes{\only<2->{
+  \node[nota=cBlue, anchor=east] (a) at ([xshift=-0.6cm]ys.west) {sinal};
+  \draw[setinha, cBlue] (a.east) -- (ys.west);
+  \node[nota=cRed, anchor=west] (b) at ([xshift=0.6cm]yn.east) {ruído, PSD $N_0/A_c^2$};
+  \draw[setinha, cRed] (b.west) -- (yn.east);
+}}%
+\begin{columns}[T]
+\column{0.5\textwidth}
+\onslide<3->{\[
+S_o = k_p^2\,\overline{m^2}
+\]}
+\onslide<5->{\[
+N_o = \int_{-W}^{W} \frac{N_0}{A_c^2}\,df
+\only<6->{= \frac{2N_0W}{A_c^2}}
+\]}
+
+\column{0.5\textwidth}
+\onslide<4->{
+\begin{tikzpicture}
+\begin{axis}[onda, width=5cm, height=1.2cm, xmin=-1.3, xmax=1.3, ymin=0, ymax=1.5,
+             xlabel={$f$}, ylabel={PSD do ruído}]
+  \addplot[cRed, thick, samples=2] coordinates {(-1,0) (-1,0.9) (1,0.9) (1,0)};
+  \addplot[cRed, fill=cRed!35, draw=none, samples=2] coordinates {(-0.45,0) (-0.45,0.9) (0.45,0.9) (0.45,0)};
+  \draw[cBlue, dashed] (axis cs:0.45,0) -- (axis cs:0.45,1.2);
+  \draw[cBlue, dashed] (axis cs:-0.45,0) -- (axis cs:-0.45,1.2);
+  \node[font=\tiny, anchor=north] at (axis cs:0.45,0) {$W$};
+  \node[font=\tiny, anchor=north] at (axis cs:1,0) {$\tfrac{B_T}{2}$};
+  \node[cRed, font=\tiny, anchor=south west] at (axis cs:1,0.9) {$N_0/A_c^2$};
+  \node[cBlue, font=\tiny, anchor=south] at (axis cs:0,1.2) {PB corta em $W$};
+\end{axis}
+\end{tikzpicture}}
+\end{columns}
+
+\vspace{0.1cm}
+\onslide<7->{O passa-baixas só deixa a faixa $|f| < W$ do ruído de fase, que é plano.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{PM, ponto 2: SNR em função de $\gamma$}
+
+\small\compacto
+\[
+\left(\frac{S}{N}\right)_2 = \frac{k_p^2\,\overline{m^2}}{2N_0W/A_c^2}
+\only<2->{= k_p^2\,\overline{m^2}\;\tikzmarknode{gm}{\frac{A_c^2}{2N_0W}}}
+\]
+\par\vspace{0.6cm}%
+\anotacoes{\only<3->{
+  \node[nota=cBlue, anchor=west] (a) at ([xshift=0.6cm,yshift=-0.3cm]gm.east) {$S_i = A_c^2/2$, logo isto é $\dfrac{S_i}{N_0W} = \gamma$};
+  \draw[setinha, cBlue] (a.west) -- (gm.east);
+}}%
+\onslide<4->{
+\[
+\boxed{\left(\frac{S}{N}\right)_{\PM} = k_p^2\,\overline{m^2}\,\gamma}
+\]}%
+\onslide<5->{Com o desvio de fase de pico $\Delta\phi = k_p m_p$, em que $m_p = \max|m(t)|$:
+\[
+\left(\frac{S}{N}\right)_{\PM} = \tikzmarknode{dp}{(\Delta\phi)^2}\;\frac{\overline{m^2}}{m_p^2}\;\gamma
+\]}%
+\par\vspace{0.45cm}%
+\anotacoes{\only<6->{
+  \node[nota=cRed, anchor=north east] (b) at ([xshift=0.3cm,yshift=-0.3cm]dp.south) {$\Delta\phi \le \pi$: acima disso a fase dá a volta};
+  \draw[setinha, cRed] ([xshift=-0.3cm]b.north east) -- (dp.south);
+}}%
+\onslide<7->{O ganho sobre $\gamma$ fica preso em $\pi^2\,\overline{m^2}/m_p^2$ pela ambiguidade de fase.}
+
+\end{frame}
+
+% ============================================
+
+\section{Desempenho do FM}
+
+\begin{frame}{FM, ponto 2: o discriminador deriva}
+
+\small\compacto
+No FM, $\phi(t) = 2\pi k_f \int m\,d\alpha$, e o discriminador entrega a frequência instantânea:
+\onslide<2->{
+\[
+y(t) = \frac{1}{2\pi}\frac{d\theta}{dt}
+\only<3->{= \frac{1}{2\pi}\frac{d\phi}{dt} + \frac{1}{2\pi A_c}\frac{dn_s}{dt}}
+\]}%
+\onslide<4->{
+\[
+y(t) = \tikzmarknode{ys}{k_f\, m(t)} + \tikzmarknode{yn}{\frac{1}{2\pi A_c}\,\dot n_s(t)}
+\]}%
+\par\vspace{0.5cm}%
+\anotacoes{\only<4->{
+  \node[nota=cBlue, anchor=east] (a) at ([xshift=-0.6cm]ys.west) {sinal};
+  \draw[setinha, cBlue] (a.east) -- (ys.west);
+  \node[nota=cRed, anchor=west] (b) at ([xshift=0.6cm]yn.east) {ruído derivado};
+  \draw[setinha, cRed] (b.west) -- (yn.east);
+}}%
+\onslide<5->{Derivar é um filtro linear, $H(f) = j2\pi f$. A PSD sai multiplicada por $|H(f)|^2$:
+\[
+S_{y_n}(f) = \frac{\tikzmarknode{h2}{|j2\pi f|^2}}{(2\pi A_c)^2}\,N_0
+\only<6->{= \frac{4\pi^2 f^2}{4\pi^2 A_c^2}\,N_0}
+\only<7->{= \hl[cRed]{\frac{N_0}{A_c^2}\,f^2}}, \qquad |f| < \frac{B_T}{2}
+\]}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{FM: ruído com PSD parabólica}
+
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{tikzpicture}
+\begin{axis}[onda, width=5.4cm, height=2.6cm, xmin=-1.3, xmax=1.3, ymin=0, ymax=1.35,
+             xlabel={$f$}, ylabel={PSD do ruído}]
+  \addplot[cRed, thick, domain=-1:1, samples=60] {x^2};
+  \draw[cRed, thick] (axis cs:-1,0) -- (axis cs:-1,1);
+  \draw[cRed, thick] (axis cs:1,0) -- (axis cs:1,1);
+  \only<2->{
+    \addplot[cRed, fill=cRed!35, draw=none, domain=-0.45:0.45, samples=40] {x^2} \closedcycle;
+    \draw[cBlue, dashed] (axis cs:0.45,0) -- (axis cs:0.45,1.25);
+    \draw[cBlue, dashed] (axis cs:-0.45,0) -- (axis cs:-0.45,1.25);
+    \node[font=\tiny, anchor=north] at (axis cs:0.45,0) {$W$};
+    \node[font=\tiny, anchor=north] at (axis cs:-0.45,0) {$-W$};
+  }
+  \node[font=\tiny, anchor=north] at (axis cs:1,0) {$\tfrac{B_T}{2}$};
+  \node[cRed, font=\tiny, anchor=south east] at (axis cs:1,1) {$\dfrac{N_0}{A_c^2}f^2$};
+  \only<1>{\addplot[gray, dashed, domain=-1:1, samples=2] {0.3};
+    \node[gray, font=\tiny, anchor=south] at (axis cs:0,0.3) {PM: plana};}
+\end{axis}
+\end{tikzpicture}
+
+\vspace{0.1cm}\small
+\only<1>{O ruído cresce com a frequência: pouco perto de $f = 0$, muito nas bordas.}%
+\only<2->{O passa-baixas fica só com a parte baixa da parábola.}
+
+\column{0.5\textwidth}
+\small\compacto
+\onslide<3->{
+\[
+N_o = \int_{-W}^{W} \frac{N_0}{A_c^2}\,f^2\,df
+\]}%
+\onslide<4->{
+\[
+= \frac{N_0}{A_c^2}\left[\frac{f^3}{3}\right]_{-W}^{W}
+\]}%
+\onslide<5->{
+\[
+= \frac{N_0}{A_c^2}\;\frac{W^3 - \tikzmarknode{mw}{(-W)^3}}{3}
+\only<6->{= \hl[cGreen]{\frac{2N_0W^3}{3A_c^2}}}
+\]}%
+\par\vspace{0.5cm}%
+\anotacoes{\only<6->{
+  \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.25cm]mw.south) {$= -W^3$, as duas metades se somam};
+  \draw[setinha, cBlue] (a.north) -- (mw.south);
+}}%
+\onslide<7->{O ruído de saída cresce com $W^3$, e não com $W$ como no PM.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{FM, ponto 2: SNR em função de $\gamma$}
+
+\small\compacto
+\[
+\left(\frac{S}{N}\right)_2 = \frac{k_f^2\,\overline{m^2}}{2N_0W^3/(3A_c^2)}
+\only<2->{= \frac{3\,k_f^2\,\overline{m^2}\,A_c^2}{2N_0W^3}}
+\]
+\onslide<3->{Separando $\gamma$, que tem $W$ no denominador:
+\[
+\left(\frac{S}{N}\right)_2 = 3\,\frac{k_f^2\,\overline{m^2}}{\tikzmarknode{w2}{W^2}}\;\tikzmarknode{gm}{\frac{A_c^2}{2N_0W}}
+\]}%
+\par\vspace{0.5cm}%
+\anotacoes{
+  \only<4->{
+    \node[nota=cBlue, anchor=west] (a) at ([xshift=0.8cm]gm.east) {$= \gamma$};
+    \draw[setinha, cBlue] (a.west) -- (gm.east);
+  }
+  \only<5->{
+    \node[nota=cOrange, anchor=east] (b) at ([xshift=-1.2cm,yshift=-0.3cm]w2.west) {$W^3 = W^2\cdot W$};
+    \draw[setinha, cOrange] (b.east) -- (w2.west);
+  }
+}%
+\onslide<6->{
+\[
+\left(\frac{S}{N}\right)_{\FM} = 3\,\frac{k_f^2\,\overline{m^2}}{W^2}\,\gamma
+\]}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{FM: SNR com o índice de modulação}
+
+\small\compacto
+\[
+\left(\frac{S}{N}\right)_{\FM} = 3\,\frac{k_f^2\,\overline{m^2}}{W^2}\,\gamma
+\]
+\onslide<2->{Com o desvio de pico $\Delta f = k_f m_p$ e o índice $\beta = \Delta f/W$:
+\[
+\frac{k_f^2\,\overline{m^2}}{W^2} = \frac{(k_f m_p)^2}{W^2}\,\frac{\overline{m^2}}{m_p^2}
+\only<3->{= \beta^2\,\frac{\overline{m^2}}{m_p^2}}
+\]}%
+\onslide<4->{
+\[
+\boxed{\left(\frac{S}{N}\right)_{\FM} = 3\beta^2\,\frac{\overline{m^2}}{m_p^2}\,\gamma}
+\]}
+\onslide<5->{A SNR cresce com o quadrado do desvio de frequência. No PM o ganho era $(\Delta\phi)^2$; no FM é $3\beta^2$, e $\beta$ não tem o teto de $\pi$.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{FM com tom}
+
+\small\compacto
+\begin{columns}[T]
+\column{0.5\textwidth}
+Tom de amplitude $m_p$:
+\[
+m(t) = m_p\cos(2\pi f_m t)
+\]
+\onslide<2->{
+\[
+\frac{\overline{m^2}}{m_p^2} = \tikzmarknode{cm}{\overline{\cos^2(2\pi f_m t)}}
+\only<3->{= \frac12}
+\]}%
+\par\vspace{0.5cm}%
+\anotacoes{\only<3->{
+  \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.2cm]cm.south) {média $\tfrac12$};
+  \draw[setinha, cBlue] (a.north) -- (cm.south);
+}}%
+\onslide<4->{
+\[
+\boxed{\left(\frac{S}{N}\right)_{\FM} = \frac32\,\beta^2\,\gamma}
+\]}
+
+\column{0.5\textwidth}
+\onslide<5->{Rádio FM comercial: $\Delta f = 75$\,kHz e $W = 15$\,kHz.}
+\onslide<6->{
+\[
+\beta = \frac{75}{15} = 5
+\]}%
+\onslide<7->{
+\[
+\left(\frac{S}{N}\right)_{\FM} = \frac32\times 25\,\gamma = 37{,}5\,\gamma
+\]}%
+\onslide<8->{
+\[
+10\log_{10} 37{,}5 = 15{,}7\ \text{dB acima de } \gamma
+\]}%
+\onslide<9->{Na mesma $\gamma$, o AM com $\mu = 1$ fica 4,8\,dB abaixo: são 20,5\,dB de diferença.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Trocando banda por SNR}
+
+\begin{columns}[c]
+\column{0.55\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[scale only axis, width=5.6cm, height=4.2cm,
+             xmin=0, xmax=13, ymin=-7, ymax=22, axis lines=left,
+             xlabel={$B_T/W$}, ylabel={SNR$/\gamma$ [dB]},
+             xtick={1,2,4,6,8,10,12}, ytick={-5,0,5,10,15,20},
+             tick label style={font=\tiny}, label style={font=\scriptsize},
+             grid=major, grid style={gray!20}, clip=false]
+\addplot[gray, dashed, domain=0:13] {0};
+\addplot[only marks, mark=*, cBlue] coordinates {(1,0) (2,0)};
+\node[font=\scriptsize, cBlue, anchor=south] at (axis cs:1,0.5) {SSB};
+\node[font=\scriptsize, cBlue, anchor=north west] at (axis cs:2,-0.3) {DSB-SC};
+\addplot[only marks, mark=*, cRed] coordinates {(2,-4.77)};
+\node[font=\scriptsize, cRed, anchor=west] at (axis cs:2.2,-4.77) {AM};
+\only<2->{
+  \addplot[cOrange, thick, domain=0.5:5.5, samples=50] ({2*(x+1)}, {10*log10(1.5*x^2)});
+  \node[font=\scriptsize, cOrange, anchor=south east] at (axis cs:12.5,19) {FM com tom};
+}
+\only<3->{
+  \addplot[only marks, mark=*, cOrange] coordinates {(6,7.78) (12,15.74)};
+  \node[font=\scriptsize, cOrange, anchor=west] at (axis cs:6.3,7.4) {$\beta = 2$};
+  \node[font=\scriptsize, cOrange, anchor=north west] at (axis cs:12,15.5) {$\beta = 5$};
+}
+\only<4->{
+  \addplot[only marks, mark=o, mark size=3pt, cPurple] coordinates {(3.63,0)};
+  \node[font=\scriptsize, cPurple, anchor=south west] at (axis cs:3.7,0.3) {$\beta = 0{,}82$};
+}
+\end{axis}
+\end{tikzpicture}
+
+\column{0.45\textwidth}
+\small\compacto
+\onslide<2->{Carson: $B_T/W = 2(\beta + 1)$, então
+\[
+\frac{\text{SNR}}{\gamma} = \frac32\beta^2, \quad \beta = \frac{B_T}{2W} - 1
+\]}%
+\onslide<3->{Para $\beta$ grande, $\text{SNR} \propto (B_T/W)^2$: dobrar a banda ganha 6\,dB.}
+
+\vspace{0.3cm}
+\onslide<4->{O FM só passa as modulações lineares quando $\tfrac32\beta^2 > 1$, ou seja $\beta > 0{,}82$ e $B_T > 3{,}6\,W$.}
+
+\vspace{0.3cm}
+\onslide<5->{Tudo isso vale acima do limiar, com $A_c \gg r_n$. Abaixo dele, a aproximação do $\arctan$ cai e o FM degrada de repente.}
+\end{columns}
+
+\end{frame}
