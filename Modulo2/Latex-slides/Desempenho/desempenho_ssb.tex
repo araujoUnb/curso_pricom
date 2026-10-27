@@ -1,5 +1,5 @@
 % ============================================
-% DESEMPENHO DO SSB E DO VSB
+% DESEMPENHO DO SSB
 % Detecção coerente, como no DSB-SC. O que muda é a banda do filtro de
 % recepção e a parcela em quadratura do sinal transmitido.
 % ============================================
@@ -40,7 +40,6 @@
 \end{tikzpicture}}
 
 \newcommand{\topoSSB}[1]{{\centering\diagCoe{PF $W$, de\\ $f_c$ a $f_c+W$}{#1}\par}\vspace{2pt}}
-\newcommand{\topoVSB}[1]{{\centering\diagCoe{PF de $f_c - f_v$\\ a $f_c+W$}{#1}\par}\vspace{2pt}}
 
 \subsection{SSB}
 
@@ -292,212 +291,6 @@ SSB & $W$ & $N_0W$ & $\gamma$ & $\gamma$ & 1 \\
 
 % ============================================
 
-\subsection{VSB}
-
-\begin{frame}{Sinal VSB em fase e quadratura}
-
-\begin{center}
-\begin{tikzpicture}
-\begin{axis}[onda, width=9cm, height=1.4cm, xmin=0, xmax=5, ymin=0, ymax=1.4,
-             xlabel={$f$}, ylabel={espectro de $s(t)$ em torno de $f_c$}]
-  \addplot[cBlue, thick, fill=cBlue!20, samples=2] coordinates {(1.6,0) (2.4,0.8) (3.2,0.8) (3.2,0)};
-  \node[font=\tiny, anchor=north] at (axis cs:2,0) {$f_c$};
-  \node[font=\tiny, anchor=north] at (axis cs:1.6,0) {$f_c-f_v$};
-  \node[font=\tiny, anchor=north] at (axis cs:3.2,0) {$f_c+W$};
-  \only<2->{
-    \draw[cOrange, thick, dashed] (axis cs:1.6,0) -- (axis cs:2.4,1.1) -- (axis cs:3.4,1.1);
-    \node[cOrange, font=\tiny, anchor=south] at (axis cs:3.0,1.1) {$H(f)$};
-    \draw[cOrange, <->] (axis cs:1.6,1.25) -- node[above, font=\tiny] {$2f_v$} (axis cs:2.4,1.25);
-  }
-  \only<3->{
-    \draw[cGreen, thick, dashed] (axis cs:1.6,0) -- (axis cs:1.6,0.95) -- (axis cs:3.2,0.95) -- (axis cs:3.2,0);
-    \node[cGreen, font=\tiny, anchor=west] at (axis cs:3.25,0.95) {filtro de recepção};
-  }
-\end{axis}
-\end{tikzpicture}
-\end{center}
-
-\small\compacto
-\only<1>{A banda superior passa inteira e um vestígio da inferior, de largura $f_v$, fica junto de $f_c$.}%
-\only<2>{O filtro VSB $H(f)$ tem simetria complementar em $f_c$: $H(f_c + f) + H(f_c - f) = 1$ para $|f| \le W$.}%
-\only<3>{O filtro de recepção deixa passar a faixa inteira, de $f_c - f_v$ a $f_c + W$: banda $W(1+\nu)$, com $\nu = f_v/W$.}%
-\only<4->{Escrevendo o VSB como o SSB, com outra parcela em quadratura:
-\[
-s(t) = A_c\big[m(t)\cos(2\pi f_c t) - \tikzmarknode{mq}{m_Q(t)}\sin(2\pi f_c t)\big]
-\]
-\par\vspace{0.5cm}%
-\anotacoes{\only<5->{
-  \node[nota=cOrange, anchor=north] (a) at ([xshift=-1.5cm,yshift=-0.25cm]mq.south) {$m$ filtrado por $H_Q(f) = j\big[H(f-f_c) - H(f+f_c)\big]$};
-  \draw[setinha, cOrange] ([xshift=1.5cm]a.north) -- (mq.south);
-}}%
-\par\vspace{0.5cm}%
-\onslide<6->{Casos extremos: $H$ plano dá $H_Q = 0$, o DSB-SC; $f_v = 0$ dá $H_Q = -j\,\mathrm{sgn}(f)$, o SSB.}}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{VSB, ponto 1: sinal e ruído}
-
-\small\compacto
-Mesma conta do SSB, com $m_Q$ no lugar de $m_h$:
-\[
-S_i = \frac{A_c^2}{2}\big(\overline{m^2} + \tikzmarknode{mq2}{\overline{m_Q^2}}\big)
-\only<3->{= \frac{A_c^2\,\overline{m^2}}{2}\,(1 + \kappa)}
-\]
-\par\vspace{1.0cm}%
-\anotacoes{\only<2->{
-  \node[nota=cOrange, anchor=north] (a) at ([yshift=-0.25cm]mq2.south) {$\displaystyle\overline{m_Q^2} = \int S_m(f)\,|H_Q(f)|^2 df \triangleq \kappa\,\overline{m^2}$};
-  \draw[setinha, cOrange] (a.north) -- (mq2.south);
-}}%
-\onslide<4->{$|H_Q| \le 1$, então $0 \le \kappa \le 1$: $\kappa = 0$ no DSB-SC e $\kappa = 1$ no SSB.}
-
-\onslide<5->{Ruído no ponto 1, faixa de largura $W + f_v$ em cada lado:}
-\onslide<5->{
-\[
-\overline{n^2} = 2\times\frac{N_0}{2}\times W(1+\nu) = N_0W(1+\nu)
-\]}%
-\onslide<6->{
-\[
-\left(\frac{S}{N}\right)_1 = \frac{S_i}{N_0W(1+\nu)} = \frac{\gamma}{1+\nu}
-\]}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{VSB: PSD do ruído $n_c$}
-
-\begin{columns}[T]
-\column{0.55\textwidth}
-\begin{tikzpicture}
-\begin{axis}[onda, width=5.4cm, height=0.6cm, xmin=-2.2, xmax=2.2, ymin=0, ymax=1.3,
-             every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize},
-             xlabel={$f$}, ylabel={$S_n(f-f_c)$}]
-  \addplot[cOrange, thick, fill=cOrange!20, samples=2] coordinates {(-0.3,0) (-0.3,0.5) (1.2,0.5) (1.2,0)};
-  \node[font=\tiny, anchor=north] at (axis cs:-0.3,0) {$-f_v$};
-  \node[font=\tiny, anchor=north] at (axis cs:1.2,0) {$W$};
-\end{axis}
-\onslide<2->{
-\begin{axis}[onda, width=5.4cm, height=0.6cm, at={(0,-1.35cm)}, xmin=-2.2, xmax=2.2, ymin=0, ymax=1.3,
-             every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize},
-             xlabel={$f$}, ylabel={$S_n(f+f_c)$}]
-  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-1.2,0) (-1.2,0.5) (0.3,0.5) (0.3,0)};
-  \node[font=\tiny, anchor=north] at (axis cs:-1.2,0) {$-W$};
-  \node[font=\tiny, anchor=north] at (axis cs:0.3,0) {$f_v$};
-\end{axis}}
-\onslide<3->{
-\begin{axis}[onda, width=5.4cm, height=0.6cm, at={(0,-2.7cm)}, xmin=-2.2, xmax=2.2, ymin=0, ymax=1.3,
-             every axis y label/.style={at={(rel axis cs:0,0.3)}, anchor=east, font=\scriptsize},
-             xlabel={$f$}, ylabel={$S_{n_c}(f)$}]
-  \addplot[cOrange, thick, fill=cOrange!20, samples=2] coordinates {(-0.3,0) (-0.3,0.5) (1.2,0.5) (1.2,0)};
-  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-1.2,0) (-1.2,0.5) (-0.3,0.5) (-0.3,0)};
-  \addplot[cPurple, thick, fill=cPurple!20, samples=2] coordinates {(-0.3,0.5) (-0.3,1.0) (0.3,1.0) (0.3,0.5)};
-  \node[font=\tiny, anchor=north] at (axis cs:-1.2,0) {$-W$};
-  \node[font=\tiny, anchor=north] at (axis cs:1.2,0) {$W$};
-  \only<4->{
-    \node[cRed, font=\tiny, anchor=south] at (axis cs:0,1.0) {$N_0$};
-    \node[cRed, font=\tiny, anchor=south] at (axis cs:0.8,0.5) {$N_0/2$};
-  }
-\end{axis}}
-\end{tikzpicture}
-
-\column{0.45\textwidth}
-\small\compacto
-\only<1>{A faixa de $[f_c - f_v, f_c + W]$ cai em $[-f_v, W]$.}%
-\only<2>{A faixa negativa cai em $[-W, f_v]$.}%
-\only<3>{As duas se sobrepõem em $|f| < f_v$, a região do vestígio. As faixas de $\pm 2f_c$ já ficaram fora do passa-baixas.}%
-\only<4->{Área: a base $N_0/2$ em $2W$ mais o degrau $N_0/2$ em $2f_v$:
-\[
-\overline{n_c^2} = \frac{N_0}{2}\,2W + \frac{N_0}{2}\,2f_v
-\only<5->{= N_0W(1+\nu)}
-\]
-\onslide<6->{De novo $\overline{n_c^2} = \overline{n^2}$. Entre o SSB, com $\nu = 0$, e o DSB-SC, com $\nu = 1$.}}
-\end{columns}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{VSB, ponto 2: depois da detecção}
-
-\small\compacto
-O detector elimina a parcela em quadratura $A_c m_Q + n_s$, como no SSB:
-\[
-y(t) = \tfrac12 A_c\,m(t) + \tfrac12\,n_c(t)
-\]
-\onslide<2->{
-\[
-S_o = \frac{A_c^2\,\overline{m^2}}{4}, \qquad N_o = \frac{N_0W(1+\nu)}{4}
-\]}%
-\onslide<3->{
-\[
-\left(\frac{S}{N}\right)_2 = \frac{\tikzmarknode{am}{A_c^2\,\overline{m^2}}}{N_0W(1+\nu)}
-\]}%
-\anotacoes{\only<4->{
-  \node[nota=cOrange, anchor=west] (a) at ([xshift=2.2cm]am.east) {do ponto 1: $A_c^2\overline{m^2} = \dfrac{2S_i}{1+\kappa}$};
-  \draw[setinha, cOrange] (a.west) -- (am.east);
-}}%
-\onslide<5->{
-\[
-\boxed{\,\left(\frac{S}{N}\right)_2 = \frac{2}{(1+\kappa)(1+\nu)}\,\gamma\,}
-\]}%
-\onslide<6->{Conferindo os extremos:
-\[
-\text{SSB: } \kappa = 1,\ \nu = 0 \;\Rightarrow\; \gamma
-\qquad\quad
-\text{DSB-SC: } \kappa = 0,\ \nu = 1 \;\Rightarrow\; \gamma
-\]}
-
-\end{frame}
-
-% ============================================
-
-\begin{frame}{VSB com vestígio linear}
-
-\begin{columns}[T]
-\column{0.56\textwidth}
-\small\compacto
-Rampa linear em $|f| \le f_v$ e PSD da mensagem plana, $S_m = \overline{m^2}/2W$:
-\onslide<3->{
-\[
-\kappa = \frac{2}{2W}\Big[\int_0^{f_v}\!\Big(\frac{f}{f_v}\Big)^2 df + \int_{f_v}^{W}\! df\Big]
-\]}%
-\onslide<4->{
-\[
-\kappa = \frac1W\Big[\tikzmarknode{i1}{\frac{f_v}{3}} + \tikzmarknode{i2}{W - f_v}\Big]
-\only<5->{= 1 - \frac{2\nu}{3}}
-\]}%
-\par\vspace{0.6cm}%
-\anotacoes{\only<4->{
-  \node[nota=cBlue, anchor=north east] (a) at ([xshift=-0.2cm,yshift=-0.3cm]i1.south) {$\dfrac{1}{f_v^2}\cdot\dfrac{f_v^3}{3}$};
-  \draw[setinha, cBlue] (a.north) -- (i1.south);
-}}%
-\onslide<6->{
-\[
-(1+\kappa)(1+\nu) = 2\Big(1 - \frac{\nu}{3}\Big)(1+\nu)
-\]}%
-\onslide<7->{Com $\nu = 0{,}25$: $\;(0{,}917)(1{,}25) = 1{,}146$, perda de $0{,}59$\,dB.}
-
-\column{0.44\textwidth}
-\small\compacto
-\onslide<2->{
-\[
-|H_Q(f)| = \begin{cases} |f|/f_v, & |f| \le f_v\\ 1, & f_v < |f| \le W\end{cases}
-\]}%
-\onslide<6->{
-\begin{tikzpicture}
-\begin{axis}[espec, width=4.4cm, height=2.8cm, xmin=0, xmax=1, ymin=0, ymax=1.4,
-             xlabel={$\nu = f_v/W$}, ylabel={perda (dB)}, xtick={0,0.25,0.5,1},
-             xticklabels={$0$,$0{,}25$,$0{,}5$,$1$}, grid=major]
-  \addplot[cBlue, thick, domain=0:1, samples=60] {10*log10((1-x/3)*(1+x))};
-  \only<7->{\addplot[cRed, only marks, mark=*, mark size=2pt] coordinates {(0.25,0.592)};}
-\end{axis}
-\end{tikzpicture}}
-\end{columns}
-
-\end{frame}
-
 % ============================================
 
 \begin{frame}{Resumo: modulações lineares}
@@ -515,17 +308,96 @@ DSB-SC & $2W$ & coerente & $\gamma$ \\
 AM convencional & $2W$ & envoltória & $\eta\gamma \le \gamma/3$, com limiar \\
 \pause
 SSB & $W$ & coerente & $\gamma$ \\
-\pause
-VSB & $W(1+\nu)$ & coerente & $\dfrac{2\gamma}{(1+\kappa)(1+\nu)} \approx \gamma$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \begin{itemize}
-\item<6-> Com detecção coerente, nenhuma modulação linear supera a banda base: o melhor possível é $\gamma$.
-\item<7-> O AM convencional paga a portadora para usar um receptor simples.
-\item<8-> Para passar de $\gamma$ é preciso trocar banda por SNR, como faz o FM.
+\item<5-> Com detecção coerente, nenhuma modulação linear supera a banda base: o melhor possível é $\gamma$.
+\item<6-> O AM convencional paga a portadora para usar um receptor simples.
+\item<7-> Para passar de $\gamma$ é preciso trocar banda por SNR, como faz o FM.
 \end{itemize}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Eficiência espectral dos esquemas}
+
+\small\compacto
+Banda da mensagem sobre banda transmitida:
+\[
+\rho = \frac{W}{B_T}
+\]
+\begin{center}
+\begin{tabular}{l c c c}
+\toprule
+ & $B_T$ & $\rho$ & SNR$/\gamma$ \\
+\midrule
+\pause
+banda base & $W$ & 1 & 1 \\
+\pause
+SSB & $W$ & 1 & 1 \\
+\pause
+VSB & $W + f_v$ & ${\approx}\,0{,}8$ & ${\approx}\,1$ \\
+\pause
+DSB-SC & $2W$ & $1/2$ & 1 \\
+\pause
+AM, $\mu = 1$ & $2W$ & $1/2$ & $1/3$ \\
+\pause
+FM, $\beta = 2$ & $6W$ & $1/6$ & 6 \\
+FM, $\beta = 5$ & $12W$ & $1/12$ & $37{,}5$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\onslide<1->
+
+\onslide<4->{VSB com vestígio $f_v \approx W/4$.}
+\onslide<7->{FM com tom: $B_T = 2(\beta+1)W$ por Carson e SNR $= \tfrac32\beta^2\gamma$.}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Banda contra SNR}
+
+\begin{columns}[c]
+\column{0.58\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[scale only axis, width=6cm, height=4.4cm,
+             xmin=0, xmax=1.15, ymin=-7, ymax=18, axis lines=left,
+             xlabel={$\rho = W/B_T$}, ylabel={SNR$/\gamma$ [dB]},
+             xtick={0,0.25,0.5,0.75,1}, ytick={-5,0,5,10,15},
+             tick label style={font=\tiny}, label style={font=\scriptsize},
+             grid=major, grid style={gray!20}, clip=false]
+\addplot[gray, dashed, domain=0:1.15] {0};
+\addplot[only marks, mark=*, cBlue] coordinates {(1,0)}
+  node[above, font=\scriptsize, cBlue] {banda base};
+\only<2->{\addplot[only marks, mark=o, mark size=3.5pt, cBlue] coordinates {(1,0)}
+  node[below, font=\scriptsize, cBlue] {SSB};}
+\only<3->{\addplot[only marks, mark=*, cGreen] coordinates {(0.8,0)}
+  node[above, font=\scriptsize, cGreen] {VSB};}
+\only<4->{\addplot[only marks, mark=*, cBlue] coordinates {(0.5,0)}
+  node[above, font=\scriptsize, cBlue] {DSB-SC};}
+\only<5->{\addplot[only marks, mark=*, cRed] coordinates {(0.5,-4.77)}
+  node[right, font=\scriptsize, cRed] {AM, $-4{,}8$ dB};}
+\only<6->{\addplot[only marks, mark=*, cOrange] coordinates {(1/6,7.78) (1/12,15.74)};
+  \node[right, font=\scriptsize, cOrange] at (axis cs:1/6,7.78) {FM, $\beta=2$};
+  \node[right, font=\scriptsize, cOrange] at (axis cs:1/12,15.74) {FM, $\beta=5$};}
+\end{axis}
+\end{tikzpicture}
+
+\column{0.42\textwidth}
+\small
+\onslide<7->{Nas modulações lineares, gastar mais banda não melhora a SNR: o ponto ótimo é o SSB, com $\rho = 1$ e SNR $= \gamma$.}
+
+\vspace{0.3cm}
+\onslide<8->{O AM paga a portadora: mesma banda do DSB-SC e SNR 3 vezes menor.}
+
+\vspace{0.3cm}
+\onslide<9->{O FM é o único que vai para a esquerda e para cima: troca eficiência espectral por SNR.}
+\end{columns}
 
 \end{frame}
 
