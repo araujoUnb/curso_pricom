@@ -14,6 +14,8 @@
 \usepackage{setspace}
 \usepackage{hyperref}
 \usepackage{tcolorbox}
+\usepackage{subcaption}
+\usepackage{pdflscape}
 
 \geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
 \setlength{\parindent}{0pt}
@@ -25,6 +27,11 @@
   fonttitle=\bfseries, title=#1, breakable}
 \newtcolorbox{atencao}[1][]{colback=orange!10,colframe=orange!60!black,
   fonttitle=\bfseries, title=#1, breakable}
+
+% Captura do GNU Radio Companion; enquanto a foto não existe, mostra um quadro
+\newcommand{\foto}[2][\textwidth]{%
+  \IfFileExists{figuras/#2.png}{\includegraphics[width=#1]{figuras/#2.png}}%
+  {\fbox{\parbox[c][3cm][c]{0.9\linewidth}{\centering\small captura \texttt{\detokenize{#2}}}}}}
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -41,7 +48,7 @@
   {\normalsize FGA0092 -- Princípios de Comunicação para Engenharia}\\[0.4cm]
   \rule{14cm}{0.8pt}\\[0.3cm]
   {\LARGE\textbf{Prática 07}}\\[0.15cm]
-  {\Large\textbf{Phase-Locked Loop (PLL)}}\\[0.3cm]
+  {\Large\textbf{PLL como Demodulador FM}}\\[0.3cm]
   \rule{14cm}{0.8pt}
 \end{center}
 
@@ -50,171 +57,287 @@
 \textbf{Software:} GNU Radio Companion $\geq$ 3.10 \hfill
 \textbf{Semestre:} 2026/2
 
+\textbf{Pré-requisito:} Prática 05, com o transmissor \texttt{Signal Source} $\to$
+\texttt{Frequency Mod} e o discriminador \texttt{Quadrature Demod}.
+
 \bigskip
 
 % ======================================================
 \section{Objetivos}
 
 \begin{itemize}
-  \item Compreender a estrutura do PLL: detector de fase, filtro de laço
-    e oscilador controlado por tensão.
-  \item Observar a convergência do erro de fase e o processo de
-    \textit{lock} no GNU Radio.
-  \item Analisar o efeito da largura de banda do laço no tempo de
-    convergência e na sensibilidade ao ruído.
-  \item Determinar experimentalmente a faixa de captura do PLL.
-  \item Observar a degradação do PLL em presença de ruído gaussiano.
+  \item Demodular FM com o bloco \texttt{PLL Frequency Detector} e comparar
+    com o discriminador de quadratura da Prática 05.
+  \item Medir a resposta em frequência do PLL e a frequência natural $f_n$
+    prevista a partir de \texttt{loop\_bw}.
+  \item Medir o sobressinal e o tempo de pico da resposta a um degrau de
+    frequência.
+  \item Medir o efeito do limite de frequência do VCO e o ganho de relação
+    tom-piso que o laço dá sobre o discriminador de quadratura.
 \end{itemize}
 
 % ======================================================
 \section{Fundamentos teóricos}
 
-O PLL é um sistema realimentado que trava a fase e a frequência do seu
-oscilador interno na fase do sinal de entrada. Seus três blocos essenciais
-são:
-
-\begin{enumerate}
-  \item Detector de fase: compara as fases do sinal de entrada
-    $\phi_i$ e do VCO $\phi_o$. Saída proporcional a
-    $\sin(\phi_i - \phi_o)$.
-  \item Filtro de laço: filtro passa-baixas que suaviza a saída do
-    detector de fase. Define a largura de banda do laço $\omega_n$.
-  \item VCO: oscilador cuja frequência instantânea é controlada pelo sinal
-    de erro filtrado, $\omega_\text{VCO}(t) = \omega_0 + K_v\,e(t)$.
-\end{enumerate}
-
-A equação em malha fechada para pequenos erros de fase é:
+\textbf{Equações do bloco.} A cada amostra $n$, o \texttt{PLL Frequency
+Detector} compara a fase da entrada $x[n]$ com a fase $\theta[n]$ do seu
+oscilador, o VCO, e atualiza a frequência $\nu[n]$ do VCO, em rad/amostra:
 \begin{equation}
-  \frac{d}{dt}\phi_e(t) = \omega_i - \omega_0 - K_v K_d\,\phi_e(t),
+  e[n] = \arg x[n] - \theta[n], \qquad
+  \nu[n+1] = \nu[n] + \beta\, e[n], \qquad
+  \theta[n+1] = \theta[n] + \nu[n+1] + \alpha\, e[n].
+  \label{eq:laco}
 \end{equation}
-onde $K_d$ é o ganho do detector de fase e $K_v$ é o ganho do VCO.
-O sistema trava quando $|\omega_i - \omega_0|$ está dentro da faixa de
-captura $\Delta\omega_\text{cap} \approx 2\omega_n$.
+O erro $e[n]$ é reduzido ao intervalo $[-\pi, \pi)$, e $\nu[n]$ é limitada a
+$\pm$\texttt{Max Phase/sample}. A saída do bloco é $\nu[n]$. Os ganhos vêm de
+\texttt{loop\_bw} $= w$, com amortecimento fixo $\zeta = \sqrt2/2$:
+\begin{equation}
+  \alpha = \frac{4\zeta w}{D}, \qquad \beta = \frac{4w^2}{D}, \qquad
+  D = 1 + 2\zeta w + w^2.
+  \label{eq:ganhos}
+\end{equation}
+
+\textbf{Frequência natural.} Para $w$ pequeno, o laço da
+equação~\eqref{eq:laco} é o laço de 2.ª ordem da aula, com
+$\omega_n = \sqrt{\beta}\,f_s$ em rad/s. Como $\beta \approx 4w^2$,
+\begin{equation}
+  f_n = \frac{\sqrt{\beta}\,f_s}{2\pi} \approx \frac{w\,f_s}{\pi}\ \text{Hz}.
+  \label{eq:fn}
+\end{equation}
+
+\textbf{Resposta em frequência.} Se a frequência instantânea da entrada é
+$\Delta f\, m(t)$, a saída $\nu$ segue essa frequência através do passa-baixas
+\begin{equation}
+  H(f) = \frac{1}{1 - (f/f_n)^2 + j\,2\zeta f/f_n}, \qquad
+  |H(f)|^2 = \frac{1}{1 + (f/f_n)^4}\ \text{para}\ \zeta = \tfrac{\sqrt2}{2}.
+  \label{eq:H}
+\end{equation}
+Multiplicada por $f_s/(2\pi\Delta f)$, a saída do PLL vale $m(t)$ filtrada por
+$H$. O discriminador de quadratura não tem esse filtro. Por isso a diferença de
+nível entre as duas saídas, no tom $f_m$, é
+\begin{equation}
+  A_\text{teo} = 10\log_{10}|H(f_m)|^2 = -10\log_{10}\!\big[1 + (f_m/f_n)^4\big]\ \text{dB},
+  \label{eq:A}
+\end{equation}
+que vale $-3{,}01$\,dB em $f_m = f_n$.
+
+\textbf{Resposta ao degrau.} Uma mensagem quadrada de $-1$ para $+1$ é um degrau
+de frequência de $2\Delta f$. A saída normalizada vai de $-1$ a $+1$, passa do
+valor final e volta. Para $\zeta = \sqrt2/2$, o sobressinal e o tempo de pico
+são
+\begin{equation}
+  M_\text{teo} = 100\, e^{-\pi\zeta/\sqrt{1-\zeta^2}} = 100\,e^{-\pi} = 4{,}32\,\%,
+  \qquad
+  t_{p,\text{teo}} = \frac{\pi}{\omega_n\sqrt{1-\zeta^2}} = \frac{1}{\sqrt2\, f_n}.
+  \label{eq:degrau}
+\end{equation}
+No Time Sink, com $y_\text{max}$ o valor máximo da curva do PLL depois da
+subida e $t_\text{max}$ o instante desse máximo,
+\begin{equation}
+  M = 100\,\frac{y_\text{max} - 1}{2}\ \%, \qquad
+  t_p = t_\text{max} - 1\ \text{ms},
+  \label{eq:M}
+\end{equation}
+porque o degrau tem altura $2$ e o trigger coloca a subida em $t = 1$\,ms.
+
+\textbf{Limite do VCO.} A frequência do VCO não passa de
+$f_\text{lim} = 500$\,Hz. Se $\Delta f > f_\text{lim}$, a saída normalizada
+satura em $f_\text{lim}/\Delta f$:
+\begin{equation}
+  y_\text{teo} = \min\!\left(1,\ \frac{f_\text{lim}}{\Delta f}\right).
+  \label{eq:sat}
+\end{equation}
+
+\textbf{Ruído.} Em cada saída $X$, a relação tom-piso é
+\begin{equation}
+  R_X = L_X(f_m) - L_X(f_r)\ \text{dB}, \qquad f_r = 1\ \text{kHz},
+  \label{eq:R}
+\end{equation}
+com $L_X(f)$ o nível lido no Frequency Sink. O ruído na saída do discriminador
+de quadratura sai do PLL multiplicado por $|H(f)|^2$, e o tom por $|H(f_m)|^2$.
+O ganho do PLL sobre a quadratura é então
+\begin{equation}
+  G = R_\text{PLL} - R_\text{Q}, \qquad
+  G_\text{teo} = 10\log_{10}\frac{1 + (f_r/f_n)^4}{1 + (f_m/f_n)^4}\ \text{dB}.
+  \label{eq:G}
+\end{equation}
 
 % ======================================================
 \section{Materiais e blocos GNU Radio}
 
-\begin{center}
+\begin{table}[H]
+  \centering\small
   \begin{tabular}{l l l}
     \toprule
-    Bloco GRC & Localização & Função \\
+    \textbf{Bloco GRC} & \textbf{Localização} & \textbf{Função} \\
     \midrule
-    \texttt{Variable}               & Variables           & Parâmetros globais \\
-    \texttt{QT GUI Range}           & GUI Widgets         & Controle deslizante \\
-    \texttt{Signal Source}          & Waveform Generators & Sinal de referência \\
-    \texttt{Noise Source}           & Waveform Generators & Ruído gaussiano \\
-    \texttt{Add}                    & Math Operators      & Soma sinal + ruído \\
-    \texttt{PLL Frequency Detector} & Synchronizers       & PLL com saída de frequência \\
-    \texttt{Throttle}               & Misc                & Controle de CPU \\
-    \texttt{QT GUI Time Sink}       & Instrumentation     & Formas de onda \\
-    \texttt{QT GUI Frequency Sink}  & Instrumentation     & Espectro \\
-    \texttt{File Sink}              & File Operators      & Persistência em \texttt{.bin} \\
+    \texttt{Variable}, \texttt{QT GUI Range} & Variables, GUI Widgets & Parâmetros e sliders \\
+    \texttt{Import}                  & Misc                & \texttt{import math} \\
+    \texttt{Signal Source}           & Waveform Generators & Mensagem $m(t)$ \\
+    \texttt{Frequency Mod}           & Modulators          & Modulador FM \\
+    \texttt{Throttle}                & Misc                & Limita a taxa de execução \\
+    \texttt{Noise Source}            & Waveform Generators & Ruído gaussiano \\
+    \texttt{Add}                     & Math Operators      & Soma do ruído ao sinal FM \\
+    \texttt{PLL Frequency Detector}  & Synchronizers       & PLL, saída em rad/amostra \\
+    \texttt{Multiply Const}          & Math Operators      & Converte a saída do PLL em $m(t)$ \\
+    \texttt{Quadrature Demod}        & Modulators          & Referência da Prática 05 \\
+    \texttt{QT GUI Time Sink}, \texttt{Frequency Sink} & Instrumentation & Medições \\
     \bottomrule
   \end{tabular}
-\end{center}
+  \caption{Blocos utilizados na Prática 07.}
+\end{table}
+
+\begin{landscape}
+\begin{figure}[p]
+  \centering
+  \foto[\linewidth]{flowgraph}
+  \caption{Flowgraph completo da Prática 07, como aparece no GNU Radio Companion.}
+  \label{fig:flowgraph}
+\end{figure}
+\end{landscape}
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{0.49\textwidth}\foto{bloco_src_mensagem}\caption{Signal Source}\end{subfigure}
+  \begin{subfigure}{0.49\textwidth}\foto{bloco_fm_mod}\caption{Frequency Mod}\end{subfigure}\\[4pt]
+  \begin{subfigure}{0.49\textwidth}\foto{bloco_pll}\caption{PLL Frequency Detector}\end{subfigure}
+  \begin{subfigure}{0.49\textwidth}\foto{bloco_pll_gain}\caption{Multiply Const}\end{subfigure}\\[4pt]
+  \begin{subfigure}{0.49\textwidth}\foto{bloco_quad_demod}\caption{Quadrature Demod}\end{subfigure}
+  \begin{subfigure}{0.49\textwidth}\foto{bloco_max_freq}\caption{Variable \texttt{max\_freq}}\end{subfigure}\\[4pt]
+  \begin{subfigure}{0.49\textwidth}\foto{bloco_time_sink}\caption{Time Sink, aba General}\end{subfigure}
+  \begin{subfigure}{0.49\textwidth}\foto{bloco_time_sink_trigger}\caption{Time Sink, aba Trigger}\end{subfigure}\\[4pt]
+  \begin{subfigure}{0.49\textwidth}\foto{bloco_freq_sink}\caption{Frequency Sink}\end{subfigure}
+  \begin{subfigure}{0.49\textwidth}\foto{bloco_loop_bw}\caption{QT GUI Range \texttt{loop\_bw}}\end{subfigure}
+  \caption{Parâmetros dos blocos, capturados do GNU Radio Companion. Preencha
+    cada campo exatamente como aparece aqui.}
+  \label{fig:blocos}
+\end{figure}
 
 % ======================================================
 \section{Roteiro de montagem e execução (50 min)}
 
-\subsection*{Parâmetros iniciais}
+\subsection*{Parâmetros}
 
-\begin{center}
+\begin{center}\small
 \begin{tabular}{l l}
-  \texttt{samp\_rate} = 32000\,Hz & Frequência de entrada: 1000\,Hz \\
-  \texttt{loop\_bw} = 0{,}062 rad/amostra & Limites de fase: $\pm\,2\pi \times 2000/f_s$ \\
+  \toprule
+  \texttt{samp\_rate} & $48\,000$\,Hz \\
+  \texttt{f\_lim}, \texttt{max\_freq} & $500$\,Hz, \texttt{2*math.pi*f\_lim/samp\_rate} \\
+  \texttt{fm\_freq} & $50$ a $1\,000$\,Hz, passo $50$, padrão $100$ \\
+  \texttt{max\_dev} & $100$ a $1\,000$\,Hz, passo $50$, padrão $200$ \\
+  \texttt{loop\_bw} & $0{,}005$ a $0{,}08$ rad/amostra, passo $0{,}005$, padrão $0{,}02$ \\
+  \texttt{noise\_amp} & $0$ a $1$, passo $0{,}05$, padrão $0$ \\
+  Signal Source & float, Cosine, amplitude $1$, offset $0$ \\
+  Frequency Mod, \textit{Sensitivity} & \texttt{2*math.pi*max\_dev/samp\_rate} \\
+  PLL Frequency Detector & \textit{Loop Bandwidth} \texttt{loop\_bw}, \textit{Max} \texttt{max\_freq}, \textit{Min} \texttt{-max\_freq} \\
+  Multiply Const & float, \texttt{samp\_rate/(2*math.pi*max\_dev)} \\
+  Quadrature Demod, \textit{Gain} & \texttt{samp\_rate/(2*math.pi*max\_dev)} \\
+  Time Sink & float, $3$ entradas, $480$ pontos, eixo $\pm 1{,}5$ \\
+  Time Sink, trigger & Normal, canal $0$, subida, nível $0$, atraso $0{,}001$\,s \\
+  Frequency Sink & float, $2$ entradas, FFT $4\,096$, \textit{Flat-top}, média $0{,}2$, eixo $-120$ a $10$\,dB \\
+  \bottomrule
 \end{tabular}
 \end{center}
 
-\subsection*{Etapa 1 -- Flowgraph básico com PLL Frequency Detector (0--12 min)}
+\begin{instrucao}[Leitura dos instrumentos]
+No Frequency Sink, passe o mouse sobre o topo de cada componente para ler o
+nível em dB e use só diferenças entre níveis. O eixo vai até 24\,kHz: arraste um retângulo com o mouse sobre a região de $0$ a $1{,}5$\,kHz para ampliar e ler os tons. No Time Sink, o trigger prende a
+subida da mensagem em $t = 1$\,ms; passe o mouse sobre a curva para ler o
+instante e o valor de cada ponto.
+\end{instrucao}
 
-\begin{instrucao}[Construção do PLL básico]
+\subsection*{Etapa 1 -- Montagem (0--10 min)}
+
+\begin{instrucao}[Transmissor e dois demoduladores]
 \begin{enumerate}[label=\arabic*.]
-  \item Crie variável \texttt{samp\_rate} com valor \texttt{32000}.
-  \item Crie variável \texttt{loop\_bw} como \texttt{QT GUI Range} com
-    \texttt{Start} = 0{,}01, \texttt{Stop} = 0{,}628, \texttt{Step} = 0{,}01,
-    \texttt{Default Value} = 0{,}062. A grandeza é a largura de banda do
-    laço em rad/amostra.
-  \item Adicione \texttt{Signal Source} com \texttt{Output Type} = Complex,
-    \texttt{Waveform} = Cosine, \texttt{Frequency} = 1000, \texttt{Amplitude}
-    = 1{,}0.
-  \item Adicione \texttt{PLL Frequency Detector} e preencha os campos
-    exatamente como aparecem no bloco:
-    \begin{itemize}
-      \item \texttt{Loop Bandwidth} = \texttt{loop\_bw}
-      \item \texttt{Max Phase/sample} = \texttt{2*3.14159*2000/samp\_rate}
-      \item \texttt{Min Phase/sample} = \texttt{-2*3.14159*2000/samp\_rate}
-    \end{itemize}
-  \item Adicione \texttt{Throttle} com \texttt{Type} = Float e
-    \texttt{QT GUI Time Sink} com \texttt{Type} = Float, 1 canal.
-  \item Conecte Signal Source $\to$ PLL Frequency Detector $\to$ Throttle
-    $\to$ QT GUI Time Sink.
-  \item Execute. A saída do PLL deve convergir para uma constante
-    proporcional à frequência de entrada.
+  \item Monte \texttt{Signal Source} $\to$ \texttt{Frequency Mod} $\to$
+    \texttt{Throttle} $\to$ \texttt{Add}, com o \texttt{Noise Source} na
+    segunda entrada, como na Prática 06.
+  \item Ligue \texttt{Add} $\to$ \texttt{PLL Frequency Detector} $\to$
+    \texttt{Multiply Const} e \texttt{Add} $\to$ \texttt{Quadrature Demod}.
+  \item No Time Sink, ligue a mensagem no canal 0, o PLL no canal 1 e a
+    quadratura no canal 2. No Frequency Sink, o PLL na entrada 0 e a quadratura
+    na entrada 1.
+  \item Execute com os valores padrão. As três curvas do Time Sink devem
+    coincidir, com amplitude $1$.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Persistência da saída do PLL para análise em Python}
+\subsection*{Etapa 2 -- Resposta em frequência (10--22 min)}
 
-Em vez de ler valores no \texttt{QT GUI Time Sink} a olho -- imprecisão
-inevitável de leitura visual --, salve a saída do PLL em arquivo e processe
-em Python. As próximas tabelas serão preenchidas com esse fluxo.
-
-\begin{instrucao}[File Sink + análise em Python]
+\begin{instrucao}[Varredura da frequência da mensagem]
 \begin{enumerate}[label=\arabic*.]
-  \item Adicione um \texttt{File Sink} com \texttt{File} =
-    \texttt{pll\_output.bin}, \texttt{Type} = Float e \texttt{Unbuffered} = Yes.
-  \item Conecte a saída do \texttt{Throttle} também ao \texttt{File Sink}, em
-    paralelo com o \texttt{QT GUI Time Sink}.
-  \item Para cada linha de tabela: ajuste os sliders, execute por cerca de 2 s
-    e pare o flowgraph. O arquivo \texttt{pll\_output.bin} é sobrescrito a
-    cada execução, então copie ou renomeie antes de mudar de cenário.
-  \item Em Python ou Jupyter, carregue o arquivo binário como vetor de floats
-    de 32 bits, descarte o transitório inicial -- mantenha os 20\,\% finais
-    como regime permanente --, calcule a média do trecho final, que é o
-    valor de regime, e o desvio padrão, que é o jitter. Use $f_s = 32000$\,Hz
-    para converter índices de amostra em tempo, quando precisar medir o
-    tempo de convergência. Exemplo mínimo:
-\begin{verbatim}
-import numpy as np
-data = np.fromfile('pll_output.bin', dtype=np.float32)
-fs   = 32000
-tail = data[int(0.8*len(data)):]
-valor_regime = np.mean(tail)
-jitter_std   = np.std(tail)
-\end{verbatim}
+  \item Mantenha $\Delta f = 200$\,Hz, \texttt{loop\_bw} $= 0{,}02$ e
+    \texttt{noise\_amp} $= 0$.
+  \item Para cada $f_m$ da Tabela~\ref{tab:H}, leia no Frequency Sink o nível
+    do tom em $f_m$ na saída do PLL, $L_\text{PLL}$, e na saída de quadratura,
+    $L_\text{Q}$.
+  \item Calcule $A = L_\text{PLL} - L_\text{Q}$, e $A_\text{teo}$ pela
+    equação~\eqref{eq:A} com $f_n$ da equação~\eqref{eq:fn}.
 \end{enumerate}
 \end{instrucao}
 
-\subsection*{Etapa 2 -- Observar o processo de lock (12--22 min)}
+\begin{table}[H]
+  \centering
+  \begin{tabular}{c c c c c}
+    \toprule
+    $f_m$ (Hz) & $L_\text{PLL}$ (dB) & $L_\text{Q}$ (dB) & $A = L_\text{PLL} - L_\text{Q}$ (dB) & $A_\text{teo}$ (dB) \\
+    \midrule
+    100 & & & & \\
+    200 & & & & \\
+    300 & & & & \\
+    400 & & & & \\
+    600 & & & & \\
+    800 & & & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Resposta em frequência do PLL, $\Delta f = 200$\,Hz,
+    \texttt{loop\_bw} $= 0{,}02$. $A_\text{teo}$ pela equação~\eqref{eq:A}.}
+  \label{tab:H}
+\end{table}
 
-\begin{instrucao}[Visualização da convergência de fase]
+\subsection*{Etapa 3 -- Resposta ao degrau (22--34 min)}
+
+\begin{instrucao}[Mensagem quadrada]
 \begin{enumerate}[label=\arabic*.]
-  \item Defina a variável \texttt{freq\_in} como \texttt{QT GUI Range} com
-    \texttt{Start} = 200, \texttt{Stop} = 1800, \texttt{Step} = 50,
-    \texttt{Default Value} = 1000. Em seguida, no bloco
-    \texttt{Signal Source}, troque o campo \texttt{Frequency} de 1000
-    para \texttt{freq\_in}.
-  \item Para cada $f_\text{in}$ da Tabela~\ref{tab:lock}, ajuste o slider,
-    execute o flowgraph por $\sim$ 2 s e renomeie \texttt{pll\_output.bin}
-    para \texttt{pll\_f500.bin}, \texttt{pll\_f800.bin}, etc. antes da
-    próxima execução.
-  \item Em Python, pós-processe cada arquivo para extrair o valor de regime,
-    a frequência estimada $f_\text{est} = \mu \cdot f_s/(2\pi)$ e classifique
-    como locked (1) quando $\sigma/|\mu| < 0{,}02$:
-\begin{verbatim}
-import numpy as np
-fs = 32000
-freqs = [500, 800, 1000, 1200, 1500]
-for f in freqs:
-    data = np.fromfile(f'pll_f{f}.bin', dtype=np.float32)
-    tail = data[int(0.8*len(data)):]
-    mu, sigma = np.mean(tail), np.std(tail)
-    f_est = mu * fs / (2*np.pi)
-    locked = int(sigma / abs(mu) < 0.02) if abs(mu) > 1e-6 else 0
-    print(f'{f:5d} Hz | regime={mu:.6f} | '
-          f'f_est={f_est:.2f} Hz | locked={locked}')
-\end{verbatim}
-  \item Preencha a Tabela~\ref{tab:lock} com os valores numéricos obtidos.
+  \item No \texttt{Signal Source}, troque \textit{Waveform} para Square,
+    \textit{Amplitude} para $2$ e \textit{Offset} para $-1$: a mensagem passa
+    a alternar entre $-1$ e $+1$. Ajuste $f_m = 50$\,Hz e mantenha
+    $\Delta f = 200$\,Hz.
+  \item Para cada \texttt{loop\_bw} da Tabela~\ref{tab:degrau}, leia no Time
+    Sink $y_\text{max}$ e $t_\text{max}$ na curva do PLL, logo depois da subida.
+  \item Calcule $f_n$ pela equação~\eqref{eq:fn}, $M$ e $t_p$ pela
+    equação~\eqref{eq:M} e $t_{p,\text{teo}}$ pela equação~\eqref{eq:degrau}.
+\end{enumerate}
+\end{instrucao}
+
+\begin{table}[H]
+  \centering\small
+  \begin{tabular}{c c c c c c c}
+    \toprule
+    \texttt{loop\_bw} & $f_n$ (Hz) & $y_\text{max}$ & $t_\text{max}$ (ms) & $M$ (\%) & $t_p$ (ms) & $t_{p,\text{teo}}$ (ms) \\
+    \midrule
+    0,01 & & & & & & \\
+    0,02 & & & & & & \\
+    0,04 & & & & & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{Resposta ao degrau de frequência de $2\Delta f = 400$\,Hz.
+    $M$ e $t_p$ pela equação~\eqref{eq:M}; $t_{p,\text{teo}}$ pela
+    equação~\eqref{eq:degrau}.}
+  \label{tab:degrau}
+\end{table}
+
+\subsection*{Etapa 4 -- Limite do VCO (34--40 min)}
+
+\begin{instrucao}[Desvio acima do limite do VCO]
+\begin{enumerate}[label=\arabic*.]
+  \item Volte o \texttt{Signal Source} para Cosine, amplitude $1$ e offset $0$.
+    Use $f_m = 100$\,Hz e \texttt{loop\_bw} $= 0{,}02$.
+  \item Para cada $\Delta f$ da Tabela~\ref{tab:sat}, leia no Time Sink o
+    valor máximo da curva do PLL, $y_\text{pico}$.
+  \item Calcule $y_\text{teo}$ pela equação~\eqref{eq:sat} e a diferença
+    $y_\text{pico} - y_\text{teo}$.
 \end{enumerate}
 \end{instrucao}
 
@@ -222,367 +345,84 @@ for f in freqs:
   \centering
   \begin{tabular}{c c c c}
     \toprule
-    $f_\text{in}$ (Hz) & Valor de regime (rad/amostra) & $f_\text{est}$ (Hz) & Locked \\
+    $\Delta f$ (Hz) & $y_\text{pico}$ & $y_\text{teo}$ & $y_\text{pico} - y_\text{teo}$ \\
     \midrule
+    300  & & & \\
+    400  & & & \\
     500  & & & \\
+    600  & & & \\
     800  & & & \\
     1000 & & & \\
-    1200 & & & \\
-    1500 & & & \\
     \bottomrule
   \end{tabular}
-  \caption{Valor de regime permanente da saída do PLL, frequência estimada $f_\text{est} = \mu \cdot f_s/(2\pi)$ e indicador de lock (1/0), em função de $f_\text{in}$, com \texttt{loop\_bw} = 0{,}062.}
-  \label{tab:lock}
+  \caption{Saturação da saída do PLL, $f_\text{lim} = 500$\,Hz, $f_m = 100$\,Hz.
+    $y_\text{teo}$ pela equação~\eqref{eq:sat}.}
+  \label{tab:sat}
 \end{table}
 
-\subsection*{Etapa 3 -- Efeito da largura de banda do laço (22--35 min)}
+\subsection*{Etapa 5 -- Ruído (40--50 min)}
 
-\begin{instrucao}[Variar loop bandwidth]
+\begin{instrucao}[Relação tom-piso nas duas saídas]
 \begin{enumerate}[label=\arabic*.]
-  \item Fixe \texttt{freq\_in} = 1000 Hz. Com o slider de \texttt{loop\_bw}
-    teste os valores 0{,}010, 0{,}062, 0{,}200 e 0{,}500. Para cada um,
-    reinicie o flowgraph, execute por $\sim$ 2 s e renomeie
-    \texttt{pll\_output.bin} para \texttt{pll\_bw0p010.bin},
-    \texttt{pll\_bw0p062.bin}, etc.
-  \item Em Python, extraia $t_\text{conv}$ (5\,\% do valor final, mantido por
-    100 amostras seguidas) e o overshoot:
-\begin{verbatim}
-import numpy as np
-fs = 32000
-for bw_tag in ['0p010','0p062','0p200','0p500']:
-    data  = np.fromfile(f'pll_bw{bw_tag}.bin', dtype=np.float32)
-    final = np.mean(data[int(0.9*len(data)):])
-    margem = 0.05 * abs(final)
-    within = np.abs(data - final) < margem
-    idx = next((i for i in range(len(within)-100)
-                if np.all(within[i:i+100])), len(data))
-    t_conv_ms = idx / fs * 1000
-    overshoot = (np.max(np.abs(data)) - abs(final)) / abs(final) * 100
-    print(f'{bw_tag} | t_conv={t_conv_ms:.2f} ms | '
-          f'over={overshoot:.1f}%')
-\end{verbatim}
-  \item Preencha a Tabela~\ref{tab:pll}.
+  \item Volte a $\Delta f = 200$\,Hz, com $f_m = 100$\,Hz e
+    \texttt{loop\_bw} $= 0{,}02$.
+  \item Para cada \texttt{noise\_amp} da Tabela~\ref{tab:ruido}, espere a
+    média do Frequency Sink estabilizar, cerca de $3$\,s, e leia em cada saída
+    o nível do tom em $100$\,Hz e o nível do piso em $f_r = 1$\,kHz.
+  \item Calcule $R_\text{PLL}$ e $R_\text{Q}$ pela equação~\eqref{eq:R}, $G$ e
+    $G_\text{teo}$ pela equação~\eqref{eq:G}.
 \end{enumerate}
 \end{instrucao}
 
 \begin{table}[H]
   \centering
-  \begin{tabular}{c c c}
+  \begin{tabular}{c c c c c}
     \toprule
-    \texttt{loop\_bw} & $t_\text{conv}$ (ms) & Overshoot (\%) \\
+    \texttt{noise\_amp} & $R_\text{PLL}$ (dB) & $R_\text{Q}$ (dB) & $G = R_\text{PLL} - R_\text{Q}$ (dB) & $G_\text{teo}$ (dB) \\
     \midrule
-    0{,}010 & & \\
-    0{,}062 & & \\
-    0{,}200 & & \\
-    0{,}500 & & \\
+    0,05 & & & & \\
+    0,10 & & & & \\
+    0,20 & & & & \\
     \bottomrule
   \end{tabular}
-  \caption{Métricas quantitativas do PLL em função de \texttt{loop\_bw}.}
-  \label{tab:pll}
-\end{table}
-
-\subsection*{Etapa 4 -- Faixa de captura (35--44 min)}
-
-\begin{instrucao}[Determinar os limites de captura]
-\begin{enumerate}[label=\arabic*.]
-  \item Fixe \texttt{loop\_bw} = 0{,}062. Para cada $f_\text{in}$ da
-    Tabela~\ref{tab:capture}, execute por $\sim$ 2 s e renomeie o
-    \texttt{pll\_output.bin} para \texttt{pll\_f200.bin},
-    \texttt{pll\_f600.bin}, etc.
-  \item Em Python, classifique cada cenário como locked, calcule a frequência
-    estimada e a faixa de captura medida:
-\begin{verbatim}
-import numpy as np
-fs = 32000
-freqs = [200, 600, 1000, 1400, 1800]
-locked_freqs = []
-for f in freqs:
-    data = np.fromfile(f'pll_f{f}.bin', dtype=np.float32)
-    tail = data[int(0.8*len(data)):]
-    mu, sigma = np.mean(tail), np.std(tail)
-    f_est  = mu * fs / (2*np.pi)
-    locked = int(sigma / abs(mu) < 0.02) if abs(mu) > 1e-6 else 0
-    if locked: locked_freqs.append(f)
-    print(f'{f:5d} Hz | regime={mu:.6f} | '
-          f'f_est={f_est:.2f} Hz | locked={locked}')
-
-df_cap_med = max(locked_freqs) - min(locked_freqs)
-df_cap_teo = 0.062 * fs / np.pi
-print(f'Df_cap medida={df_cap_med} Hz | teorica={df_cap_teo:.1f} Hz')
-\end{verbatim}
-  \item Compare $\Delta f_\text{cap}$ medida com a previsão
-    $\Delta f_\text{cap} \approx \texttt{loop\_bw}\cdot f_s/\pi$ Hz.
-\end{enumerate}
-\end{instrucao}
-
-\begin{table}[H]
-  \centering
-  \begin{tabular}{c c c c}
-    \toprule
-    $f_\text{in}$ (Hz) & Valor de regime (rad/amostra) & $f_\text{est}$ (Hz) & Locked \\
-    \midrule
-    200  & & & \\
-    600  & & & \\
-    1000 & & & \\
-    1400 & & & \\
-    1800 & & & \\
-    \midrule
-    \multicolumn{3}{l}{$\Delta f_\text{cap}$ medida (Hz)} &  \\
-    \multicolumn{3}{l}{$\Delta f_\text{cap}$ teórica (Hz)} &  \\
-    \bottomrule
-  \end{tabular}
-  \caption{Faixa de captura medida do PLL com \texttt{loop\_bw} = 0{,}062. $f_\text{est} = \mu \cdot f_s/(2\pi)$.}
-  \label{tab:capture}
-\end{table}
-
-\subsection*{Etapa 5 -- Efeito do ruído (44--50 min)}
-
-\begin{instrucao}[Adicionar ruído e observar degradação]
-\begin{enumerate}[label=\arabic*.]
-  \item Adicione \texttt{Noise Source} com \texttt{Output Type} = Complex,
-    \texttt{Noise Type} = Gaussian, \texttt{Amplitude} = \texttt{noise\_amp}
-    e \texttt{Seed} = 0.
-  \item Adicione \texttt{Add} com \texttt{IO Type} = Complex,
-    \texttt{Num Inputs} = 2, entre o \texttt{Signal Source} e o
-    \texttt{PLL Frequency Detector}.
-  \item Crie variável \texttt{noise\_amp} como \texttt{QT GUI Range}
-    com \texttt{Start} = 0, \texttt{Stop} = 1{,}0, \texttt{Step} = 0{,}05,
-    \texttt{Default Value} = 0.
-  \item Fixe $f_\text{in}$ = 1000 Hz. Para cada par
-    (\texttt{noise\_amp}, \texttt{loop\_bw}) da Tabela~\ref{tab:ruido},
-    execute por $\sim$ 2 s e renomeie o \texttt{pll\_output.bin} para
-    \texttt{pll\_a0p1\_bw0p062.bin}, \texttt{pll\_a0p1\_bw0p200.bin}, etc.
-  \item Em Python, calcule o jitter -- desvio padrão da saída em regime
-    permanente -- para cada par:
-\begin{verbatim}
-import numpy as np
-amps = ['0p0','0p1','0p3','0p5','1p0']
-for amp in amps:
-    for bw in ['0p062','0p200']:
-        data = np.fromfile(f'pll_a{amp}_bw{bw}.bin', dtype=np.float32)
-        jitter = np.std(data[int(0.8*len(data)):])
-        print(f'amp={amp} bw={bw} | jitter={jitter:.6f}')
-\end{verbatim}
-\end{enumerate}
-\end{instrucao}
-
-\begin{table}[H]
-  \centering
-  \begin{tabular}{c c c}
-    \toprule
-    \texttt{noise\_amp} & Jitter std \texttt{loop\_bw}=0{,}062 & Jitter std \texttt{loop\_bw}=0{,}200 \\
-    \midrule
-    0{,}0 & & \\
-    0{,}1 & & \\
-    0{,}3 & & \\
-    0{,}5 & & \\
-    1{,}0 & & \\
-    \bottomrule
-  \end{tabular}
-  \caption{Jitter de fase do PLL em função da amplitude do ruído e da largura de banda do laço.}
+  \caption{Relação tom-piso, $f_m = 100$\,Hz, $\Delta f = 200$\,Hz,
+    \texttt{loop\_bw} $= 0{,}02$, $f_r = 1$\,kHz. $R$ pela
+    equação~\eqref{eq:R}, $G$ e $G_\text{teo}$ pela equação~\eqref{eq:G}.}
   \label{tab:ruido}
-\end{table}
-
-% ======================================================
-\section{Análises complementares -- desvios da estimativa}
-
-As tabelas a seguir reutilizam dados já coletados nas Etapas 4 e 5,
-acrescidos de um novo cenário curto na Etapa 7, e exploram quatro
-fontes diferentes de desvio na estimativa de frequência do PLL.
-
-\subsection*{Etapa 6 -- Jitter convertido para Hz}
-
-O jitter da Tabela~\ref{tab:ruido} está em rad/amostra. Convertendo
-para Hz com $\sigma_f = \sigma_\mu \cdot f_s/(2\pi)$ você vê a
-incerteza da estimativa em unidades físicas.
-
-\begin{instrucao}[Conversão do jitter]
-\begin{verbatim}
-import numpy as np
-fs = 32000
-# jitter_dados = [(noise_amp, jitter_062, jitter_200), ...]
-# preencher com seus valores medidos na tabela de ruido (rad/amostra)
-jitter_dados = [...]
-for na, j062, j200 in jitter_dados:
-    print(f'amp={na} | sigma_f(062)={j062*fs/(2*np.pi):.2f} Hz '
-          f'| sigma_f(200)={j200*fs/(2*np.pi):.2f} Hz')
-\end{verbatim}
-\end{instrucao}
-
-\begin{table}[H]
-  \centering
-  \begin{tabular}{c c c}
-    \toprule
-    \texttt{noise\_amp} & $\sigma_f$ \texttt{loop\_bw}=0{,}062 (Hz) & $\sigma_f$ \texttt{loop\_bw}=0{,}200 (Hz) \\
-    \midrule
-    0{,}0 & & \\
-    0{,}1 & & \\
-    0{,}3 & & \\
-    0{,}5 & & \\
-    1{,}0 & & \\
-    \bottomrule
-  \end{tabular}
-  \caption{Jitter da estimativa de frequência em Hz, derivado da Tabela~\ref{tab:ruido}.}
-  \label{tab:jitter_hz}
-\end{table}
-
-\subsection*{Etapa 7 -- Saturação no limite da faixa de hold}
-
-\begin{instrucao}[Frequências além de $\pm$ Max Phase/sample]
-\begin{enumerate}[label=\arabic*.]
-  \item Desabilite temporariamente o \texttt{Noise Source} no flowgraph
-    -- pode usar o atalho \texttt{D} no bloco selecionado, ou pôr
-    \texttt{noise\_amp}=0.
-  \item Aumente o \texttt{Stop} do slider \texttt{freq\_in} para 2500 Hz
-    (ou edite o campo \texttt{Frequency} do \texttt{Signal Source}
-    diretamente).
-  \item Para cada $f_\text{in}$ da Tabela~\ref{tab:saturacao}, execute
-    por $\sim$ 2 s e renomeie o \texttt{.bin}.
-  \item Em Python, calcule $f_\text{est}$ e o desvio $f_\text{est} - f_\text{in}$:
-\begin{verbatim}
-import numpy as np
-fs = 32000
-freqs = [1500, 1900, 2000, 2100, 2300]
-for f in freqs:
-    data = np.fromfile(f'pll_sat_f{f}.bin', dtype=np.float32)
-    tail = data[int(0.8*len(data)):]
-    mu = np.mean(tail)
-    f_est = mu * fs / (2*np.pi)
-    desvio = f_est - f
-    print(f'{f:5d} | f_est={f_est:8.2f} Hz | desvio={desvio:+8.2f} Hz')
-\end{verbatim}
-\end{enumerate}
-\end{instrucao}
-
-\begin{table}[H]
-  \centering
-  \begin{tabular}{c c c c}
-    \toprule
-    $f_\text{in}$ (Hz) & $f_\text{est}$ (Hz) & Desvio (Hz) & Locked \\
-    \midrule
-    1500 & & & \\
-    1900 & & & \\
-    2000 & & & \\
-    2100 & & & \\
-    2300 & & & \\
-    \bottomrule
-  \end{tabular}
-  \caption{Saturação de $f_\text{est}$ além do limite imposto por \texttt{Max/Min Phase/sample} = $\pm 2000$\,Hz.}
-  \label{tab:saturacao}
-\end{table}
-
-\subsection*{Etapa 8 -- Captura em janela de observação curta}
-
-Aqui você reaproveita os mesmos arquivos \texttt{pll\_f200.bin},
-\texttt{pll\_f600.bin}, etc. da Etapa~4, mas analisa só os primeiros
-50 ms.
-
-\begin{instrucao}[Truncamento do .bin]
-\begin{verbatim}
-import numpy as np
-fs = 32000
-n_curto = int(0.05 * fs)  # 50 ms = 1600 amostras
-freqs = [200, 600, 1000, 1400, 1800]
-locked_freqs = []
-for f in freqs:
-    data = np.fromfile(f'pll_f{f}.bin', dtype=np.float32)
-    data = data[:n_curto]            # truncamento
-    tail = data[int(0.8*len(data)):]
-    mu, sigma = np.mean(tail), np.std(tail)
-    f_est  = mu * fs / (2*np.pi)
-    locked = int(sigma / abs(mu) < 0.02) if abs(mu) > 1e-6 else 0
-    if locked: locked_freqs.append(f)
-    print(f'{f:5d} | f_est={f_est:7.2f} Hz | locked={locked}')
-
-print(f'Df_cap curto = {max(locked_freqs) - min(locked_freqs)} Hz')
-print(f'Df_cap teor. = {0.062 * fs / np.pi:.1f} Hz')
-\end{verbatim}
-\end{instrucao}
-
-\begin{table}[H]
-  \centering
-  \begin{tabular}{c c c}
-    \toprule
-    $f_\text{in}$ (Hz) & $f_\text{est}$ janela 50 ms (Hz) & Locked \\
-    \midrule
-    200  & & \\
-    600  & & \\
-    1000 & & \\
-    1400 & & \\
-    1800 & & \\
-    \midrule
-    \multicolumn{2}{l}{$\Delta f_\text{cap}$ janela curta (Hz)} & \\
-    \multicolumn{2}{l}{$\Delta f_\text{cap}$ teórica (Hz)} & \\
-    \bottomrule
-  \end{tabular}
-  \caption{Captura na janela curta de 50 ms; comparação direta entre faixa medida e previsão teórica $\texttt{loop\_bw}\cdot f_s/\pi$.}
-  \label{tab:janela_curta}
-\end{table}
-
-\subsection*{Etapa 9 -- Bias da estimativa em janela curta sob ruído}
-
-Mesma ideia: reaproveite os \texttt{.bin} da Etapa~5, mas calcule a
-média $f_\text{est}$ na janela curta de 50 ms. Mostra que, com janela
-curta e ruído alto, $f_\text{est}$ pode estar viesado -- diferente do
-valor verdadeiro $f_\text{in} = 1000$\,Hz.
-
-\begin{instrucao}[Bias em janela curta]
-\begin{verbatim}
-import numpy as np
-fs = 32000
-n_curto = int(0.05 * fs)
-amps = ['0p0','0p3','0p5','1p0']
-for amp in amps:
-    for bw in ['0p062','0p200']:
-        data = np.fromfile(f'pll_a{amp}_bw{bw}.bin', dtype=np.float32)
-        short = data[:n_curto]
-        tail  = short[int(0.8*len(short)):]
-        f_est = np.mean(tail) * fs / (2*np.pi)
-        print(f'amp={amp} bw={bw} | f_est={f_est:.2f} Hz')
-\end{verbatim}
-\end{instrucao}
-
-\begin{table}[H]
-  \centering
-  \begin{tabular}{c c c}
-    \toprule
-    \texttt{noise\_amp} & $f_\text{est}$ \texttt{loop\_bw}=0{,}062 (Hz) & $f_\text{est}$ \texttt{loop\_bw}=0{,}200 (Hz) \\
-    \midrule
-    0{,}0 & & \\
-    0{,}3 & & \\
-    0{,}5 & & \\
-    1{,}0 & & \\
-    \bottomrule
-  \end{tabular}
-  \caption{Estimativa de frequência $f_\text{est}$ em janela curta de 50 ms, com $f_\text{in} = 1000$\,Hz. Desvios em relação ao valor verdadeiro evidenciam o bias da estimativa quando o tempo de observação é da ordem do tempo de convergência do laço.}
-  \label{tab:bias_curto}
 \end{table}
 
 % ======================================================
 \section{Perguntas para o relatório}
 
+Todas as respostas devem ser numéricas, com as contas mostradas.
+
 \begin{enumerate}[label=\textbf{Q\arabic*.}, leftmargin=*]
 
-  \item Descreva a função de cada um dos três componentes do PLL:
-    detector de fase, filtro de laço e VCO. Como eles interagem para
-    travar a fase?
+  \item Calcule $\alpha$, $\beta$ e $f_n$ para \texttt{loop\_bw} $= 0{,}02$
+    pelas equações~\eqref{eq:ganhos} e~\eqref{eq:fn}, com $\sqrt\beta$ e com a
+    aproximação $w f_s/\pi$. Qual o erro da aproximação, em \%?
 
-  \item Como você detectou que o PLL travou? Qual o critério numérico
-    aplicado à saída do bloco \texttt{PLL Frequency Detector}?
+  \item Na Tabela~\ref{tab:H}, interpole linearmente entre as duas linhas
+    vizinhas de $A = -3{,}01$\,dB e dê o $f_m$ medido em que $A = -3{,}01$\,dB.
+    Compare com $f_n$ da Q1. Qual a maior diferença $|A - A_\text{teo}|$ da
+    tabela?
 
-  \item Com base na Tabela~\ref{tab:pll}, como a largura de banda do laço
-    afeta o tempo de convergência e o sobresinal? Existe um valor ótimo?
-    Justifique o compromisso entre velocidade de lock e sensibilidade ao
-    ruído.
+  \item Na Tabela~\ref{tab:degrau}, compare $M$ com $M_\text{teo} = 4{,}32\,\%$
+    e $t_p$ com $t_{p,\text{teo}}$ em cada linha. Calcule o produto
+    $t_p\cdot$\texttt{loop\_bw} nas três linhas: pela
+    equação~\eqref{eq:degrau}, ele deveria valer $\pi/(\sqrt2 f_s)$. Quanto vale
+    essa constante em ms?
 
-  \item Qual foi a faixa de captura medida na Tabela~\ref{tab:capture}?
-    Ela corresponde à previsão teórica $\Delta f_\text{cap} \approx
-    \texttt{loop\_bw}\cdot f_s/\pi$? Discuta possíveis razões para
-    eventuais discrepâncias.
+  \item Na Tabela~\ref{tab:sat}, a partir de qual $\Delta f$ a saída deixa de
+    chegar a $1$? Qual a maior diferença $|y_\text{pico} - y_\text{teo}|$?
 
-  \item A partir da Tabela~\ref{tab:ruido}, como o ruído afeta o
-    desempenho do PLL? Por que uma largura de banda de laço mais larga
-    resulta em maior jitter de fase na presença de ruído?
+  \item Na Tabela~\ref{tab:ruido}, calcule $G_\text{teo}$ e a diferença
+    $G - G_\text{teo}$ em cada linha.
+
+  \item Uma mensagem de $f_m = 300$\,Hz deve passar pelo PLL com no máximo
+    $1$\,dB de atenuação. Pela equação~\eqref{eq:A}, qual o menor $f_n$ e o
+    menor \texttt{loop\_bw} que atendem? Com esse \texttt{loop\_bw}, quanto
+    vale $G_\text{teo}$ para $f_m = 300$\,Hz e $f_r = 1$\,kHz?
 
 \end{enumerate}
 
@@ -592,29 +432,17 @@ for amp in amps:
 O entregável é o relatório no modelo definido no SIGAA contendo:
 
 \begin{itemize}
-  \item Print do flowgraph completo no GNU Radio Companion, incluindo o
-    \texttt{File Sink} usado para coletar as medidas.
-  \item Tabelas \ref{tab:lock}, \ref{tab:pll}, \ref{tab:capture} e
-    \ref{tab:ruido} preenchidas com os valores obtidos do pós-processamento
-    em Python.
-  \item Tabelas \ref{tab:jitter_hz}, \ref{tab:saturacao},
-    \ref{tab:janela_curta} e \ref{tab:bias_curto} preenchidas, das análises
-    complementares (Etapas 6--9).
-  \item Para cada etapa com pós-processamento (Etapas 2 a 9), explicação em
-    palavras próprias do que o código Python está calculando -- o que
-    significa pegar os 20\,\% finais do vetor, por que a razão
-    $\sigma/|\mu|$ é usada como critério de lock, o que define o
-    $t_\text{conv}$ a 5\,\%, como o overshoot é estimado, o que é o jitter
-    e o que significa truncar o vetor para uma janela curta. A ideia é
-    demonstrar que você entende cada linha, não apenas reproduzir o snippet.
-  \item Respostas às 5 questões.
+  \item As Tabelas~\ref{tab:H}, \ref{tab:degrau}, \ref{tab:sat} e~\ref{tab:ruido}
+    preenchidas, com unidades.
+  \item Captura do Time Sink na Etapa 3 com \texttt{loop\_bw} $= 0{,}02$ e do
+    Frequency Sink na Etapa 5 com \texttt{noise\_amp} $= 0{,}1$.
+  \item Respostas às perguntas Q1 a Q6.
 \end{itemize}
 
 \begin{atencao}[Atenção -- unidades do PLL]
-No bloco \texttt{PLL Frequency Detector} do GNU Radio, os campos
-\texttt{Loop Bandwidth}, \texttt{Max Phase/sample} e
-\texttt{Min Phase/sample} são todos expressos em radianos por amostra,
-não em Hz. A conversão é $\omega = 2\pi f / f_s$.
+No bloco \texttt{PLL Frequency Detector}, \textit{Loop Bandwidth},
+\textit{Max Phase/sample} e \textit{Min Phase/sample} são dados em radianos por
+amostra, não em Hz. A conversão é $\omega = 2\pi f/f_s$.
 \end{atencao}
 
 \end{document}

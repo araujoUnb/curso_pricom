@@ -1,12 +1,12 @@
 options:
   parameters:
-    author: "Prof. Daniel Costa Ara\xFAjo"
+    author: Prof. Daniel Costa Araújo
     catch_exceptions: 'True'
     category: '[GRC Hier Blocks]'
     cmake_opt: ''
     comment: ''
     copyright: ''
-    description: "Pr\xE1tica 06 - Phase-Locked Loop (PLL)"
+    description: Pratica 07 - PLL como demodulador FM
     gen_cmake: 'On'
     gen_linking: dynamic
     generate_options: qt_gui
@@ -22,89 +22,135 @@ options:
     run_options: prompt
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: "Pr\xE1tica 06 - Phase-Locked Loop (PLL)"
+    title: Prática 07 - PLL
     window_size: (1280,900)
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 8]
+    coordinate:
+    - 8
+    - 8
     rotation: 0
     state: enabled
-
 blocks:
-- name: freq_in
-  id: variable_qtgui_range
+- name: samp_rate
+  id: variable
   parameters:
-    comment: "Frequ\xEAncia do sinal de entrada (Hz)"
-    gui_hint: 0,1,1,1
-    label: "Frequ\xEAncia de entrada (Hz)"
-    min_len: '200'
-    orient: QtCore.Qt.Horizontal
-    rangeType: float
-    start: '200'
-    step: '50'
-    stop: '1800'
-    value: '1000'
-    widget: counter_slider
+    comment: Taxa de amostragem
+    value: '48000'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [450, 12]
+    coordinate:
+    - 8
+    - 160
     rotation: 0
     state: enabled
-- name: loop_bw
-  id: variable_qtgui_range
+- name: f_lim
+  id: variable
   parameters:
-    comment: "Largura de banda do la\xE7o (rad/amostra)"
-    gui_hint: 0,0,1,1
-    label: Loop Bandwidth (rad/amostra)
-    min_len: '200'
-    orient: QtCore.Qt.Horizontal
-    rangeType: float
-    start: '0.01'
-    step: '0.01'
-    stop: '0.628'
-    value: '0.062'
-    widget: counter_slider
+    comment: Limite de frequência do VCO (Hz)
+    value: '500'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [200, 12]
+    coordinate:
+    - 8
+    - 260
     rotation: 0
     state: enabled
 - name: max_freq
   id: variable
   parameters:
-    comment: "Frequ\xEAncia m\xE1xima do PLL (rad/amostra)"
-    value: 2*3.14159265*2000/samp_rate
+    comment: Limite do VCO em rad/amostra
+    value: 2*math.pi*f_lim/samp_rate
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 260]
+    coordinate:
+    - 8
+    - 360
     rotation: 0
     state: enabled
-- name: min_freq
-  id: variable
+- name: fm_freq
+  id: variable_qtgui_range
   parameters:
-    comment: "Frequ\xEAncia m\xEDnima do PLL (rad/amostra)"
-    value: -max_freq
+    comment: Frequência da mensagem
+    gui_hint: 0,0,1,1
+    label: Frequência mensagem fm (Hz)
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '50'
+    step: '50'
+    stop: '1000'
+    value: '100'
+    widget: counter_slider
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [8, 360]
+    coordinate:
+    - 190
+    - 8
+    rotation: 0
+    state: enabled
+- name: max_dev
+  id: variable_qtgui_range
+  parameters:
+    comment: Desvio máximo de frequência FM
+    gui_hint: 0,1,1,1
+    label: Desvio máximo (Hz)
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '100'
+    step: '50'
+    stop: '1000'
+    value: '200'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 400
+    - 8
+    rotation: 0
+    state: enabled
+- name: loop_bw
+  id: variable_qtgui_range
+  parameters:
+    comment: Largura de banda do laço (rad/amostra)
+    gui_hint: 1,0,1,1
+    label: loop_bw (rad/amostra)
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '0.005'
+    step: '0.005'
+    stop: '0.08'
+    value: '0.02'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 610
+    - 8
     rotation: 0
     state: enabled
 - name: noise_amp
   id: variable_qtgui_range
   parameters:
-    comment: "Amplitude do ru\xEDdo gaussiano"
-    gui_hint: 1,0,1,1
-    label: "Amplitude do Ru\xEDdo"
+    comment: Amplitude do ruído
+    gui_hint: 1,1,1,1
+    label: Amplitude ruído
     min_len: '200'
     orient: QtCore.Qt.Horizontal
     rangeType: float
@@ -117,178 +163,67 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [700, 12]
+    coordinate:
+    - 820
+    - 8
     rotation: 0
     state: enabled
-- name: samp_rate
-  id: variable
+- name: import_math
+  id: import
   parameters:
-    comment: Taxa de amostragem
-    value: '32000'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [8, 160]
-    rotation: 0
-    state: enabled
-- name: add_block
-  id: blocks_add_xx
-  parameters:
-    affinity: ''
     alias: ''
-    comment: "Sinal + Ru\xEDdo"
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    num_inputs: '2'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [360, 340]
-    rotation: 0
-    state: enabled
-- name: freq_sink_entrada
-  id: qtgui_freq_sink_x
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    autoscale: 'False'
-    average: '1.0'
-    axislabels: 'True'
-    bw: samp_rate
-    color1: '"blue"'
-    color10: '"dark blue"'
-    color2: '"red"'
-    color3: '"green"'
-    color4: '"black"'
-    color5: '"cyan"'
-    color6: '"magenta"'
-    color7: '"yellow"'
-    color8: '"dark red"'
-    color9: '"dark green"'
     comment: ''
-    ctrlpanel: 'False'
-    fc: '0'
-    fftsize: '4096'
-    freqhalf: 'True'
-    grid: 'True'
-    gui_hint: 2,1,1,1
-    label: Relative Gain
-    label1: Sinal de entrada
-    label10: ''''''
-    label2: ''''''
-    label3: ''''''
-    label4: ''''''
-    label5: ''''''
-    label6: ''''''
-    label7: ''''''
-    label8: ''''''
-    label9: ''''''
-    legend: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    name: '"Espectro do Sinal de Entrada"'
-    nconnections: '1'
-    norm_window: 'False'
-    showports: 'False'
-    tr_chan: '0'
-    tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
-    tr_tag: '""'
-    type: complex
-    units: dB
-    update_time: '0.10'
-    width1: '1'
-    width10: '1'
-    width2: '1'
-    width3: '1'
-    width4: '1'
-    width5: '1'
-    width6: '1'
-    width7: '1'
-    width8: '1'
-    width9: '1'
-    wintype: window.WIN_HANN
-    ymax: '10'
-    ymin: '-100'
+    imports: import math
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [560, 564.0]
+    coordinate:
+    - 1030
+    - 8
     rotation: 0
     state: enabled
-- name: pll_freqdet
-  id: analog_pll_freqdet_cf
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: PLL Frequency Detector
-    max_freq: max_freq
-    maxoutbuf: '0'
-    min_freq: min_freq
-    minoutbuf: '0'
-    w: loop_bw
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [520, 340]
-    rotation: 0
-    state: enabled
-- name: src_noise
-  id: analog_noise_source_x
-  parameters:
-    affinity: ''
-    alias: ''
-    amp: noise_amp
-    comment: "Ru\xEDdo gaussiano complexo"
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    noise_type: analog.GR_GAUSSIAN
-    seed: '0'
-    type: complex
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [136, 484.0]
-    rotation: 0
-    state: enabled
-- name: src_signal
+- name: src_mensagem
   id: analog_sig_source_x
   parameters:
     affinity: ''
     alias: ''
     amp: '1.0'
-    comment: Sinal de entrada complexo
-    freq: freq_in
+    comment: Sinal mensagem m(t)
+    freq: fm_freq
     maxoutbuf: '0'
     minoutbuf: '0'
     offset: '0'
     phase: '0'
     samp_rate: samp_rate
     showports: 'False'
-    type: complex
+    type: float
     waveform: analog.GR_COS_WAVE
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [176, 172.0]
+    coordinate:
+    - 190
+    - 180
+    rotation: 0
+    state: enabled
+- name: fm_mod
+  id: analog_frequency_modulator_fc
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: sensibilidade 2 pi max_dev / samp_rate
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    sensitivity: 2*math.pi*max_dev/samp_rate
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 420
+    - 220
     rotation: 0
     state: enabled
 - name: throttle
@@ -303,13 +238,114 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     samples_per_second: samp_rate
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 640
+    - 220
+    rotation: 0
+    state: enabled
+- name: src_noise
+  id: analog_noise_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: noise_amp
+    comment: Ruído gaussiano complexo
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    noise_type: analog.GR_GAUSSIAN
+    seed: '0'
+    type: complex
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 640
+    - 320
+    rotation: 0
+    state: enabled
+- name: add_noise
+  id: blocks_add_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: Soma sinal FM + ruído
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    num_inputs: '2'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 860
+    - 240
+    rotation: 0
+    state: enabled
+- name: pll
+  id: analog_pll_freqdet_cf
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: saída em rad/amostra
+    max_freq: max_freq
+    maxoutbuf: '0'
+    min_freq: -max_freq
+    minoutbuf: '0'
+    w: loop_bw
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1040
+    - 200
+    rotation: 0
+    state: enabled
+- name: pll_gain
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: rad/amostra para m(t)
+    const: samp_rate/(2*math.pi*max_dev)
+    maxoutbuf: '0'
+    minoutbuf: '0'
     type: float
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [808, 348.0]
+    coordinate:
+    - 1280
+    - 212
+    rotation: 0
+    state: enabled
+- name: quad_demod
+  id: analog_quadrature_demod_cf
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'referencia: discriminador de quadratura (Pratica 05)'
+    gain: samp_rate/(2*math.pi*max_dev)
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1040
+    - 340
     rotation: 0
     state: enabled
 - name: time_sink
@@ -327,7 +363,7 @@ blocks:
     alpha7: '1.0'
     alpha8: '1.0'
     alpha9: '1.0'
-    autoscale: 'True'
+    autoscale: 'False'
     axislabels: 'True'
     color1: blue
     color10: dark blue
@@ -343,11 +379,11 @@ blocks:
     ctrlpanel: 'False'
     entags: 'True'
     grid: 'True'
-    gui_hint: 2,0,1,1
-    label1: "Sa\xEDda PLL (frequ\xEAncia)"
+    gui_hint: 2,0,1,2
+    label1: '"Mensagem"'
     label10: Signal 10
-    label2: Signal 2
-    label3: Signal 3
+    label2: '"PLL"'
+    label3: '"Quadratura"'
     label4: Signal 4
     label5: Signal 5
     label6: Signal 6
@@ -365,9 +401,9 @@ blocks:
     marker7: '-1'
     marker8: '-1'
     marker9: '-1'
-    name: "\"Converg\xEAncia do PLL\""
-    nconnections: '1'
-    size: '4096'
+    name: '"Comparação no Tempo"'
+    nconnections: '3'
+    size: '480'
     srate: samp_rate
     stemplot: 'False'
     style1: '1'
@@ -381,9 +417,9 @@ blocks:
     style8: '1'
     style9: '1'
     tr_chan: '0'
-    tr_delay: '0'
+    tr_delay: '0.001'
     tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_mode: qtgui.TRIG_MODE_NORM
     tr_slope: qtgui.TRIG_SLOPE_POS
     tr_tag: '""'
     type: float
@@ -406,18 +442,138 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1088, 332.0]
+    coordinate:
+    - 1500
+    - 160
     rotation: 0
     state: enabled
-
+- name: freq_sink
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '0.2'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"red"'
+    color10: '"dark blue"'
+    color2: '"green"'
+    color3: '"blue"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: ''
+    ctrlpanel: 'False'
+    fc: '0'
+    fftsize: '4096'
+    freqhalf: 'False'
+    grid: 'True'
+    gui_hint: 3,0,1,2
+    label: Relative Gain
+    label1: '"PLL"'
+    label10: ''''''
+    label2: '"Quadratura"'
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '"Espectro das saidas demoduladas"'
+    nconnections: '2'
+    norm_window: 'False'
+    showports: 'False'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: window.WIN_FLATTOP
+    ymax: '10'
+    ymin: '-120'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1500
+    - 360
+    rotation: 0
+    state: enabled
 connections:
-- [add_block, '0', freq_sink_entrada, '0']
-- [add_block, '0', pll_freqdet, '0']
-- [pll_freqdet, '0', throttle, '0']
-- [src_noise, '0', add_block, '1']
-- [src_signal, '0', add_block, '0']
-- [throttle, '0', time_sink, '0']
-
+- - src_mensagem
+  - '0'
+  - fm_mod
+  - '0'
+- - fm_mod
+  - '0'
+  - throttle
+  - '0'
+- - throttle
+  - '0'
+  - add_noise
+  - '0'
+- - src_noise
+  - '0'
+  - add_noise
+  - '1'
+- - add_noise
+  - '0'
+  - pll
+  - '0'
+- - add_noise
+  - '0'
+  - quad_demod
+  - '0'
+- - pll
+  - '0'
+  - pll_gain
+  - '0'
+- - src_mensagem
+  - '0'
+  - time_sink
+  - '0'
+- - pll_gain
+  - '0'
+  - time_sink
+  - '1'
+- - quad_demod
+  - '0'
+  - time_sink
+  - '2'
+- - pll_gain
+  - '0'
+  - freq_sink
+  - '0'
+- - quad_demod
+  - '0'
+  - freq_sink
+  - '1'
 metadata:
   file_format: 1
   grc_version: 3.10.12.0
