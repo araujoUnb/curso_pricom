@@ -223,15 +223,21 @@ n(t) = \tikzmarknode{rn}{r_n(t)}\cos[2\pi f_c t + \tikzmarknode{psi}{\psi_n(t)}]
 \begin{tikzpicture}[scale=1.15, >=Stealth]
 \draw[gray, ->] (-0.3,0) -- (4.3,0);
 \draw[very thick, cBlue, ->] (0,0) -- (3,0) node[midway, below, font=\small] {$A_c$};
+\only<1>{
+  \node[nota=gray, anchor=north] (ne) at (4.0,-0.25) {eixo na fase $\phi$\\do sinal};
+  \draw[setinha, gray] (ne.north) -- (4.0,0);
+}
 \onslide<2->{
   \draw[very thick, cRed, ->] (3,0) -- (3.41,1.55) node[midway, left, font=\small] {$r_n$};
   \draw[cRed] (3.4,0) arc (0:75:0.4);
-  \node[cRed, font=\scriptsize, anchor=west] at (3.65,0.17) {$\psi_n - \phi$};
+  \node[nota=cRed, anchor=north] (nr) at (4.4,-0.15) {$\psi_n - \phi$\\ruído visto\\do sinal};
+  \draw[setinha, cRed] (nr.north) -- (3.39,0.1);
 }
 \onslide<3->{
   \draw[very thick, cGreen, ->] (0,0) -- (3.41,1.55) node[midway, above left, font=\small] {$R$};
   \draw[cGreen] (1.3,0) arc (0:24:1.3);
-  \node[cGreen, font=\scriptsize, anchor=west] at (1.35,0.25) {$\theta - \phi$};
+  \node[nota=cGreen, anchor=south west] (ng) at (0,1.3) {$\theta - \phi$\\soma vista\\do sinal};
+  \draw[setinha, cGreen] (ng.south east) -- (1.29,0.2);
 }
 \onslide<4->{
   \draw[gray, dashed] (3.41,1.55) -- (3.41,0);
@@ -243,9 +249,9 @@ n(t) = \tikzmarknode{rn}{r_n(t)}\cos[2\pi f_c t + \tikzmarknode{psi}{\psi_n(t)}]
 \end{tikzpicture}
 
 \vspace{0.2cm}\small
-\only<1>{Eixo girando junto com a fase do sinal: o fasor do sinal fica parado.}%
-\only<2>{O fasor do ruído entra com ângulo $\psi_n - \phi$ em relação ao sinal.}%
-\only<3>{O receptor vê a soma $R$, com fase $\theta$.}%
+\only<1>{Eixo girando com o sinal: ângulos medidos a partir de $\phi$.}%
+\only<2>{O ruído tem fase $\psi_n$; descontando a fase $\phi$ do sinal, sobra $\psi_n - \phi$.}%
+\only<3>{O receptor vê a soma $R$, com fase $\theta$; a partir do sinal, $\theta - \phi$.}%
 \only<4->{Catetos do triângulo formado pela soma.}
 
 \column{0.55\textwidth}
@@ -692,6 +698,886 @@ m(t) = m_p\cos(2\pi f_m t)
 
 \vspace{0.3cm}
 \onslide<5->{Tudo isso vale acima do limiar, com $A_c \gg r_n$. Abaixo dele, a aproximação do $\arctan$ cai e o FM degrada de repente.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\section{Efeito de limiar}
+
+\begin{frame}{Ruído forte: o fasor contorna a origem}
+
+\begin{columns}[T]
+\column{0.45\textwidth}
+\centering
+\begin{tikzpicture}[scale=1.05, >=Stealth]
+\draw[gray, ->] (-1.2,0) -- (4.0,0);
+\fill (0,0) circle (1.2pt) node[below left, font=\scriptsize] {$0$};
+\draw[very thick, cBlue, ->] (0,0) -- (1.6,0) node[midway, below, font=\small] {$A_c$};
+\only<1>{
+  \draw[cRed, dashed] (1.6,0) circle (0.6);
+  \draw[very thick, cRed, ->] (1.6,0) -- (1.3,0.52) node[midway, right, font=\small] {$r_n$};
+  \draw[very thick, cGreen, ->] (0,0) -- (1.3,0.52) node[midway, above left, font=\small] {$R$};
+}
+\only<2->{
+  \draw[cRed, dashed] (1.6,0) circle (2.0);
+  \draw[very thick, cRed, ->] (1.6,0) -- (-0.13,1.0) node[midway, above right, font=\small] {$r_n$};
+  \draw[very thick, cGreen, ->] (0,0) -- (-0.13,1.0) node[midway, left, font=\small] {$R$};
+}
+\only<3->{
+  \draw[cOrange, thick, ->, densely dashed] (2.4,0.9) .. controls (1.2,1.9) and (-0.6,1.2) .. (-0.7,0.2)
+    .. controls (-0.8,-0.8) and (0.8,-1.3) .. (2.2,-0.5);
+  \node[nota=cOrange, anchor=north] (nv) at (2.6,-1.25) {$\theta - \phi$\\ganha $2\pi$};
+  \draw[setinha, cOrange] (nv.north) -- (1.5,-0.85);
+}
+\end{tikzpicture}
+
+\vspace{0.2cm}\small
+\only<1>{$r_n < A_c$: a ponta de $R$ fica no círculo e nunca alcança a origem.}%
+\only<2>{$r_n > A_c$: o círculo engole a origem.}%
+\only<3->{A ponta de $R$ dá a volta na origem.}
+
+\column{0.55\textwidth}
+\small
+Acima do limiar, $r_n \ll A_c$ quase o tempo todo: a ponta de $R$ fica perto do fim de $A_c$ e $\theta - \phi$ só oscila em torno de zero.
+
+\vspace{0.25cm}
+\onslide<2->{Quando a SNR de entrada cai, $r_n$ chega à ordem de $A_c$ e a ponta de $R$ pode passar do outro lado da origem.}
+
+\vspace{0.25cm}
+\onslide<3->{Se ela contorna a origem, $\theta$ ganha ou perde $2\pi$ em um intervalo curto.}
+
+\vspace{0.25cm}
+\onslide<4->{Se a ponta vai e volta sem contornar a origem, a fase retorna ao valor inicial e nada sobra. Só a volta inteira deixa marca.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Uma volta vira um clique}
+
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{tikzpicture}
+\begin{axis}[onda, width=5.4cm, height=1.5cm, xmin=-1, xmax=1, ymin=-0.3, ymax=7.2,
+             xlabel={$t$}, ylabel={$\theta - \phi$}]
+  \addplot[cGreen, thick, domain=-1:1, samples=200] {pi + 2*rad(atan(x/0.06))};
+  \draw[gray, dashed] (axis cs:-1,6.283) -- (axis cs:1,6.283);
+  \node[font=\tiny, anchor=east] at (axis cs:-1,6.283) {$2\pi$};
+\end{axis}
+\onslide<2->{
+\begin{axis}[onda, at={(0,-2.5cm)}, width=5.4cm, height=1.6cm, xmin=-1, xmax=1, ymin=0, ymax=6,
+             xlabel={$t$}, ylabel={$y(t)$}]
+  \addplot[cRed, thick, fill=cRed!25, domain=-1:1, samples=300] {(1/pi)*0.06/(x^2+0.06^2)} \closedcycle;
+  \draw[<->, cBlue] (axis cs:-0.06,2.65) -- (axis cs:0.06,2.65);
+  \node[font=\tiny, cBlue, anchor=west] at (axis cs:0.1,2.65) {$\sim 1/B_T$};
+\end{axis}}
+\end{tikzpicture}
+
+\vspace{0.1cm}\small
+\only<1>{A fase sobe $2\pi$ de uma vez.}%
+\only<2->{O discriminador deriva o degrau e entrega um pulso estreito.}
+
+\column{0.5\textwidth}
+\small\compacto
+\onslide<3->{Área do pulso na saída do discriminador:
+\[
+\int y\,dt = \frac{1}{2\pi}\int \frac{d\theta}{dt}\,dt
+\]}%
+\onslide<4->{
+\[
+= \frac{1}{2\pi}\,\tikzmarknode{dt}{\bigl[\theta(t_2) - \theta(t_1)\bigr]}
+\only<6->{= \hl[cGreen]{\pm 1}}
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{\only<5->{
+  \node[nota=cOrange, anchor=north] (a) at ([yshift=-0.25cm]dt.south) {uma volta inteira: $\pm 2\pi$};
+  \draw[setinha, cOrange] (a.north) -- (dt.south);
+}}%
+\onslide<7->{O pulso dura uns $1/B_T$, muito menos que $1/W$. Para o passa-baixas de banda $W$, é um impulso:
+\[
+\pm\,\delta(t - t_k)
+\]}%
+\onslide<8->{No alto-falante, cada impulso soa como um estalo: o clique.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Limiar do FM}
+
+\small\compacto
+\begin{columns}[T]
+\column{0.5\textwidth}
+Contar os cliques foge do nosso escopo. Dessa análise sai uma relação aproximada para o joelho \cite{proakis2008}:
+\[
+\tikzmarknode{sb}{\left(\frac{S}{N}\right)_{b,\text{lim}}} = 20(\beta + 1)
+\]
+\par\vspace{1.0cm}%
+\anotacoes{\only<2->{
+  \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.25cm]sb.south) {$\dfrac{P_R}{N_0W} = \gamma$: é o $\gamma_{\text{lim}}$};
+  \draw[setinha, cBlue] (a.north) -- (sb.south);
+}}%
+\onslide<3->{
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$\beta$ & $\gamma_{\text{lim}}$ & dB \\
+\midrule
+2 & 60 & 17,8 \\
+5 & 120 & 20,8 \\
+7 & 160 & 22,0 \\
+\bottomrule
+\end{tabular}
+\end{center}}
+
+\column{0.5\textwidth}
+\onslide<4->{O que esse número significa? A SNR na banda de RF é
+\[
+\rho = \frac{P_R}{N_0\,\tikzmarknode{bt}{B_T}}
+\only<5->{= \frac{P_R}{N_0W}\,\frac{W}{B_T}}
+\only<6->{= \gamma\,\frac{W}{\tikzmarknode{bw}{B_T}}}
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{
+  \only<5>{
+    \node[nota=cOrange, anchor=north] (b) at ([yshift=-0.25cm]bt.south) {multiplica e divide por $W$};
+    \draw[setinha, cOrange] (b.north) -- (bt.south);
+  }
+  \only<7->{
+    \node[nota=cOrange, anchor=north] (c) at ([yshift=-0.25cm]bw.south) {Carson: $2(\beta + 1)W$};
+    \draw[setinha, cOrange] (c.north) -- (bw.south);
+  }
+}%
+\onslide<8->{No limiar:
+\[
+\rho_{\text{lim}} = \frac{20(\beta + 1)}{2(\beta + 1)} \only<9->{= \hl[cRed]{10}}
+\]}%
+\onslide<10->{O limiar é ter 10\,dB de SNR na banda $B_T$. Abaixo disso, $r_n$ passa de $A_c$ com frequência e os cliques dominam.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{A curva do limiar}
+
+\begin{columns}[c]
+\column{0.55\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[scale only axis, width=5.6cm, height=4.3cm,
+             xmin=6, xmax=30, ymin=0, ymax=48, axis lines=left,
+             xlabel={$\gamma$ [dB]}, ylabel={SNR [dB]},
+             xtick={10,15,20,25,30}, ytick={0,10,20,30,40},
+             tick label style={font=\tiny}, label style={font=\scriptsize},
+             grid=major, grid style={gray!20}, clip=false]
+\addplot[gray, dashed, domain=6:30] {x};
+\node[font=\scriptsize, gray, anchor=north west] at (axis cs:26,26) {SSB};
+\only<2->{
+  \addplot[cBlue, thick] coordinates {(6.0,0.43) (6.5,0.93) (7.0,1.47) (7.5,2.06) (8.0,2.71) (8.5,3.42) (9.0,4.20) (9.5,5.05) (10.0,5.99) (10.5,7.01) (11.0,8.14) (11.5,9.36) (12.0,10.70) (12.5,12.15) (13.0,13.70) (13.5,15.34) (14.0,17.03) (14.5,18.71) (15.0,20.31) (15.5,21.73) (16.0,22.91) (16.5,23.84) (17.0,24.59) (17.5,25.21) (18.0,25.76) (18.5,26.27) (19.0,26.78) (19.5,27.28) (20.0,27.78) (20.5,28.28) (21.0,28.78) (21.5,29.28) (22.0,29.78) (22.5,30.28) (23.0,30.78) (23.5,31.28) (24.0,31.78) (24.5,32.28) (25.0,32.78) (25.5,33.28) (26.0,33.78) (26.5,34.28) (27.0,34.78) (27.5,35.28) (28.0,35.78) (28.5,36.28) (29.0,36.78) (29.5,37.28) (30.0,37.78)};
+  \addplot[cBlue, thin, dotted, domain=6:17] {x + 7.78};
+  \node[font=\scriptsize, cBlue, anchor=north west] at (axis cs:27,33.5) {$\beta = 2$};
+}
+\only<3->{
+  \addplot[cOrange, thick] coordinates {(6.0,3.31) (6.5,3.60) (7.0,3.92) (7.5,4.27) (8.0,4.65) (8.5,5.07) (9.0,5.52) (9.5,6.02) (10.0,6.56) (10.5,7.16) (11.0,7.81) (11.5,8.53) (12.0,9.31) (12.5,10.18) (13.0,11.14) (13.5,12.19) (14.0,13.35) (14.5,14.63) (15.0,16.04) (15.5,17.59) (16.0,19.30) (16.5,21.16) (17.0,23.19) (17.5,25.35) (18.0,27.61) (18.5,29.86) (19.0,31.94) (19.5,33.69) (20.0,35.00) (20.5,35.94) (21.0,36.64) (21.5,37.21) (22.0,37.73) (22.5,38.24) (23.0,38.74) (23.5,39.24) (24.0,39.74) (24.5,40.24) (25.0,40.74) (25.5,41.24) (26.0,41.74) (26.5,42.24) (27.0,42.74) (27.5,43.24) (28.0,43.74) (28.5,44.24) (29.0,44.74) (29.5,45.24) (30.0,45.74)};
+  \addplot[cOrange, thin, dotted, domain=6:21] {x + 15.74};
+  \node[font=\scriptsize, cOrange, anchor=south east] at (axis cs:27,43.5) {$\beta = 5$};
+}
+\only<4->{
+  \addplot[only marks, mark=*, cBlue] coordinates {(17.78,25.56)};
+  \addplot[only marks, mark=*, cOrange] coordinates {(20.79,36.53)};
+  \draw[cBlue, dashed] (axis cs:17.78,0) -- (axis cs:17.78,25.56);
+  \draw[cOrange, dashed] (axis cs:20.79,0) -- (axis cs:20.79,36.53);
+  \node[font=\tiny, cBlue, anchor=south east] at (axis cs:17.7,0.5) {17,8};
+  \node[font=\tiny, cOrange, anchor=south west] at (axis cs:20.9,0.5) {20,8};
+}
+\only<5->{
+  \addplot[only marks, mark=o, mark size=3pt, cPurple] coordinates {(14.7,16.0)};
+  \node[nota=cPurple, anchor=north west] (nx) at (axis cs:6.5,44) {abaixo de 14,7\,dB\\$\beta = 2$ ganha};
+  \draw[setinha, cPurple] (nx.south) -- (axis cs:14.5,16.8);
+}
+\end{axis}
+\end{tikzpicture}
+
+\column{0.45\textwidth}
+\small\compacto
+Tom e Carson, curvas com o modelo de cliques.
+
+\vspace{0.2cm}
+\onslide<2->{Acima do joelho a curva segue a reta pontilhada $\tfrac32\beta^2\gamma$. Abaixo dele os cliques derrubam a SNR em poucos dB de $\gamma$.}
+
+\vspace{0.2cm}
+\onslide<3->{O $\beta = 5$ ganha 8\,dB a mais acima do limiar, mas o joelho anda para a direita.}
+
+\vspace{0.2cm}
+\onslide<4->{Joelhos em $\gamma_{\text{lim}} = 20(\beta + 1)$.}
+
+\vspace{0.2cm}
+\onslide<5->{Com pouca potência, mais banda piora o FM: o ganho do $\beta$ só vale acima do limiar.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Limiar: SNR no joelho}
+
+\small\compacto
+\begin{columns}[T]
+\column{0.5\textwidth}
+Acima do limiar vale $3\beta^2\,\dfrac{\overline{m^2}}{m_p^2}\,\gamma$. No joelho:
+\onslide<2->{
+\[
+\left(\frac{S}{N}\right)_{\text{lim}} = 3\beta^2\,\frac{\overline{m^2}}{m_p^2}\cdot \tikzmarknode{gl}{20(\beta + 1)}
+\]}%
+\par\vspace{0.6cm}%
+\anotacoes{\only<2->{
+  \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.25cm]gl.south) {$\gamma = \gamma_{\text{lim}}$};
+  \draw[setinha, cBlue] (a.north) -- (gl.south);
+}}%
+\onslide<3->{
+\[
+\boxed{\left(\frac{S}{N}\right)_{\text{lim}} = 60\,\beta^2(\beta + 1)\,\frac{\overline{m^2}}{m_p^2}}
+\]}%
+\onslide<4->{É a menor SNR de saída com o FM ainda funcionando bem.}
+
+\column{0.5\textwidth}
+\onslide<5->{Com tom, $\overline{m^2}/m_p^2 = \tfrac12$, e $\beta = 5$:
+\[
+30\,\beta^2(\beta + 1) = 30 \cdot 25 \cdot 6 = 4500 = 36{,}5\,\text{dB}
+\]}%
+\onslide<6->{Para projetar, a conta anda ao contrário: dada a potência recebida, $\gamma \ge 20(\beta + 1)$ dá o maior $\beta$ permitido.}
+
+\vspace{0.15cm}
+\onslide<7->{Aumentar $\beta$ melhora a SNR acima do limiar, mas sobe o limiar: mais banda pede mais potência.}
+
+\vspace{0.15cm}
+\onslide<8->{Demoduladores com PLL ou com realimentação de frequência rastreiam a fase com banda menor que $B_T$ e baixam o limiar alguns dB.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: o problema}
+
+\small
+\centering
+\begin{tikzpicture}[font=\scriptsize, >=Stealth,
+  blk/.style={rectangle, draw, rounded corners, minimum height=0.8cm, minimum width=1.9cm, align=center}]
+\node[blk] (est) {estúdio\\áudio $m(t)$};
+\node[blk, right=1.0cm of est] (tx) {transmissor\\FM};
+\node[blk, right=2.2cm of tx] (rx) {receptor FM\\a 290\,K};
+\node[blk, right=1.0cm of rx] (out) {ouvinte};
+\draw[->] (est) -- (tx);
+\draw[->, decorate, decoration={snake, amplitude=1.5pt, segment length=6pt, post length=2mm}] (tx) -- (rx)
+  node[midway, above=3pt] {canal};
+\draw[->] (rx) -- (out);
+\onslide<2->{\node[cBlue, below=0.15cm of est] {$W = 15$\,kHz};}
+\onslide<5->{\node[cOrange, below=0.15cm of tx] {$\beta = ?$};}
+\onslide<4->{\node[cRed, below=0.15cm of rx] {$N_0 = kT$};}
+\onslide<3->{\node[cGreen, below=0.15cm of out] {SNR $\ge 40$\,dB};}
+\end{tikzpicture}
+
+\vspace{0.4cm}
+\raggedright
+\begin{itemize}
+\item<2-> A mensagem é áudio de até 15\,kHz. Nas contas usamos um tom, como nos slides anteriores.
+\item<3-> O ouvinte precisa de pelo menos 40\,dB de SNR na saída do receptor.
+\item<4-> O receptor está a 290\,K e só tem ruído térmico: $N_0 = kT = -174$\,dBm/Hz.
+\item<5-> O projetista escolhe o índice $\beta$. Aumentar $\beta$ melhora a SNR, mas alarga a banda e sobe o limiar.
+\end{itemize}
+
+\vspace{0.2cm}
+\onslide<6->{\centering
+\fcolorbox{cPurple}{cPurple!8}{\parbox{0.8\textwidth}{\centering
+Qual $\beta$ atende ao ouvinte com a menor potência recebida $P_R$?\\
+Quanto valem essa potência e a banda $B_T$?}}}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: duas condições}
+
+\small\compacto
+\begin{columns}[T]
+\column{0.48\textwidth}
+Para cada $\beta$, qual o menor $\gamma$ que serve?
+
+\onslide<2->{Condição 1, a SNR do ouvinte:
+\[
+\frac32\beta^2\gamma \ge \tikzmarknode{qd}{10^4}
+\only<3->{\;\Rightarrow\; \gamma \ge \hl[cBlue]{\frac{10^4}{1{,}5\,\beta^2}}}
+\]}%
+\par\vspace{0.45cm}%
+\anotacoes{\only<2->{
+  \node[nota=cGreen, anchor=north] (q) at ([yshift=-0.2cm]qd.south) {40\,dB em escala linear};
+  \draw[setinha, cGreen] (q.north) -- (qd.south);
+}}%
+\onslide<4->{Condição 2, ficar acima do limiar:
+\[
+\gamma \ge \hl[cRed]{20(\beta + 1)}
+\]}%
+\onslide<5->{A condição 1 só vale com a 2 atendida: o $\gamma$ necessário é o maior dos dois.}
+
+\vspace{0.1cm}
+\onslide<7->{$\beta$ pequeno pede potência pela SNR; $\beta$ grande, pelo limiar. O ótimo é o cruzamento.}
+
+\column{0.52\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[scale only axis, width=5.4cm, height=4.0cm,
+             xmin=2, xmax=12, ymin=14, ymax=36, axis lines=left,
+             xlabel={$\beta$}, ylabel={$\gamma$ necessário [dB]},
+             xtick={2,4,6,8,10,12}, ytick={15,20,25,30,35},
+             tick label style={font=\tiny}, label style={font=\scriptsize},
+             grid=major, grid style={gray!20}, clip=false]
+\only<3->{
+  \addplot[cBlue, thick, domain=2:12, samples=60] {10*log10(1e4/(1.5*x^2))};
+  \node[font=\scriptsize, cBlue, anchor=south west] at (axis cs:2.2,32) {SNR de 40\,dB};
+}
+\only<4->{
+  \addplot[cRed, thick, domain=2:12, samples=60] {10*log10(20*(x+1))};
+  \node[font=\scriptsize, cRed, anchor=north east] at (axis cs:11.8,23.2) {limiar};
+}
+\only<6->{
+  \addplot[cGreen, line width=2.5pt, opacity=0.45, domain=2:6.616, samples=40] {10*log10(1e4/(1.5*x^2))};
+  \addplot[cGreen, line width=2.5pt, opacity=0.45, domain=6.616:12, samples=40] {10*log10(20*(x+1))};
+}
+\only<8->{
+  \addplot[only marks, mark=*, mark size=2.5pt, cPurple] coordinates {(6.62,21.83)};
+  \node[nota=cPurple, anchor=north] (nb) at (axis cs:6.62,18.6) {$\beta \approx 6{,}6$, $\gamma = 21{,}8$\,dB};
+  \draw[setinha, cPurple] (nb.north) -- (axis cs:6.62,21.6);
+}
+\end{axis}
+\end{tikzpicture}
+
+\vspace{0.1cm}
+\only<6->{Em verde, o $\gamma$ necessário para cada $\beta$.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: achando o $\beta$ do cruzamento}
+
+\small\compacto
+\begin{columns}[T]
+\column{0.5\textwidth}
+No cruzamento, as duas condições se igualam. Pondo o $\gamma = 20(\beta + 1)$ do limiar na condição da SNR:
+\onslide<2->{
+\[
+\frac32\beta^2 \cdot 20(\beta + 1) = 10^4
+\]}%
+\onslide<3->{
+\[
+\beta^2(\beta + 1) = \frac{10^4}{30} = \hl[cOrange]{333}
+\]}%
+\onslide<4->{É uma cúbica. Primeiro um chute: para $\beta$ grande, $\beta + 1 \approx \beta$:
+\[
+\beta^3 \approx 333 \;\Rightarrow\; \beta \approx \sqrt[3]{333} \only<5->{\approx 6{,}9}
+\]}%
+\onslide<6->{Como $\beta + 1 > \beta$, o chute passa um pouco do valor certo: o $\beta$ verdadeiro fica abaixo de 6,9.}
+
+\column{0.5\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[scale only axis, width=5.2cm, height=4.4cm,
+             xmin=5.8, xmax=7.2, ymin=230, ymax=410, axis lines=left,
+             xlabel={$\beta$}, ylabel={$\beta^2(\beta + 1)$},
+             xtick={6,6.5,7}, ytick={250,300,350,400},
+             xticklabel style={/pgf/number format/use comma},
+             tick label style={font=\tiny}, label style={font=\scriptsize},
+             grid=major, grid style={gray!20}, clip=false]
+\only<3->{
+  \addplot[cBlue, thick, domain=5.8:7.2, samples=40] {x^2*(x+1)};
+  \addplot[cOrange, dashed, domain=5.8:7.2] {333};
+  \node[font=\scriptsize, cOrange, anchor=south west] at (axis cs:5.82,335) {333};
+}
+\only<5->{
+  \draw[cRed, dashed] (axis cs:6.93,230) -- (axis cs:6.93,410);
+  \node[nota=cRed, anchor=north east] (nc) at (axis cs:6.85,400) {chute: 6,9};
+  \draw[setinha, cRed] (nc.east) -- (axis cs:6.93,390);
+}
+\only<6->{
+  \addplot[only marks, mark=*, mark size=2.2pt, cRed] coordinates {(6.93,381.9)};
+  \node[font=\tiny, cRed, anchor=west] at (axis cs:6.95,378) {381 > 333};
+}
+\end{axis}
+\end{tikzpicture}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: iterando o chute}
+
+\small\compacto
+\begin{columns}[T]
+\column{0.52\textwidth}
+Pondo $\beta^3$ em evidência, aparece o termo que o chute desprezou:
+\[
+\beta^2(\beta + 1) = \beta^3\,\tikzmarknode{cr}{\Bigl(1 + \frac{1}{\beta}\Bigr)} = 333
+\]
+\par\vspace{0.45cm}%
+\anotacoes{\only<2->{
+  \node[nota=cRed, anchor=west] (a) at ([xshift=1.4cm,yshift=-0.3cm]cr.east) {o chute fez $= 1$};
+  \draw[setinha, cRed] (a.west) -- (cr.south east);
+}}%
+\onslide<3->{Isolando $\beta$, ele fica dos dois lados. \only<4->{O valor atual, à direita, gera o próximo:}
+\[
+\only<3>{\beta = \sqrt[3]{\frac{333}{1 + 1/\beta}}}
+\only<4->{\boxed{\beta_{k+1} = \sqrt[3]{\frac{333}{1 + 1/\beta_k}}}}
+\]}%
+
+\column{0.48\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[scale only axis, width=5.0cm, height=4.4cm,
+             xmin=5.8, xmax=7.2, ymin=230, ymax=410, axis lines=left,
+             xlabel={$\beta$}, ylabel={$\beta^2(\beta + 1)$},
+             xtick={6,6.5,7}, ytick={250,300,350,400},
+             xticklabel style={/pgf/number format/use comma},
+             tick label style={font=\tiny}, label style={font=\scriptsize},
+             grid=major, grid style={gray!20}, clip=false]
+  \addplot[cBlue, thick, domain=5.8:7.2, samples=40] {x^2*(x+1)};
+  \addplot[cOrange, dashed, domain=5.8:7.2] {333};
+  \node[font=\scriptsize, cOrange, anchor=south west] at (axis cs:5.82,335) {333};
+  \addplot[only marks, mark=*, mark size=2pt, cRed] coordinates {(6.93,380.8)};
+  \node[font=\tiny, cRed, anchor=west] at (axis cs:6.96,380.8) {$\beta_0$};
+\end{axis}
+\end{tikzpicture}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: as iterações}
+
+\small\compacto
+\begin{columns}[T]
+\column{0.52\textwidth}
+Partimos do chute, $\beta_0 = 6{,}93$.
+
+\onslide<2->{Primeira iteração:
+\[
+\beta_1 = \sqrt[3]{\frac{333}{1 + 1/6{,}93}} = \sqrt[3]{\frac{333}{1{,}144}} = \sqrt[3]{291} = 6{,}63
+\]}%
+\onslide<3->{
+\vspace{0.1cm}
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{cccc}
+\toprule
+$k$ & $\beta_k$ & $1 + 1/\beta_k$ & $\beta_{k+1}$ \\
+\midrule
+0 & 6,93 & 1,144 & 6,63 \\
+1 & 6,63 & 1,151 & 6,61 \\
+\onslide<4->{2 & 6,61 & 1,151 & 6,61} \\
+\bottomrule
+\end{tabular}\par}
+
+\vspace{0.1cm}\raggedright
+\onslide<5->{Na segunda iteração o valor para de mudar: $\beta \approx 6{,}6$.}
+
+\column{0.48\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[scale only axis, width=5.0cm, height=4.4cm,
+             xmin=5.8, xmax=7.2, ymin=230, ymax=410, axis lines=left,
+             xlabel={$\beta$}, ylabel={$\beta^2(\beta + 1)$},
+             xtick={6,6.5,7}, ytick={250,300,350,400},
+             xticklabel style={/pgf/number format/use comma},
+             tick label style={font=\tiny}, label style={font=\scriptsize},
+             grid=major, grid style={gray!20}, clip=false]
+  \addplot[cBlue, thick, domain=5.8:7.2, samples=40] {x^2*(x+1)};
+  \addplot[cOrange, dashed, domain=5.8:7.2] {333};
+  \node[font=\scriptsize, cOrange, anchor=south west] at (axis cs:5.82,335) {333};
+  \addplot[only marks, mark=*, mark size=2pt, cRed] coordinates {(6.93,380.8)};
+  \node[font=\tiny, cRed, anchor=west] at (axis cs:6.96,380.8) {$\beta_0$};
+\only<3->{
+  \draw[->, cPurple, thick] (axis cs:6.91,378) -- (axis cs:6.65,337);
+  \addplot[only marks, mark=*, mark size=2pt, cPurple] coordinates {(6.627,334.9)};
+  \node[font=\tiny, cPurple, anchor=north west] at (axis cs:6.64,331) {$\beta_1$};
+}
+\only<4->{
+  \addplot[only marks, mark=*, mark size=2.5pt, cGreen] coordinates {(6.614,333.1)};
+  \draw[cGreen, dashed] (axis cs:6.614,230) -- (axis cs:6.614,333.1);
+  \node[nota=cGreen, anchor=north west] (nb) at (axis cs:6.7,295) {$\beta \approx 6{,}6$};
+  \draw[setinha, cGreen] (nb.west) -- (axis cs:6.63,315);
+}
+\end{axis}
+\end{tikzpicture}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: a escolha de $\beta$}
+
+\small\compacto
+\begin{columns}[T]
+\column{0.5\textwidth}
+Com $\beta = 6{,}6$, o limiar dá
+\[
+\gamma = 20(\beta + 1) = 20 \times 7{,}6 = 152 = \hl[cBlue]{21{,}8\,\text{dB}}
+\]
+
+
+\onslide<2->{Receptor a 290\,K, $N_0 = kT = -174$\,dBm/Hz, e $10\log_{10}15000 = 41{,}8$. Como $P_R = \gamma N_0W$, em dB tudo se soma:}
+\onslide<3->{
+\[
+P_R = 21{,}8 - 174 + 41{,}8 = \hl[cGreen]{-110{,}4\,\text{dBm}}
+\]}
+
+\column{0.5\textwidth}
+\onslide<4->{Comparando três escolhas, $B_T = 2(\beta + 1)W$:
+
+\vspace{0.1cm}
+\centering
+\begin{tabular}{cccc}
+\toprule
+$\beta$ & $B_T$ & $\gamma$ & $P_R$ \\
+\midrule
+5 & 180\,kHz & \textcolor{cBlue}{24,3\,dB} & $-107{,}9$\,dBm \\
+\onslide<5->{6,6 & 228\,kHz & \textcolor{cGreen}{21,8\,dB} & \textcolor{cGreen}{$-110{,}4$\,dBm}} \\
+\onslide<6->{10 & 330\,kHz & \textcolor{cRed}{23,4\,dB} & $-108{,}8$\,dBm} \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.05cm}
+{\scriptsize\textcolor{cBlue}{azul: manda a SNR}\quad \textcolor{cRed}{vermelho: manda o limiar}}}
+
+\vspace{0.25cm}\raggedright
+\onslide<7->{Com $\beta = 10$ a SNR sairia 45\,dB, acima do pedido, mas o limiar cobra 1,6\,dB a mais de potência que $\beta = 6{,}6$.}
+
+\vspace{0.15cm}
+\onslide<8->{A potência recebida fixa o limiar, e o limiar fixa o maior $\beta$ que vale a pena usar.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\section{Pré-ênfase e pós-ênfase}
+
+\begin{frame}{O ruído do FM mora nos agudos}
+
+\begin{columns}[T]
+\column{0.55\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[espec, width=5.6cm, height=3.6cm, xmin=0, xmax=17, ymax=1.25,
+             xlabel={$f$ [kHz]}, ylabel={PSD}, ytick=\empty,
+             xtick={2.1,15}, xticklabels={$f_0$,$W$}]
+  \only<1->{
+    \addplot[cRed, thick, domain=0:15, samples=60] {x^2/225};
+    \node[cRed, font=\scriptsize, anchor=south east] at (axis cs:14.8,1.02) {ruído $\propto f^2$};
+  }
+  \only<2->{
+    \addplot[cBlue, thick, domain=0:15, samples=80] {1/(1+(x/2.1)^2)};
+    \node[cBlue, font=\scriptsize, anchor=west] at (axis cs:2.3,0.55) {áudio};
+  }
+  \only<3->{
+    \fill[cRed, opacity=0.15] (axis cs:8,0) rectangle (axis cs:15,1);
+    \node[nota=cRed, anchor=north] at (axis cs:11.5,0.85) {agudos:\\pouco sinal,\\muito ruído};
+  }
+  \draw[gray, dashed] (axis cs:15,0) -- (axis cs:15,1.1);
+\end{axis}
+\end{tikzpicture}
+
+\column{0.45\textwidth}
+\small
+A PSD do ruído depois do discriminador cresce com $f^2$: quase nada perto de $f = 0$ e o máximo em $f = W$.
+
+\vspace{0.2cm}
+\onslide<2->{O áudio faz o contrário: a energia de voz e música fica nos graves e cai acima de uns 2\,kHz.}
+
+\vspace{0.2cm}
+\onslide<3->{Nos agudos o sinal é fraco justo onde o ruído é forte.}
+
+\vspace{0.2cm}
+\onslide<4->{A ideia: reforçar os agudos da mensagem antes de modular e atenuá-los de volta depois de demodular. O sinal sai igual; o ruído dos agudos é atenuado.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Os dois filtros}
+
+\small\compacto
+\centering
+\begin{tikzpicture}[font=\scriptsize, >=Stealth,
+  blk/.style={rectangle, draw, rounded corners, minimum height=0.7cm, minimum width=1.3cm, align=center}]
+\node (m) {$m(t)$};
+\node[blk, right=0.4cm of m, draw=cBlue, text=cBlue] (pe) {pré-ênfase\\$H_{pe}(f)$};
+\node[blk, right=0.4cm of pe] (mod) {modulador\\FM};
+\node[blk, right=0.9cm of mod] (dem) {receptor\\FM};
+\node[blk, right=0.4cm of dem, draw=cRed, text=cRed] (de) {pós-ênfase\\$H_{de}(f)$};
+\node[right=0.4cm of de] (y) {$y(t)$};
+\draw[->] (m) -- (pe); \draw[->] (pe) -- (mod);
+\draw[->] (mod) -- node[above] {canal} (dem);
+\node[cRed, below=0.15cm of $(mod.east)!0.5!(dem.west)$] {$+\,n(t)$};
+\draw[->] (dem) -- (de); \draw[->] (de) -- (y);
+\end{tikzpicture}
+
+\vspace{0.2cm}
+\raggedright
+\begin{columns}[T]
+\column{0.5\textwidth}
+\onslide<2->{Pré-ênfase, um passa-altas suave:
+\[
+H_{pe}(f) = 1 + j\,\frac{f}{f_0}
+\]}%
+\onslide<3->{Pós-ênfase, o inverso, um passa-baixas $RC$:
+\[
+H_{de}(f) = \frac{1}{1 + j f/f_0}
+\]}%
+\onslide<4->{
+\[
+H_{pe}(f)\,H_{de}(f) = \hl[cGreen]{1}
+\]}%
+\onslide<4->{A mensagem passa pelos dois e sai intacta.}
+
+\column{0.5\textwidth}
+\onslide<5->{O ruído entra depois da pré-ênfase: só passa pela pós-ênfase.}
+
+\vspace{0.2cm}
+\onslide<6->{Rádio FM: constante de tempo $\tau = RC = 75\,\mu$s.
+\[
+f_0 = \frac{1}{2\pi\tau}
+\only<7->{= \frac{1}{2\pi \cdot 75\times 10^{-6}}}
+\only<8->{= \hl[cBlue]{2{,}1\,\text{kHz}}}
+\]}%
+\onslide<9->{Abaixo de $f_0$ os filtros quase não mexem; acima, a pré-ênfase sobe 6\,dB por oitava.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Ruído depois da pós-ênfase}
+
+\begin{columns}[T]
+\column{0.5\textwidth}
+\small\compacto
+Sem pós-ênfase, a PSD do ruído é a parábola:
+\[
+S_n(f) = \frac{N_0}{A_c^2}\,f^2
+\]
+\onslide<2->{A pós-ênfase multiplica a PSD por $|H_{de}(f)|^2$:
+\[
+|H_{de}(f)|^2 = \tikzmarknode{hd}{\frac{1}{1 + (f/f_0)^2}}
+\]}%
+\par\vspace{0.45cm}%
+\anotacoes{\only<3->{
+  \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.15cm]hd.south) {$|1 + jx|^2 = 1 + x^2$};
+  \draw[setinha, cBlue] (a.north) -- (hd.south);
+}}%
+\onslide<4->{
+\[
+S_{de}(f) = \frac{N_0}{A_c^2}\,\frac{f^2}{1 + (f/f_0)^2}
+\]}
+
+\column{0.5\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[scale only axis, width=5.0cm, height=3.5cm, xmode=log, ymode=log,
+             xmin=0.2, xmax=15, ymin=0.03, ymax=300, axis lines=left,
+             xlabel={$f$ [kHz]}, ylabel={PSD do ruído}, ylabel style={yshift=0.15cm},
+             xtick={0.5,2.1,15}, ytick=\empty,
+             xticklabels={$0{,}5$,$f_0$,$W$},
+             tick label style={font=\tiny}, label style={font=\scriptsize},
+             grid=major, grid style={gray!20}, clip=false]
+  \addplot[cRed, thick, domain=0.2:15, samples=60] {x^2};
+  \node[cRed, font=\scriptsize, anchor=south east] at (axis cs:12,180) {sem pós-ênfase};
+  \only<4->{
+    \addplot[cGreen, thick, domain=0.2:15, samples=60] {x^2/(1+(x/2.1)^2)};
+    \node[cGreen, font=\scriptsize, anchor=north east] at (axis cs:14,3.3) {com pós-ênfase};
+  }
+  \only<5->{
+    \addplot[gray, dashed, domain=0.2:15] {2.1^2};
+    \node[gray, font=\tiny, anchor=north west] at (axis cs:0.22,4.2) {patamar $f_0^2$};
+  }
+\end{axis}
+\end{tikzpicture}
+
+\vspace{0.1cm}\small
+\only<5->{Abaixo de $f_0$ nada muda. Acima, o $f^2$ se cancela e a parábola vira o patamar $f_0^2$.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Potência do ruído com pós-ênfase}
+
+\small\compacto
+O passa-baixas de banda $W$ integra a PSD com pós-ênfase:
+\[
+N_{de} = \frac{N_0}{A_c^2}\int_{-W}^{W} \tikzmarknode{ig}{\frac{f^2}{1 + (f/f_0)^2}}\,df
+\]
+\par\vspace{0.35cm}%
+\anotacoes{\only<2->{
+  \node[nota=cOrange, anchor=west] (a) at ([xshift=1.0cm,yshift=-0.3cm]ig.east) {para integrar, separa o integrando};
+  \draw[setinha, cOrange] (a.west) -- (ig.east);
+}}%
+\onslide<3->{Tirando $f_0^2$, e somando e subtraindo 1 no numerador:
+\[
+\frac{f^2}{1 + (f/f_0)^2} = f_0^2\,\frac{\tikzmarknode{nm}{(f/f_0)^2 + 1 - 1}}{1 + (f/f_0)^2}
+\]}%
+\par\vspace{0.35cm}%
+\anotacoes{\only<4->{
+  \node[nota=cBlue, anchor=west] (b) at ([xshift=1.6cm,yshift=0.1cm]nm.east) {o $+1$ completa o denominador};
+  \draw[setinha, cBlue] (b.west) -- (nm.east);
+}}%
+\onslide<5->{
+\[
+= f_0^2\Bigl[\,\tikzmarknode{um}{1} - \tikzmarknode{fr}{\frac{1}{1 + (f/f_0)^2}}\,\Bigr]
+\]}%
+\par\vspace{0.35cm}%
+\anotacoes{\only<6->{
+  \node[nota=cGreen, anchor=north east] (c) at ([xshift=-0.4cm,yshift=-0.2cm]um.south) {constante};
+  \draw[setinha, cGreen] (c.north east) -- (um.south);
+  \node[nota=cRed, anchor=north west] (d) at ([xshift=0.4cm,yshift=-0.2cm]fr.south) {integral do arco tangente};
+  \draw[setinha, cRed] (d.north west) -- (fr.south);
+}}%
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Resolvendo a integral}
+
+\small\compacto
+\[
+\int_{-W}^{W} \frac{f^2}{1 + (f/f_0)^2}\,df = \int_{-W}^{W} f_0^2\,df - f_0^2\int_{-W}^{W}\frac{df}{1 + (f/f_0)^2}
+\]
+\begin{columns}[T]
+\column{0.5\textwidth}
+\onslide<2->{Primeira parte: $\displaystyle\int_{-W}^{W} f_0^2\,df = 2f_0^2W$.}
+
+\vspace{0.15cm}
+\onslide<3->{Segunda parte, com $u = f/f_0$ e $df = f_0\,du$:
+\[
+f_0^2 \cdot f_0\tikzmarknode{at}{\int_{-W/f_0}^{W/f_0}\frac{du}{1 + u^2}}
+\]}%
+\par\vspace{0.5cm}%
+\anotacoes{\only<4->{
+  \node[nota=cBlue, anchor=north] (b) at ([yshift=-0.2cm]at.south) {$= 2\arctan(W/f_0)$};
+  \draw[setinha, cBlue] (b.north) -- (at.south);
+}}%
+
+\column{0.5\textwidth}
+\onslide<5->{Juntando:
+\[
+2f_0^2W - 2f_0^3\arctan\frac{W}{f_0}
+\]}%
+\onslide<6->{Com $2f_0^3$ em evidência e $r = W/f_0$:
+\[
+= 2f_0^3\,(r - \arctan r)
+\]}%
+\onslide<7->{
+\[
+\boxed{N_{de} = \frac{2N_0 f_0^3}{A_c^2}\,(r - \arctan r)}
+\]}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Ganho da pré e pós-ênfase}
+
+\small\compacto
+O sinal sai igual, então o ganho de SNR é a razão entre os ruídos:
+\[
+G = \frac{N_o}{N_{de}}
+\only<2->{= \frac{\tikzmarknode{no}{2N_0W^3/(3A_c^2)}}{2N_0f_0^3\,(r - \arctan r)/A_c^2}}
+\]
+\par\vspace{0.5cm}%
+\anotacoes{\only<2->{
+  \node[nota=cRed, anchor=west] (a) at ([xshift=2.6cm,yshift=0.3cm]no.east) {$N_o$: a parábola inteira};
+  \draw[setinha, cRed] (a.west) -- (no.east);
+}}%
+\onslide<3->{Cortando $2N_0/A_c^2$ e usando $W^3/f_0^3 = r^3$:
+\[
+\boxed{G = \frac{r^3/3}{r - \arctan r}}, \qquad r = \frac{W}{f_0}
+\]}%
+\begin{columns}[T]
+\column{0.5\textwidth}
+\onslide<4->{Para $r$ grande, $\arctan r \to \pi/2$ é pequeno perto de $r$:
+\[
+G \approx \frac{r^2}{3}
+\]}%
+\onslide<5->{O ganho cresce com o quadrado de $W/f_0$.}
+
+\column{0.5\textwidth}
+\onslide<6->{O preço: a pré-ênfase reforça os agudos e pode aumentar o desvio de pico. Como o áudio tem pouca energia acima de $f_0$, o desvio quase não muda e $\beta$ fica o mesmo.}
+\end{columns}
+
+\end{frame}
+
+% ============================================
+
+\begin{frame}{Exemplo: rádio FM}
+
+\small\compacto
+\begin{columns}[T]
+\column{0.5\textwidth}
+$\tau = 75\,\mu$s, $W = 15$\,kHz e $\beta = 5$.
+
+\onslide<2->{
+\[
+r = \frac{W}{f_0} = \frac{15000}{2122} = 7{,}07
+\]}%
+\onslide<3->{
+\[
+\frac{r^3}{3} = \frac{353{,}2}{3} = 117{,}7
+\]}%
+\onslide<4->{
+\[
+r - \tikzmarknode{at}{\arctan r} = 7{,}07 - 1{,}43 = 5{,}64
+\]}%
+\par\vspace{0.45cm}%
+\anotacoes{\only<4->{
+  \node[nota=cBlue, anchor=north] (a) at ([yshift=-0.2cm]at.south) {em radianos};
+  \draw[setinha, cBlue] (a.north) -- (at.south);
+}}%
+\onslide<5->{
+\[
+G = \frac{117{,}7}{5{,}64} = 20{,}9 = \hl[cGreen]{13{,}2\,\text{dB}}
+\]}
+
+\column{0.5\textwidth}
+\onslide<6->{Somando os ganhos sobre $\gamma$, em dB:
+
+\vspace{0.15cm}
+\centering
+\begin{tabular}{lr}
+\toprule
+FM com tom, $\tfrac32\beta^2 = 37{,}5$ & 15,7\,dB \\
+\onslide<7->{pré e pós-ênfase, $G$ & 13,2\,dB} \\
+\midrule
+\onslide<8->{\textbf{total} & \textbf{28,9\,dB}} \\
+\bottomrule
+\end{tabular}\par}
+
+\vspace{0.3cm}\raggedright
+\onslide<9->{Os 13\,dB vêm de graça: nem banda nem potência a mais, só dois filtros $RC$.}
+
+\vspace{0.15cm}
+\onslide<10->{O mesmo par de filtros aparece em discos de vinil e fitas, onde o ruído também se concentra nos agudos.}
 \end{columns}
 
 \end{frame}
